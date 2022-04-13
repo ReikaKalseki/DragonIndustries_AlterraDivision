@@ -15,6 +15,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly Dictionary<string, string> data = new Dictionary<string, string>();
 		private static readonly Dictionary<string, string> inverse;
+		private static readonly Dictionary<string, string> shortName = new Dictionary<string, string>();
 		
 		static PrefabData() {
 			data["0001c04a-5bb4-4fb9-adb4-fcc7e3de308c"] = "WorldEntities/Slots/Ship/Loot_ShipInterior_AuxPowerRoom1";
@@ -3341,6 +3342,10 @@ namespace ReikaKalseki.DIAlterra
 			data["fff7ee12-c75d-48bd-a6e0-8fb4856cd1ab"] = "WorldEntities/Atmosphere/UnderwaterIslands/Cave";
 			
 			inverse = (data as IEnumerable<KeyValuePair<string, string>>).ToDictionary(e => e.Value, e => e.Key);
+			foreach (KeyValuePair<string, string> kvp in data) {
+				string sh = kvp.Value.Substring(kvp.Value.LastIndexOf('/')+1);
+				shortName[sh] = kvp.Key;
+			}
 		}
 		
 		public static string getPrefab(string id) {
@@ -3349,6 +3354,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static string getPrefabID(string name) {
 			return inverse[name];
+		}
+		
+		public static string getPrefabIDByShortName(string name) {
+			return shortName.ContainsKey(name) ? shortName[name] : null;
 		}
 		
 	}
