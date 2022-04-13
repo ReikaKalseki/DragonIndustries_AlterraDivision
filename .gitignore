@@ -35,3 +35,7 @@ $RECYCLE.BIN/
 *.pdn
 *.dll
 *.sln
+*.Settings
+
+obj/*
+bin/*
