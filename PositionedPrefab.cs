@@ -41,5 +41,36 @@ namespace ReikaKalseki.DIAlterra
 		public Quaternion getRotation() {
 			return new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
 		}
+			
+		internal virtual XmlElement asXML(XmlDocument doc) {
+			XmlElement n = doc.CreateElement("object");
+			n.addProperty("prefab", prefabName);
+			n.addProperty("position", position);
+			XmlElement rot = n.addProperty("rotation", rotation.eulerAngles);
+			rot.addProperty("quaternion", rotation);
+			return n;
+		}
+			
+		public override string ToString() {
+			return prefabName+" @ "+position+" / "+rotation.eulerAngles;
+		}
+		
+		public static PositionedPrefab fromXML(XmlElement e) {
+			string pfb = e.getProperty("prefab");
+			if (pfb != null) {
+				XmlElement elem;
+				Vector3 pos = e.getVector("position");
+				Vector3 rot = e.getVector("rotation", out elem);
+				Quaternion? quat = elem.getQuaternion("quaternion", true);
+				if (quat == null || !quat.HasValue) {
+					quat = Quaternion.Euler(rot.x, rot.y, rot.y);
+				}
+				return new PositionedPrefab(pfb, pos, quat);
+			}
+			else {
+				SBUtil.writeToChat("Could not load XML block, no prefab: "+e.InnerText);
+				return null;
+			}
+		}
 	}
 }
