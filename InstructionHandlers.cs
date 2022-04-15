@@ -160,14 +160,14 @@ namespace ReikaKalseki.DIAlterra
 			//FileLog.Log("Comparing "+insn.operand.GetType()+" "+insn.operand.ToString()+" against seek of "+String.Join(",", args.Select(p=>p.ToString()).ToArray()));
 			if (insn.opcode == OpCodes.Call || insn.opcode == OpCodes.Callvirt) { //string class, string name, bool instance, Type[] args
 				MethodInfo info = convertMethodOperand((string)args[0], (string)args[1], (bool)args[2], (Type[])args[3]);
-				return insn.operand == info;
+				return ((MethodInfo)insn.operand) == info;
 			}
 			else if (insn.opcode == OpCodes.Isinst || insn.opcode == OpCodes.Newobj) { //string class
-				return insn.operand == AccessTools.TypeByName((string)args[0]);
+				return ((Type)insn.operand) == AccessTools.TypeByName((string)args[0]);
 			}
 			else if (insn.opcode == OpCodes.Ldfld || insn.opcode == OpCodes.Stfld || insn.opcode == OpCodes.Ldsfld || insn.opcode == OpCodes.Stsfld) { //string class, string name
 				FieldInfo info = convertFieldOperand((string)args[0], (string)args[1]);
-				return insn.operand == info;
+				return ((FieldInfo)insn.operand) == info;
 			}
 			else if (insn.opcode == OpCodes.Ldarg) { //int pos
 				return insn.operand == args[0];
