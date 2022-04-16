@@ -12,9 +12,16 @@ namespace ReikaKalseki.DIAlterra
 	public abstract class CustomEquipable : Equipable {
 		
 		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
+		public readonly string id;
 		
 		protected CustomEquipable(string id, string name, string desc) : base(id, name, desc) {
-
+			this.id = id;
+		}
+		
+		public TechType getTechType() {
+			TechType tech = TechType.None;
+			TechTypeHandler.TryGetModdedTechType(id, out tech);
+			return tech;
 		}
 		
 		public CustomEquipable addIngredient(TechType item, int amt) {

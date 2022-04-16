@@ -22,6 +22,8 @@ namespace ReikaKalseki.DIAlterra
 		internal Vector3 position;
 		[SerializeField]
 		internal Quaternion rotation;
+		[SerializeField]
+		internal Vector3 scale = Vector3.one;
 		
 		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null)
 		{
@@ -41,6 +43,10 @@ namespace ReikaKalseki.DIAlterra
 		public Quaternion getRotation() {
 			return new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
 		}
+		
+		public Vector3 getScale() {
+			return new Vector3(scale.x, scale.y, scale.z);
+		}
 			
 		internal virtual XmlElement asXML(XmlDocument doc) {
 			XmlElement n = doc.CreateElement("object");
@@ -48,6 +54,7 @@ namespace ReikaKalseki.DIAlterra
 			n.addProperty("position", position);
 			XmlElement rot = n.addProperty("rotation", rotation.eulerAngles);
 			rot.addProperty("quaternion", rotation);
+			n.addProperty("scale", scale);
 			return n;
 		}
 			
@@ -65,7 +72,13 @@ namespace ReikaKalseki.DIAlterra
 				if (quat == null || !quat.HasValue) {
 					quat = Quaternion.Euler(rot.x, rot.y, rot.y);
 				}
-				return new PositionedPrefab(pfb, pos, quat);
+				PositionedPrefab ret = new PositionedPrefab(pfb, pos, quat);
+				List<XmlElement> li = e.getDirectElementsByTagName("scale");
+				if (li.Count == 1) {
+					Vector3 sc = e.getVector("scale");
+					ret.scale = sc;
+				}
+				return ret;
 			}
 			else {
 				SBUtil.writeToChat("Could not load XML block, no prefab: "+e.InnerText);
