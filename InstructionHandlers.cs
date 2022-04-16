@@ -193,5 +193,14 @@ namespace ReikaKalseki.DIAlterra
 		internal static string toString(CodeInstruction ci) {
 			return ci.opcode.Name+" "+(ci.operand != null ? ci.operand.ToString() : "<null>");
 		}
+		
+	    public static Type getTypeBySimpleName(string name) {
+	        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Reverse()) {
+	            Type tt = assembly.GetType(name);
+	            if (tt != null)
+	                return tt;
+	        }	
+	        return null;
+	    }
 	}
 }
