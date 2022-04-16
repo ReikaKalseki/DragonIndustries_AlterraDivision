@@ -35,6 +35,7 @@ namespace ReikaKalseki.DIAlterra
 			prefabName = pfb.prefabName;
 			position = pfb.position;
 			rotation = pfb.rotation;
+			scale = pfb.scale;
 		}
 		
 		public string getPrefab() {

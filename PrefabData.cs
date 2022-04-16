@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public static class PrefabData { //TODO make enum
+	public static class PrefabData { //TODO make prefab list an enum?
 		
 		private static readonly Dictionary<string, string> data = new Dictionary<string, string>();
 		private static readonly Dictionary<string, string> inverse;
