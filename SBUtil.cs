@@ -81,6 +81,14 @@ namespace ReikaKalseki.DIAlterra
 	    		log("NO SUCH ITEM TO DROP: "+name);
 	    	}
 		}
+		/*
+		public static System.Collections.IEnumerator getPrefab(string id, out GameObject pfb) {
+		    UWE.IPrefabRequest request = UWE.PrefabDatabase.GetPrefabAsync(id);
+		    yield return request;
+		    GameObject original;
+		    request.TryGetPrefab(out original);
+		    pfb = original;
+		}*/
 		
 	}
 }

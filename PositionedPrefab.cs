@@ -1,6 +1,4 @@
 ﻿using System;
-
-using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -30,6 +28,13 @@ namespace ReikaKalseki.DIAlterra
 			prefabName = pfb;
 			position = GenUtil.getOrZero(pos);
 			rotation = GenUtil.getOrIdentity(rot);
+		}
+		
+		public PositionedPrefab(PositionedPrefab pfb)
+		{
+			prefabName = pfb.prefabName;
+			position = pfb.position;
+			rotation = pfb.rotation;
 		}
 		
 		public string getPrefab() {
