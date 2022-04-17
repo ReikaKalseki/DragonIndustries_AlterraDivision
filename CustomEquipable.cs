@@ -17,12 +17,12 @@ namespace ReikaKalseki.DIAlterra
 		protected CustomEquipable(string id, string name, string desc) : base(id, name, desc) {
 			this.id = id;
 		}
-		
+		/*
 		public TechType getTechType() {
 			TechType tech = TechType.None;
 			TechTypeHandler.TryGetModdedTechType(id, out tech);
 			return tech;
-		}
+		}*/
 		
 		public CustomEquipable addIngredient(TechType item, int amt) {
 			if (recipe.ContainsKey(item))
@@ -38,20 +38,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public override sealed GameObject GetGameObject()
-		{
-			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(Resources.Load<GameObject>(getTemplatePrefab()));
-			TechTag component = gameObject.GetComponent<TechTag>();
-			UniqueIdentifier component2 = gameObject.GetComponent<PrefabIdentifier>();
-			component.type = TechType;
-			component2.ClassId = ClassID;
-			return gameObject;
+		public override sealed GameObject GetGameObject() {
+			return SBUtil.getItemGO(this, getTemplatePrefab());
 		}
 		
 		protected abstract string getTemplatePrefab();
 		
-		protected override sealed TechData GetBlueprintRecipe()
-		{
+		protected override sealed TechData GetBlueprintRecipe() {
 			return new TechData
 			{
 				Ingredients = new List<Ingredient>(recipe.Values),

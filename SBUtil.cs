@@ -3,6 +3,7 @@ using System.Reflection;
 
 using System.Collections.Generic;
 using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Assets;
 
 using UnityEngine;
 
@@ -141,6 +142,86 @@ namespace ReikaKalseki.DIAlterra
 		    request.TryGetPrefab(out original);
 		    pfb = original;
 		}*/
+		
+		public static GameObject getItemGO(Craftable item, string template) {
+			GameObject prefab = Resources.Load<GameObject>(template);
+			if (prefab == null)
+				throw new Exception("Null prefab result during item '"+template+"' lookup");
+			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab);
+			if (gameObject == null)
+				throw new Exception("Null item result during item '"+template+"' build");
+			TechTag component = gameObject.EnsureComponent<TechTag>();
+			UniqueIdentifier component2 = gameObject.EnsureComponent<PrefabIdentifier>();
+			if (component == null)
+				throw new Exception("Null techtag result during item '"+template+"' repopulate");
+			if (component2 == null)
+				throw new Exception("Null UID result during item '"+template+"' repopulate");
+			component.type = item.TechType;
+			component2.ClassId = item.ClassID;
+			return gameObject;
+		}
+    
+	    public static void setCrateItem(SupplyCrate c, TechType item) {
+			PrefabPlaceholdersGroup pre = c.gameObject.GetComponentInParent<PrefabPlaceholdersGroup>();
+			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
+	    }
+		
+		public static CraftNode getRootNode(CraftTree.Type type) {
+			switch(type) {
+				case CraftTree.Type.Fabricator:
+					return CraftTree.FabricatorScheme();
+				case CraftTree.Type.Constructor:
+					return CraftTree.ConstructorScheme();
+				case CraftTree.Type.Workbench:
+					return CraftTree.WorkbenchScheme();
+				case CraftTree.Type.SeamothUpgrades:
+					return CraftTree.SeamothUpgradesScheme();
+				case CraftTree.Type.MapRoom:
+					return CraftTree.MapRoomSheme();
+				case CraftTree.Type.Centrifuge:
+					return CraftTree.CentrifugeScheme();
+				case CraftTree.Type.CyclopsFabricator:
+					return CraftTree.CyclopsFabricatorScheme();
+				case CraftTree.Type.Rocket:
+					return CraftTree.RocketScheme();
+			}
+			return null;
+		}
+		
+		public static void dumpCraftTree(CraftTree.Type type) {
+			log("Tree "+type+":");
+			CraftNode root = getRootNode(type);
+			dumpCraftTreeFromNode(root);
+		}
+		
+		public static void dumpCraftTreeFromNode(CraftNode root) {
+			dumpCraftTreeFromNode(root, new List<string>());
+		}
+		
+		private static void dumpCraftTreeFromNode(CraftNode root, List<string> prefix) {
+			if (root == null) {
+				log(string.Join("/", prefix)+" -> null @ root");
+				return;
+			}
+			List<TreeNode> nodes = root.nodes;
+			for (int i = 0; i < nodes.Count; i++) {
+				TreeNode node = nodes[i];
+				if (node == null) {
+					log(string.Join("/", prefix)+" -> null @ "+i);
+				}
+				else {
+					try {
+						log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id);
+						prefix.Add(node.id);
+						dumpCraftTreeFromNode((CraftNode)node, prefix);
+						prefix.RemoveAt(prefix.Count-1);
+					}
+					catch (Exception e) {
+						log(e.ToString());
+					}
+				}
+			}
+		}
 		
 	}
 }

@@ -15,6 +15,18 @@ namespace ReikaKalseki.DIAlterra
 		protected SeamothModule(string id, string name, string desc) : base(id, name, desc) {
 
 		}
+
+		public override CraftTree.Type FabricatorType {
+			get {
+				return CraftTree.Type.SeamothUpgrades;
+			}
+		}
+
+		public override string[] StepsToFabricatorTab {
+			get {
+				return new string[]{"SeamothModules"};
+			}
+		}
 		
 		public override sealed EquipmentType EquipmentType {
 			get {
@@ -24,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override TechType RequiredForUnlock {
 			get {
-				return TechType.BaseUpgradeConsole;
+				return TechType.BaseMoonpool;
 			}
 		}
 
