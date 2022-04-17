@@ -144,6 +144,14 @@ namespace ReikaKalseki.DIAlterra
 		}*/
 		
 		public static GameObject getItemGO(Craftable item, string template) {
+			return getItemGO(item.TechType, item.ClassID, template);
+		}
+		
+		public static GameObject getItemGO(TechType tech, string template) {
+			return getItemGO(tech, Enum.GetName(tech.GetType(), tech), template);
+		}
+		
+		public static GameObject getItemGO(TechType tech, string id, string template) {
 			GameObject prefab = Resources.Load<GameObject>(template);
 			if (prefab == null)
 				throw new Exception("Null prefab result during item '"+template+"' lookup");
@@ -156,8 +164,8 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Null techtag result during item '"+template+"' repopulate");
 			if (component2 == null)
 				throw new Exception("Null UID result during item '"+template+"' repopulate");
-			component.type = item.TechType;
-			component2.ClassId = item.ClassID;
+			component.type = tech;
+			component2.ClassId = id;
 			return gameObject;
 		}
     
