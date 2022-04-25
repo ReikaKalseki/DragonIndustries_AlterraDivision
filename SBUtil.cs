@@ -4,12 +4,27 @@ using System.Reflection;
 using System.Collections.Generic;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
+using SMLHelper.V2.Utility;
 
 using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
 	public static class SBUtil {
+		
+		public static TechType getTechType(string tech) {
+			TechType ret;
+			if (!Enum.TryParse<TechType>(tech, false, out ret)) {
+				if (TechTypeHandler.TryGetModdedTechType(tech, out ret)) {
+					return ret;
+				}
+				else {
+					log("TechType '"+tech+"' not found!");
+					return TechType.None;
+				}
+			}
+			return ret;
+		}
 		
 		public static void log(string s, int indent = 0) {
 			string id = Assembly.GetExecutingAssembly().GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
@@ -111,6 +126,23 @@ namespace ReikaKalseki.DIAlterra
 			if (infect != null) {
 				log("infected: "+infect.name+" = "+infect.infectedAmount, indent);
 			}
+			Renderer ren = go is Renderer ? (Renderer)go : go.GetComponent<Renderer>();
+			if (ren != null) {
+				log("renderer: "+ren.name, indent);
+				foreach (Material m in ren.materials) {
+					log("material: "+m.name, indent);
+					log("color: "+m.color, indent);
+					log("tex: "+m.mainTexture, indent);
+					log("tex name: "+m.mainTexture.name, indent);
+					log("tex pos: "+m.mainTextureOffset, indent);
+					log("tex scale: "+m.mainTextureScale, indent);
+					foreach (string tex in m.GetTexturePropertyNames()) {
+						log("tex ID '"+tex+"': "+m.GetTexture(tex), indent);
+						log("tex ID '"+tex+"': "+m.GetTextureOffset(tex), indent);
+						log("tex ID '"+tex+"': "+m.GetTextureScale(tex), indent);
+					}
+				}
+			}
 			log("transform: "+go.transform, indent);
 			if (go.transform != null) {
 				log("position: "+go.transform.position, indent);
@@ -173,63 +205,6 @@ namespace ReikaKalseki.DIAlterra
 			PrefabPlaceholdersGroup pre = c.gameObject.GetComponentInParent<PrefabPlaceholdersGroup>();
 			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
 	    }
-		
-		public static CraftNode getRootNode(CraftTree.Type type) {
-			switch(type) {
-				case CraftTree.Type.Fabricator:
-					return CraftTree.FabricatorScheme();
-				case CraftTree.Type.Constructor:
-					return CraftTree.ConstructorScheme();
-				case CraftTree.Type.Workbench:
-					return CraftTree.WorkbenchScheme();
-				case CraftTree.Type.SeamothUpgrades:
-					return CraftTree.SeamothUpgradesScheme();
-				case CraftTree.Type.MapRoom:
-					return CraftTree.MapRoomSheme();
-				case CraftTree.Type.Centrifuge:
-					return CraftTree.CentrifugeScheme();
-				case CraftTree.Type.CyclopsFabricator:
-					return CraftTree.CyclopsFabricatorScheme();
-				case CraftTree.Type.Rocket:
-					return CraftTree.RocketScheme();
-			}
-			return null;
-		}
-		
-		public static void dumpCraftTree(CraftTree.Type type) {
-			log("Tree "+type+":");
-			CraftNode root = getRootNode(type);
-			dumpCraftTreeFromNode(root);
-		}
-		
-		public static void dumpCraftTreeFromNode(CraftNode root) {
-			dumpCraftTreeFromNode(root, new List<string>());
-		}
-		
-		private static void dumpCraftTreeFromNode(CraftNode root, List<string> prefix) {
-			if (root == null) {
-				log(string.Join("/", prefix)+" -> null @ root");
-				return;
-			}
-			List<TreeNode> nodes = root.nodes;
-			for (int i = 0; i < nodes.Count; i++) {
-				TreeNode node = nodes[i];
-				if (node == null) {
-					log(string.Join("/", prefix)+" -> null @ "+i);
-				}
-				else {
-					try {
-						log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id);
-						prefix.Add(node.id);
-						dumpCraftTreeFromNode((CraftNode)node, prefix);
-						prefix.RemoveAt(prefix.Count-1);
-					}
-					catch (Exception e) {
-						log(e.ToString());
-					}
-				}
-			}
-		}
 		
 	}
 }

@@ -25,7 +25,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources DIAMOND = new VanillaResources("ee7ef0cf-21ab-4c0c-871d-e477c5dfa1ce");
 		public static readonly VanillaResources RUBY = new VanillaResources("87293f19-cca3-46e6-bb3d-6e8dc579e27b");
 		public static readonly VanillaResources SULFUR = new VanillaResources("f08a4013-5852-4b33-bd7d-466aae6b6969");
-		public static readonly VanillaResources URANIUM = new VanillaResources("1c308d7c-85b9-4d1e-8e16-113a45b3ed35");
+		public static readonly VanillaResources URANIUM = new VanillaResources("3b52098a-4b58-467c-a29a-1d1b6d92ec3e");
 		public static readonly VanillaResources NICKEL = new VanillaResources("7815b1b7-2830-418b-9b5d-19949b0ae9ec");
 		public static readonly VanillaResources KYANITE = new VanillaResources("6e7f3d62-7e76-4415-af64-5dcd88fc3fe4");
 		public static readonly VanillaResources MERCURY = new VanillaResources("779ef413-44b0-4eab-b94c-dfaadb1d2df0");

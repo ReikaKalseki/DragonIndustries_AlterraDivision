@@ -12,8 +12,13 @@ namespace ReikaKalseki.DIAlterra
 {
 	public abstract class SeamothModule : CustomEquipable {
 		
+		private static bool addedTab = false;
+		
 		protected SeamothModule(string id, string name, string desc) : base(id, name, desc) {
-
+			if (!addedTab) {
+				//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DISeamoth", "Additional Seamoth Upgrades", SpriteManager.Get(TechType.SeamothElectricalDefense));
+				addedTab = true;
+			}
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -24,7 +29,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"SeamothModules"};
+				return new string[]{"SeamothModules"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
 			}
 		}
 		

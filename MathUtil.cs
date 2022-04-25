@@ -12,6 +12,10 @@ namespace ReikaKalseki.DIAlterra
 	    	double dx = rawX2-rawX;
 	    	double dy = rawY2-rawY;
 	    	double dz = rawZ2-rawZ;
+	    	return py3d(dx, dy, dz);
+	    }
+		
+	    public static double py3d(double dx, double dy, double dz) {
 	    	return Math.Sqrt(dx*dx+dy*dy+dz*dz);
 	    }
 		

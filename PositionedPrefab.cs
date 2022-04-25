@@ -38,6 +38,10 @@ namespace ReikaKalseki.DIAlterra
 			scale = pfb.scale;
 		}
 		
+		public virtual void replaceObject(string pfb) {
+			prefabName = pfb;
+		}
+		
 		public string getPrefab() {
 			return prefabName;
 		}
@@ -71,19 +75,20 @@ namespace ReikaKalseki.DIAlterra
 		public static PositionedPrefab fromXML(XmlElement e) {
 			string pfb = e.getProperty("prefab");
 			if (pfb != null) {
+				Vector3 pos = e.getVector("position").Value;
 				XmlElement elem;
-				Vector3 pos = e.getVector("position");
-				Vector3 rot = e.getVector("rotation", out elem);
-				Quaternion? quat = elem.getQuaternion("quaternion", true);
-				if (quat == null || !quat.HasValue) {
-					quat = Quaternion.Euler(rot.x, rot.y, rot.y);
+				Vector3? rot = e.getVector("rotation", out elem, true);
+				Quaternion? quat = null;
+				if (rot != null && rot.HasValue) {
+					quat = elem.getQuaternion("quaternion", true);
+					if (quat == null || !quat.HasValue) {
+						quat = Quaternion.Euler(rot.Value.x, rot.Value.y, rot.Value.y);
+					}
 				}
 				PositionedPrefab ret = new PositionedPrefab(pfb, pos, quat);
-				List<XmlElement> li = e.getDirectElementsByTagName("scale");
-				if (li.Count == 1) {
-					Vector3 sc = e.getVector("scale");
-					ret.scale = sc;
-				}
+				Vector3? sc = e.getVector("scale", true);
+				if (sc != null && sc.HasValue)
+					ret.scale = sc.Value;
 				return ret;
 			}
 			else {

@@ -24,6 +24,14 @@ namespace ReikaKalseki.DIAlterra
 			return tech;
 		}*/
 		
+		public CustomEquipable addIngredient(ItemDef item, int amt) {
+			return addIngredient(item.getTechType(), amt);
+		}
+		
+		public CustomEquipable addIngredient(Craftable item, int amt) {
+			return addIngredient(item.TechType, amt);
+		}
+		
 		public CustomEquipable addIngredient(TechType item, int amt) {
 			if (recipe.ContainsKey(item))
 				recipe[item].amount += amt;
