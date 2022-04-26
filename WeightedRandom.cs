@@ -93,8 +93,8 @@ namespace ReikaKalseki.DIAlterra {
 			this.weightSum = 0;
 		}
 
-		public IEnumerable<V> getValues() {
-			return new List<V>(data.Values);
+		public List<V> getValues() {
+			return new List<V>(data.Keys);
 		}
 
 		public double getProbability(V val) {

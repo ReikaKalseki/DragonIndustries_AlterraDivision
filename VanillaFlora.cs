@@ -16,56 +16,56 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly double measuredYDatum = -25.26; //this is just the y level of the rock ground when I was measuring
 		
 		//median 4.81
-		public static readonly VanillaFlora ANCHOR_POD_SMALL1 = new VanillaFlora("228e5af5-a579-4c99-9fb0-04b653f73cd3", -19.98-2.5, -26.62);
-		public static readonly VanillaFlora ANCHOR_POD_SMALL2 = new VanillaFlora("1645f35d-af23-4b98-b1e4-44d430421721", -20.18, -31.74);
-		public static readonly VanillaFlora ANCHOR_POD_MED1 = new VanillaFlora("1cafd118-47e6-48c4-bfd7-718df9984685", -20.45, -32.52);
-		public static readonly VanillaFlora ANCHOR_POD_MED2 = new VanillaFlora("7444baa0-1416-4cb6-aa9a-162ccd4b98c7", -20.78, -43.45);
-		public static readonly VanillaFlora ANCHOR_POD_LARGE = new VanillaFlora("c72724f3-125d-4e87-b82f-a91b5892c936", -20.7, -52.36);
+		public static readonly VanillaFlora ANCHOR_POD_SMALL1 = new VanillaFlora("228e5af5-a579-4c99-9fb0-04b653f73cd3", -19.98-2.5-measuredYDatum, -26.62-measuredYDatum);
+		public static readonly VanillaFlora ANCHOR_POD_SMALL2 = new VanillaFlora("1645f35d-af23-4b98-b1e4-44d430421721", -20.18-measuredYDatum, -31.74-measuredYDatum);
+		public static readonly VanillaFlora ANCHOR_POD_MED1 = new VanillaFlora("1cafd118-47e6-48c4-bfd7-718df9984685", -20.45-measuredYDatum, -32.52-measuredYDatum);
+		public static readonly VanillaFlora ANCHOR_POD_MED2 = new VanillaFlora("7444baa0-1416-4cb6-aa9a-162ccd4b98c7", -20.78-measuredYDatum, -43.45-measuredYDatum);
+		public static readonly VanillaFlora ANCHOR_POD_LARGE = new VanillaFlora("c72724f3-125d-4e87-b82f-a91b5892c936", -20.7-measuredYDatum, -52.36-measuredYDatum);
 		
-		public static readonly VanillaFlora ACID_MUSHROOM = new VanillaFlora("31834aae-35ce-49c1-b5ba-ac4227750679", -999).markResources(); //61a5e0e6-01d5-4ae2-aea6-1186cd769025 and 99cdec62-302b-4999-ba49-f50c73575a4d and fc7c1098-13af-417a-8038-0053b65498e5
-		public static readonly VanillaFlora BLUE_PALM = new VanillaFlora("210fdf87-54e0-4c83-9bf3-31bbc06f38a6", -999).markHarvestable(); //50ebde28-dcd9-46be-bafd-9e2b483a1d22 and 57a31bf5-5b86-4bf6-9a14-9291c6e8a79c
-		public static readonly VanillaFlora VEINED_NETTLE = new VanillaFlora("e80b22ff-064d-46ca-b71e-456d6b3426ab", -999).markHarvestable();
-		public static readonly VanillaFlora WRITHING_WEED = new VanillaFlora("3dbab1b9-cc52-4da4-8633-89b33add18f4", -999).markHarvestable(); //7c6d23d1-4d59-49f8-ac12-b12dfa530beb and e8047056-e202-49b3-829f-7458615103ac
+		public static readonly VanillaFlora ACID_MUSHROOM = new VanillaFlora("31834aae-35ce-49c1-b5ba-ac4227750679", 5.5).markResources(); //61a5e0e6-01d5-4ae2-aea6-1186cd769025 and 99cdec62-302b-4999-ba49-f50c73575a4d and fc7c1098-13af-417a-8038-0053b65498e5
+		public static readonly VanillaFlora BLUE_PALM = new VanillaFlora("210fdf87-54e0-4c83-9bf3-31bbc06f38a6", 6).markHarvestable(); //50ebde28-dcd9-46be-bafd-9e2b483a1d22 and 57a31bf5-5b86-4bf6-9a14-9291c6e8a79c
+		public static readonly VanillaFlora VEINED_NETTLE = new VanillaFlora("e80b22ff-064d-46ca-b71e-456d6b3426ab", 5.8).markHarvestable();
+		public static readonly VanillaFlora WRITHING_WEED = new VanillaFlora("3dbab1b9-cc52-4da4-8633-89b33add18f4", 6).markHarvestable(); //7c6d23d1-4d59-49f8-ac12-b12dfa530beb and e8047056-e202-49b3-829f-7458615103ac
 		
-		public static readonly VanillaFlora VIOLET_BEAU = new VanillaFlora("36fcb5c8-07f6-4d20-b026-f8c41b8e2358", -999).markHarvestable();
-		public static readonly VanillaFlora CAVE_BUSH = new VanillaFlora("4856ff40-43d2-4b15-acdc-d6a45f85c157", -999).markHarvestable();
-		public static readonly VanillaFlora PAPYRUS = new VanillaFlora("4601400c-5e12-4e4a-9e45-4cab5f06a598", -999).markHarvestable();
-		public static readonly VanillaFlora TIGER = new VanillaFlora("84794dd0-2c70-4239-9536-230d56811ad4", -999).markHarvestable();
-		public static readonly VanillaFlora REDWORT = new VanillaFlora("b707aa52-1a27-43c4-9500-f346befb8251", -999).markHarvestable();
+		public static readonly VanillaFlora VIOLET_BEAU = new VanillaFlora("36fcb5c8-07f6-4d20-b026-f8c41b8e2358", 6.2).markHarvestable();
+		public static readonly VanillaFlora CAVE_BUSH = new VanillaFlora("4856ff40-43d2-4b15-acdc-d6a45f85c157", 6.3, 0.4).markHarvestable();
+		public static readonly VanillaFlora PAPYRUS = new VanillaFlora("4601400c-5e12-4e4a-9e45-4cab5f06a598", 6.2).markHarvestable();
+		public static readonly VanillaFlora TIGER = new VanillaFlora("84794dd0-2c70-4239-9536-230d56811ad4", 6).markHarvestable();
+		public static readonly VanillaFlora REDWORT = new VanillaFlora("b707aa52-1a27-43c4-9500-f346befb8251", 6).markHarvestable();
 		//public static readonly VanillaFlora PINECONE = new VanillaFlora("", -999).markResources();
-		public static readonly VanillaFlora PYGMY_FAN = new VanillaFlora("ae0a831e-0f90-43bd-8183-c2002c528e9e", -999).markHarvestable();
-		public static readonly VanillaFlora PYGMY_FAN_HUGE = new VanillaFlora("e65b36c8-3b85-463c-8f30-95859401b2cb", -999, -999);
-		public static readonly VanillaFlora ROUGE_CRADLE = new VanillaFlora("4525e0f3-9c9a-449f-8d6c-48088711ac99", -999).markHarvestable(); //99bbd145-d50e-4afb-bff0-27b33243642b
-		public static readonly VanillaFlora TREE_LEECH = new VanillaFlora("2e57e9d2-ddda-4063-9540-ca2f0fae775e", -999); // 1dc87b04-84d4-42e1-afbf-ee8c2a9a236f and 2f97d40e-4ca0-44c7-9f8d-2e2111375c66
+		public static readonly VanillaFlora PYGMY_FAN = new VanillaFlora("ae0a831e-0f90-43bd-8183-c2002c528e9e", 7).markHarvestable();
+		public static readonly VanillaFlora PYGMY_FAN_HUGE = new VanillaFlora("e65b36c8-3b85-463c-8f30-95859401b2cb", 7, 3);
+		public static readonly VanillaFlora ROUGE_CRADLE = new VanillaFlora("4525e0f3-9c9a-449f-8d6c-48088711ac99", 6).markHarvestable(); //99bbd145-d50e-4afb-bff0-27b33243642b
+		public static readonly VanillaFlora TREE_LEECH = new VanillaFlora("2e57e9d2-ddda-4063-9540-ca2f0fae775e", 6.2); // 1dc87b04-84d4-42e1-afbf-ee8c2a9a236f and 2f97d40e-4ca0-44c7-9f8d-2e2111375c66
 		
-		public static readonly VanillaFlora KOOSH = new VanillaFlora("f90ba94f-326b-4cbd-bc95-4dc39addbf33", -999).markEdible();
-		public static readonly VanillaFlora LARGE_KOOSH = new VanillaFlora("a9958cbb-72eb-4a1d-af7b-13fbc947d8f3", -999, -999); //fcf04278-bfbb-409d-bada-a6f22564efde
-		public static readonly VanillaFlora EYE_STALK = new VanillaFlora("0089035b-4717-4975-b437-5b87cc3e2f8e", -999, -999).markHarvestable(); //11ea0dd6-015f-4528-bed7-18de03f54911 and 320c9798-9e57-4055-8daa-d73a055c0d28
-		public static readonly VanillaFlora GELSACK = new VanillaFlora("74f368f4-b08f-4b0c-ab96-c97e37911ff0", -999).markResources(); //bd4d4fa1-d10e-40e5-8ec6-67efd0ba03af and dd037903-eb47-47f5-9d4f-83100aca4ec4
-		public static readonly VanillaFlora MEMBRAIN = new VanillaFlora("0e2a3f36-881b-4c84-8a02-5bb1da4b9f29", -999).markHarvestable();
-		public static readonly VanillaFlora REGRESS = new VanillaFlora("1a806d20-dc8f-4e6e-9281-f353ed155abf", -999).markHarvestable();
-		public static readonly VanillaFlora SEACROWN = new VanillaFlora("a1040915-abcf-4843-a16f-39a10d6a1c2d", -999).markHarvestable();
-		public static readonly VanillaFlora HORNGRASS = new VanillaFlora("fec5bf85-8e70-48bb-9e9d-939d694632a5", -999).markHarvestable();
-		public static readonly VanillaFlora SPOTTED_DOCKLEAF = new VanillaFlora("b2636f23-f764-41ec-bfcf-f33d35d79641", -999).markHarvestable();
+		public static readonly VanillaFlora KOOSH = new VanillaFlora("f90ba94f-326b-4cbd-bc95-4dc39addbf33", 6, 0.2).markEdible();
+		public static readonly VanillaFlora LARGE_KOOSH = new VanillaFlora("a9958cbb-72eb-4a1d-af7b-13fbc947d8f3", 5.8, 0.8); //fcf04278-bfbb-409d-bada-a6f22564efde
+		public static readonly VanillaFlora EYE_STALK = new VanillaFlora("0089035b-4717-4975-b437-5b87cc3e2f8e", 6, 0.3).markHarvestable(); //11ea0dd6-015f-4528-bed7-18de03f54911 and 320c9798-9e57-4055-8daa-d73a055c0d28
+		public static readonly VanillaFlora GELSACK = new VanillaFlora("74f368f4-b08f-4b0c-ab96-c97e37911ff0", 6.2).markResources(); //bd4d4fa1-d10e-40e5-8ec6-67efd0ba03af and dd037903-eb47-47f5-9d4f-83100aca4ec4
+		public static readonly VanillaFlora MEMBRAIN = new VanillaFlora("0e2a3f36-881b-4c84-8a02-5bb1da4b9f29", 5.8).markHarvestable();
+		public static readonly VanillaFlora REGRESS = new VanillaFlora("1a806d20-dc8f-4e6e-9281-f353ed155abf", 6.1).markHarvestable();
+		public static readonly VanillaFlora SEACROWN = new VanillaFlora("a1040915-abcf-4843-a16f-39a10d6a1c2d", 6.1, 0.1).markHarvestable();
+		public static readonly VanillaFlora HORNGRASS = new VanillaFlora("fec5bf85-8e70-48bb-9e9d-939d694632a5", 6, 0.1).markHarvestable();
+		public static readonly VanillaFlora SPOTTED_DOCKLEAF = new VanillaFlora("b2636f23-f764-41ec-bfcf-f33d35d79641", 5.5).markHarvestable();
 		
-		public static readonly VanillaFlora DEEP_MUSHROOM = new VanillaFlora("29ab9e04-a045-413b-886b-e03fa6b86aee", -999).markResources(); //60fdf752-bc74-4f85-8a9c-72f86031a52f and a6dac068-6f8d-4e32-b5e7-2e34a9f97d11 and e4ea0e38-7baa-49ce-b85c-89a22935574f
-		public static readonly VanillaFlora GHOSTWEED = new VanillaFlora("1bb43d52-19ee-4a3a-85ef-f85a152cc334", -999).markHarvestable();
-		public static readonly VanillaFlora GABE_FEATHER = new VanillaFlora("79134868-2f8e-4f43-a99f-a6fb8ce60b48", -999).markHarvestable(); //light: 79134868-2f8e-4f43-a99f-a6fb8ce60b48
-		public static readonly VanillaFlora BRINE_LILY = new VanillaFlora("f97bf790-a5bd-4e7f-a5e8-9fca1b37f81c", -999);
-		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", -999);
+		public static readonly VanillaFlora DEEP_MUSHROOM = new VanillaFlora("29ab9e04-a045-413b-886b-e03fa6b86aee", 5.9).markResources(); //60fdf752-bc74-4f85-8a9c-72f86031a52f and a6dac068-6f8d-4e32-b5e7-2e34a9f97d11 and e4ea0e38-7baa-49ce-b85c-89a22935574f
+		public static readonly VanillaFlora GHOSTWEED = new VanillaFlora("1bb43d52-19ee-4a3a-85ef-f85a152cc334", 6, 0.2).markHarvestable();
+		public static readonly VanillaFlora GABE_FEATHER = new VanillaFlora("79134868-2f8e-4f43-a99f-a6fb8ce60b48", 6.1, 0.2).markHarvestable(); //light: 79134868-2f8e-4f43-a99f-a6fb8ce60b48
+		public static readonly VanillaFlora BRINE_LILY = new VanillaFlora("f97bf790-a5bd-4e7f-a5e8-9fca1b37f81c", 6.5, 0.8);
+		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", 6.1);
 		
-		public static readonly VanillaFlora MING = new VanillaFlora("1d5877a7-bc56-46c8-a27c-f9d0ab99cc80", -999).markHarvestable(); //ce650c66-355c-4b77-ad4e-a2bea7e36c95
-		public static readonly VanillaFlora BULBO = new VanillaFlora("4626f3eb-23c3-4e04-b9df-829cb051758a", -999).markEdible();
-		public static readonly VanillaFlora JAFFA_CUP = new VanillaFlora("35056c71-5da7-4e73-be60-3c22c5c9e75c", -999).markHarvestable();
-		public static readonly VanillaFlora VOXEL = new VanillaFlora("28ec1137-da13-44f3-b76d-bac12ab766d1", -999).markHarvestable();
-		public static readonly VanillaFlora POTATO = new VanillaFlora("533d54b0-e54a-4aec-8dd0-a9eb89868c59", -999, -999).markEdible();
-		public static readonly VanillaFlora MARBLEMELON = new VanillaFlora("e9445fdf-fbae-49dc-a005-48c05bf9f401", -999, -999).markEdible();
-		public static readonly VanillaFlora LARGE_MARBLEMELON = new VanillaFlora("a966a14f-d188-4de4-a488-f2c0302ca250", -999, -999).markEdible();
-		public static readonly VanillaFlora FERN_PALM = new VanillaFlora("1d6d89dd-3e49-48b7-90e4-b521fbc3d36f", -999, -999).markHarvestable(); //523879d5-3241-4a94-8588-cb3b38945119
-		public static readonly VanillaFlora GRUB_BASKET = new VanillaFlora("28c73640-a713-424a-91c6-2f5d4672aaea", -999).markHarvestable();
-		public static readonly VanillaFlora LANTERN = new VanillaFlora("8fa4a413-57fa-47a3-828d-de2255dbce4f", -999, -999).markEdible();
-		public static readonly VanillaFlora PINK_CAP = new VanillaFlora("a7aef01f-0dc0-4d03-913d-d47d8d2ba407", -999).markHarvestable(); //7f9a765d-0b4e-4b3f-81b9-38b38beedf55 and c7faff7e-d9ff-41b4-9782-98d2e09d29c1 and e88e7a23-2a99-41c5-aed9-a2bfaca3619d
-		public static readonly VanillaFlora SPECKLED_RATTLER = new VanillaFlora("98be0944-e0b3-4fba-8f08-ca5d322c22f6", -999).markHarvestable(); //28818d8a-5e50-41f0-8e14-44cb89a0b611
+		public static readonly VanillaFlora MING = new VanillaFlora("1d5877a7-bc56-46c8-a27c-f9d0ab99cc80", 5.9).markHarvestable(); //ce650c66-355c-4b77-ad4e-a2bea7e36c95
+		public static readonly VanillaFlora BULBO = new VanillaFlora("4626f3eb-23c3-4e04-b9df-829cb051758a", 6).markEdible();
+		public static readonly VanillaFlora JAFFA_CUP = new VanillaFlora("35056c71-5da7-4e73-be60-3c22c5c9e75c", 6.1, 0.3).markHarvestable();
+		public static readonly VanillaFlora VOXEL = new VanillaFlora("28ec1137-da13-44f3-b76d-bac12ab766d1", 6.1).markHarvestable();
+		public static readonly VanillaFlora POTATO = new VanillaFlora("533d54b0-e54a-4aec-8dd0-a9eb89868c59", 6.1, 0.5).markEdible();
+		public static readonly VanillaFlora MARBLEMELON = new VanillaFlora("e9445fdf-fbae-49dc-a005-48c05bf9f401", 6.2, 0.3).markEdible();
+		public static readonly VanillaFlora LARGE_MARBLEMELON = new VanillaFlora("a966a14f-d188-4de4-a488-f2c0302ca250", 5.9, 0.4).markEdible();
+		public static readonly VanillaFlora FERN_PALM = new VanillaFlora("1d6d89dd-3e49-48b7-90e4-b521fbc3d36f", 6.3, 0.4).markHarvestable(); //523879d5-3241-4a94-8588-cb3b38945119
+		public static readonly VanillaFlora GRUB_BASKET = new VanillaFlora("28c73640-a713-424a-91c6-2f5d4672aaea", 6).markHarvestable();
+		public static readonly VanillaFlora LANTERN = new VanillaFlora("8fa4a413-57fa-47a3-828d-de2255dbce4f", 6, 1).markEdible();
+		public static readonly VanillaFlora PINK_CAP = new VanillaFlora("a7aef01f-0dc0-4d03-913d-d47d8d2ba407", 6).markHarvestable(); //7f9a765d-0b4e-4b3f-81b9-38b38beedf55 and c7faff7e-d9ff-41b4-9782-98d2e09d29c1 and e88e7a23-2a99-41c5-aed9-a2bfaca3619d
+		public static readonly VanillaFlora SPECKLED_RATTLER = new VanillaFlora("98be0944-e0b3-4fba-8f08-ca5d322c22f6", 6).markHarvestable(); //28818d8a-5e50-41f0-8e14-44cb89a0b611
 		
 		//blood kelp mini vines
 		//2ab96dc4-5201-4a41-aa5c-908f0a9a0da8
@@ -129,6 +129,14 @@ namespace ReikaKalseki.DIAlterra
 		public bool isHarvestable {get; private set;}
 		public bool hasResources {get; private set;}
 		public bool isEdible {get; private set;}
+		
+		private VanillaFlora(string id, double y, double ym) : this(y, ym, id) {
+			
+		}
+		
+		private VanillaFlora(string id, double y) : this(y, 0, id) {
+			
+		}
 		
 		private VanillaFlora(double y, params string[] ids) : this(y, 0, ids) {
 			
