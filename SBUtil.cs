@@ -206,5 +206,23 @@ namespace ReikaKalseki.DIAlterra
 			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
 	    }
 		
+		public static bool objectCollidesPosition(GameObject go, Vector3 pos) {
+			if (go.transform != null) {
+				Collider c = go.GetComponentInParent<Collider>();
+				if (c != null && c.enabled) {
+					return (c.ClosestPoint(pos) - pos).sqrMagnitude < Mathf.Epsilon * Mathf.Epsilon;
+				}
+			}
+			return false;
+		}
+		
+		public static string getPrefabID(GameObject go) {
+			PrefabIdentifier p = go.GetComponentInParent<PrefabIdentifier>();
+			if (p != null)
+				return p.classId;
+			TechType type = CraftData.GetTechType(go);
+			return CraftData.GetClassIdForTechType(type);
+		}
+		
 	}
 }

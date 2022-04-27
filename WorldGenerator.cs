@@ -23,6 +23,6 @@ namespace ReikaKalseki.DIAlterra
 		public abstract void loadFromXML(XmlElement e);
 		public abstract void saveToXML(XmlElement e);
 		
-		public abstract void generate();
+		public abstract void generate(List<GameObject> generated);
 	}
 }
