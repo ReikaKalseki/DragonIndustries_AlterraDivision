@@ -220,5 +220,9 @@ namespace ReikaKalseki.DIAlterra
 		public int unlitCount() {
 			return prefabs.Count;
 		}
+		
+		public bool includes(string pfb) {
+			return prefabsLit.Contains(pfb) || prefabs.Contains(pfb);
+		}
 	}
 }

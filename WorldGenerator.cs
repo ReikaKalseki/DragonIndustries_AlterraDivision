@@ -24,5 +24,13 @@ namespace ReikaKalseki.DIAlterra
 		public abstract void saveToXML(XmlElement e);
 		
 		public abstract void generate(List<GameObject> generated);
+		
+		protected bool isColliding(Vector3 vec, List<GameObject> li) {
+			foreach (GameObject go in li) {
+				if (SBUtil.objectCollidesPosition(go, vec))
+					return true;
+			}
+			return false;
+		}
 	}
 }
