@@ -13,6 +13,11 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class VanillaResources {
 		
+		public static readonly VanillaResources SCRAP1 = new VanillaResources("7cd86cbf-0708-41dc-84d7-58c648e25b06"); //"WorldEntities/Natural/metal3",
+		public static readonly VanillaResources SCRAP2 = new VanillaResources("7e507655-9fbf-42e0-8422-163ddd668747"); //"WorldEntities/Natural/metal2",
+		public static readonly VanillaResources SCRAP3 = new VanillaResources("947f2823-c42a-45ef-94e4-52a9f1d3459c"); //"WorldEntities/Natural/metal1",
+		public static readonly VanillaResources SCRAP4 = new VanillaResources("b2d10d9b-878e-4ff8-b71f-cd578e0d2038"); //"WorldEntities/Natural/metal4",
+		
 		public static readonly VanillaResources LIMESTONE = new VanillaResources("7e07fce9-0ad6-4c54-9da7-e43eb1e38cea");
 		public static readonly VanillaResources SANDSTONE = new VanillaResources("5b702ef7-7403-49ee-99c5-1f67ab04954a");
 		public static readonly VanillaResources SHALE = new VanillaResources("814fa303-8697-48ef-b126-cf22e703cefd");

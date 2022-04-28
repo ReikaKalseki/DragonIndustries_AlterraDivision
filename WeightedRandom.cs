@@ -9,7 +9,7 @@ using ReikaKalseki.DIAlterra;
 //Ported from DragonAPI
 namespace ReikaKalseki.DIAlterra {
 	
-	public sealed class WeightedRandom<V> where V : class {
+	public sealed class WeightedRandom<V> {
 
 		private readonly Dictionary<V, double> data = new Dictionary<V, double>();
 		private double maxWeight = 0;
@@ -43,7 +43,7 @@ namespace ReikaKalseki.DIAlterra {
 					return obj;
 				}
 			}
-			return null;
+			return default(V);
 		}
 
 		public V getRandomEntry(V fallback, double wt) {

@@ -14,7 +14,7 @@ namespace ReikaKalseki.DIAlterra
 {
 	public abstract class WorldGenerator {
 		
-		protected readonly Vector3 position;
+		public readonly Vector3 position;
 		
 		protected WorldGenerator(Vector3 pos) {
 			position = pos;

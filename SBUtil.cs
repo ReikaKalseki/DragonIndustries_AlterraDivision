@@ -158,12 +158,17 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static void dropItem(long x, long y, long z, string name) {
-			if (false) {
-		    	
+		public static GameObject dropItem(Vector3 pos, TechType item) {
+			string id = CraftData.GetClassIdForTechType(item);
+			if (id != null) {
+				GameObject go = createWorldObject(id);
+				if (go != null)
+					go.transform.position = pos;
+				return go;
 	    	}
 	    	else {
-	    		log("NO SUCH ITEM TO DROP: "+name);
+	    		log("NO SUCH ITEM TO DROP: "+item);
+	    		return null;
 	    	}
 		}
 		/*
@@ -203,8 +208,12 @@ namespace ReikaKalseki.DIAlterra
     
 	    public static void setCrateItem(SupplyCrate c, TechType item) {
 			PrefabPlaceholdersGroup pre = c.gameObject.GetComponentInParent<PrefabPlaceholdersGroup>();
-			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
+			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item); //TODO crate item DOES NOT SEEM  TO WORK
 	    }
+		
+		public static void setDatabox(BlueprintHandTarget bpt, TechType tech) {
+    		bpt.unlockTechType = tech;
+    	}
 		
 		public static bool objectCollidesPosition(GameObject go, Vector3 pos) {
 			if (go.transform != null) {
@@ -222,6 +231,44 @@ namespace ReikaKalseki.DIAlterra
 				return p.classId;
 			TechType type = CraftData.GetTechType(go);
 			return CraftData.GetClassIdForTechType(type);
+		}
+			
+		public static GameObject createWorldObject(string id) {
+			GameObject prefab = lookupPrefab(id);
+			if (prefab != null) {
+				GameObject go = UnityEngine.Object.Instantiate(prefab);
+				if (go != null) {
+					go.SetActive(true);
+					return go;
+				}
+				else {
+					writeToChat("Prefab found and placed succeeeded but resulted in null?!");
+					return null;
+				}
+			}
+			else {
+				writeToChat("Prefab not found for id '"+id+"'.");
+				return null;
+			}
+		}
+			
+		public static GameObject lookupPrefab(string id) {
+			GameObject ret = null;
+			if (UWE.PrefabDatabase.TryGetPrefab(id, out ret))
+				return ret;
+			TechType key;
+			if (TechTypeHandler.TryGetModdedTechType(id, out key)) {
+				ret = CraftData.GetPrefabForTechType(key);
+			}
+			return ret;
+		}
+		
+		public static GameObject replaceObject(GameObject obj, string pfb) {
+			GameObject repl = createWorldObject(pfb);
+			repl.transform.position = obj.transform.position;
+			repl.transform.rotation = obj.transform.rotation;
+			repl.transform.localScale = obj.transform.localScale;
+			return repl;
 		}
 		
 	}

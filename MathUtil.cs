@@ -50,5 +50,9 @@ namespace ReikaKalseki.DIAlterra
 			go.transform.RotateAround(point, Vector3.up, (float)amt);
 		}
 		
+		public static Vector3 getRandomVectorBetween(Vector3 min, Vector3 max) {
+			return new Vector3(UnityEngine.Random.Range(min.x, max.x), UnityEngine.Random.Range(min.y, max.y), UnityEngine.Random.Range(min.z, max.z));
+		}
+		
 	}
 }
