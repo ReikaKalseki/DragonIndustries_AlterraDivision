@@ -152,5 +152,10 @@ namespace ReikaKalseki.DIAlterra
 			return li;
 		}
 		
+		public static XmlNodeList getAllChildrenIn(this XmlElement xml, string name) {
+			List<XmlElement> li = xml.getDirectElementsByTagName(name);
+			return li.Count == 1 ? li[0].ChildNodes : null;
+		}
+		
 	}
 }

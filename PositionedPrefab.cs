@@ -12,8 +12,8 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class PositionedPrefab
-	{
+	public class PositionedPrefab : ObjectTemplate {
+		
 		[SerializeField]
 		internal string prefabName;
 		[SerializeField]
@@ -58,43 +58,39 @@ namespace ReikaKalseki.DIAlterra
 			return new Vector3(scale.x, scale.y, scale.z);
 		}
 			
-		internal virtual XmlElement asXML(XmlDocument doc) {
-			XmlElement n = doc.CreateElement("object");
+		public override void saveToXML(XmlElement n) {
 			n.addProperty("prefab", prefabName);
 			n.addProperty("position", position);
 			XmlElement rot = n.addProperty("rotation", rotation.eulerAngles);
 			rot.addProperty("quaternion", rotation);
 			n.addProperty("scale", scale);
-			return n;
 		}
 			
 		public override string ToString() {
 			return prefabName+" @ "+position+" / "+rotation.eulerAngles;
 		}
 		
-		public static PositionedPrefab fromXML(XmlElement e) {
-			string pfb = e.getProperty("prefab");
-			if (pfb != null) {
-				Vector3 pos = e.getVector("position").Value;
-				XmlElement elem;
-				Vector3? rot = e.getVector("rotation", out elem, true);
-				Quaternion? quat = null;
-				if (rot != null && rot.HasValue) {
-					quat = elem.getQuaternion("quaternion", true);
-					if (quat == null || !quat.HasValue) {
-						quat = Quaternion.Euler(rot.Value.x, rot.Value.y, rot.Value.y);
-					}
+		public override void loadFromXML(XmlElement e) {
+			setPrefabName(e.getProperty("prefab"));
+			position = e.getVector("position").Value;
+			XmlElement elem;
+			Vector3? rot = e.getVector("rotation", out elem, true);
+			Quaternion? quat = null;
+			if (rot != null && rot.HasValue) {
+				quat = elem.getQuaternion("quaternion", true);
+				if (quat == null || !quat.HasValue) {
+					quat = Quaternion.Euler(rot.Value.x, rot.Value.y, rot.Value.y);
 				}
-				PositionedPrefab ret = new PositionedPrefab(pfb, pos, quat);
-				Vector3? sc = e.getVector("scale", true);
-				if (sc != null && sc.HasValue)
-					ret.scale = sc.Value;
-				return ret;
 			}
-			else {
-				SBUtil.writeToChat("Could not load XML block, no prefab: "+e.InnerText);
-				return null;
-			}
+			if (quat != null && quat.HasValue)
+				rotation = quat.Value;
+			Vector3? sc = e.getVector("scale", true);
+			if (sc != null && sc.HasValue)
+				scale = sc.Value;
+		}
+		
+		protected virtual void setPrefabName(string name) {
+			prefabName = name;
 		}
 	}
 }
