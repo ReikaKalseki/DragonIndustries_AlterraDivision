@@ -221,6 +221,10 @@ namespace ReikaKalseki.DIAlterra
 				if (c != null && c.enabled) {
 					return (c.ClosestPoint(pos) - pos).sqrMagnitude < Mathf.Epsilon * Mathf.Epsilon;
 				}
+				Renderer r = go.GetComponentInChildren<Renderer>();
+				if (r != null && r.enabled) {
+					return r.bounds.Contains(pos);
+				}
 			}
 			return false;
 		}

@@ -38,6 +38,14 @@ namespace ReikaKalseki.DIAlterra
 			scale = pfb.scale;
 		}
 		
+		public override string getTagName() {
+			return "basicprefab";
+		}
+		
+		public sealed override string getID() {
+			return prefabName;
+		}
+		
 		public virtual void replaceObject(string pfb) {
 			prefabName = pfb;
 		}

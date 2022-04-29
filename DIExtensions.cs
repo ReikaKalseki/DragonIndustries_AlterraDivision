@@ -145,9 +145,9 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static List<XmlElement> getDirectElementsByTagName(this XmlElement xml, string name) {
 			List<XmlElement> li = new List<XmlElement>();
-			foreach (XmlElement e in xml.ChildNodes) {
+			foreach (XmlNode e in xml.ChildNodes) {
 				if (e is XmlElement && e.Name == name)
-					li.Add(e);
+					li.Add((XmlElement)e);
 			}
 			return li;
 		}
@@ -155,6 +155,11 @@ namespace ReikaKalseki.DIAlterra
 		public static XmlNodeList getAllChildrenIn(this XmlElement xml, string name) {
 			List<XmlElement> li = xml.getDirectElementsByTagName(name);
 			return li.Count == 1 ? li[0].ChildNodes : null;
+		}
+		
+		public static bool hasProperty(this XmlElement xml, string name) {
+			List<XmlElement> li = xml.getDirectElementsByTagName(name);
+			return li.Count == 1;
 		}
 		
 	}

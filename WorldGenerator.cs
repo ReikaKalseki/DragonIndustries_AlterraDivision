@@ -18,7 +18,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly Vector3 position;
 		
-		static WorldGenerator() { //TODO might not be inited in time, might need to call explicitly, eg via buildinghandler class init
+		static WorldGenerator() {
 			registerType(TAGNAME, e => {
 				string typeName = e.getProperty("type");
 				Vector3 pos = e.getVector("position").Value;
@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public abstract void generate(List<GameObject> generated);
 		
-		public string getTagName() {
+		public override sealed string getTagName() {
 			return TAGNAME;
 		}
 		

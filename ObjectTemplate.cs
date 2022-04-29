@@ -24,6 +24,10 @@ namespace ReikaKalseki.DIAlterra
 		public abstract void loadFromXML(XmlElement e);
 		public abstract void saveToXML(XmlElement e);
 		
+		public abstract string getTagName();
+		
+		public abstract string getID();
+		
 		public static void registerType(string tagname, Func<XmlElement, ObjectTemplate> ctr) {
 			if (types.ContainsKey(tagname))
 				throw new Exception("Tag name '"+tagname+"' already in use!");
@@ -32,10 +36,17 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static ObjectTemplate construct(XmlElement e) {
-			if (!types.ContainsKey(e.Name))
-				return null;
-			Func<XmlElement, ObjectTemplate> builder = types[e.Name];
+			if (types.Count == 0)
+				throw new Exception("No object types registered!");
+			string key = e.Name;
+			if (!types.ContainsKey(key))
+				throw new Exception("Nonexistent object type '"+e.Name+"'! Types: "+string.Join(",", types.Keys));
+			if (key == "object" && !e.hasProperty("prefab") && e.hasProperty("type")) //quickfix for back compat
+				key = "generator";
+			Func<XmlElement, ObjectTemplate> builder = types[key];
 			ObjectTemplate ot = builder(e);
+			if (ot == null)
+				return null;
 			ot.loadFromXML(e);
 			return ot;
 		}
