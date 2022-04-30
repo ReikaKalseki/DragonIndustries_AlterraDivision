@@ -83,15 +83,20 @@ namespace ReikaKalseki.DIAlterra
 			position = e.getVector("position").Value;
 			XmlElement elem;
 			Vector3? rot = e.getVector("rotation", out elem, true);
-			Quaternion? quat = null;
+			//SBUtil.log("rot: "+rot);
+			Quaternion quat = rotation;
 			if (rot != null && rot.HasValue) {
-				quat = elem.getQuaternion("quaternion", true);
-				if (quat == null || !quat.HasValue) {
+				Quaternion? specify = elem.getQuaternion("quaternion", true);
+				//SBUtil.log("quat: "+specify);
+				if (specify != null && specify.HasValue) {
+					quat = specify.Value;
+				}
+				else {
 					quat = Quaternion.Euler(rot.Value.x, rot.Value.y, rot.Value.y);
 				}
 			}
-			if (quat != null && quat.HasValue)
-				rotation = quat.Value;
+			rotation = quat;
+			//SBUtil.log("use rot: "+rotation+" / "+rotation.eulerAngles);
 			Vector3? sc = e.getVector("scale", true);
 			if (sc != null && sc.HasValue)
 				scale = sc.Value;

@@ -22,6 +22,9 @@ namespace ReikaKalseki.DIAlterra
 			registerType(TAGNAME, e => {
 				string typeName = e.getProperty("type");
 				Vector3 pos = e.getVector("position").Value;
+				Vector3? scatt = e.getVector("scatter", true);
+				if (scatt != null && scatt.HasValue)
+					pos += MathUtil.getRandomVectorBetween(-scatt.Value, scatt.Value);
 				Type tt = InstructionHandlers.getTypeBySimpleName(typeName);
 				if (tt == null)
 					throw new Exception("No class found for '"+typeName+"'!");
@@ -38,6 +41,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public override sealed string getTagName() {
 			return TAGNAME;
+		}
+		
+		public override sealed string getID() {
+			return GetType().Name;
 		}
 		
 		protected bool isColliding(Vector3 vec, List<GameObject> li) {

@@ -80,7 +80,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static bool getBoolean(this XmlElement xml, string name, out XmlElement elem) {
-			return bool.Parse(xml.getProperty(name, out elem));
+			string prop = xml.getProperty(name, out elem, true);
+			return !string.IsNullOrEmpty(prop) && bool.Parse(prop);
 		}
 		
 		public static string getProperty(this XmlElement xml, string name, bool allowNull = false) {
@@ -160,6 +161,10 @@ namespace ReikaKalseki.DIAlterra
 		public static bool hasProperty(this XmlElement xml, string name) {
 			List<XmlElement> li = xml.getDirectElementsByTagName(name);
 			return li.Count == 1;
+		}
+		
+		public static string format(this XmlElement xml) {
+			return xml.OuterXml;
 		}
 		
 	}
