@@ -57,7 +57,7 @@ namespace ReikaKalseki.DIAlterra
 			string s = xml.getProperty(name, true);
 			if (string.IsNullOrEmpty(s)) {
 				if (double.IsNaN(fallback))
-					throw new Exception("No matching tag '"+name+"'! "+xml.InnerText);
+					throw new Exception("No matching tag '"+name+"'! "+xml.format());
 				else
 					return fallback;
 			}
@@ -70,7 +70,7 @@ namespace ReikaKalseki.DIAlterra
 			string s = xml.getProperty(name, allowFallback);
 			bool nul = string.IsNullOrEmpty(s);
 			if (nul && !allowFallback)
-				throw new Exception("No matching tag '"+name+"'! "+xml.InnerText);
+				throw new Exception("No matching tag '"+name+"'! "+xml.format());
 			return nul ? fallback : int.Parse(s);
 		}
 		
@@ -89,6 +89,30 @@ namespace ReikaKalseki.DIAlterra
 			return xml.getProperty(name, out trash, allowNull);
 		}
 		
+		public static int getRandomInt(this XmlElement xml, string name) {
+			List<XmlElement> li = xml.getDirectElementsByTagName(name);
+			if (li.Count == 1) {
+				int min = li[0].getInt("min", 0, true);
+				int max = li[0].getInt("max", -1, false);
+				return UnityEngine.Random.Range(min, max);
+			}
+			else {
+				throw new Exception("You must have exactly one matching named element for getRandomInt '"+name+"'! "+xml.format());
+			}
+		}
+		
+		public static float getRandomFloat(this XmlElement xml, string name) {
+			List<XmlElement> li = xml.getDirectElementsByTagName(name);
+			if (li.Count == 1) {
+				double min = li[0].getFloat("min", double.NaN);
+				double max = li[0].getFloat("max", double.NaN);
+				return UnityEngine.Random.Range((float)min, (float)max);
+			}
+			else {
+				throw new Exception("You must have exactly one matching named element for getRandomFloat '"+name+"'! "+xml.format());
+			}
+		}
+		
 		public static string getProperty(this XmlElement xml, string name, out XmlElement elem, bool allowNull = false) {
 			List<XmlElement> li = xml.getDirectElementsByTagName(name);
 			if (li.Count == 1) {
@@ -100,7 +124,7 @@ namespace ReikaKalseki.DIAlterra
 				return null;
 			}
 			else {
-				throw new Exception("You must have exactly one matching named tag for getProperty '"+name+"'! "+xml.InnerText);
+				throw new Exception("You must have exactly one matching named tag for getProperty '"+name+"'! "+xml.format());
 			}
 		}
 		
@@ -123,7 +147,7 @@ namespace ReikaKalseki.DIAlterra
 				return null;
 			}
 			else {
-				throw new Exception("You must have exactly one matching named element for getVector '"+name+"'! "+xml.InnerText);
+				throw new Exception("You must have exactly one matching named element for getVector '"+name+"'! "+xml.format());
 			}
 		}
 		
@@ -140,7 +164,7 @@ namespace ReikaKalseki.DIAlterra
 				return null;
 			}
 			else {
-				throw new Exception("You must have exactly one matching named element for getQuaternion '"+name+"'! "+xml.InnerText);
+				throw new Exception("You must have exactly one matching named element for getQuaternion '"+name+"'! "+xml.format());
 			}
 		}
 		

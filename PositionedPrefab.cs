@@ -92,7 +92,7 @@ namespace ReikaKalseki.DIAlterra
 					quat = specify.Value;
 				}
 				else {
-					quat = Quaternion.Euler(rot.Value.x, rot.Value.y, rot.Value.y);
+					quat = Quaternion.Euler(rot.Value.x, rot.Value.y, rot.Value.z);
 				}
 			}
 			rotation = quat;

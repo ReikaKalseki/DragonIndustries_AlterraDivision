@@ -8,6 +8,10 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class MathUtil {
 		
+		public static double py3d(Vector3 from, Vector3 to) {
+			return py3d(from.x, from.y, from.z, to.x, to.y, to.z);
+		}
+		
 	    public static double py3d(double rawX, double rawY, double rawZ, double rawX2, double rawY2, double rawZ2) {
 	    	double dx = rawX2-rawX;
 	    	double dy = rawY2-rawY;
@@ -52,6 +56,14 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static Vector3 getRandomVectorBetween(Vector3 min, Vector3 max) {
 			return new Vector3(UnityEngine.Random.Range(min.x, max.x), UnityEngine.Random.Range(min.y, max.y), UnityEngine.Random.Range(min.z, max.z));
+		}
+		
+		public static Vector3 getRandomVectorAround(Vector3 pos, float range) {
+			return getRandomVectorAround(pos, new Vector3(range, range, range));
+		}
+		
+		public static Vector3 getRandomVectorAround(Vector3 pos, Vector3 range) {
+			return getRandomVectorBetween(pos-range, pos+range);
 		}
 		
 	}
