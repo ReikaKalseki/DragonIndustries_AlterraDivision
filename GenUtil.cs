@@ -21,6 +21,7 @@ namespace ReikaKalseki.DIAlterra
 		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Quaternion? rot = null, Action<GameObject> call = null) {
 			SpawnInfo info = new SpawnInfo(prefab, pos, getOrIdentity(rot), call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
+			//SBUtil.log("Registering prefab "+prefab+" @ "+pos);
 			return info;
 		}
 		
@@ -31,6 +32,7 @@ namespace ReikaKalseki.DIAlterra
 			};
 			SpawnInfo info = new SpawnInfo(VanillaResources.LIMESTONE.prefab, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
+			SBUtil.log("Queuing world generator "+gen.getID());
 			return info;
 		}
 		

@@ -14,7 +14,7 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class XMLLocale {
 		
-		private static readonly LocaleEntry NOT_FOUND = new LocaleEntry("NOTFOUND", "#NULL", "#NULL", "#NULL");
+		private static readonly LocaleEntry NOT_FOUND = new LocaleEntry(null, "NOTFOUND", "#NULL", "#NULL", "#NULL");
 		
 		public readonly string relativePath;
 		
@@ -55,6 +55,10 @@ namespace ReikaKalseki.DIAlterra
 			return entries.ContainsKey(id) ? entries[id] : NOT_FOUND;
 		}
 		
+		public IEnumerable<LocaleEntry> getEntries() {
+			return entries.Values;
+		}
+		
 		private static string cleanString(string input) {
 			string[] parts = input.Trim().Split('\n');
 			for (int i = 0; i < parts.Length; i++) {
@@ -65,20 +69,65 @@ namespace ReikaKalseki.DIAlterra
 		
 		public class LocaleEntry {
 			
+			private readonly XmlElement element;
+			
 			public readonly string key;
 			public readonly string name;
 			public readonly string desc;
 			public readonly string pda;
 			
-			internal LocaleEntry(XmlElement e) : this(e.Name, cleanString(e.getProperty("name")), cleanString(e.getProperty("desc")), cleanString(e.getProperty("pda"))) {
+			internal LocaleEntry(XmlElement e) : this(e, e.Name, cleanString(e.getProperty("name")), cleanString(e.getProperty("desc")), cleanString(e.getProperty("pda"))) {
 				
 			}
 			
-			internal LocaleEntry(string k, string n, string d, string p) {
+			internal LocaleEntry(XmlElement e, string k, string n, string d, string p) {
 				key = k;
 				name = n;
 				desc = d;
 				pda = p;
+				
+				element = e;
+			}
+			
+			public string dump() {
+				return element == null ? "<null>" : element.format();
+			}
+			
+			public bool hasField(string key) {
+				return element != null && element.hasProperty(key);
+			}
+			
+			public T getField<T>(string key, T fallback) {
+				if (element == null)
+					return fallback;
+				Type t = typeof(T);
+				if (t == typeof(Int3)) {
+					Vector3? vec = element.getVector(key);
+					return vec != null && vec.HasValue ? (T)Convert.ChangeType(vec.Value.roundToInt3(), t) : fallback;
+				}
+				if (t == typeof(Vector3)) {
+					Vector3? vec = element.getVector(key);
+					return vec != null && vec.HasValue ? (T)Convert.ChangeType(vec.Value, t) : fallback;
+				}
+				if (t == typeof(Quaternion)) {
+					Quaternion? vec = element.getQuaternion(key);
+					return vec != null && vec.HasValue ? (T)Convert.ChangeType(vec.Value, t) : fallback;
+				}
+				if (t == typeof(bool)) {
+					return (T)Convert.ChangeType(element.getBoolean(key), t);
+				}
+				if (t == typeof(int)) {
+					return (T)Convert.ChangeType(element.getInt(key, (int)((object)fallback), true), t);
+				}
+				if (t == typeof(float)) {
+					double fall = (double)((object)fallback);
+					return (T)Convert.ChangeType(((float)element.getFloat(key, fall)), t);
+				}
+				if (t == typeof(double)) {
+					double fall = (double)((object)fallback);
+					return (T)Convert.ChangeType(element.getFloat(key, fall), t);
+				}
+				throw new Exception("Undefined data type '"+t+"'");
 			}
 			
 		}

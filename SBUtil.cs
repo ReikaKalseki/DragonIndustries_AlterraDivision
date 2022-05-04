@@ -12,6 +12,57 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class SBUtil {
 		
+		private static Assembly modDLL;
+		
+		private static readonly Int3 batchOffset = new Int3(13, 19, 13);
+		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
+		private static readonly int batchSize = 160;
+		
+		public static Assembly getModDLL() {
+			if (modDLL == null)
+				modDLL = Assembly.GetExecutingAssembly();
+			return modDLL;
+		}
+		
+		public static Int3 getBatch(Vector3 pos) { //"Therefore e.g. batch (12, 18, 12) covers the voxels from (-128, -160, -128) to (32, 0, 32)."
+			Int3 coord = pos.roundToInt3();
+			coord = coord-batchOffsetM;
+			coord.x = (int)Math.Floor(coord.x/(float)batchSize);
+			coord.y = (int)Math.Floor(coord.y/(float)batchSize);
+			coord.z = (int)Math.Floor(coord.z/(float)batchSize);
+			return coord+batchOffset;
+		}
+		
+		/** Returns the min XYZ corner */
+		public static Int3 getWorldCoord(Int3 batch) {
+			batch = batch-batchOffset;
+			return batch*batchSize+batchOffsetM;
+		}
+		
+		public static string getBiome(Vector3 pos) {
+			BiomeProperties b = LargeWorld.main.GetBiomeProperties(pos.roundToInt3().XZ());
+			return b != null ? b.name : "null";
+		}
+		
+		public static void removeComponent<C>(GameObject go) where C : Component {
+			Component c = go.GetComponent<C>();
+			if (c != null)
+				UnityEngine.Object.Destroy(c);
+		}
+		
+		public static int getWorldSeedInt() {
+			long seed = getWorldSeed();
+			return unchecked((int)((seed & 0xFFFFFFFFL) ^ (seed >> 32)));
+		}
+		
+		public static long getWorldSeed() {
+			string path = SaveUtils.GetCurrentSaveDataDir();
+			long seed = SaveLoadManager._main.firstStart;
+			seed ^= path.GetHashCode();
+			seed ^= unchecked(((long)getModDLL().Location.GetHashCode()) << 32);
+			return seed;
+		}
+		
 		public static TechType getTechType(string tech) {
 			TechType ret;
 			if (!Enum.TryParse<TechType>(tech, false, out ret)) {
@@ -27,7 +78,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void log(string s, int indent = 0) {
-			string id = Assembly.GetExecutingAssembly().GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
+			string id = getModDLL().GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
 			if (indent > 0) {
 				s = s.PadLeft(s.Length+indent, ' ');
 			}
@@ -230,6 +281,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static string getPrefabID(GameObject go) {
+			if (go == null)
+				return null;
 			PrefabIdentifier p = go.GetComponentInParent<PrefabIdentifier>();
 			if (p != null)
 				return p.classId;

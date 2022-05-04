@@ -66,5 +66,31 @@ namespace ReikaKalseki.DIAlterra
 			return getRandomVectorBetween(pos-range, pos+range);
 		}
 		
+		public static double getDistanceToLine(Vector3 point, Vector3 a, Vector3 b) {
+			return getDistanceToLine(point, a.x, a.y, a.z, b.x, b.y, b.z);
+		}
+		//just like when I did it for ChokePoint: https://wikimedia.org/api/rest_v1/media/math/render/svg/aad3f60fa75c4e1dcbe3c1d3a3792803b6e78bf6
+		public static double getDistanceToLine(Vector3 point, double x1, double y1, double z1, double x2, double y2, double z2) {
+			double denom = (x2-x1)*(x2-x1)+(z2-z1)*(z2-z1);
+			double num = (x2-x1)*(z1-point.z)-(x1-point.x)*(z2-z1);
+			return Math.Abs(num)/Math.Sqrt(denom);
+		}
+
+		public static double linterpolate(double x, double x1, double x2, double y1, double y2) {
+			return y1+(x-x1)/(x2-x1)*(y2-y1);
+		}
+
+		public static Vector3 interpolate(Vector3 a, Vector3 b, float amt) {
+			return a+(b-a)*amt;
+		}
+	
+		public static float getRandomPlusMinus(float val, float range) {
+			return UnityEngine.Random.Range(val-range, val+range);
+		}
+	
+		public static int getRandomPlusMinus(int val, int range) {
+			return UnityEngine.Random.Range(val-range, val+range);
+		}
+		
 	}
 }
