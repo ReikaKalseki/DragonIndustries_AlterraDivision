@@ -179,6 +179,9 @@ namespace ReikaKalseki.DIAlterra
 				LocalBuilder loc = (LocalBuilder)insn.operand;
 				return args[0] is int && loc.LocalIndex == (int)args[0]/* && loc.LocalType == args[1]*/;
 			}
+			else if (insn.opcode == OpCodes.Ldstr) { //string var
+				return (string)insn.operand == (string)args[0];
+			}
 			return true;
 		}
 		

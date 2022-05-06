@@ -18,6 +18,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly Vector3 position;
 		
+		public Func<string, GameObject> spawner = SBUtil.createWorldObject;
+		
 		static WorldGenerator() {
 			registerType(TAGNAME, e => {
 				string typeName = e.getProperty("type");
@@ -53,6 +55,10 @@ namespace ReikaKalseki.DIAlterra
 					return true;
 			}
 			return false;
+		}
+		
+		public override string ToString() {
+			return getID()+" @ "+position;
 		}
 	}
 }

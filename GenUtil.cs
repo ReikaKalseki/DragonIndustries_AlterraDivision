@@ -10,6 +10,8 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class GenUtil {
 		
+		public static readonly Bounds allowableGenBounds = MathUtil.getBounds(-2299, -3100, -2299, 2299, 150, 2299);
+		
 		public static SpawnInfo registerWorldgen(PositionedPrefab pfb, Action<GameObject> call = null) {
 			return registerWorldgen(pfb.prefabName, pfb.position, pfb.rotation, call);
 		}
@@ -19,6 +21,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Quaternion? rot = null, Action<GameObject> call = null) {
+			validateCoords(pos);
 			SpawnInfo info = new SpawnInfo(prefab, pos, getOrIdentity(rot), call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
 			//SBUtil.log("Registering prefab "+prefab+" @ "+pos);
@@ -26,13 +29,15 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo registerWorldgen(WorldGenerator gen) {
+			validateCoords(gen.position);
 			Action<GameObject> call = go => {
 				UnityEngine.Object.Destroy(go);
+				SBUtil.log("Running world generator "+gen);
 				gen.generate(new List<GameObject>());
 			};
 			SpawnInfo info = new SpawnInfo(VanillaResources.LIMESTONE.prefab, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
-			SBUtil.log("Queuing world generator "+gen.getID());
+			SBUtil.log("Queuing world generator "+gen);
 			return info;
 		}
 		
@@ -59,6 +64,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnTechType(TechType tech, Vector3 pos, Vector3? rot = null) {
+			validateCoords(pos);
 			SpawnInfo info = new SpawnInfo(tech, pos, getOrZero(rot));
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
 			return info;
@@ -70,6 +76,11 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static Quaternion getOrIdentity(Quaternion? init) {
 			return init != null && init.HasValue ? init.Value : Quaternion.identity;
+		}
+		
+		private static void validateCoords(Vector3 pos) {
+			if (!allowableGenBounds.Contains(pos))
+				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
 	}

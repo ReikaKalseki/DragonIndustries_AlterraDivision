@@ -22,7 +22,11 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources SANDSTONE = new VanillaResources("5b702ef7-7403-49ee-99c5-1f67ab04954a");
 		public static readonly VanillaResources SHALE = new VanillaResources("814fa303-8697-48ef-b126-cf22e703cefd");
 		
+		public static readonly VanillaResources TITANIUM = new VanillaResources("c66b5dfa-7fe9-4688-b165-d2e2f4caa8d9");
+		public static readonly VanillaResources COPPER = new VanillaResources("63e251a6-fb65-454b-84b0-4493e19f73cd");
 		public static readonly VanillaResources QUARTZ = new VanillaResources("8ef17c52-2aa8-46b6-ada3-c3e3c4a78dd6");
+		public static readonly VanillaResources GOLD = new VanillaResources("3c5bd4db-953d-4d23-92be-f5a3b76b2e25");
+		public static readonly VanillaResources SILVER = new VanillaResources("439b4b17-2f86-4706-8abd-8d2f68df782b");
 		public static readonly VanillaResources SALT = new VanillaResources("f654e870-3101-4ff3-8bb4-528dceef43a5");
 		public static readonly VanillaResources LITHIUM = new VanillaResources("f65beedb-2d76-466b-abc8-37c474228157");
 		public static readonly VanillaResources LEAD = new VanillaResources("b334fbb1-224b-4082-bb69-d4a39051aaca");

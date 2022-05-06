@@ -92,5 +92,13 @@ namespace ReikaKalseki.DIAlterra
 			return UnityEngine.Random.Range(val-range, val+range);
 		}
 		
+		public static Bounds getBounds(double x1, double y1, double z1, double x2, double y2, double z2) {
+			Vector3 v1 = new Vector3((float)x1, (float)y1, (float)z1);
+			Vector3 v2 = new Vector3((float)x2, (float)y2, (float)z2);
+			Bounds b = new Bounds(Vector3.zero, Vector3.zero);
+			b.SetMinMax(v1, v2);
+			return b;
+		}
+		
 	}
 }

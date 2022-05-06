@@ -21,6 +21,8 @@ namespace ReikaKalseki.DIAlterra
 			
 		public readonly bool isLargeResource;
 		public readonly VanillaResources baseTemplate;
+		
+		public float glowIntensity = -1;
 			
 		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
 			baseTemplate = template;
@@ -87,13 +89,14 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		private void applyMaterialChanges(Renderer r) {
-			//SBUtil.log("render for "+this.enumIndex);
-			//SBUtil.dumpObjectData(r);
+			SBUtil.log("render for "+this);
+			SBUtil.dumpObjectData(r);
 			bool flag = false;
 			foreach (String type in texTypes) {
 				Texture2D newTex = TextureManager.getTexture("Textures/Resources/"+formatFileName()+type);
 				if (newTex != null) {
 					r.materials[0].SetTexture(type, newTex);
+					r.sharedMaterial.SetTexture(type, newTex);
 					flag = true;
 					//SBUtil.writeToChat("Found "+type+" texture @ "+path);
 				}
@@ -104,9 +107,17 @@ namespace ReikaKalseki.DIAlterra
 			if (!flag) {
 				SBUtil.log("NO CUSTOM TEXTURES FOUND: "+this);
 			}
+			if (glowIntensity >= 0) {
+				r.materials[0].SetFloat("_GlowStrength", glowIntensity);
+				r.sharedMaterial.SetFloat("_GlowStrength", glowIntensity);
+				r.materials[0].SetFloat("_GlowStrengthNight", glowIntensity);
+				r.sharedMaterial.SetFloat("_GlowStrengthNight", glowIntensity);
+				r.materials[0].EnableKeyword("MARMO_EMISSION");
+				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
+			}
+			SBUtil.log("after modify for "+this);
+			SBUtil.dumpObjectData(r);
 		}
-		
-
 			
 		private string formatFileName() {
 			string n = ClassID;

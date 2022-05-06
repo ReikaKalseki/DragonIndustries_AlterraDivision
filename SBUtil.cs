@@ -33,8 +33,8 @@ namespace ReikaKalseki.DIAlterra
 			return coord+batchOffset;
 		}
 		
-		/** Returns the min XYZ corner */
-		public static Int3 getWorldCoord(Int3 batch) {
+		/** Returns the min XYZ corner */ 
+		public static Int3 getWorldCoord(Int3 batch) { //TODO https://i.imgur.com/sbXjIpq.png
 			batch = batch-batchOffset;
 			return batch*batchSize+batchOffsetM;
 		}
@@ -48,6 +48,17 @@ namespace ReikaKalseki.DIAlterra
 			Component c = go.GetComponent<C>();
 			if (c != null)
 				UnityEngine.Object.Destroy(c);
+		}
+		
+		public static int getInstallSeed() {
+			int seed = getModDLL().Location.GetHashCode();
+			seed &= (~(1 << Environment.ProcessorCount));
+			string n = Environment.MachineName;
+			if (string.IsNullOrEmpty(n))
+				n = Environment.UserName;
+			seed ^= (n != null ? n.GetHashCode() : 0);
+			seed ^= Environment.OSVersion.VersionString.GetHashCode();
+			return seed;
 		}
 		
 		public static int getWorldSeedInt() {

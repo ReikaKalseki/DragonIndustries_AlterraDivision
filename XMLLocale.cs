@@ -76,7 +76,7 @@ namespace ReikaKalseki.DIAlterra
 			public readonly string desc;
 			public readonly string pda;
 			
-			internal LocaleEntry(XmlElement e) : this(e, e.Name, cleanString(e.getProperty("name")), cleanString(e.getProperty("desc")), cleanString(e.getProperty("pda"))) {
+			internal LocaleEntry(XmlElement e) : this(e, e.Name, cleanString(e.getProperty("name")), cleanString(e.getProperty("desc", true)), cleanString(e.getProperty("pda"))) {
 				
 			}
 			
@@ -95,6 +95,10 @@ namespace ReikaKalseki.DIAlterra
 			
 			public bool hasField(string key) {
 				return element != null && element.hasProperty(key);
+			}
+			
+			public T getField<T>(string key) where T : class {
+				return getField<T>(key, null);
 			}
 			
 			public T getField<T>(string key, T fallback) {
