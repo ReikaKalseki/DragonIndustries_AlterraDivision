@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Signal ID '"+id+"' already in use!");
 			ModSignal sig = new ModSignal(id, name, desc, pda, prompt);
 			signals[sig.id] = sig;
-			SBUtil.log("Registered signal "+sig.id);
+			SBUtil.log("Registered signal "+sig);
 			return sig;
 		}
 		
@@ -42,9 +42,10 @@ namespace ReikaKalseki.DIAlterra
 			
 			public readonly string id;
 			public readonly string name;
-			public readonly string longName;
-			public readonly string pdaEntry;	
-			public readonly string pdaPrompt;		
+			public readonly string longName;	
+			public readonly string pdaPrompt;	
+			
+			public readonly PDAManager.PDAPage pdaEntry;	
 		
 			private PingType signalType;
 			private GameObject signalHolder;
@@ -54,23 +55,15 @@ namespace ReikaKalseki.DIAlterra
 				this.id = id;
 				name = n;
 				longName = desc;
-				pdaEntry = pda;
-				pdaPrompt = prompt;				
+				pdaPrompt = prompt;
+
+				pdaEntry = PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
 			}
 			
-			public void register(Atlas.Sprite icon, params string[] pdaCategories) {
+			public void register(Atlas.Sprite icon) {
 				signalType = PingHandler.RegisterNewPingType(id, icon);
 				
-				PDAEncyclopedia.EntryData dat = new PDAEncyclopedia.EntryData();
-				dat.audio = null;
-				dat.key = "signal_"+id;
-				dat.timeCapsule = false;
-				dat.unlocked = true;
-				List<string> li = pdaCategories.ToList();
-				li.Insert(0, "DownloadedData");
-				dat.nodes = li.ToArray();
-				dat.path = string.Join("/", li);
-				PDAEncyclopediaHandler.AddCustomEntry(dat);
+				pdaEntry.register();
 			}
 			
 			//ONLY CALL THIS WHEN THE WORLD IS LOADED
@@ -103,8 +96,14 @@ namespace ReikaKalseki.DIAlterra
 				init.ping = signalInstance;
 				init.description = longName;
 				
-				PDAEncyclopedia.Add("signal_"+id, true);
+				pdaEntry.unlock();
 			}
+			
+			public override string ToString()
+			{
+				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, PdaPrompt={3}, PdaEntry={4}]", id, name, longName, pdaPrompt, pdaEntry);
+			}
+ 
 			
 		}
 		

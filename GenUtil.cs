@@ -50,6 +50,15 @@ namespace ReikaKalseki.DIAlterra
 			return registerWorldgen("1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6", pos, rot, call); //compass databox
 		}
 		
+		public static SpawnInfo spawnPDA(Vector3 pos, PDAManager.PDAPage page, Vector3? rot = null) {
+			return spawnPDA(pos, page, Quaternion.Euler(getOrZero(rot)));
+		}
+		
+		public static SpawnInfo spawnPDA(Vector3 pos, PDAManager.PDAPage page, Quaternion? rot = null) {
+			Action<GameObject> call = go => SBUtil.setPDAPage(go.EnsureComponent<StoryHandTarget>(), page);
+			return registerWorldgen("0f1dd54e-b36e-40ca-aa85-d01df1e3e426", pos, rot, call); //blood kelp PDA
+		}
+		
 		public static SpawnInfo spawnItemCrate(Vector3 pos, TechType item, Vector3? rot = null) {
 			return spawnItemCrate(pos, item, Quaternion.Euler(getOrZero(rot)));
 		}

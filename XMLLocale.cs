@@ -61,6 +61,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private static string cleanString(string input) {
+			if (string.IsNullOrEmpty(input))
+				return input;
 			string[] parts = input.Trim().Split('\n');
 			for (int i = 0; i < parts.Length; i++) {
 				parts[i] = parts[i].Trim();
@@ -123,7 +125,7 @@ namespace ReikaKalseki.DIAlterra
 					return vec != null && vec.HasValue ? (T)Convert.ChangeType(vec.Value, t) : fallback;
 				}
 				if (t == typeof(string)) {
-					return (T)Convert.ChangeType(element.getProperty(key), t);
+					return (T)Convert.ChangeType(cleanString(element.getProperty(key)), t);
 				}
 				if (t == typeof(bool)) {
 					return (T)Convert.ChangeType(element.getBoolean(key), t);

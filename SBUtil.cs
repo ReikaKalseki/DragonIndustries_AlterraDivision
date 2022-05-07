@@ -277,6 +277,11 @@ namespace ReikaKalseki.DIAlterra
     		bpt.unlockTechType = tech;
     	}
 		
+		public static void setPDAPage(StoryHandTarget tgt, PDAManager.PDAPage page) {
+			tgt.goal.goalType = Story.GoalType.Encyclopedia;
+			tgt.goal.key = page.id;
+		}
+		
 		public static bool objectCollidesPosition(GameObject go, Vector3 pos) {
 			if (go.transform != null) {
 				Collider c = go.GetComponentInParent<Collider>();
@@ -340,7 +345,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void playSound(string path) {
-			
+			PDASounds.queue.PlayQueued(getSound(path));
 		}
 		
 		public static FMODAsset getSound(string path) {
