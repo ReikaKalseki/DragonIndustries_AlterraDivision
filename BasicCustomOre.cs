@@ -24,6 +24,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public float glowIntensity = -1;
 		public string glowType = "GlowStrength";
+		public Action<Renderer> renderModify;
 			
 		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
 			baseTemplate = template;
@@ -123,6 +124,8 @@ namespace ReikaKalseki.DIAlterra
 				r.materials[0].EnableKeyword("MARMO_EMISSION");
 				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
 			}
+			if (renderModify != null)
+				renderModify(r);
 			//SBUtil.log("after modify for "+this);
 			//SBUtil.dumpObjectData(r);
 		}

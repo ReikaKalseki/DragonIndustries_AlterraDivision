@@ -357,5 +357,25 @@ namespace ReikaKalseki.DIAlterra
 			r.sharedMaterial.SetFloat("_"+type+"Night", amt);
 		}
 		
+		public static void makeTransparent(Renderer r) {
+			foreach (Material m in r.materials) {
+				m.EnableKeyword("_ZWRITE_ON");
+	  			m.EnableKeyword("WBOIT");
+				m.SetInt("_ZWrite", 0);
+				m.SetInt("_Cutoff", 0);
+				m.SetFloat("_SrcBlend", 1f);
+				m.SetFloat("_DstBlend", 1f);
+				m.SetFloat("_SrcBlend2", 0f);
+				m.SetFloat("_DstBlend2", 10f);
+				m.SetFloat("_AddSrcBlend", 1f);
+				m.SetFloat("_AddDstBlend", 1f);
+				m.SetFloat("_AddSrcBlend2", 0f);
+				m.SetFloat("_AddDstBlend2", 10f);
+				m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack | MaterialGlobalIlluminationFlags.RealtimeEmissive;
+				m.renderQueue = 3101;
+				m.enableInstancing = true;
+			}
+		}
+		
 	}
 }
