@@ -4,6 +4,7 @@ using System.Xml;
 using System.Reflection;
 
 using System.Collections.Generic;
+using System.Linq;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Utility;
@@ -24,15 +25,16 @@ namespace ReikaKalseki.DIAlterra
 			return signals.ContainsKey(id) ? signals[id] : null;
 		}
 		
-		public static ModSignal createSignal(XMLLocale.LocaleEntry text) {
-			return createSignal(text.key, text.name, text.desc, text.pda);
+		public static ModSignal createSignal(XMLLocale.LocaleEntry text) {	
+			return createSignal(text.key, text.name, text.desc, text.pda, text.getField<string>("prompt"));
 		}
 		
-		public static ModSignal createSignal(string id, string name, string desc, string prompt) {
+		public static ModSignal createSignal(string id, string name, string desc, string pda, string prompt) {
 			if (signals.ContainsKey(id))
 				throw new Exception("Signal ID '"+id+"' already in use!");
-			ModSignal sig = new ModSignal(id, name, desc, prompt);
+			ModSignal sig = new ModSignal(id, name, desc, pda, prompt);
 			signals[sig.id] = sig;
+			SBUtil.log("Registered signal "+sig.id);
 			return sig;
 		}
 		
@@ -41,21 +43,34 @@ namespace ReikaKalseki.DIAlterra
 			public readonly string id;
 			public readonly string name;
 			public readonly string longName;
-			public readonly string pdaPrompt;			
+			public readonly string pdaEntry;	
+			public readonly string pdaPrompt;		
 		
 			private PingType signalType;
 			private GameObject signalHolder;
 			private PingInstance signalInstance;
 			
-			internal ModSignal(string id, string n, string desc, string prompt) {
+			internal ModSignal(string id, string n, string desc, string pda, string prompt) {
 				this.id = id;
 				name = n;
 				longName = desc;
+				pdaEntry = pda;
 				pdaPrompt = prompt;				
 			}
 			
-			public void register(Atlas.Sprite icon) {
+			public void register(Atlas.Sprite icon, params string[] pdaCategories) {
 				signalType = PingHandler.RegisterNewPingType(id, icon);
+				
+				PDAEncyclopedia.EntryData dat = new PDAEncyclopedia.EntryData();
+				dat.audio = null;
+				dat.key = "signal_"+id;
+				dat.timeCapsule = false;
+				dat.unlocked = true;
+				List<string> li = pdaCategories.ToList();
+				li.Insert(0, "DownloadedData");
+				dat.nodes = li.ToArray();
+				dat.path = string.Join("/", li);
+				PDAEncyclopediaHandler.AddCustomEntry(dat);
 			}
 			
 			//ONLY CALL THIS WHEN THE WORLD IS LOADED
@@ -64,7 +79,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void build(GameObject holder, Vector3 pos, float maxDist = 9999) {
-				signalHolder = SBUtil.createWorldObject("a227d6b6-d64c-4bf0-b919-2db02d67d037");
+				signalHolder = holder;
 				signalHolder.transform.position = pos;
 				LargeWorldEntity lw = signalHolder.EnsureComponent<LargeWorldEntity>();
 				lw.cellLevel = LargeWorldEntity.CellLevel.Global;
@@ -75,14 +90,33 @@ namespace ReikaKalseki.DIAlterra
 				signalInstance.minDist = 18;
 				signalInstance.maxDist = maxDist;
 				signalInstance.SetLabel(longName);
+				signalInstance.displayPingInManager = false;
+				signalInstance.SetVisible(false);
 			}
 		
 			public void activate() {
 				signalInstance.displayPingInManager = true;
 				signalInstance.enabled = true;
 				signalInstance.SetVisible(true);
+				
+				SignalInitializer init = signalHolder.EnsureComponent<SignalInitializer>();
+				init.ping = signalInstance;
+				init.description = longName;
+				
+				PDAEncyclopedia.Add("signal_"+id, true);
 			}
 			
+		}
+		
+		private class SignalInitializer : MonoBehaviour {
+			
+			internal string description;
+		  
+			public PingInstance ping;
+		  
+			private void Start() {
+		    	ping.SetLabel(description);
+			}
 		}
 		
 	}

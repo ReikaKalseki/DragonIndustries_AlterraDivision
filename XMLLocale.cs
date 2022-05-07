@@ -32,6 +32,7 @@ namespace ReikaKalseki.DIAlterra
 				LocaleEntry lc = constructEntry(e);
 				entries[lc.key] = lc;
 			}
+			SBUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Values));
 		}
 		
 		private XmlDocument loadXML() {
@@ -89,6 +90,10 @@ namespace ReikaKalseki.DIAlterra
 				element = e;
 			}
 			
+			public override string ToString() {
+				return key+": "+name+" / "+desc;
+			}
+			
 			public string dump() {
 				return element == null ? "<null>" : element.format();
 			}
@@ -116,6 +121,9 @@ namespace ReikaKalseki.DIAlterra
 				if (t == typeof(Quaternion)) {
 					Quaternion? vec = element.getQuaternion(key);
 					return vec != null && vec.HasValue ? (T)Convert.ChangeType(vec.Value, t) : fallback;
+				}
+				if (t == typeof(string)) {
+					return (T)Convert.ChangeType(element.getProperty(key), t);
 				}
 				if (t == typeof(bool)) {
 					return (T)Convert.ChangeType(element.getBoolean(key), t);

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 using System.Xml;
 
+using System.Collections;
 using System.Collections.Generic;
 using SMLHelper.V2.Handlers;
 
@@ -193,6 +194,32 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static Int3 roundToInt3(this Vector3 vec) {
 			return new Int3((int)Math.Floor(vec.x), (int)Math.Floor(vec.y), (int)Math.Floor(vec.z));
+		}
+		
+		public static bool isEnumerable(this object o) {
+    		if (o == null)
+    			return false;
+	    	return o is IEnumerable && o.GetType().IsGenericType && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>));
+		}
+		
+		public static bool isList(this object o) {
+    		if (o == null)
+    			return false;
+	    	return o is IList && o.GetType().IsGenericType && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+		}
+		
+		public static bool isDictionary(this object o) {
+		    if (o == null)
+		    	return false;
+		    return o is IDictionary && o.GetType().IsGenericType && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+		}
+		
+		public static string toDebugString<K, V>(this IDictionary<K, V> dict) {
+		    return "{" + string.Join(",", dict.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+		}
+		
+		public static string toDebugString<E>(this IEnumerable<E> c) {
+		    return "[" + string.Join(",", c.ToArray()) + "]";
 		}
 		
 	}

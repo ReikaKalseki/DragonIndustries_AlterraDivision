@@ -96,5 +96,12 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void dumpPDATree() {
+			foreach (var kvp in PDAEncyclopedia.entries) {
+				SBUtil.log("PDA entry '"+kvp.Key+"': "+kvp.Value);
+			}
+			dumpCraftTreeFromNode(PDAEncyclopedia.tree);
+		}
+		
 	}
 }

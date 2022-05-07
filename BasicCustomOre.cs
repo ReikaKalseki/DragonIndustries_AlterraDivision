@@ -23,6 +23,7 @@ namespace ReikaKalseki.DIAlterra
 		public readonly VanillaResources baseTemplate;
 		
 		public float glowIntensity = -1;
+		public string glowType = "GlowStrength";
 			
 		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
 			baseTemplate = template;
@@ -89,8 +90,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		private void applyMaterialChanges(Renderer r) {
-			SBUtil.log("render for "+this);
-			SBUtil.dumpObjectData(r);
+			//SBUtil.log("render for "+this);
+			//SBUtil.dumpObjectData(r);
 			bool flag = false;
 			foreach (String type in texTypes) {
 				Texture2D newTex = TextureManager.getTexture("Textures/Resources/"+formatFileName()+type);
@@ -108,15 +109,22 @@ namespace ReikaKalseki.DIAlterra
 				SBUtil.log("NO CUSTOM TEXTURES FOUND: "+this);
 			}
 			if (glowIntensity >= 0) {
-				r.materials[0].SetFloat("_GlowStrength", glowIntensity);
+				SBUtil.setEmissivity(r, glowIntensity, glowType);/*
+				r.materials[0].SetFloat("_"+glowType, glowIntensity);
 				r.sharedMaterial.SetFloat("_GlowStrength", glowIntensity);
 				r.materials[0].SetFloat("_GlowStrengthNight", glowIntensity);
 				r.sharedMaterial.SetFloat("_GlowStrengthNight", glowIntensity);
+				
+				r.materials[0].SetFloat("_EmissionLM", glowIntensity);
+				r.sharedMaterial.SetFloat("_EmissionLM", glowIntensity);
+				r.materials[0].SetFloat("_EmissionLMNight", glowIntensity);
+				r.sharedMaterial.SetFloat("_EmissionLMNight", glowIntensity);*/
+				
 				r.materials[0].EnableKeyword("MARMO_EMISSION");
 				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
 			}
-			SBUtil.log("after modify for "+this);
-			SBUtil.dumpObjectData(r);
+			//SBUtil.log("after modify for "+this);
+			//SBUtil.dumpObjectData(r);
 		}
 			
 		private string formatFileName() {

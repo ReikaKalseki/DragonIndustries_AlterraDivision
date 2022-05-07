@@ -339,5 +339,23 @@ namespace ReikaKalseki.DIAlterra
 			return repl;
 		}
 		
+		public static void playSound(string path) {
+			
+		}
+		
+		public static FMODAsset getSound(string path) {
+			FMODAsset ass = ScriptableObject.CreateInstance<FMODAsset>();
+			ass.path = path;
+			//ass.id = id;
+			return ass;
+		}
+		
+		public static void setEmissivity(Renderer r, float amt, string type) {
+			r.materials[0].SetFloat("_"+type, amt);
+			r.sharedMaterial.SetFloat("_"+type, amt);
+			r.materials[0].SetFloat("_"+type+"Night", amt);
+			r.sharedMaterial.SetFloat("_"+type+"Night", amt);
+		}
+		
 	}
 }
