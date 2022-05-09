@@ -269,8 +269,8 @@ namespace ReikaKalseki.DIAlterra
 		}
     
 	    public static void setCrateItem(SupplyCrate c, TechType item) {
-			PrefabPlaceholdersGroup pre = c.gameObject.GetComponentInParent<PrefabPlaceholdersGroup>();
-			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item); //TODO crate item DOES NOT SEEM  TO WORK
+			PrefabPlaceholdersGroup pre = c.gameObject.EnsureComponent<PrefabPlaceholdersGroup>();
+			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
 	    }
 		
 		public static void setDatabox(BlueprintHandTarget bpt, TechType tech) {
@@ -344,14 +344,24 @@ namespace ReikaKalseki.DIAlterra
 			return repl;
 		}
 		
-		public static void playSound(string path) {
-			PDASounds.queue.PlayQueued(getSound(path));
+		public static void playSound(string path, bool queue = false) {
+			playSoundAt(path, Player.main.transform.position, queue);
+		}
+		
+		public static void playSoundAt(string path, Vector3 position, bool queue = false) {
+			FMODAsset ass = getSound(path);
+			if (queue)
+				PDASounds.queue.PlayQueued(ass);
+			else
+				FMODUWE.PlayOneShot(ass, position);
 		}
 		
 		public static FMODAsset getSound(string path) {
 			FMODAsset ass = ScriptableObject.CreateInstance<FMODAsset>();
 			ass.path = path;
-			//ass.id = id;
+			ass.id = VanillaSounds.getID(path);
+			if (ass.id == null)
+				ass.id = path;
 			return ass;
 		}
 		
@@ -379,6 +389,23 @@ namespace ReikaKalseki.DIAlterra
 				m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack | MaterialGlobalIlluminationFlags.RealtimeEmissive;
 				m.renderQueue = 3101;
 				m.enableInstancing = true;
+			}
+		}
+		
+		public static void offsetColliders(GameObject go, Vector3 move) {
+			foreach (Collider c in go.GetComponentsInChildren<Collider>()) {
+				if (c is SphereCollider) {
+					((SphereCollider)c).center = ((SphereCollider)c).center+move;
+				}
+				else if (c is BoxCollider) {
+					((BoxCollider)c).center = ((BoxCollider)c).center+move;
+				}
+				else if (c is CapsuleCollider) {
+					((CapsuleCollider)c).center = ((CapsuleCollider)c).center+move;
+				}
+				else if (c is MeshCollider) {
+					//TODO move to subobject
+				}
 			}
 		}
 		

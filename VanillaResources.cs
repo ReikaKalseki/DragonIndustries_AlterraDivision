@@ -59,12 +59,38 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources LARGE_MAGNETITE = new VanillaResources("f67c158c-3b83-473c-ad52-93fd2eeef66b");
 		public static readonly VanillaResources LARGE_URANIUM = new VanillaResources("fb5de2b6-1fe8-44fc-a555-dc0a09dc292a");
 		
+		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();
+		
 		public readonly string prefab;
 		public readonly string pathname;
+		
+		private string name;
 				
 		private VanillaResources(string id) {
 			prefab = id;
 			pathname = PrefabData.getPrefab(id);
+		}
+		
+		public static VanillaResources getByName(string n) {
+			populateNames();
+			return names.ContainsKey(n) ? names[n] : null;
+		}
+		
+		public static List<VanillaResources> getAll() {
+			populateNames();
+			return new List<VanillaResources>(names.Values);
+		}
+		
+		private static void populateNames() {
+			if (names.Count == 0) {
+				foreach (FieldInfo f in typeof(VanillaResources).GetFields()) {
+					if (f.IsStatic && f.FieldType == typeof(VanillaResources)) {
+						VanillaResources vf = (VanillaResources)f.GetValue(null);
+						names[f.Name] = vf;
+						vf.name = f.Name;
+					}
+				}
+			}
 		}
 		
 	}

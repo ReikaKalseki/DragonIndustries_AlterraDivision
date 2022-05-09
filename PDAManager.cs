@@ -55,7 +55,7 @@ namespace ReikaKalseki.DIAlterra
 				this.text = text;	
 				category = cat;
 				
-				tree.Add(cat);
+				tree.AddRange(cat.Split('/'));
 				
 				pageData.audio = null;
 				pageData.key = id;
@@ -67,8 +67,16 @@ namespace ReikaKalseki.DIAlterra
 				tree.Add(s);
 			}
 			
-			public void setVoiceover(FMODAsset sound) {
-				pageData.audio = sound;
+			public void setVoiceover(string path) {
+				string sid = VanillaSounds.getID(path);
+				if (sid == null) {
+					SBUtil.log("Sound path "+path+" did not find an ID. Registering as custom.");
+					sid = "pda_vo_"+id;
+					SoundManager.registerSound(sid, path);
+				}
+				pageData.audio = SBUtil.getSound(path);
+				pageData.audio.id = sid;
+				SBUtil.log("Setting "+this+" sound to "+pageData.audio.id);
 			}
 			
 			public void setHeaderImage(Texture2D img) {
@@ -83,12 +91,16 @@ namespace ReikaKalseki.DIAlterra
 				LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
 			}
 		
-			public void unlock() {				
+			public void unlock(bool doSound = true) {
+				pageData.unlocked = true;
 				PDAEncyclopedia.Add(pageData.key, true);
+				
+				if (doSound)
+					SBUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
 			}
 			
 			public override string ToString() {
-				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}]", id, name, text, category);
+				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}]", id, name, text.Replace("\n", ""), category);
 			}
  
 			

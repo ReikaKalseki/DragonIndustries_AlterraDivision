@@ -96,7 +96,10 @@ namespace ReikaKalseki.DIAlterra
 				init.ping = signalInstance;
 				init.description = longName;
 				
-				pdaEntry.unlock();
+				SBUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
+				SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click
+				
+				pdaEntry.unlock(false);
 			}
 			
 			public override string ToString()
