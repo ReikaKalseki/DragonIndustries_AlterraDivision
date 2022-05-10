@@ -409,5 +409,53 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void visualizeColliders(GameObject go) {
+			foreach (Collider c in go.GetComponentsInChildren<Collider>()) {
+				Vector3 sc = Vector3.one;
+				Vector3 off = Vector3.zero;
+				PrimitiveType? pm = null;
+				if (c is SphereCollider) {
+					pm = PrimitiveType.Sphere;
+					SphereCollider sp = (SphereCollider)c;
+					sc = Vector3.one*sp.radius;
+					off = sp.center;
+				}
+				else if (c is BoxCollider) {
+					pm = PrimitiveType.Cube;
+					BoxCollider b = (BoxCollider)c;
+					sc = b.size/2;
+					off = b.center;
+				}
+				else if (c is CapsuleCollider) {
+					pm = PrimitiveType.Capsule;
+					CapsuleCollider cc = (CapsuleCollider)c;
+					sc = new Vector3(cc.radius, cc.height, cc.radius);
+					off = cc.center;
+				}
+				if (pm != null && pm.HasValue) {
+					GameObject vis = GameObject.CreatePrimitive(pm.Value);
+					vis.transform.position = off;
+					vis.transform.parent = c.transform;
+					vis.transform.localScale = sc;
+					vis.SetActive(true);
+				}
+			}
+		}
+		
+		public static void refillItem(GameObject item, TechType batteryType = TechType.Battery) {
+			Oxygen o = item.GetComponentInParent<Oxygen>();
+			if (o != null) {
+				o.oxygenAvailable = o.oxygenCapacity;
+			}
+			Battery b = item.GetComponentInParent<Battery>();
+			if (b != null) {
+				b.charge = b.capacity;
+			}
+			EnergyMixin e = item.GetComponentInParent<EnergyMixin>();
+			if (e != null) {
+				e.SetBattery(batteryType, 1);
+			}
+		}
+		
 	}
 }

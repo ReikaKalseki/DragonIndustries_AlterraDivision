@@ -66,6 +66,14 @@ namespace ReikaKalseki.DIAlterra
 			return getRandomVectorBetween(pos-range, pos+range);
 		}
 		
+		public static Vector3 getRandomVectorAround(Vector3 pos, float r0, float r1) {
+			float r = UnityEngine.Random.Range(r0, r1);
+			float ang = UnityEngine.Random.Range(0, 360F);
+			float cos = (float)Math.Cos(ang*Math.PI/180D);
+			float sin = (float)Math.Sin(ang*Math.PI/180D);
+			return pos+r*new Vector3(cos, 0, sin);
+		}
+		
 		public static double getDistanceToLine(Vector3 point, Vector3 a, Vector3 b) {
 			return getDistanceToLine(point, a.x, a.y, a.z, b.x, b.y, b.z);
 		}

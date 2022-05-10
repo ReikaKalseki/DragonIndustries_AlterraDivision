@@ -76,7 +76,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 				pageData.audio = SBUtil.getSound(path);
 				pageData.audio.id = sid;
-				SBUtil.log("Setting "+this+" sound to "+pageData.audio.id);
+				SBUtil.log("Setting "+this+" sound to "+pageData.audio.id+"="+pageData.audio.path);
 			}
 			
 			public void setHeaderImage(Texture2D img) {
