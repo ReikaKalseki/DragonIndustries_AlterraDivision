@@ -306,12 +306,13 @@ namespace ReikaKalseki.DIAlterra
 			return CraftData.GetClassIdForTechType(type);
 		}
 			
-		public static GameObject createWorldObject(string id) {
+		public static GameObject createWorldObject(string id, bool clone = true, bool makeActive = true) {
 			GameObject prefab = lookupPrefab(id);
 			if (prefab != null) {
-				GameObject go = UnityEngine.Object.Instantiate(prefab);
+				GameObject go = clone ? UnityEngine.Object.Instantiate(prefab) : prefab;
 				if (go != null) {
-					go.SetActive(true);
+					if (makeActive)
+						go.SetActive(true);
 					return go;
 				}
 				else {
@@ -455,6 +456,29 @@ namespace ReikaKalseki.DIAlterra
 			if (e != null) {
 				e.SetBattery(batteryType, 1);
 			}
+		}
+		
+		public static GameObject getBasePiece(string n, bool clone = true) {
+			if (n.StartsWith("base_", StringComparison.InvariantCultureIgnoreCase))
+				n = n.Substring(5);
+			Base.PieceDef? piece = null;
+			int res = -1;
+			if (int.TryParse(n, out res)) {
+				piece = Base.pieces[res];
+			}
+			else {
+				piece = Base.pieces[(int)Enum.Parse(typeof(Base.Piece), n)];
+			}
+			GameObject go = piece.Value.prefab.gameObject;
+			if (clone) {
+				go = UnityEngine.Object.Instantiate(go);
+				go.SetActive(true);
+			}
+			return go;
+		}
+		
+		public static Texture extractTexture(GameObject go, string texType) {
+			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
 	}

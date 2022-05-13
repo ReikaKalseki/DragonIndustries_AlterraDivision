@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora GHOSTWEED = new VanillaFlora("1bb43d52-19ee-4a3a-85ef-f85a152cc334", 6.1, 0.1).markHarvestable();
 		public static readonly VanillaFlora GABE_FEATHER = new VanillaFlora(6, 0.2, "79134868-2f8e-4f43-a99f-a6fb8ce60b48", "79134868-2f8e-4f43-a99f-a6fb8ce60b48").markHarvestable();
 		public static readonly VanillaFlora BRINE_LILY = new VanillaFlora("f97bf790-a5bd-4e7f-a5e8-9fca1b37f81c", 6.5, 0.8);
-		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", 6.05);
+		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", 6.3);
 		
 		public static readonly VanillaFlora MING = new VanillaFlora(6, "1d5877a7-bc56-46c8-a27c-f9d0ab99cc80", "ce650c66-355c-4b77-ad4e-a2bea7e36c95").markHarvestable();
 		public static readonly VanillaFlora BULBO = new VanillaFlora("4626f3eb-23c3-4e04-b9df-829cb051758a", 5.9).markEdible();

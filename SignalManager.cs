@@ -60,6 +60,10 @@ namespace ReikaKalseki.DIAlterra
 				pdaEntry = PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
 			}
 			
+			public void register() {
+				register(SpriteManager.Get(SpriteManager.Group.Pings, "Signal"));
+			}
+			
 			public void register(Atlas.Sprite icon) {
 				signalType = PingHandler.RegisterNewPingType(id, icon);
 				
