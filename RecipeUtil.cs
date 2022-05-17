@@ -8,13 +8,16 @@ using SMLHelper.V2.Assets;
 
 using UnityEngine;
 
-namespace ReikaKalseki.DIAlterra
-{
+namespace ReikaKalseki.DIAlterra {
+	
 	public static class RecipeUtil {
+		
+		private static readonly Dictionary<TechType, RecipeNode> nodes = new Dictionary<TechType, RecipeNode>();
 		
 		public static void addIngredient(TechType recipe, TechType add, int amt) {
 			TechData rec = getRecipe(recipe);
 			rec.Ingredients.Add(new Ingredient(add, amt));
+			SBUtil.log("Adding "+add+"x"+amt+" to recipe "+recipe);
 		}
 		
 		public static void removeIngredient(TechType recipe, TechType item) {
@@ -37,6 +40,42 @@ namespace ReikaKalseki.DIAlterra
 			if (rec == null)
 				throw new Exception("No such recipe '"+item+"'!");
 			return rec;
+		}
+		
+		public static TechData removeRecipe(TechType item) {
+			TechData rec = CraftDataHandler.GetTechData(item);
+			CraftData.techData.Remove(item);
+			RecipeNode node = getRecipeNode(item);
+			if (node == null)
+				throw new Exception("No node found for recipe "+item+"\n\n"+nodes.toDebugString<TechType, RecipeNode>());
+			if (node.path == null)
+				throw new Exception("Invalid pathless node "+node);
+			CraftTreeHandler.Main.RemoveNode(node.recipeType, node.path.Split('\\'));
+			nodes.Remove(item);
+			//CraftTree.craftableTech.Remove(item);
+			SBUtil.log("Removing recipe "+item);
+			return rec;
+		}
+		
+		public static RecipeNode getRecipeNode(TechType item) {
+			if (nodes.Count == 0) {
+				foreach (CraftTree.Type t in Enum.GetValues(typeof(CraftTree.Type))) {
+					cacheRecipeNode(getRootNode(t), t);
+				}
+			}
+			return nodes[item];
+		}
+		
+		private static void cacheRecipeNode(CraftNode node, CraftTree.Type type) {
+			if (node == null)
+				return;
+			if (node.techType0 != TechType.None)
+				nodes[node.techType0] = new RecipeNode(node.techType0, type, node.GetPathString('\\', true));
+			if (node.nodes != null) {
+				foreach (CraftNode child in node.nodes) {
+					cacheRecipeNode(child, type);
+				}
+			}
 		}
 		
 		public static CraftNode getRootNode(CraftTree.Type type) {
@@ -101,6 +140,24 @@ namespace ReikaKalseki.DIAlterra
 				SBUtil.log("PDA entry '"+kvp.Key+"': "+kvp.Value);
 			}
 			dumpCraftTreeFromNode(PDAEncyclopedia.tree);
+		}
+		
+		public class RecipeNode {
+			
+			public readonly TechType item;
+			public readonly CraftTree.Type recipeType;
+			public readonly string path;
+			
+			internal RecipeNode(TechType tt, CraftTree.Type t, string s) {
+				item = tt;
+				recipeType = t;
+				path = s;
+			}
+			
+			public override string ToString() {
+				return item+" @ "+recipeType+" >> "+path;
+			}
+			
 		}
 		
 	}

@@ -469,7 +469,15 @@ namespace ReikaKalseki.DIAlterra
 			else {
 				piece = Base.pieces[(int)Enum.Parse(typeof(Base.Piece), n)];
 			}
-			GameObject go = piece.Value.prefab.gameObject;
+			return piece != null && piece.HasValue ? getBasePiece(piece.Value, clone) : null;
+		}
+		
+		public static GameObject getBasePiece(Base.Piece piece, bool clone = true) {
+			return getBasePiece(Base.pieces[(int)piece], clone);
+		}
+		
+		public static GameObject getBasePiece(Base.PieceDef piece, bool clone = true) {
+			GameObject go = piece.prefab.gameObject;
 			if (clone) {
 				go = UnityEngine.Object.Instantiate(go);
 				go.SetActive(true);
@@ -479,6 +487,28 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static Texture extractTexture(GameObject go, string texType) {
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
+		}
+		
+		public static void applyGravity(GameObject go) {
+			//WorldForcesManager.instance.AddWorldForces(go.EnsureComponent<WorldForces>());
+			WorldForces wf = go.EnsureComponent<WorldForces>();
+			wf.enabled = true;
+			wf.handleDrag = true;
+			wf.handleGravity = true;
+			wf.aboveWaterGravity = 9.81F;
+			wf.underwaterGravity = 2;
+			wf.underwaterDrag = 0.5F;
+			Rigidbody rb = go.EnsureComponent<Rigidbody>();
+			rb.constraints = RigidbodyConstraints.None;
+			rb.useGravity = false;//true;
+			rb.detectCollisions = true;
+			rb.isKinematic = false;
+			rb.drag = 0.5F;
+			rb.angularDrag = 0.05F;/*
+			rb.centerOfMass = new Vector3(0, 0.5F, 0);
+			rb.inertiaTensor = new Vector3(0.2F, 0, 0.2F);
+			wf.Awake();
+			rb.WakeUp();*/
 		}
 		
 	}

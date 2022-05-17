@@ -63,11 +63,12 @@ namespace ReikaKalseki.DIAlterra
 				pageData.unlocked = false;			
 			}
 			
-			public void addSubcategory(string s) {
+			public PDAPage addSubcategory(string s) {
 				tree.Add(s);
+				return this;
 			}
 			
-			public void setVoiceover(string path) {
+			public PDAPage setVoiceover(string path) {
 				string sid = VanillaSounds.getID(path);
 				if (sid == null) {
 					SBUtil.log("Sound path "+path+" did not find an ID. Registering as custom.");
@@ -77,10 +78,12 @@ namespace ReikaKalseki.DIAlterra
 				pageData.audio = SBUtil.getSound(path);
 				pageData.audio.id = sid;
 				SBUtil.log("Setting "+this+" sound to "+pageData.audio.id+"="+pageData.audio.path);
+				return this;
 			}
 			
-			public void setHeaderImage(Texture2D img) {
+			public PDAPage setHeaderImage(Texture2D img) {
 				pageData.image = img;
+				return this;
 			}
 			
 			public void register() {

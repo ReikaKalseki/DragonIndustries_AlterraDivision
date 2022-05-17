@@ -13,31 +13,22 @@ using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class BasicCustomOre : Spawnable {
+	public class BasicCustomPlant : Spawnable {
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
 			
-		public readonly bool isLargeResource;
-		public readonly VanillaResources baseTemplate;
+		public readonly VanillaFlora baseTemplate;
 		
 		public float glowIntensity = -1;
 		public string glowType = "GlowStrength";
 		public Action<Renderer> renderModify;
 		
-		public BasicCustomOre(XMLLocale.LocaleEntry e, VanillaResources template) : this(e.key, e.name, e.desc, template) {
+		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template) : this(e.key, e.name, e.desc, template) {
 			
 		}
 			
-		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
+		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template) : base(id, name, desc) {
 			baseTemplate = template;
-			
-			//TODO pickup sound
-			//OnFinishedPatching += () => {CraftData.pickupSoundList.Add(TechType, "event:/loot/pickup_glass");};
-		}
-		
-		public void registerWorldgen(BiomeType biome, int amt, float chance) {
-			SBUtil.log("Adding worldgen "+biome+" x"+amt+" @ "+chance+"% to "+this);
-			GenUtil.registerOreWorldgen(this, biome, amt, chance);
 		}
 		
 		public void addPDAEntry(string text, float scanTime = 2, string header = null) {
@@ -45,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 			e.key = TechType;
 			e.scanTime = scanTime;
 			e.locked = true;
-			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "PlanetaryGeology");
+			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms").addSubcategory("Flora").addSubcategory("Exploitable");
 			if (header != null)
 				page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+header));
 			page.register();
@@ -55,7 +46,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public sealed override GameObject GetGameObject() {
 			GameObject prefab;
-			if (UWE.PrefabDatabase.TryGetPrefab(baseTemplate.prefab, out prefab)) {
+			if (UWE.PrefabDatabase.TryGetPrefab(baseTemplate.getRandomPrefab(false), out prefab)) {
 				GameObject world = UnityEngine.Object.Instantiate(prefab);
 				world.SetActive(false);
 				world.EnsureComponent<TechTag>().type = TechType;
@@ -87,7 +78,7 @@ namespace ReikaKalseki.DIAlterra
 			//SBUtil.dumpObjectData(r);
 			bool flag = false;
 			foreach (String type in texTypes) {
-				Texture2D newTex = TextureManager.getTexture("Textures/Resources/"+formatFileName()+type);
+				Texture2D newTex = TextureManager.getTexture("Textures/Plants/"+formatFileName()+type);
 				if (newTex != null) {
 					r.materials[0].SetTexture(type, newTex);
 					r.sharedMaterial.SetTexture(type, newTex);

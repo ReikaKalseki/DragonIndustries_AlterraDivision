@@ -18,7 +18,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly Vector3 position;
 		
-		public Func<string, GameObject> spawner = SBUtil.createWorldObject;
+		public Func<string, GameObject> spawner = s => SBUtil.createWorldObject(s, true, true);
 		
 		static WorldGenerator() {
 			registerType(TAGNAME, e => {

@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using System.Collections.Generic;
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
 
 using UnityEngine;
@@ -11,6 +12,36 @@ namespace ReikaKalseki.DIAlterra
 	public static class GenUtil {
 		
 		public static readonly Bounds allowableGenBounds = MathUtil.getBounds(-2299, -3100, -2299, 2299, 150, 2299);
+		
+		private static readonly HashSet<string> alreadyRegisteredGen = new HashSet<string>();
+		
+		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
+			registerOreWorldgen(ore, ore.isLargeResource, biome, amt, chance);
+		}
+		
+		public static void registerOreWorldgen(Spawnable sp, bool large, BiomeType biome, int amt, float chance) {
+			registerSlotWorldgen(sp.ClassID, sp.PrefabFileName, sp.TechType, large, biome, amt, chance);
+		}
+		
+		public static void registerSlotWorldgen(string id, string file, TechType tech, bool large, BiomeType biome, int amt, float chance) {
+			if (alreadyRegisteredGen.Contains(id)) {
+		        LootDistributionHandler.EditLootDistributionData(id, biome, chance, amt); //will add if not present
+			}
+			else {		        
+				LootDistributionData.BiomeData b = new LootDistributionData.BiomeData{biome = biome, count = amt, probability = chance};
+		        List<LootDistributionData.BiomeData> li = new List<LootDistributionData.BiomeData>{b};
+		        UWE.WorldEntityInfo info = new UWE.WorldEntityInfo();
+		        info.cellLevel = large ? LargeWorldEntity.CellLevel.Medium : LargeWorldEntity.CellLevel.Near;
+		        info.classId = id;
+		        info.localScale = Vector3.one;
+		        info.slotType = large ? EntitySlot.Type.Medium : EntitySlot.Type.Small;
+		        info.techType = tech;
+		       	WorldEntityDatabaseHandler.AddCustomInfo(id, info);
+		        LootDistributionHandler.AddLootDistributionData(id, file, li, info);
+		        
+				alreadyRegisteredGen.Add(id);
+			}
+		}
 		
 		public static SpawnInfo registerWorldgen(PositionedPrefab pfb, Action<GameObject> call = null) {
 			return registerWorldgen(pfb.prefabName, pfb.position, pfb.rotation, call);

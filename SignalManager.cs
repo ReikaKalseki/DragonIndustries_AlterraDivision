@@ -66,6 +66,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			public void register(Atlas.Sprite icon) {
 				signalType = PingHandler.RegisterNewPingType(id, icon);
+				LanguageHandler.SetLanguageLine(id, "Signal");
 				
 				pdaEntry.register();
 			}
@@ -104,6 +105,12 @@ namespace ReikaKalseki.DIAlterra
 				SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click
 				
 				pdaEntry.unlock(false);
+			}
+			
+			public void deactivate() { //Will not remove the PDA entry!
+				signalInstance.displayPingInManager = false;
+				signalInstance.enabled = false;
+				signalInstance.SetVisible(false);
 			}
 			
 			public override string ToString()
