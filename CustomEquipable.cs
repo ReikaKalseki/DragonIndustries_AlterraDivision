@@ -14,6 +14,10 @@ namespace ReikaKalseki.DIAlterra
 		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
 		public readonly string id;
 		
+		protected CustomEquipable(XMLLocale.LocaleEntry e) : this(e.key, e.name, e.desc) {
+			
+		}
+		
 		protected CustomEquipable(string id, string name, string desc) : base(id, name, desc) {
 			this.id = id;
 		}
@@ -43,6 +47,30 @@ namespace ReikaKalseki.DIAlterra
 		public override QuickSlotType QuickSlotType {
 			get {
 				return QuickSlotType.Passive;
+			}
+		}
+
+		public override CraftTree.Type FabricatorType {
+			get {
+				return CraftTree.Type.Fabricator;
+			}
+		}
+
+		public override string[] StepsToFabricatorTab {
+			get {
+				return new string[]{"PersonalEquipment"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
+			}
+		}
+
+		public override TechGroup GroupForPDA {
+			get {
+				return TechGroup.Personal;
+			}
+		}
+
+		public override TechCategory CategoryForPDA {
+			get {
+				return TechCategory.Tools;
 			}
 		}
 		

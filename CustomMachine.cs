@@ -11,16 +11,14 @@ namespace ReikaKalseki.DIAlterra
 {
 	public abstract class CustomMachine : Buildable {
 		
-		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
-		
 		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
 		
 		public readonly string id;
-		private readonly Base.Piece templatePrefab;
+		private readonly string templatePrefab;
 		
 		public float glowIntensity = -1;
 		
-		protected CustomMachine(string id, string name, string desc, Base.Piece template) : base(id, name, desc) {
+		protected CustomMachine(string id, string name, string desc, string template) : base(id, name, desc) {
 			this.id = id;
 			templatePrefab = template;
 		}
@@ -43,19 +41,20 @@ namespace ReikaKalseki.DIAlterra
 
 		public override sealed TechGroup GroupForPDA {
 			get {
-				return TechGroup.InteriorPieces;
+				return TechGroup.InteriorModules;
 			}
 		}
 
 		public override sealed TechCategory CategoryForPDA {
 			get {
-				return TechCategory.InteriorRoom;
+				return TechCategory.InteriorModule;
 			}
 		}
 		
 		public override GameObject GetGameObject() {
-			GameObject world = SBUtil.getBasePiece(templatePrefab);
-			if (world != null) {
+			GameObject prefab;
+			if (UWE.PrefabDatabase.TryGetPrefab(templatePrefab, out prefab)) {
+				GameObject world = UnityEngine.Object.Instantiate(prefab);
 				world.SetActive(false);
 				world.EnsureComponent<TechTag>().type = TechType;
 				world.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
@@ -63,7 +62,7 @@ namespace ReikaKalseki.DIAlterra
 				world.EnsureComponent<Constructable>().techType = TechType;
 				
 				Renderer r = world.GetComponentInChildren<Renderer>();
-				applyMaterialChanges(r);
+				SBUtil.swapToModdedTextures(r, this, glowIntensity, "Machines");
 				prepareGameObject(world, r);
 				//SBUtil.writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
 				return world;
@@ -75,50 +74,6 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected abstract void onTick(GameObject go);
-			
-		private void applyMaterialChanges(Renderer r) {
-			bool flag = false;
-			foreach (String type in texTypes) {
-				Texture2D newTex = TextureManager.getTexture("Textures/Resources/"+formatFileName()+type);
-				if (newTex != null) {
-					r.materials[0].SetTexture(type, newTex);
-					r.sharedMaterial.SetTexture(type, newTex);
-					flag = true;
-					//SBUtil.writeToChat("Found "+type+" texture @ "+path);
-				}
-				else {
-					//SBUtil.writeToChat("No texture found at "+path);
-				}
-			}
-			if (!flag) {
-				SBUtil.log("NO CUSTOM TEXTURES FOUND: "+this);
-			}
-			if (glowIntensity >= 0) {
-				SBUtil.setEmissivity(r, glowIntensity, "GlowStrength");
-				
-				r.materials[0].EnableKeyword("MARMO_EMISSION");
-				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
-			}
-		}
-			
-		private string formatFileName() {
-			string n = ClassID;
-			System.Text.StringBuilder ret = new System.Text.StringBuilder();
-			for (int i = 0; i < n.Length; i++) {
-				char c = n[i];
-				if (c == '_')
-					continue;
-				bool caps = i == 0 || n[i-1] == '_';
-				if (caps) {
-					c = Char.ToUpperInvariant(c);
-				}
-				else {
-					c = Char.ToLowerInvariant(c);
-				}
-				ret.Append(c);
-			}
-			return ret.ToString();
-		}
 		
 		protected virtual void prepareGameObject(GameObject go, Renderer r) {
 			
@@ -137,7 +92,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+formatFileName());
+			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
 		
 		class CustomMachineLogic : MonoBehaviour {

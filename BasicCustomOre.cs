@@ -14,15 +14,12 @@ using ReikaKalseki.DIAlterra;
 namespace ReikaKalseki.DIAlterra
 {
 	public class BasicCustomOre : Spawnable {
-		
-		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
 			
 		public readonly bool isLargeResource;
 		public readonly VanillaResources baseTemplate;
 		
 		public float glowIntensity = -1;
-		public string glowType = "GlowStrength";
-		public Action<Renderer> renderModify;
+		public string collectSound = null;
 		
 		public BasicCustomOre(XMLLocale.LocaleEntry e, VanillaResources template) : this(e.key, e.name, e.desc, template) {
 			
@@ -32,7 +29,12 @@ namespace ReikaKalseki.DIAlterra
 			baseTemplate = template;
 			
 			//TODO pickup sound
-			//OnFinishedPatching += () => {CraftData.pickupSoundList.Add(TechType, "event:/loot/pickup_glass");};
+			if (collectSound != null)
+				OnFinishedPatching += () => {CraftData.pickupSoundList.Add(TechType, collectSound);};
+		}
+		
+		protected virtual string getPickupSound() {
+			return "event:/loot/pickup_glass";
 		}
 		
 		public void registerWorldgen(BiomeType biome, int amt, float chance) {
@@ -63,7 +65,7 @@ namespace ReikaKalseki.DIAlterra
 				world.EnsureComponent<ResourceTracker>().techType = TechType;
 				world.EnsureComponent<ResourceTracker>().overrideTechType = TechType;
 				Renderer r = world.GetComponentInChildren<Renderer>();
-				applyMaterialChanges(r);
+				SBUtil.swapToModdedTextures(r, this, glowIntensity, "Resources");
 				prepareGameObject(world, r);
 				//SBUtil.writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
 				return world;
@@ -75,70 +77,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+formatFileName());
+			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
 		
 		protected virtual void prepareGameObject(GameObject go, Renderer r) {
 			
-		}
-			
-		private void applyMaterialChanges(Renderer r) {
-			//SBUtil.log("render for "+this);
-			//SBUtil.dumpObjectData(r);
-			bool flag = false;
-			foreach (String type in texTypes) {
-				Texture2D newTex = TextureManager.getTexture("Textures/Resources/"+formatFileName()+type);
-				if (newTex != null) {
-					r.materials[0].SetTexture(type, newTex);
-					r.sharedMaterial.SetTexture(type, newTex);
-					flag = true;
-					//SBUtil.writeToChat("Found "+type+" texture @ "+path);
-				}
-				else {
-					//SBUtil.writeToChat("No texture found at "+path);
-				}
-			}
-			if (!flag) {
-				SBUtil.log("NO CUSTOM TEXTURES FOUND: "+this);
-			}
-			if (glowIntensity >= 0) {
-				SBUtil.setEmissivity(r, glowIntensity, glowType);/*
-				r.materials[0].SetFloat("_"+glowType, glowIntensity);
-				r.sharedMaterial.SetFloat("_GlowStrength", glowIntensity);
-				r.materials[0].SetFloat("_GlowStrengthNight", glowIntensity);
-				r.sharedMaterial.SetFloat("_GlowStrengthNight", glowIntensity);
-				
-				r.materials[0].SetFloat("_EmissionLM", glowIntensity);
-				r.sharedMaterial.SetFloat("_EmissionLM", glowIntensity);
-				r.materials[0].SetFloat("_EmissionLMNight", glowIntensity);
-				r.sharedMaterial.SetFloat("_EmissionLMNight", glowIntensity);*/
-				
-				r.materials[0].EnableKeyword("MARMO_EMISSION");
-				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
-			}
-			if (renderModify != null)
-				renderModify(r);
-			//SBUtil.log("after modify for "+this);
-			//SBUtil.dumpObjectData(r);
-		}
-			
-		private string formatFileName() {
-			string n = ClassID;
-			System.Text.StringBuilder ret = new System.Text.StringBuilder();
-			for (int i = 0; i < n.Length; i++) {
-				char c = n[i];
-				if (c == '_')
-					continue;
-				bool caps = i == 0 || n[i-1] == '_';
-				if (caps) {
-					c = Char.ToUpperInvariant(c);
-				}
-				else {
-					c = Char.ToLowerInvariant(c);
-				}
-				ret.Append(c);
-			}
-			return ret.ToString();
 		}
 		
 		public sealed override string ToString() {

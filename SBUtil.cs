@@ -511,5 +511,51 @@ namespace ReikaKalseki.DIAlterra
 			rb.WakeUp();*/
 		}
 		
+		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
+		
+		public static void swapToModdedTextures(Renderer r, ModPrefab pfb, float glowIntensity, string folder) {
+			bool flag = false;
+			foreach (String type in texTypes) {
+				Texture2D newTex = TextureManager.getTexture("Textures/"+folder+"/"+formatFileName(pfb)+type);
+				if (newTex != null) {
+					r.materials[0].SetTexture(type, newTex);
+					r.sharedMaterial.SetTexture(type, newTex);
+					flag = true;
+					//SBUtil.writeToChat("Found "+type+" texture @ "+path);
+				}
+				else {
+					//SBUtil.writeToChat("No texture found at "+path);
+				}
+			}
+			if (!flag) {
+				SBUtil.log("NO CUSTOM TEXTURES FOUND: "+pfb);
+			}
+			if (glowIntensity >= 0) {
+				SBUtil.setEmissivity(r, glowIntensity, "GlowStrength");
+				
+				r.materials[0].EnableKeyword("MARMO_EMISSION");
+				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
+			}
+		}
+			
+		public static string formatFileName(ModPrefab pfb) {
+			string n = pfb.ClassID;
+			System.Text.StringBuilder ret = new System.Text.StringBuilder();
+			for (int i = 0; i < n.Length; i++) {
+				char c = n[i];
+				if (c == '_')
+					continue;
+				bool caps = i == 0 || n[i-1] == '_';
+				if (caps) {
+					c = Char.ToUpperInvariant(c);
+				}
+				else {
+					c = Char.ToLowerInvariant(c);
+				}
+				ret.Append(c);
+			}
+			return ret.ToString();
+		}
+		
 	}
 }

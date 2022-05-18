@@ -22,13 +22,21 @@ namespace ReikaKalseki.DIAlterra
 		public Atlas.Sprite sprite = null;
 		public float craftingTime = 0;
 		
-		public BasicCraftingItem(string id, string name, string desc) : base(id, name, desc) {
+		public readonly string templateItem;
+		
+		public BasicCraftingItem(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
+			
+		}
+		
+		public BasicCraftingItem(string id, string name, string desc, string template) : base(id, name, desc) {
 			this.id = id;
 			
 			if (!addedTab) {
 				//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DIIntermediate", "Intermediate Products", SpriteManager.Get(TechType.HatchingEnzymes));
 				addedTab = true;
 			}
+			
+			templateItem = template;
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -72,20 +80,28 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 
-		public sealed override TechCategory CategoryForPDA {
+		public override TechCategory CategoryForPDA {
 			get {
 				return isAdvanced ? TechCategory.AdvancedMaterials : TechCategory.BasicMaterials;
 			}
 		}
 
-		public sealed override string[] StepsToFabricatorTab {
+		public override string[] StepsToFabricatorTab {
 			get {
 				return new string[]{"Resources", isAdvanced ? "AdvancedMaterials" : "BasicMaterials"};//new string[]{"DIIntermediate"};
 			}
 		}
 	
-		public override GameObject GetGameObject() {
-			return SBUtil.getItemGO(this, "WorldEntities/Natural/benzene"); //TODO allow changing for inworld model
+		public sealed override GameObject GetGameObject() {
+			GameObject go = SBUtil.getItemGO(this, templateItem);
+			Renderer r = go.GetComponentInChildren<Renderer>();
+			SBUtil.swapToModdedTextures(r, this, 0, "Items");
+			prepareGameObject(go, r);
+			return go;
+		}
+		
+		protected virtual void prepareGameObject(GameObject go, Renderer r) {
+			
 		}
 		
 		protected sealed override TechData GetBlueprintRecipe() {
