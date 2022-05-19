@@ -56,7 +56,7 @@ namespace ReikaKalseki.DIAlterra
 			PDAHandler.AddCustomScannerEntry(e);
 		}
 		
-		protected override Atlas.Sprite GetItemSprite() {
+		protected sealed override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
 		

@@ -51,4 +51,50 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 	}
+	
+	public sealed class ModPrefabTechReference : TechTypeReference {
+		
+		public readonly ModPrefab prefab;
+		
+		public ModPrefabTechReference(ModPrefab s) {
+			prefab = s;
+		}
+		
+		public TechType getTechType() {
+			return prefab.TechType;
+		}
+		
+	}
+	
+	public sealed class TechTypeContainer : TechTypeReference {
+		
+		public readonly TechType tech;
+		
+		public TechTypeContainer(TechType s) {
+			tech = s;
+		}
+		
+		public TechType getTechType() {
+			return tech;
+		}
+		
+	}
+	
+	public interface TechTypeReference {
+		
+		TechType getTechType();
+		
+	}
+	
+	public sealed class PlannedIngredient {
+		
+		public readonly TechTypeReference item;
+		public readonly int amount;
+		
+		public PlannedIngredient(TechTypeReference item, int amt) {
+			this.item = item;
+			amount = amt;
+		}
+		
+	}
 }

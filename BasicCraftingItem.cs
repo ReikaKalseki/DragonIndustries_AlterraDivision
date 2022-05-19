@@ -13,7 +13,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static bool addedTab = false;
 		
-		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
+		private readonly List<PlannedIngredient> recipe = new List<PlannedIngredient>();
 		public readonly string id;
 		
 		public int numberCrafted = 1;
@@ -58,14 +58,15 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public BasicCraftingItem addIngredient(ModPrefab item, int amt) {
-			return addIngredient(item.TechType, amt);
+			return addIngredient(new ModPrefabTechReference(item), amt);
 		}
 		
 		public BasicCraftingItem addIngredient(TechType item, int amt) {
-			if (recipe.ContainsKey(item))
-				recipe[item].amount += amt;
-			else
-				recipe[item] = new Ingredient(item, amt);
+			return addIngredient(new TechTypeContainer(item), amt);
+		}
+		
+		public BasicCraftingItem addIngredient(TechTypeReference item, int amt) {
+			recipe.Add(new PlannedIngredient(item, amt));
 			return this;
 		}
 
@@ -94,7 +95,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public sealed override GameObject GetGameObject() {
-			return SBUtil.getModPrefabBaseObject((DIPrefab<PrefabReference>)this);
+			return SBUtil.getModPrefabBaseObject(this);
 		}
 		
 		public bool isResource() {
@@ -112,7 +113,7 @@ namespace ReikaKalseki.DIAlterra
 		protected sealed override TechData GetBlueprintRecipe() {
 			return new TechData
 			{
-				Ingredients = new List<Ingredient>(recipe.Values),
+				Ingredients = RecipeUtil.buildRecipeList(recipe),
 				craftAmount = numberCrafted
 			};
 		}

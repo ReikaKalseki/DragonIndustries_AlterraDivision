@@ -142,6 +142,14 @@ namespace ReikaKalseki.DIAlterra {
 			dumpCraftTreeFromNode(PDAEncyclopedia.tree);
 		}
 		
+		public static List<Ingredient> buildRecipeList(List<PlannedIngredient> li) {
+			List<Ingredient> ret = new List<Ingredient>();
+			foreach (PlannedIngredient p in li) {
+				ret.Add(new Ingredient(p.item.getTechType(), p.amount));
+			}
+			return ret;
+		}
+		
 		public class RecipeNode {
 			
 			public readonly TechType item;

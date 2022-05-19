@@ -11,7 +11,7 @@ namespace ReikaKalseki.DIAlterra
 {
 	public abstract class CustomMachine : Buildable, DIPrefab<CustomMachine, StringPrefabContainer> {
 		
-		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
+		private readonly List<PlannedIngredient> recipe = new List<PlannedIngredient>();
 		
 		public readonly string id;
 		
@@ -28,14 +28,15 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public CustomMachine addIngredient(ModPrefab item, int amt) {
-			return addIngredient(item.TechType, amt);
+			return addIngredient(new ModPrefabTechReference(item), amt);
 		}
 		
 		public CustomMachine addIngredient(TechType item, int amt) {
-			if (recipe.ContainsKey(item))
-				recipe[item].amount += amt;
-			else
-				recipe[item] = new Ingredient(item, amt);
+			return addIngredient(new TechTypeContainer(item), amt);
+		}
+		
+		public CustomMachine addIngredient(TechTypeReference item, int amt) {
+			recipe.Add(new PlannedIngredient(item, amt));
 			return this;
 		}
 
@@ -79,12 +80,12 @@ namespace ReikaKalseki.DIAlterra
 		protected override sealed TechData GetBlueprintRecipe() {
 			return new TechData
 			{
-				Ingredients = new List<Ingredient>(recipe.Values),
+				Ingredients = RecipeUtil.buildRecipeList(recipe),
 				craftAmount = 1
 			};
 		}
 		
-		protected override Atlas.Sprite GetItemSprite() {
+		protected sealed override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
 		

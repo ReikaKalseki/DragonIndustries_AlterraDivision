@@ -559,27 +559,35 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static GameObject getModPrefabBaseObject<T>(DIPrefab<T> pfb) where T : PrefabReference {
+			GameObject world = null;
 			GameObject prefab;
-			if (UWE.PrefabDatabase.TryGetPrefab(pfb.baseTemplate.getPrefabID(), out prefab)) {
-				GameObject world = UnityEngine.Object.Instantiate(prefab);
-				world.SetActive(false);
-				ModPrefab mod = (ModPrefab)pfb;
-				world.EnsureComponent<TechTag>().type = mod.TechType;
-				world.EnsureComponent<PrefabIdentifier>().ClassId = mod.ClassID;
-				if (pfb.isResource()) {
-					world.EnsureComponent<ResourceTracker>().techType = mod.TechType;
-					world.EnsureComponent<ResourceTracker>().overrideTechType = mod.TechType;
-				}
-				Renderer r = world.GetComponentInChildren<Renderer>();
-				swapToModdedTextures(r, pfb);
-				pfb.prepareGameObject(world, r);
-				//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
-				return world;
+			if (pfb is Craftable) {
+				world = SBUtil.getItemGO((Craftable)pfb, pfb.baseTemplate.getPrefabID());
+			}
+			else if (UWE.PrefabDatabase.TryGetPrefab(pfb.baseTemplate.getPrefabID(), out prefab)) {
+				world = UnityEngine.Object.Instantiate(prefab);
 			}
 			else {
 				writeToChat("Could not fetch template GO for "+pfb);
 				return null;
 			}
+			if (world == null) {
+				writeToChat("Got null for template GO for "+pfb);
+				return null;
+			}
+			world.SetActive(false);
+			ModPrefab mod = (ModPrefab)pfb;
+			world.EnsureComponent<TechTag>().type = mod.TechType;
+			world.EnsureComponent<PrefabIdentifier>().ClassId = mod.ClassID;
+			if (pfb.isResource()) {
+				world.EnsureComponent<ResourceTracker>().techType = mod.TechType;
+				world.EnsureComponent<ResourceTracker>().overrideTechType = mod.TechType;
+			}
+			Renderer r = world.GetComponentInChildren<Renderer>();
+			swapToModdedTextures(r, pfb);
+			pfb.prepareGameObject(world, r);
+			//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
+			return world;
 		}
 		
 	}
