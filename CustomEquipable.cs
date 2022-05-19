@@ -9,17 +9,22 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public abstract class CustomEquipable : Equipable {
+	public abstract class CustomEquipable : Equipable, DIPrefab<CustomEquipable, StringPrefabContainer> {
 		
 		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
 		public readonly string id;
 		
-		protected CustomEquipable(XMLLocale.LocaleEntry e) : this(e.key, e.name, e.desc) {
+		public float glowIntensity {get; set;}		
+		public StringPrefabContainer baseTemplate {get; set;}
+		
+		protected CustomEquipable(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
 			
 		}
 		
-		protected CustomEquipable(string id, string name, string desc) : base(id, name, desc) {
+		protected CustomEquipable(string id, string name, string desc, string template) : base(id, name, desc) {
 			this.id = id;
+			
+			baseTemplate = new StringPrefabContainer(template);
 		}
 		/*
 		public TechType getTechType() {
@@ -32,7 +37,7 @@ namespace ReikaKalseki.DIAlterra
 			return addIngredient(item.getTechType(), amt);
 		}
 		
-		public CustomEquipable addIngredient(Craftable item, int amt) {
+		public CustomEquipable addIngredient(ModPrefab item, int amt) {
 			return addIngredient(item.TechType, amt);
 		}
 		
@@ -58,7 +63,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"PersonalEquipment"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
+				return new string[]{"Personal", "Equipment"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
 			}
 		}
 
@@ -73,12 +78,22 @@ namespace ReikaKalseki.DIAlterra
 				return TechCategory.Tools;
 			}
 		}
-		
-		public override sealed GameObject GetGameObject() {
-			return SBUtil.getItemGO(this, getTemplatePrefab());
+			
+		public sealed override GameObject GetGameObject() {
+			return SBUtil.getModPrefabBaseObject(this);
 		}
 		
-		protected abstract string getTemplatePrefab();
+		public virtual void prepareGameObject(GameObject go, Renderer r) {
+			
+		}
+		
+		public bool isResource() {
+			return false;
+		}
+		
+		public string getTextureFolder() {
+			return "Items/Tools";
+		}
 		
 		protected override sealed TechData GetBlueprintRecipe() {
 			return new TechData

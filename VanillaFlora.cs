@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class VanillaFlora {
+	public class VanillaFlora : PrefabReference {
 		
 		//median 4.81
 		public static readonly VanillaFlora ANCHOR_POD_SMALL1 = new VanillaFlora("228e5af5-a579-4c99-9fb0-04b653f73cd3", 2.78, 1.36);
@@ -223,6 +223,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public bool includes(string pfb) {
 			return prefabsLit.Contains(pfb) || prefabs.Contains(pfb);
+		}
+		
+		public string getPrefabID() {
+			return getRandomPrefab(false);
 		}
 	}
 }

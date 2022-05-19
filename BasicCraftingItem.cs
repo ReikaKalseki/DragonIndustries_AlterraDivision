@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class BasicCraftingItem : Craftable {
+	public class BasicCraftingItem : Craftable, DIPrefab<BasicCraftingItem, StringPrefabContainer> {
 		
 		private static bool addedTab = false;
 		
@@ -22,7 +22,8 @@ namespace ReikaKalseki.DIAlterra
 		public Atlas.Sprite sprite = null;
 		public float craftingTime = 0;
 		
-		public readonly string templateItem;
+		public float glowIntensity {get; set;}		
+		public StringPrefabContainer baseTemplate {get; set;}
 		
 		public BasicCraftingItem(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
 			
@@ -36,7 +37,7 @@ namespace ReikaKalseki.DIAlterra
 				addedTab = true;
 			}
 			
-			templateItem = template;
+			baseTemplate = new StringPrefabContainer(template);
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -56,7 +57,7 @@ namespace ReikaKalseki.DIAlterra
 			return addIngredient(item.getTechType(), amt);
 		}
 		
-		public BasicCraftingItem addIngredient(Craftable item, int amt) {
+		public BasicCraftingItem addIngredient(ModPrefab item, int amt) {
 			return addIngredient(item.TechType, amt);
 		}
 		
@@ -91,16 +92,20 @@ namespace ReikaKalseki.DIAlterra
 				return new string[]{"Resources", isAdvanced ? "AdvancedMaterials" : "BasicMaterials"};//new string[]{"DIIntermediate"};
 			}
 		}
-	
+			
 		public sealed override GameObject GetGameObject() {
-			GameObject go = SBUtil.getItemGO(this, templateItem);
-			Renderer r = go.GetComponentInChildren<Renderer>();
-			SBUtil.swapToModdedTextures(r, this, 0, "Items");
-			prepareGameObject(go, r);
-			return go;
+			return SBUtil.getModPrefabBaseObject((DIPrefab<PrefabReference>)this);
 		}
 		
-		protected virtual void prepareGameObject(GameObject go, Renderer r) {
+		public bool isResource() {
+			return false;
+		}
+		
+		public string getTextureFolder() {
+			return "Items/World";
+		}
+		
+		public virtual void prepareGameObject(GameObject go, Renderer r) {
 			
 		}
 		

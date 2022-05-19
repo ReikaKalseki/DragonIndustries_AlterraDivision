@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class VanillaCreatures {
+	public class VanillaCreatures : PrefabReference {
 		
 		public static readonly VanillaCreatures PEEPER = new VanillaCreatures("3fcd548b-781f-46ba-b076-7412608deeef");
 		public static readonly VanillaCreatures BOOMERANG = new VanillaCreatures("fa4cfe65-4eaf-4d51-ba0d-e8cc9632fd47");
@@ -77,6 +77,10 @@ namespace ReikaKalseki.DIAlterra
 		private VanillaCreatures(string id) {
 			prefab = id;
 			pathname = PrefabData.getPrefab(id);
+		}
+		
+		public string getPrefabID() {
+			return prefab;
 		}
 		
 	}

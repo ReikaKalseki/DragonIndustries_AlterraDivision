@@ -9,25 +9,25 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public abstract class CustomMachine : Buildable {
+	public abstract class CustomMachine : Buildable, DIPrefab<CustomMachine, StringPrefabContainer> {
 		
 		private readonly Dictionary<TechType, Ingredient> recipe = new Dictionary<TechType, Ingredient>();
 		
 		public readonly string id;
-		private readonly string templatePrefab;
 		
-		public float glowIntensity = -1;
+		public float glowIntensity {get; set;}		
+		public StringPrefabContainer baseTemplate {get; set;}
 		
 		protected CustomMachine(string id, string name, string desc, string template) : base(id, name, desc) {
 			this.id = id;
-			templatePrefab = template;
+			baseTemplate = new StringPrefabContainer(template);
 		}
 		
 		public CustomMachine addIngredient(ItemDef item, int amt) {
 			return addIngredient(item.getTechType(), amt);
 		}
 		
-		public CustomMachine addIngredient(Craftable item, int amt) {
+		public CustomMachine addIngredient(ModPrefab item, int amt) {
 			return addIngredient(item.TechType, amt);
 		}
 		
@@ -50,32 +50,25 @@ namespace ReikaKalseki.DIAlterra
 				return TechCategory.InteriorModule;
 			}
 		}
+			
+		public sealed override GameObject GetGameObject() {
+			GameObject world = SBUtil.getModPrefabBaseObject(this);
+			world.EnsureComponent<CustomMachineLogic>().tick = onTick;
+			world.EnsureComponent<Constructable>().techType = TechType;
+			return world;
+		}
 		
-		public override GameObject GetGameObject() {
-			GameObject prefab;
-			if (UWE.PrefabDatabase.TryGetPrefab(templatePrefab, out prefab)) {
-				GameObject world = UnityEngine.Object.Instantiate(prefab);
-				world.SetActive(false);
-				world.EnsureComponent<TechTag>().type = TechType;
-				world.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
-				world.EnsureComponent<CustomMachineLogic>().tick = onTick;
-				world.EnsureComponent<Constructable>().techType = TechType;
-				
-				Renderer r = world.GetComponentInChildren<Renderer>();
-				SBUtil.swapToModdedTextures(r, this, glowIntensity, "Machines");
-				prepareGameObject(world, r);
-				//SBUtil.writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
-				return world;
-			}
-			else {
-				SBUtil.writeToChat("Could not fetch template GO for "+this);
-				return null;
-			}
+		public bool isResource() {
+			return false;
+		}
+		
+		public string getTextureFolder() {
+			return "Machines";
 		}
 		
 		protected abstract void onTick(GameObject go);
 		
-		protected virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer r) {
 			
 		}
 		

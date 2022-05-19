@@ -16,7 +16,7 @@ namespace ReikaKalseki.DIAlterra
 
 		}
 		
-		protected SeamothModule(string id, string name, string desc) : base(id, name, desc) {
+		protected SeamothModule(string id, string name, string desc) : base(id, name, desc, "WorldEntities/Tools/SeamothElectricalDefense") {
 
 		}
 
@@ -54,10 +54,6 @@ namespace ReikaKalseki.DIAlterra
 			get {
 				return TechCategory.VehicleUpgrades;
 			}
-		}
-		
-		protected override sealed string getTemplatePrefab() {
-			return "WorldEntities/Tools/SeamothElectricalDefense";
 		}
 	}
 }

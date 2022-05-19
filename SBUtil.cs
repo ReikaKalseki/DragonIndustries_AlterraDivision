@@ -513,10 +513,11 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
 		
-		public static void swapToModdedTextures(Renderer r, ModPrefab pfb, float glowIntensity, string folder) {
+		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
 			bool flag = false;
 			foreach (String type in texTypes) {
-				Texture2D newTex = TextureManager.getTexture("Textures/"+folder+"/"+formatFileName(pfb)+type);
+				string path = "Textures/"+pfb.getTextureFolder()+"/"+formatFileName((ModPrefab)pfb)+type;
+				Texture2D newTex = TextureManager.getTexture(path);
 				if (newTex != null) {
 					r.materials[0].SetTexture(type, newTex);
 					r.sharedMaterial.SetTexture(type, newTex);
@@ -530,8 +531,8 @@ namespace ReikaKalseki.DIAlterra
 			if (!flag) {
 				SBUtil.log("NO CUSTOM TEXTURES FOUND: "+pfb);
 			}
-			if (glowIntensity >= 0) {
-				SBUtil.setEmissivity(r, glowIntensity, "GlowStrength");
+			if (pfb.glowIntensity > 0) {
+				SBUtil.setEmissivity(r, pfb.glowIntensity, "GlowStrength");
 				
 				r.materials[0].EnableKeyword("MARMO_EMISSION");
 				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
@@ -555,6 +556,30 @@ namespace ReikaKalseki.DIAlterra
 				ret.Append(c);
 			}
 			return ret.ToString();
+		}
+		
+		public static GameObject getModPrefabBaseObject<T>(DIPrefab<T> pfb) where T : PrefabReference {
+			GameObject prefab;
+			if (UWE.PrefabDatabase.TryGetPrefab(pfb.baseTemplate.getPrefabID(), out prefab)) {
+				GameObject world = UnityEngine.Object.Instantiate(prefab);
+				world.SetActive(false);
+				ModPrefab mod = (ModPrefab)pfb;
+				world.EnsureComponent<TechTag>().type = mod.TechType;
+				world.EnsureComponent<PrefabIdentifier>().ClassId = mod.ClassID;
+				if (pfb.isResource()) {
+					world.EnsureComponent<ResourceTracker>().techType = mod.TechType;
+					world.EnsureComponent<ResourceTracker>().overrideTechType = mod.TechType;
+				}
+				Renderer r = world.GetComponentInChildren<Renderer>();
+				swapToModdedTextures(r, pfb);
+				pfb.prepareGameObject(world, r);
+				//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
+				return world;
+			}
+			else {
+				writeToChat("Could not fetch template GO for "+pfb);
+				return null;
+			}
 		}
 		
 	}

@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class VanillaResources {
+	public class VanillaResources : PrefabReference {
 		
 		public static readonly VanillaResources SCRAP1 = new VanillaResources("7cd86cbf-0708-41dc-84d7-58c648e25b06"); //"WorldEntities/Natural/metal3",
 		public static readonly VanillaResources SCRAP2 = new VanillaResources("7e507655-9fbf-42e0-8422-163ddd668747"); //"WorldEntities/Natural/metal2",
@@ -91,6 +91,10 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
+		}
+		
+		public string getPrefabID() {
+			return prefab;
 		}
 		
 	}

@@ -13,11 +13,10 @@ using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class BasicCustomPlant : Spawnable {
-			
-		public readonly VanillaFlora baseTemplate;
+	public class BasicCustomPlant : Spawnable, DIPrefab<VanillaFlora> {
 		
-		public float glowIntensity = -1;
+		public float glowIntensity {get; set;}		
+		public VanillaFlora baseTemplate {get; set;}
 		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template) : this(e.key, e.name, e.desc, template) {
 			
@@ -39,38 +38,29 @@ namespace ReikaKalseki.DIAlterra
 			e.encyclopedia = page.id;
 			PDAHandler.AddCustomScannerEntry(e);
 		}
-			
-		public sealed override GameObject GetGameObject() {
-			GameObject prefab;
-			if (UWE.PrefabDatabase.TryGetPrefab(baseTemplate.getRandomPrefab(false), out prefab)) {
-				GameObject world = UnityEngine.Object.Instantiate(prefab);
-				world.SetActive(false);
-				world.EnsureComponent<TechTag>().type = TechType;
-				world.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
-				world.EnsureComponent<ResourceTracker>().techType = TechType;
-				world.EnsureComponent<ResourceTracker>().overrideTechType = TechType;
-				Renderer r = world.GetComponentInChildren<Renderer>();
-				SBUtil.swapToModdedTextures(r, this, glowIntensity, "Plants");
-				prepareGameObject(world, r);
-				//SBUtil.writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
-				return world;
-			}
-			else {
-				SBUtil.writeToChat("Could not fetch template GO for "+this);
-				return null;
-			}
-		}
 		
 		protected override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
 		
-		protected virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer r) {
 			
 		}
 		
 		public sealed override string ToString() {
 			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
+		}
+			
+		public sealed override GameObject GetGameObject() {
+			return SBUtil.getModPrefabBaseObject(this);
+		}
+		
+		public bool isResource() {
+			return true;
+		}
+		
+		public string getTextureFolder() {
+			return "Resources";
 		}
 		
 	}
