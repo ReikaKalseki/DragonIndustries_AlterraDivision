@@ -23,6 +23,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public CustomBattery(string id, string name, string desc, int cap) : base(id, name, desc, "WorldEntities/Tools/Battery") {
 			capacity = cap;
+			sprite = TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
 
 		public sealed override TechCategory CategoryForPDA {

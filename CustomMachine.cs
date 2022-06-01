@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public abstract class CustomMachine : Buildable, DIPrefab<CustomMachine, StringPrefabContainer> {
+	public abstract class CustomMachine<M> : Buildable, DIPrefab<CustomMachine<M>, StringPrefabContainer> where M : CustomMachineLogic {
 		
 		private readonly List<PlannedIngredient> recipe = new List<PlannedIngredient>();
 		
@@ -23,19 +23,19 @@ namespace ReikaKalseki.DIAlterra
 			baseTemplate = new StringPrefabContainer(template);
 		}
 		
-		public CustomMachine addIngredient(ItemDef item, int amt) {
+		public CustomMachine<M> addIngredient(ItemDef item, int amt) {
 			return addIngredient(item.getTechType(), amt);
 		}
 		
-		public CustomMachine addIngredient(ModPrefab item, int amt) {
+		public CustomMachine<M> addIngredient(ModPrefab item, int amt) {
 			return addIngredient(new ModPrefabTechReference(item), amt);
 		}
 		
-		public CustomMachine addIngredient(TechType item, int amt) {
+		public CustomMachine<M> addIngredient(TechType item, int amt) {
 			return addIngredient(new TechTypeContainer(item), amt);
 		}
 		
-		public CustomMachine addIngredient(TechTypeReference item, int amt) {
+		public CustomMachine<M> addIngredient(TechTypeReference item, int amt) {
 			recipe.Add(new PlannedIngredient(item, amt));
 			return this;
 		}

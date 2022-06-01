@@ -95,11 +95,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		
 			public void unlock(bool doSound = true) {
-				pageData.unlocked = true;
-				PDAEncyclopedia.Add(pageData.key, true);
-				
-				if (doSound)
-					SBUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
+				if (!pageData.unlocked) {
+					pageData.unlocked = true;
+					PDAEncyclopedia.Add(pageData.key, true);
+					
+					if (doSound)
+						SBUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
+				}
 			}
 			
 			public override string ToString() {

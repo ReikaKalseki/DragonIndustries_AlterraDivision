@@ -65,7 +65,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void tempCode() {
-			
+			SBUtil.showPDANotification("I am pda text", "event:/player/story/Goal_BiomeSparseReef");
 		}
 		
 	}

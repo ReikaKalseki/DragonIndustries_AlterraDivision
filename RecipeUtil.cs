@@ -39,6 +39,7 @@ namespace ReikaKalseki.DIAlterra {
 			TechData rec = CraftDataHandler.GetTechData(item);
 			if (rec == null)
 				throw new Exception("No such recipe '"+item+"'!");
+			CraftDataHandler.SetTechData(item, rec);
 			return rec;
 		}
 		

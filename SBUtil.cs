@@ -590,5 +590,30 @@ namespace ReikaKalseki.DIAlterra
 			return world;
 		}
 		
+		public static void showPDANotification(string text, string soundPath) {
+			PDANotification pda = Player.main.gameObject.AddComponent<PDANotification>();
+			pda.enabled = true;
+			pda.text = text;
+			pda.sound = getSound(soundPath);
+			pda.Play();
+			UnityEngine.Object.Destroy(pda, 15);
+		}
+		
+		public static void convertResourceChunk(GameObject go, TechType tech) {
+			/*
+			go.EnsureComponent<TechTag>().type = tech;
+			go.EnsureComponent<Pickupable>().SetTechTypeOverride(tech);
+			go.EnsureComponent<PrefabIdentifier>().ClassId = mod.ClassID;
+			go.EnsureComponent<ResourceTracker>().techType = tech;
+			go.EnsureComponent<ResourceTracker>().overrideTechType = tech;
+			*/
+			GameObject prefab = CraftData.GetPrefabForTechType(tech, true);
+			GameObject world = UnityEngine.Object.Instantiate(prefab);
+			world.transform.position = go.transform.position;
+			world.transform.rotation = go.transform.rotation;
+			world.transform.localScale = go.transform.localScale;
+			UnityEngine.Object.Destroy(go);
+		}
+		
 	}
 }

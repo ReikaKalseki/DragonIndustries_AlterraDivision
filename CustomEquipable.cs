@@ -15,6 +15,7 @@ namespace ReikaKalseki.DIAlterra
 		public readonly string id;
 		
 		public float glowIntensity {get; set;}		
+		public bool isArmor {get; set;}	
 		public StringPrefabContainer baseTemplate {get; set;}
 		
 		protected CustomEquipable(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
@@ -76,7 +77,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override TechCategory CategoryForPDA {
 			get {
-				return TechCategory.Tools;
+				return isArmor ? TechCategory.Equipment : TechCategory.Tools;
 			}
 		}
 		
