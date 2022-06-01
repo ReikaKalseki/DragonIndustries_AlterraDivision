@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public sealed override GameObject GetGameObject() {
 			GameObject world = SBUtil.getModPrefabBaseObject(this);
-			world.EnsureComponent<CustomMachineLogic>().tick = onTick;
+			world.EnsureComponent<M>().prefab = this;
 			world.EnsureComponent<Constructable>().techType = TechType;
 			return world;
 		}
@@ -66,8 +66,6 @@ namespace ReikaKalseki.DIAlterra
 		public string getTextureFolder() {
 			return "Machines";
 		}
-		
-		protected abstract void onTick(GameObject go);
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
 			
@@ -88,19 +86,21 @@ namespace ReikaKalseki.DIAlterra
 		protected sealed override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
 		}
+	}
 		
-		class CustomMachineLogic : MonoBehaviour {
-			
-			internal Action<GameObject> tick;
-			
-			void Start() {
-				
-			}
-			
-			void Update() {
-				tick(gameObject);
-			}
+	public abstract class CustomMachineLogic : MonoBehaviour {
+		
+		internal ModPrefab prefab;
+		
+		void Start() {
 			
 		}
+		
+		void Update() {
+			updateEntity(gameObject);
+		}
+		
+		protected abstract void updateEntity(GameObject go);
+		
 	}
 }
