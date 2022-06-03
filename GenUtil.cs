@@ -77,7 +77,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnDatabox(Vector3 pos, TechType tech, Quaternion? rot = null) {
-			Action<GameObject> call = go => SBUtil.setDatabox(go.EnsureComponent<BlueprintHandTarget>(), tech);
+			Action<GameObject> call = go => SBUtil.setDatabox(go.EnsureComponent<BlueprintHandTarget>(), tech); //FIXME make custom prefabs instead
 			return registerWorldgen("1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6", pos, rot, call); //compass databox
 		}
 		

@@ -76,7 +76,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 
-		public sealed override TechGroup GroupForPDA {
+		public override TechGroup GroupForPDA {
 			get {
 				return TechGroup.Resources;
 			}

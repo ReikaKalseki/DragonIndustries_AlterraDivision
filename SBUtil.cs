@@ -509,6 +509,8 @@ namespace ReikaKalseki.DIAlterra
 			rb.inertiaTensor = new Vector3(0.2F, 0, 0.2F);
 			wf.Awake();
 			rb.WakeUp();*/
+				wf.Awake();
+				wf.OnEnable();
 		}
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};

@@ -18,12 +18,25 @@ namespace ReikaKalseki.DIAlterra
 		public float glowIntensity {get; set;}		
 		public VanillaFlora baseTemplate {get; set;}
 		
+		public HarvestType collectionMethod = HarvestType.DamageAlive;
+		public TechTypeReference harvestedItem;
+		public int finalCutBonus = 2;
+		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template) : this(e.key, e.name, e.desc, template) {
 			
 		}
 			
 		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template) : base(id, name, desc) {
 			baseTemplate = template;
+			harvestedItem = new ModPrefabTechReference(this);
+			OnFinishedPatching += () => {
+				if (collectionMethod != HarvestType.None && harvestedItem != null) {
+	        		CraftData.harvestTypeList[TechType] = collectionMethod;
+	        		CraftData.harvestOutputList[TechType] = harvestedItem.getTechType();
+	        		CraftData.harvestFinalCutBonusList[TechType] = finalCutBonus;
+	        		SBUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType)+" from "+harvestedItem.GetType()+"="+harvestedItem.getTechType());
+				}
+			};
 		}
 		
 		public void addPDAEntry(string text, float scanTime = 2, string header = null) {
@@ -31,7 +44,8 @@ namespace ReikaKalseki.DIAlterra
 			e.key = TechType;
 			e.scanTime = scanTime;
 			e.locked = true;
-			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms").addSubcategory("Flora").addSubcategory("Exploitable");
+			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms");
+			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None || harvestedItem == null ? "Sea" : "Exploitable");
 			if (header != null)
 				page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+header));
 			page.register();
@@ -44,7 +58,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
-			
+			Pickupable p = go.EnsureComponent<Pickupable>();
 		}
 		
 		public sealed override string ToString() {
@@ -60,7 +74,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public string getTextureFolder() {
-			return "Resources";
+			return "Plants";
 		}
 		
 	}

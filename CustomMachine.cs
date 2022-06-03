@@ -51,11 +51,26 @@ namespace ReikaKalseki.DIAlterra
 				return TechCategory.InteriorModule;
 			}
 		}
+		
+		protected abstract OrientedBounds[] GetBounds { get; }
 			
 		public sealed override GameObject GetGameObject() {
 			GameObject world = SBUtil.getModPrefabBaseObject(this);
 			world.EnsureComponent<M>().prefab = this;
-			world.EnsureComponent<Constructable>().techType = TechType;
+			Constructable ctr = world.EnsureComponent<Constructable>();
+			ctr.techType = TechType;
+			ctr.allowedInBase = true;
+			ctr.allowedInSub = true;
+			ctr.allowedOnGround = true;
+			ctr.allowedOutside = false;
+			ctr.allowedOnCeiling = false;
+			ctr.allowedOnWall = false;
+			ctr.rotationEnabled = true;
+			ctr.surfaceType = VFXSurfaceTypes.metal;
+			ctr.forceUpright = true;
+			ctr.allowedOnConstructables = false;
+			LargeWorldEntity lw = world.EnsureComponent<LargeWorldEntity>();
+			lw.cellLevel = LargeWorldEntity.CellLevel.Medium;
 			return world;
 		}
 		

@@ -46,13 +46,13 @@ namespace ReikaKalseki.DIAlterra
 
 		public override sealed TechGroup GroupForPDA {
 			get {
-				return TechGroup.VehicleUpgrades;
+				return TechGroup.Cyclops;
 			}
 		}
 
 		public override sealed TechCategory CategoryForPDA {
 			get {
-				return TechCategory.VehicleUpgrades;
+				return TechCategory.CyclopsUpgrades;
 			}
 		}
 	}
