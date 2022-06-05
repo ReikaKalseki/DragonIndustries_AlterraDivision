@@ -490,6 +490,13 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void applyGravity(GameObject go) {
+			//if (go.GetComponentInChildren<Collider>() == null || go.GetComponentInChildren<Rigidbody>() == null)
+			//	return;
+			if (go.GetComponentInChildren<Collider>() == null) {
+				BoxCollider box = go.AddComponent<BoxCollider>();
+				box.center = Vector3.zero;
+				box.size = Vector3.one*0.25F;
+			}
 			//WorldForcesManager.instance.AddWorldForces(go.EnsureComponent<WorldForces>());
 			WorldForces wf = go.EnsureComponent<WorldForces>();
 			wf.enabled = true;
@@ -506,11 +513,10 @@ namespace ReikaKalseki.DIAlterra
 			rb.drag = 0.5F;
 			rb.angularDrag = 0.05F;/*
 			rb.centerOfMass = new Vector3(0, 0.5F, 0);
-			rb.inertiaTensor = new Vector3(0.2F, 0, 0.2F);
+			rb.inertiaTensor = new Vector3(0.2F, 0, 0.2F);*/
 			wf.Awake();
-			rb.WakeUp();*/
-				wf.Awake();
-				wf.OnEnable();
+			wf.OnEnable();
+			rb.WakeUp();
 		}
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
@@ -615,6 +621,19 @@ namespace ReikaKalseki.DIAlterra
 			world.transform.rotation = go.transform.rotation;
 			world.transform.localScale = go.transform.localScale;
 			UnityEngine.Object.Destroy(go);
+		}
+		
+		public static void addSelfUnlock(TechType tech, PDAManager.PDAPage page = null) {
+			KnownTechHandler.Main.SetAnalysisTechEntry(tech, new List<TechType>(){tech});
+			if (page != null) {
+				PDAScanner.EntryData e = new PDAScanner.EntryData();
+				e.key = tech;
+				e.scanTime = 5;
+				e.locked = true;
+				page.register();
+				e.encyclopedia = page.id;
+				PDAHandler.AddCustomScannerEntry(e);
+			}
 		}
 		
 	}

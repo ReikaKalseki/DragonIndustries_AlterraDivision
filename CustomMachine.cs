@@ -52,7 +52,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		protected abstract OrientedBounds[] GetBounds { get; }
+		//protected abstract OrientedBounds[] GetBounds { get; }
 			
 		public sealed override GameObject GetGameObject() {
 			GameObject world = SBUtil.getModPrefabBaseObject(this);
@@ -71,6 +71,7 @@ namespace ReikaKalseki.DIAlterra
 			ctr.allowedOnConstructables = false;
 			LargeWorldEntity lw = world.EnsureComponent<LargeWorldEntity>();
 			lw.cellLevel = LargeWorldEntity.CellLevel.Medium;
+			world.SetActive(true);
 			return world;
 		}
 		
@@ -107,15 +108,19 @@ namespace ReikaKalseki.DIAlterra
 		
 		internal ModPrefab prefab;
 		
+		private float lastDayTime;
+		
 		void Start() {
 			
 		}
 		
 		void Update() {
-			updateEntity(gameObject);
+			float time = DayNightCycle.main.timePassedAsFloat;
+			updateEntity(gameObject, time-lastDayTime);
+			lastDayTime = time;
 		}
 		
-		protected abstract void updateEntity(GameObject go);
+		protected abstract void updateEntity(GameObject go, float seconds);
 		
 	}
 }
