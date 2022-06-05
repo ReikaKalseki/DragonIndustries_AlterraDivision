@@ -49,6 +49,8 @@ namespace ReikaKalseki.DIAlterra
 			
 			private List<string> tree = new List<string>();
 			
+			private PDAPrefab prefabID;
+			
 			internal PDAPage(string id, string n, string text, string cat) {
 				this.id = id;
 				name = n;
@@ -60,7 +62,9 @@ namespace ReikaKalseki.DIAlterra
 				pageData.audio = null;
 				pageData.key = id;
 				pageData.timeCapsule = false;
-				pageData.unlocked = false;			
+				pageData.unlocked = false;		
+				
+				prefabID = new PDAPrefab(this);	
 			}
 			
 			public PDAPage addSubcategory(string s) {
@@ -92,6 +96,8 @@ namespace ReikaKalseki.DIAlterra
 				PDAEncyclopediaHandler.AddCustomEntry(pageData);
 				LanguageHandler.SetLanguageLine("Ency_"+pageData.key, name);
 				LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
+				
+				prefabID.Patch();
 			}
 		
 			public void unlock(bool doSound = true) {
@@ -107,7 +113,49 @@ namespace ReikaKalseki.DIAlterra
 			public override string ToString() {
 				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}]", id, name, text.Replace("\n", ""), category);
 			}
+			
+			public string getPDAClassID() {
+				return prefabID.ClassID;
+			}
+			
+			public TechType getTechType() {
+				return prefabID.TechType;
+			}
  
+			
+		}
+		
+		sealed class PDAPrefab : Spawnable, DIPrefab<StringPrefabContainer> {
+	        
+			internal readonly PDAPage page;
+		
+			public float glowIntensity {get; set;}		
+			public StringPrefabContainer baseTemplate {get; set;}
+	        
+	        internal PDAPrefab(PDAPage p) : base(p.id, p.name, "PDA page "+p.name) {
+				page = p;
+				baseTemplate = new StringPrefabContainer("0f1dd54e-b36e-40ca-aa85-d01df1e3e426"); //blood kelp PDA
+	        }
+			
+	        public override GameObject GetGameObject() {
+				GameObject go = SBUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
+				StoryHandTarget tgt = go.EnsureComponent<StoryHandTarget>();
+				tgt.goal.goalType = Story.GoalType.Encyclopedia;
+				tgt.goal.key = page.id;
+				return go;
+	        }
+			
+			public bool isResource() {
+				return false;
+			}
+			
+			public string getTextureFolder() {
+				return null;
+			}
+			
+			public void prepareGameObject(GameObject go, Renderer r) {
+				
+			}
 			
 		}
 		

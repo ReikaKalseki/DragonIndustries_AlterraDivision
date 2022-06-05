@@ -14,6 +14,8 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly Bounds allowableGenBounds = MathUtil.getBounds(-2299, -3100, -2299, 2299, 150, 2299);
 		
 		private static readonly HashSet<string> alreadyRegisteredGen = new HashSet<string>();
+		private static readonly Dictionary<TechType, Databox> databoxes = new Dictionary<TechType, Databox>();
+		private static readonly Dictionary<TechType, Crate> crates = new Dictionary<TechType, Crate>();
 		
 		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
 			registerOreWorldgen(ore, ore.isLargeResource, biome, amt, chance);
@@ -77,8 +79,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnDatabox(Vector3 pos, TechType tech, Quaternion? rot = null) {
-			Action<GameObject> call = go => SBUtil.setDatabox(go.EnsureComponent<BlueprintHandTarget>(), tech); //FIXME make custom prefabs instead
-			return registerWorldgen("1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6", pos, rot, call); //compass databox
+			return registerWorldgen(getOrCreateDatabox(tech), pos, rot);
 		}
 		
 		public static SpawnInfo spawnPDA(Vector3 pos, PDAManager.PDAPage page, Vector3? rot = null) {
@@ -86,8 +87,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnPDA(Vector3 pos, PDAManager.PDAPage page, Quaternion? rot = null) {
-			Action<GameObject> call = go => SBUtil.setPDAPage(go.EnsureComponent<StoryHandTarget>(), page);
-			return registerWorldgen("0f1dd54e-b36e-40ca-aa85-d01df1e3e426", pos, rot, call); //blood kelp PDA
+			return registerWorldgen(page.getPDAClassID(), pos, rot);
 		}
 		
 		public static SpawnInfo spawnItemCrate(Vector3 pos, TechType item, Vector3? rot = null) {
@@ -95,8 +95,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnItemCrate(Vector3 pos, TechType item, Quaternion? rot = null) {
-			Action<GameObject> call = go => SBUtil.setCrateItem(go.EnsureComponent<SupplyCrate>(), item);
-			return registerWorldgen("580154dd-b2a3-4da1-be14-9a22e20385c8", pos, rot, call); //battery
+			return registerWorldgen(getOrCreateCrate(item), pos, rot);
 		}
 		
 		public static SpawnInfo spawnResource(VanillaResources res, Vector3 pos, Vector3? rot = null) {
@@ -121,6 +120,90 @@ namespace ReikaKalseki.DIAlterra
 		private static void validateCoords(Vector3 pos) {
 			if (!allowableGenBounds.Contains(pos))
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
+		}
+		
+		public static string getOrCreateCrate(TechType tech) {
+			Crate box = crates.ContainsKey(tech) ? crates[tech] : null;
+			if (box == null) {
+				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8"); //battery
+				crates[tech] = box;
+				box.Patch();
+			}
+			return box.ClassID;
+		}
+		
+		public static string getOrCreateDatabox(TechType tech) {
+			Databox box = databoxes.ContainsKey(tech) ? databoxes[tech] : null;
+			if (box == null) {
+				box = new Databox(tech, "1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6"); //compass databox
+				databoxes[tech] = box;
+				box.Patch();
+			}
+			return box.ClassID;
+		}
+		
+		abstract class ContainerPrefab : Spawnable, DIPrefab<StringPrefabContainer> {
+	        
+			internal readonly TechType containedTech;
+		
+			public float glowIntensity {get; set;}		
+			public StringPrefabContainer baseTemplate {get; set;}
+	        
+	        internal ContainerPrefab(TechType tech, string template) : base("container_"+tech, "", "") {
+				containedTech = tech;
+				baseTemplate = new StringPrefabContainer(template);
+	        }
+			
+	        public override GameObject GetGameObject() {
+				return SBUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
+	        }
+			
+			public bool isResource() {
+				return false;
+			}
+			
+			public string getTextureFolder() {
+				return null;
+			}
+			
+			public abstract void prepareGameObject(GameObject go, Renderer r);
+			
+		}
+		
+		class Databox : ContainerPrefab {
+	        
+	        internal Databox(TechType tech, string template) : base(tech, template) {
+				
+	        }
+			
+			public override void prepareGameObject(GameObject go, Renderer r) {
+	            BlueprintHandTarget bpt = go.EnsureComponent<BlueprintHandTarget>();
+	            bpt.unlockTechType = containedTech;
+	            bpt.primaryTooltip = containedTech.AsString();
+				string arg = Language.main.Get(containedTech);
+				string arg2 = Language.main.Get(TooltipFactory.techTypeTooltipStrings.Get(containedTech));
+				bpt.secondaryTooltip = Language.main.GetFormat<string, string>("DataboxToolipFormat", arg, arg2);
+				bpt.alreadyUnlockedTooltip = Language.main.GetFormat<string, string>("DataboxAlreadyUnlockedToolipFormat", arg, arg2);
+			}
+			
+		}
+		
+		class Crate : ContainerPrefab {
+	        
+	        internal Crate(TechType tech, string template) : base(tech, template) {
+				
+	        }
+			
+			public override void prepareGameObject(GameObject go, Renderer r) {
+				PrefabPlaceholdersGroup pre = go.EnsureComponent<PrefabPlaceholdersGroup>();
+				if (pre.prefabPlaceholders.Length != 1) {
+					pre.prefabPlaceholders = new PrefabPlaceholder[1];
+					pre.prefabPlaceholders[0] = go.AddComponent<PrefabPlaceholder>();
+				}
+				pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(containedTech);
+				pre.prefabPlaceholders[0].highPriority = true;
+			}
+			
 		}
 		
 	}

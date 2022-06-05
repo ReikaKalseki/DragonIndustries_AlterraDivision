@@ -11,6 +11,8 @@ using SMLHelper.V2.Utility;
 
 using UnityEngine;
 
+using Story;
+
 namespace ReikaKalseki.DIAlterra
 {
 	public static class SignalManager {
@@ -45,7 +47,9 @@ namespace ReikaKalseki.DIAlterra
 			public readonly string longName;	
 			public readonly string pdaPrompt;	
 			
-			public readonly PDAManager.PDAPage pdaEntry;	
+			public readonly PDAManager.PDAPage pdaEntry;
+			
+			private StoryGoal radioMessage;
 		
 			private PingType signalType;
 			private GameObject signalHolder;
@@ -58,6 +62,15 @@ namespace ReikaKalseki.DIAlterra
 				pdaPrompt = prompt;
 
 				pdaEntry = PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
+			}
+			
+			public void addRadioTrigger() {
+				string key = "radio_"+id;
+				radioMessage = new StoryGoal(key, Story.GoalType.Radio, 0);
+				PDALog.mapping[key] = new PDALog.EntryData();
+				PDALog.mapping[key].key = key;
+				PDALog.mapping[key].type = PDALog.EntryType.Default;
+				PDALog.mapping[key].sound = SBUtil.getSound(key);
 			}
 			
 			public void register() {
@@ -90,6 +103,11 @@ namespace ReikaKalseki.DIAlterra
 				signalInstance.SetLabel(longName);
 				signalInstance.displayPingInManager = false;
 				signalInstance.SetVisible(false);
+			}
+			
+			public void fireRadio() {
+				if (radioMessage != null)
+					StoryGoal.Execute(radioMessage.key, radioMessage.goalType);//radioMessage.Trigger();
 			}
 		
 			public void activate() {
