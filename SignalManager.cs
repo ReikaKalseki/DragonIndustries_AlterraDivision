@@ -28,7 +28,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static ModSignal createSignal(XMLLocale.LocaleEntry text) {	
-			return createSignal(text.key, text.name, text.desc, text.pda, text.getField<string>("prompt"));
+			return createSignal(text.key, text.name, text.desc, text.pda, text.getField<string>("radio"));
 		}
 		
 		public static ModSignal createSignal(string id, string name, string desc, string pda, string prompt) {
@@ -45,11 +45,12 @@ namespace ReikaKalseki.DIAlterra
 			public readonly string id;
 			public readonly string name;
 			public readonly string longName;	
-			public readonly string pdaPrompt;	
+			public readonly string radioText;	
 			
 			public readonly PDAManager.PDAPage pdaEntry;
 			
 			private StoryGoal radioMessage;
+			private string radioStoryKey;
 		
 			private PingType signalType;
 			private GameObject signalHolder;
@@ -59,18 +60,23 @@ namespace ReikaKalseki.DIAlterra
 				this.id = id;
 				name = n;
 				longName = desc;
-				pdaPrompt = prompt;
+				radioText = prompt;
 
 				pdaEntry = PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
 			}
 			
 			public void addRadioTrigger() {
-				string key = "radio_"+id;
-				radioMessage = new StoryGoal(key, Story.GoalType.Radio, 0);
-				PDALog.mapping[key] = new PDALog.EntryData();
-				PDALog.mapping[key].key = key;
-				PDALog.mapping[key].type = PDALog.EntryType.Default;
-				PDALog.mapping[key].sound = SBUtil.getSound(key);
+				radioStoryKey = "radio_"+id;
+				radioMessage = new StoryGoal(radioStoryKey, Story.GoalType.Radio, 0);
+				PDALog.mapping[radioStoryKey] = new PDALog.EntryData();
+				PDALog.mapping[radioStoryKey].key = radioStoryKey;
+				PDALog.mapping[radioStoryKey].type = PDALog.EntryType.Default;
+				PDALog.mapping[radioStoryKey].sound = SBUtil.getSound(radioStoryKey);
+				LanguageHandler.SetLanguageLine(radioStoryKey, radioText);
+			}
+			
+			public string getRadioStoryKey() {
+				return radioStoryKey;
 			}
 			
 			public void register() {
@@ -86,28 +92,32 @@ namespace ReikaKalseki.DIAlterra
 			
 			//ONLY CALL THIS WHEN THE WORLD IS LOADED
 			public void build(string prefab, Vector3 pos) {
+				if (signalHolder != null)
+					return;
 				build(SBUtil.createWorldObject(prefab), pos);
 			}
 			
 			public void build(GameObject holder, Vector3 pos, float maxDist = 9999) {
-				signalHolder = holder;
-				signalHolder.transform.position = pos;
-				LargeWorldEntity lw = signalHolder.EnsureComponent<LargeWorldEntity>();
-				lw.cellLevel = LargeWorldEntity.CellLevel.Global;
-				
-				signalInstance = signalHolder.EnsureComponent<PingInstance>();
-				signalInstance.pingType = signalType;
-				signalInstance.origin = signalHolder.transform;
-				signalInstance.minDist = 18;
-				signalInstance.maxDist = maxDist;
-				signalInstance.SetLabel(longName);
-				signalInstance.displayPingInManager = false;
-				signalInstance.SetVisible(false);
+				if (signalHolder == null) {
+					signalHolder = holder;
+					signalHolder.transform.position = pos;
+					LargeWorldEntity lw = signalHolder.EnsureComponent<LargeWorldEntity>();
+					lw.cellLevel = LargeWorldEntity.CellLevel.Global;
+					
+					signalInstance = signalHolder.EnsureComponent<PingInstance>();
+					signalInstance.pingType = signalType;
+					signalInstance.origin = signalHolder.transform;
+					signalInstance.minDist = 18;
+					signalInstance.maxDist = maxDist;
+					signalInstance.SetLabel(longName);
+					signalInstance.displayPingInManager = false;
+					signalInstance.SetVisible(false);
+				}
 			}
 			
 			public void fireRadio() {
 				if (radioMessage != null)
-					StoryGoal.Execute(radioMessage.key, radioMessage.goalType);//radioMessage.Trigger();
+					StoryGoal.Execute(radioStoryKey, radioMessage.goalType);//radioMessage.Trigger();
 			}
 		
 			public void activate() {
@@ -133,7 +143,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			public override string ToString()
 			{
-				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, PdaPrompt={3}, PdaEntry={4}]", id, name, longName, pdaPrompt, pdaEntry);
+				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}]", id, name, longName, radioText, pdaEntry);
 			}
  
 			

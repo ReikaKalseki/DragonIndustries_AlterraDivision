@@ -184,6 +184,8 @@ namespace ReikaKalseki.DIAlterra
 				string arg2 = Language.main.Get(TooltipFactory.techTypeTooltipStrings.Get(containedTech));
 				bpt.secondaryTooltip = Language.main.GetFormat<string, string>("DataboxToolipFormat", arg, arg2);
 				bpt.alreadyUnlockedTooltip = Language.main.GetFormat<string, string>("DataboxAlreadyUnlockedToolipFormat", arg, arg2);
+				bpt.useSound = SBUtil.getSound("event:/tools/scanner/new_blueprint");
+				bpt.onUseGoal = new Story.StoryGoal(bpt.primaryTooltip, Story.GoalType.Encyclopedia, 0);
 			}
 			
 		}
