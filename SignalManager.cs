@@ -65,14 +65,9 @@ namespace ReikaKalseki.DIAlterra
 				pdaEntry = PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
 			}
 			
-			public void addRadioTrigger() {
+			public void addRadioTrigger(float delay = 0) {
 				radioStoryKey = "radio_"+id;
-				radioMessage = new StoryGoal(radioStoryKey, Story.GoalType.Radio, 0);
-				PDALog.mapping[radioStoryKey] = new PDALog.EntryData();
-				PDALog.mapping[radioStoryKey].key = radioStoryKey;
-				PDALog.mapping[radioStoryKey].type = PDALog.EntryType.Default;
-				PDALog.mapping[radioStoryKey].sound = SBUtil.getSound(radioStoryKey);
-				LanguageHandler.SetLanguageLine(radioStoryKey, radioText);
+				radioMessage = SBUtil.addRadioMessage(radioStoryKey, radioText, delay);
 			}
 			
 			public string getRadioStoryKey() {

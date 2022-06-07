@@ -640,5 +640,12 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static Story.StoryGoal addRadioMessage(string key, string text, float delay = 0) {
+			Story.StoryGoal sg = new Story.StoryGoal(key, Story.GoalType.Radio, delay);
+			PDALogHandler.AddCustomEntry(key, key, null, SBUtil.getSound(key));
+			LanguageHandler.SetLanguageLine(key, text);
+			return sg;
+		}
+		
 	}
 }
