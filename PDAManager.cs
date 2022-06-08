@@ -79,8 +79,7 @@ namespace ReikaKalseki.DIAlterra
 					sid = "pda_vo_"+id;
 					SoundManager.registerSound(sid, path);
 				}
-				pageData.audio = SBUtil.getSound(path);
-				pageData.audio.id = sid;
+				pageData.audio = SBUtil.getSound(path, sid);
 				SBUtil.log("Setting "+this+" sound to "+pageData.audio.id+"="+pageData.audio.path);
 				return this;
 			}

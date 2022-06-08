@@ -59,6 +59,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
 			Pickupable p = go.EnsureComponent<Pickupable>();
+			p.isPickupable = false;
 		}
 		
 		public sealed override string ToString() {

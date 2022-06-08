@@ -18,22 +18,22 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class SoundManager {
 		
-		private static readonly Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
+		private static readonly Dictionary<string, FMODAsset> sounds = new Dictionary<string, FMODAsset>();
 		
 		static SoundManager() {
 			
 		}
 		
-		public static Sound? getSound(string id) {
-			return sounds.ContainsKey(id) ? sounds[id] : (Sound?)null;
+		public static FMODAsset getSound(string id) {
+			return sounds.ContainsKey(id) ? sounds[id] : null;
 		}
 		
-		public static Sound registerSound(string id, string path, SoundChannel ch = SoundChannel.Master) {
+		public static FMODAsset registerSound(string id, string path, SoundChannel ch = SoundChannel.Master) {
 			if (sounds.ContainsKey(id))
 				throw new Exception("Sound ID '"+id+"' is already taken!");
 			Sound s = CustomSoundHandler.RegisterCustomSound(id, path, ch);
-			sounds[id] = s;
-			return s;
+			sounds[id] = SBUtil.getSound(path, id);
+			return sounds[id];
 		}
 		
 	}

@@ -354,18 +354,23 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void playSoundAt(string path, Vector3 position, bool queue = false) {
 			FMODAsset ass = getSound(path);
+			SBUtil.writeToChat("playing sound "+ass.id);
 			if (queue)
-				PDASounds.queue.PlayQueued(ass);
+				PDASounds.queue.PlayQueued(ass);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
 			else
 				FMODUWE.PlayOneShot(ass, position);
 		}
 		
-		public static FMODAsset getSound(string path) {
+		public static FMODAsset getSound(string path, string id = null) {
 			FMODAsset ass = ScriptableObject.CreateInstance<FMODAsset>();
 			ass.path = path;
-			ass.id = VanillaSounds.getID(path);
+			ass.id = id;
 			if (ass.id == null)
+				ass.id = VanillaSounds.getID(path);
+			if (string.IsNullOrEmpty(ass.id))
 				ass.id = path;
+			if (ass.id[0] != '{')
+				ass.id = "{"+ass.id+"}";
 			return ass;
 		}
 		
