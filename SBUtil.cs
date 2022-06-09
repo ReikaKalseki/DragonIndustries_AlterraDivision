@@ -349,19 +349,18 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void playSound(string path, bool queue = false) {
-			playSoundAt(path, Player.main.transform.position, queue);
+			playSoundAt(getSound(path), Player.main.transform.position, queue);
 		}
 		
-		public static void playSoundAt(string path, Vector3 position, bool queue = false) {
-			FMODAsset ass = getSound(path);
-			SBUtil.writeToChat("playing sound "+ass.id);
+		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false) {
+			SBUtil.writeToChat("playing sound "+snd.id);
 			if (queue)
-				PDASounds.queue.PlayQueued(ass);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
+				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
 			else
-				FMODUWE.PlayOneShot(ass, position);
+				FMODUWE.PlayOneShot(snd, position);
 		}
 		
-		public static FMODAsset getSound(string path, string id = null) {
+		public static FMODAsset getSound(string path, string id = null, bool addBrackets = true) {
 			FMODAsset ass = ScriptableObject.CreateInstance<FMODAsset>();
 			ass.path = path;
 			ass.id = id;
@@ -369,7 +368,7 @@ namespace ReikaKalseki.DIAlterra
 				ass.id = VanillaSounds.getID(path);
 			if (string.IsNullOrEmpty(ass.id))
 				ass.id = path;
-			if (ass.id[0] != '{')
+			if (addBrackets && ass.id[0] != '{')
 				ass.id = "{"+ass.id+"}";
 			return ass;
 		}
