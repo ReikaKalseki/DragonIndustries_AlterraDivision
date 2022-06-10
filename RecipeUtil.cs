@@ -35,8 +35,12 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 		
-		public static TechData addRecipe(TechType item) {
-			TechData rec = new TechData();
+		public static TechData addRecipe(TechType item, int amt = 1) {
+			TechData rec = new TechData
+			{
+				Ingredients = new List<Ingredient>(),
+				craftAmount = amt
+			};
 			CraftDataHandler.SetTechData(item, rec);
 			return rec;
 		}
