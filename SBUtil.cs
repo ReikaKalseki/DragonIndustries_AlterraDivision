@@ -140,13 +140,9 @@ namespace ReikaKalseki.DIAlterra
 			if (go.transform != null) {
 				log("position: "+go.transform.position, indent);
 				log("transform object: "+go.transform.gameObject, indent);
-				log("transform parent: "+go.transform.parent, indent);
-				if (go.transform.parent != null) {
-					log("transform parent object: ", indent);
-					dumpObjectData(go.transform.parent.gameObject, indent+3);
-				}
-				else {
-					log("transform parent object: null", indent);
+				for (int i = 0; i < go.transform.childCount; i++) {
+					log("child object #"+i+": ", indent);
+					dumpObjectData(go.transform.GetChild(i).gameObject, indent+3);
 				}
 			}
 		}

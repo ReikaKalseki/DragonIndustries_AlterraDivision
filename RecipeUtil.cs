@@ -35,13 +35,17 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 		
-		public static TechData addRecipe(TechType item, int amt = 1) {
+		public static TechData addRecipe(TechType item, TechGroup grp, TechCategory cat, int amt = 1, CraftTree.Type fab = CraftTree.Type.Fabricator, string[] path = null) {
 			TechData rec = new TechData
 			{
 				Ingredients = new List<Ingredient>(),
 				craftAmount = amt
 			};
 			CraftDataHandler.SetTechData(item, rec);
+			if (grp != TechGroup.Uncategorized)
+	        	CraftDataHandler.AddToGroup(grp, cat, item);
+			if (fab != CraftTree.Type.None)
+	        	CraftTreeHandler.AddCraftingNode(fab, item, path == null ? new string[0] : path);
 			return rec;
 		}
 		
