@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Reflection;
-
+using System.IO;
 using System.Collections.Generic;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Utility;
@@ -645,6 +646,54 @@ namespace ReikaKalseki.DIAlterra
 			PDALogHandler.AddCustomEntry(key, key, null, SBUtil.getSound(key));
 			LanguageHandler.SetLanguageLine(key, text);
 			return sg;
+		}
+		
+		public static GameObject setModel(GameObject go, string localModelName, GameObject modelObj) {
+			Transform t = go.transform.Find(localModelName);
+			if (t != null)
+				UnityEngine.Object.Destroy(t.gameObject);
+			modelObj = UnityEngine.Object.Instantiate(modelObj);
+			modelObj.name = localModelName;
+			modelObj.transform.parent = go.transform;
+			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
+				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier) {
+					continue;
+				}
+				UnityEngine.Object.Destroy(c);
+			}
+			return modelObj;
+		}
+		
+		public static Texture2D duplicateTexture(Texture2D source) {
+		    RenderTexture renderTex = RenderTexture.GetTemporary(
+		                source.width,
+		                source.height,
+		                0,
+		                RenderTextureFormat.Default,
+		                RenderTextureReadWrite.Linear);
+		
+		    Graphics.Blit(source, renderTex);
+		    RenderTexture previous = RenderTexture.active;
+		    RenderTexture.active = renderTex;
+		    Texture2D copy = new Texture2D(source.width, source.height);
+		    copy.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+		    copy.Apply();
+		    RenderTexture.active = previous;
+		    RenderTexture.ReleaseTemporary(renderTex);
+		    return copy;
+		}
+		
+		public static void dumpTextures(Renderer r) {
+			foreach (Material m in r.materials) {
+				foreach (string tex in m.GetTexturePropertyNames()) {
+					string fn = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TextureDump", r.gameObject.name+"_$_"+m.name+"_-_"+tex);
+					Texture2D img = (Texture2D)m.GetTexture(tex);
+					if (img != null) {
+						byte[] raw = duplicateTexture(img).EncodeToPNG();
+						File.WriteAllBytes(fn+".png", raw);
+					}
+				}
+			}
 		}
 		
 	}

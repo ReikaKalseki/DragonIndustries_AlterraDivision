@@ -116,11 +116,11 @@ namespace ReikaKalseki.DIAlterra
 		
 		void Update() {
 			float time = DayNightCycle.main.timePassedAsFloat;
-			updateEntity(gameObject, time-lastDayTime);
+			updateEntity(time-lastDayTime);
 			lastDayTime = time;
 		}
 		
-		protected abstract void updateEntity(GameObject go, float seconds);
+		protected abstract void updateEntity(float seconds);
 		
 	}
 }
