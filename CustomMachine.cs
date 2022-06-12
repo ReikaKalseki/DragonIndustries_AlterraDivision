@@ -71,6 +71,7 @@ namespace ReikaKalseki.DIAlterra
 			ctr.allowedOnConstructables = false;
 			LargeWorldEntity lw = world.EnsureComponent<LargeWorldEntity>();
 			lw.cellLevel = LargeWorldEntity.CellLevel.Medium;
+			initializeMachine(world);
 			world.SetActive(true);
 			return world;
 		}
@@ -83,7 +84,11 @@ namespace ReikaKalseki.DIAlterra
 			return "Machines";
 		}
 		
-		public virtual void prepareGameObject(GameObject go, Renderer r) {
+		public void prepareGameObject(GameObject go, Renderer r) {
+			
+		}
+		
+		public virtual void initializeMachine(GameObject go) {
 			
 		}
 		

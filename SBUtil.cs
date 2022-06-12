@@ -600,6 +600,7 @@ namespace ReikaKalseki.DIAlterra
 				swapToModdedTextures(r, pfb);
 			pfb.prepareGameObject(world, r);
 			//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
+			world.name = pfb.GetType()+" "+mod.ClassID;
 			return world;
 		}
 		

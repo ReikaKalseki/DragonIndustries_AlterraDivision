@@ -222,5 +222,32 @@ namespace ReikaKalseki.DIAlterra
 		    return "[" + string.Join(",", c.ToArray()) + "]";
 		}
 		
+		public static T copyObject<T>(this T comp, T from) where T : class {
+	         Type type = comp.GetType();
+	         Type othersType = from.GetType();
+	         if (type != othersType) {
+	         	throw new Exception("Mismatched types on "+comp+" and "+from+": "+type+" vs "+othersType);
+	         }
+	
+	         BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default;
+	         
+	         foreach (PropertyInfo pinfo in type.GetProperties(flags)) {
+	             if (pinfo.CanWrite) {
+	                 try  {
+	                     pinfo.SetValue(comp, pinfo.GetValue(from, null), null);
+	                 }
+	                 catch {
+	                     
+	                 }
+	             }
+	         }
+	
+	         foreach (FieldInfo finfo in type.GetFields(flags)) {
+	             finfo.SetValue(comp, finfo.GetValue(from));
+	         }
+	         
+	         return comp;
+	     }
+		
 	}
 }
