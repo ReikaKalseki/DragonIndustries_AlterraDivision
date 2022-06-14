@@ -142,19 +142,16 @@ namespace ReikaKalseki.DIAlterra
 			return box.ClassID;
 		}
 		
-		abstract class ContainerPrefab : Spawnable, DIPrefab<StringPrefabContainer> {
-	        
-			internal readonly TechType containedTech;
-		
+		public abstract class CustomPrefabImpl : Spawnable, DIPrefab<StringPrefabContainer> {
+			
 			public float glowIntensity {get; set;}		
 			public StringPrefabContainer baseTemplate {get; set;}
 	        
-	        internal ContainerPrefab(TechType tech, string template) : base("container_"+tech, "", "") {
-				containedTech = tech;
+	        public CustomPrefabImpl(string name, string template) : base(name, "", "") {
 				baseTemplate = new StringPrefabContainer(template);
 	        }
 			
-	        public override GameObject GetGameObject() {
+	        public override sealed GameObject GetGameObject() {
 				return SBUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
 	        }
 			
@@ -167,6 +164,16 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public abstract void prepareGameObject(GameObject go, Renderer r);
+			
+		}
+		
+		abstract class ContainerPrefab : CustomPrefabImpl {
+	        
+			internal readonly TechType containedTech;
+	        
+	        internal ContainerPrefab(TechType tech, string template) : base("container_"+tech, template) {
+				containedTech = tech;
+	        }
 			
 		}
 		

@@ -350,7 +350,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false) {
-			SBUtil.writeToChat("playing sound "+snd.id);
+			//SBUtil.writeToChat("playing sound "+snd.id);
 			if (queue)
 				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
 			else
@@ -642,9 +642,17 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static Story.StoryGoal addRadioMessage(string key, string text, float delay = 0) {
-			Story.StoryGoal sg = new Story.StoryGoal(key, Story.GoalType.Radio, delay);
-			PDALogHandler.AddCustomEntry(key, key, null, SBUtil.getSound(key));
+		public static Story.StoryGoal addRadioMessage(string key, string text, string soundPath, float delay = 0) {
+			return addRadioMessage(key, text, SoundManager.registerSound("radio_"+key, soundPath, SoundSystem.voiceBus), delay);
+		}
+		
+		public static Story.StoryGoal addRadioMessage(string key, string text, FMODAsset sound, float delay = 0) {
+			return addVOLine(key, Story.GoalType.Radio, text, sound, delay);
+		}
+		
+		public static Story.StoryGoal addVOLine(string key, Story.GoalType type, string text, FMODAsset sound, float delay = 0) {
+			Story.StoryGoal sg = new Story.StoryGoal(key, type, delay);
+			PDALogHandler.AddCustomEntry(key, key, null, sound);
 			LanguageHandler.SetLanguageLine(key, text);
 			return sg;
 		}

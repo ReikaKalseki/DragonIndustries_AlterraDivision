@@ -23,7 +23,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly MODE soundMode3D = MODE.DEFAULT | MODE._3D | MODE.ACCURATETIME | MODE._3D_LINEARSQUAREROLLOFF;
 		public static readonly MODE soundMode2D = MODE.DEFAULT | MODE._2D | MODE.ACCURATETIME;
 		public static readonly MODE soundModeStreaming = soundMode2D | MODE.CREATESTREAM;
-		public static readonly string pdaBus = "bus:/master/all/all voice/AI voice";
+		//public static readonly string pdaBus = "bus:/master/all/all voice/AI voice";
 		
 		static SoundManager() {
 			
