@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Signal ID '"+id+"' already in use!");
 			ModSignal sig = new ModSignal(id, name, desc, pda, prompt);
 			signals[sig.id] = sig;
-			SBUtil.log("Registered signal "+sig);
+			SBUtil.log("Constructed signal "+sig);
 			return sig;
 		}
 		
@@ -51,13 +51,15 @@ namespace ReikaKalseki.DIAlterra
 			
 			private StoryGoal radioMessage;
 			private string radioStoryKey;
+			
+			private Atlas.Sprite icon;
 		
 			private PingType signalType;
 			private GameObject signalHolder;
 			private PingInstance signalInstance;
 			
 			internal ModSignal(string id, string n, string desc, string pda, string prompt) {
-				this.id = id;
+				this.id = "signal_"+id;
 				name = n;
 				longName = desc;
 				radioText = prompt;
@@ -66,7 +68,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void addRadioTrigger(string soundPath, float delay = 0) {
-				addRadioTrigger(SoundManager.registerSound("signal_radio_"+id, soundPath, SoundSystem.voiceBus), delay);
+				addRadioTrigger(SoundManager.registerSound("radio_"+id, soundPath, SoundSystem.voiceBus), delay);
 			}
 			
 			public void addRadioTrigger(FMODAsset sound, float delay = 0) {
@@ -83,10 +85,14 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void register(Atlas.Sprite icon) {
+				if (icon == null || icon == SpriteManager.defaultSprite)
+					throw new Exception("Null icon is not allowed");
 				signalType = PingHandler.RegisterNewPingType(id, icon);
 				LanguageHandler.SetLanguageLine(id, "Signal");
+				this.icon = icon;
 				
 				pdaEntry.register();
+				SBUtil.log("Registered signal "+this);
 			}
 			
 			//ONLY CALL THIS WHEN THE WORLD IS LOADED
@@ -99,6 +105,7 @@ namespace ReikaKalseki.DIAlterra
 			public void build(GameObject holder, Vector3 pos, float maxDist = 9999) {
 				if (signalHolder == null) {
 					signalHolder = holder;
+					signalHolder.SetActive(false);
 					signalHolder.transform.position = pos;
 					LargeWorldEntity lw = signalHolder.EnsureComponent<LargeWorldEntity>();
 					lw.cellLevel = LargeWorldEntity.CellLevel.Global;
@@ -111,6 +118,7 @@ namespace ReikaKalseki.DIAlterra
 					signalInstance.SetLabel(longName);
 					signalInstance.displayPingInManager = false;
 					signalInstance.SetVisible(false);
+					signalHolder.SetActive(true);
 				}
 			}
 			
@@ -119,7 +127,7 @@ namespace ReikaKalseki.DIAlterra
 					StoryGoal.Execute(radioStoryKey, radioMessage.goalType);//radioMessage.Trigger();
 			}
 		
-			public void activate() {
+			public void activate() {					
 				signalInstance.displayPingInManager = true;
 				signalInstance.enabled = true;
 				signalInstance.SetVisible(true);
@@ -142,7 +150,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			public override string ToString()
 			{
-				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}]", id, name, longName, radioText, pdaEntry);
+				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}, Icon={5}]", id, name, longName, radioText, pdaEntry, icon);
 			}
  
 			

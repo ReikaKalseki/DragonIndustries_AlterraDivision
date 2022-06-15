@@ -694,14 +694,22 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void dumpTextures(Renderer r) {
 			foreach (Material m in r.materials) {
-				foreach (string tex in m.GetTexturePropertyNames()) {
-					string fn = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TextureDump", r.gameObject.name+"_$_"+m.name+"_-_"+tex);
-					Texture2D img = (Texture2D)m.GetTexture(tex);
-					if (img != null) {
-						byte[] raw = duplicateTexture(img).EncodeToPNG();
-						File.WriteAllBytes(fn+".png", raw);
-					}
-				}
+				dumpTextures(m, r.gameObject.name+"_$_");
+			}
+		}
+		
+		public static void dumpTextures(Material m, string prefix = "") {
+			foreach (string tex in m.GetTexturePropertyNames()) {
+				string fn = prefix+m.name+"_-_"+tex;
+				Texture2D img = (Texture2D)m.GetTexture(tex);
+				dumpTexture(fn, img);
+			}
+		}
+		
+		public static void dumpTexture(string fn, Texture2D img) {
+			if (img != null) {
+				byte[] raw = duplicateTexture(img).EncodeToPNG();
+				File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TextureDump", fn+".png"), raw);
 			}
 		}
 		
