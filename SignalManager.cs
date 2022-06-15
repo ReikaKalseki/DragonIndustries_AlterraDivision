@@ -102,7 +102,7 @@ namespace ReikaKalseki.DIAlterra
 				build(SBUtil.createWorldObject(prefab), pos);
 			}
 			
-			public void build(GameObject holder, Vector3 pos, float maxDist = 9999) {
+			public void build(GameObject holder, Vector3 pos, float maxDist = -1) {
 				if (signalHolder == null) {
 					signalHolder = holder;
 					signalHolder.SetActive(false);
@@ -112,9 +112,10 @@ namespace ReikaKalseki.DIAlterra
 					
 					signalInstance = signalHolder.EnsureComponent<PingInstance>();
 					signalInstance.pingType = signalType;
+					signalInstance.colorIndex = 0;
 					signalInstance.origin = signalHolder.transform;
 					signalInstance.minDist = 18;
-					signalInstance.maxDist = maxDist;
+					signalInstance.maxDist = maxDist >= 0 ? maxDist : signalInstance.minDist;
 					signalInstance.SetLabel(longName);
 					signalInstance.displayPingInManager = false;
 					signalInstance.SetVisible(false);
