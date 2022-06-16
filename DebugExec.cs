@@ -49,7 +49,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static string toString(object o) { //TODO NOT IMPLEMENTED
+		public static string toString(object o) { //TO DO NOT IMPLEMENTED
 			if (o == null) {
 				return "null";
 			}

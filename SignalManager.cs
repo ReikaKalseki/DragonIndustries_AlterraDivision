@@ -64,7 +64,7 @@ namespace ReikaKalseki.DIAlterra
 				longName = desc;
 				radioText = prompt;
 
-				pdaEntry = PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
+				pdaEntry = string.IsNullOrEmpty(pda) ? null : PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
 			}
 			
 			public void addRadioTrigger(string soundPath, float delay = 0) {
@@ -91,7 +91,8 @@ namespace ReikaKalseki.DIAlterra
 				LanguageHandler.SetLanguageLine(id, "Signal");
 				this.icon = icon;
 				
-				pdaEntry.register();
+				if (pdaEntry != null)
+					pdaEntry.register();
 				SBUtil.log("Registered signal "+this);
 			}
 			
@@ -128,7 +129,7 @@ namespace ReikaKalseki.DIAlterra
 					StoryGoal.Execute(radioStoryKey, radioMessage.goalType);//radioMessage.Trigger();
 			}
 		
-			public void activate() {					
+			public void activate(int delay = 0) {					
 				signalInstance.displayPingInManager = true;
 				signalInstance.enabled = true;
 				signalInstance.SetVisible(true);
@@ -136,15 +137,18 @@ namespace ReikaKalseki.DIAlterra
 				SignalInitializer init = signalHolder.EnsureComponent<SignalInitializer>();
 				init.ping = signalInstance;
 				init.description = longName;
+				if (delay > 0)
+					init.Invoke("triggerFX", delay);
+				else
+					init.triggerFX();
 				
-				SBUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
-				SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click
 				
-				pdaEntry.unlock(false);
+				if (pdaEntry != null)
+					pdaEntry.unlock(false);
 			}
 			
 			public void deactivate() { //Will not remove the PDA entry!
-				signalInstance.displayPingInManager = false;
+				//signalInstance.displayPingInManager = false;
 				signalInstance.enabled = false;
 				signalInstance.SetVisible(false);
 			}
@@ -165,6 +169,11 @@ namespace ReikaKalseki.DIAlterra
 		  
 			private void Start() {
 		    	ping.SetLabel(description);
+			}
+			
+			internal void triggerFX() {
+				SBUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
+				SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
 			}
 		}
 		
