@@ -265,18 +265,15 @@ namespace ReikaKalseki.DIAlterra
 			return gameObject;
 		}
     
-		[Obsolete]
 	    public static void setCrateItem(SupplyCrate c, TechType item) {
 			PrefabPlaceholdersGroup pre = c.gameObject.EnsureComponent<PrefabPlaceholdersGroup>();
 			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
 	    }
 		
-		[Obsolete]
 		public static void setDatabox(BlueprintHandTarget bpt, TechType tech) {
     		bpt.unlockTechType = tech;
     	}
 		
-		[Obsolete]
 		public static void setPDAPage(StoryHandTarget tgt, PDAManager.PDAPage page) {
 			tgt.goal.goalType = Story.GoalType.Encyclopedia;
 			tgt.goal.key = page.id;

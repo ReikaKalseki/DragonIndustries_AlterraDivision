@@ -62,6 +62,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo registerWorldgen(WorldGenerator gen) {
+			if (gen == null)
+				throw new Exception("You cannot register a null gen!");
 			validateCoords(gen.position);
 			Action<GameObject> call = go => {
 				UnityEngine.Object.Destroy(go);
@@ -122,20 +124,20 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static string getOrCreateCrate(TechType tech) {
+		public static string getOrCreateCrate(TechType tech, Action<GameObject> modify = null) {
 			Crate box = crates.ContainsKey(tech) ? crates[tech] : null;
 			if (box == null) {
-				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8"); //battery
+				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8", modify); //battery
 				crates[tech] = box;
 				box.Patch();
 			}
 			return box.ClassID;
 		}
 		
-		public static string getOrCreateDatabox(TechType tech) {
+		public static string getOrCreateDatabox(TechType tech, Action<GameObject> modify = null) {
 			Databox box = databoxes.ContainsKey(tech) ? databoxes[tech] : null;
 			if (box == null) {
-				box = new Databox(tech, "1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6"); //compass databox
+				box = new Databox(tech, "1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6", modify); //compass databox
 				databoxes[tech] = box;
 				box.Patch();
 			}
@@ -167,19 +169,27 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		abstract class ContainerPrefab : CustomPrefabImpl {
+		public abstract class ContainerPrefab : CustomPrefabImpl {
 	        
-			internal readonly TechType containedTech;
+			public readonly TechType containedTech;
+			
+			private readonly Action<GameObject> modify;
 	        
-	        internal ContainerPrefab(TechType tech, string template) : base("container_"+tech, template) {
+	        internal ContainerPrefab(TechType tech, string template, Action<GameObject> m) : base("container_"+tech, template) {
 				containedTech = tech;
+				modify = m;
 	        }
+			
+			internal void modifyObject(GameObject go) {
+				if (modify != null)
+					modify(go);
+			}
 			
 		}
 		
 		class Databox : ContainerPrefab {
 	        
-	        internal Databox(TechType tech, string template) : base(tech, template) {
+	        internal Databox(TechType tech, string template, Action<GameObject> modify) : base(tech, template, modify) {
 				
 	        }
 			
@@ -193,13 +203,14 @@ namespace ReikaKalseki.DIAlterra
 				bpt.alreadyUnlockedTooltip = Language.main.GetFormat<string, string>("DataboxAlreadyUnlockedToolipFormat", arg, arg2);
 				bpt.useSound = SBUtil.getSound("event:/tools/scanner/new_blueprint");
 				bpt.onUseGoal = new Story.StoryGoal(bpt.primaryTooltip, Story.GoalType.Encyclopedia, 0);
+				modifyObject(go);
 			}
 			
 		}
 		
 		class Crate : ContainerPrefab {
 	        
-	        internal Crate(TechType tech, string template) : base(tech, template) {
+	        internal Crate(TechType tech, string template, Action<GameObject> modify) : base(tech, template, modify) {
 				
 	        }
 			
@@ -211,6 +222,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 				pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(containedTech);
 				pre.prefabPlaceholders[0].highPriority = true;
+				modifyObject(go);
 			}
 			
 		}

@@ -4,7 +4,10 @@ using System.Reflection;
 using System.Linq;
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Assets;
 
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -219,6 +222,24 @@ namespace ReikaKalseki.DIAlterra
 		
 		public int unlitCount() {
 			return prefabs.Count;
+		}
+		
+		public IEnumerable<string> getPrefabs(bool lit, bool unlit) {
+			if (lit && unlit) {
+				List<string> li = new List<string>();
+				li.AddRange(prefabs);
+				li.AddRange(prefabsLit);
+				return li;
+			}
+			else if (lit) {
+				return new ReadOnlyCollection<string>(prefabsLit);
+			}
+			else if (unlit) {
+				return new ReadOnlyCollection<string>(prefabs);
+			}
+			else {
+				return null;
+			}
 		}
 		
 		public bool includes(string pfb) {

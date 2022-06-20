@@ -66,7 +66,6 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void tempCode() {
 			//SBUtil.showPDANotification("I am pda text", "event:/player/story/Goal_BiomeSparseReef");
-			SeaToSea.SeaToSeaMod.treaderSignal.build("32e48451-8e81-428e-9011-baca82e9cd32", new Vector3(-1239, -360, -1193));
 			SeaToSea.SeaToSeaMod.treaderSignal.fireRadio();
 		}
 		

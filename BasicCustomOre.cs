@@ -17,7 +17,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public readonly bool isLargeResource;
 		
-		public string collectSound = null;
+		public string collectSound = CraftData.defaultPickupSound;
 		
 		public float glowIntensity {get; set;}		
 		public VanillaResources baseTemplate {get; set;}
@@ -31,11 +31,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			//TODO pickup sound
 			if (collectSound != null)
-				OnFinishedPatching += () => {CraftData.pickupSoundList.Add(TechType, collectSound);};
-		}
-		
-		protected virtual string getPickupSound() {
-			return "event:/loot/pickup_glass";
+				OnFinishedPatching += () => {CraftData.pickupSoundList[TechType] = collectSound;};
 		}
 		
 		public void registerWorldgen(BiomeType biome, int amt, float chance) {

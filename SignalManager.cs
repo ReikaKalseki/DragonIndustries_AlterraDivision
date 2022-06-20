@@ -18,6 +18,7 @@ namespace ReikaKalseki.DIAlterra
 	public static class SignalManager {
 		
 		private static readonly Dictionary<string, ModSignal> signals = new Dictionary<string, ModSignal>();
+		private static readonly Dictionary<PingType, string> types = new Dictionary<PingType, string>();
 		
 		static SignalManager() {
 			
@@ -50,13 +51,16 @@ namespace ReikaKalseki.DIAlterra
 			public readonly PDAManager.PDAPage pdaEntry;
 			
 			private StoryGoal radioMessage;
-			private string radioStoryKey;
 			
-			private Atlas.Sprite icon;
+			public string storyGate {get; private set;}
+			
+			public Atlas.Sprite icon {get; private set;}
+			
+			public Vector3 initialPosition {get; private set;}
+			public float maxDistance {get; private set;}
 		
-			private PingType signalType;
-			private GameObject signalHolder;
-			private PingInstance signalInstance;
+			public PingType signalType {get; private set;}
+			internal SignalHolder signalHolder {get; private set;}
 			
 			internal ModSignal(string id, string n, string desc, string pda, string prompt) {
 				this.id = "signal_"+id;
@@ -72,76 +76,51 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void addRadioTrigger(FMODAsset sound, float delay = 0) {
-				radioStoryKey = "radio_"+id;
-				radioMessage = SBUtil.addRadioMessage(radioStoryKey, radioText, sound, delay);
+				setStoryGate("radio_"+id);
+				radioMessage = SBUtil.addRadioMessage(storyGate, radioText, sound, delay);
 			}
 			
-			public string getRadioStoryKey() {
-				return radioStoryKey;
+			public void setStoryGate(string key) {
+				storyGate = key;
 			}
 			
-			public void register() {
-				register(SpriteManager.Get(SpriteManager.Group.Pings, "Signal"));
+			public void register(string pfb, Vector3 pos, float maxDist = -1) {
+				register(pfb, SpriteManager.Get(SpriteManager.Group.Pings, "Signal"), pos, maxDist);
 			}
 			
-			public void register(Atlas.Sprite icon) {
+			public void register(string pfb, Atlas.Sprite icon, Vector3 pos, float maxDist = -1) {
 				if (icon == null || icon == SpriteManager.defaultSprite)
 					throw new Exception("Null icon is not allowed");
 				signalType = PingHandler.RegisterNewPingType(id, icon);
+				SignalManager.types[signalType] = id;
 				LanguageHandler.SetLanguageLine(id, "Signal");
 				this.icon = icon;
+				
+				initialPosition = pos;
+				maxDistance = maxDist;
+				
+				signalHolder = new SignalHolder(pfb, this).registerPrefab();
 				
 				if (pdaEntry != null)
 					pdaEntry.register();
 				SBUtil.log("Registered signal "+this);
 			}
 			
-			//ONLY CALL THIS WHEN THE WORLD IS LOADED
-			public void build(string prefab, Vector3 pos) {
-				if (signalHolder != null)
-					return;
-				build(SBUtil.createWorldObject(prefab), pos);
-			}
-			
-			public void build(GameObject holder, Vector3 pos, float maxDist = -1) {
-				if (signalHolder == null) {
-					signalHolder = holder;
-					signalHolder.SetActive(false);
-					signalHolder.transform.position = pos;
-					LargeWorldEntity lw = signalHolder.EnsureComponent<LargeWorldEntity>();
-					lw.cellLevel = LargeWorldEntity.CellLevel.Global;
-					
-					signalInstance = signalHolder.EnsureComponent<PingInstance>();
-					signalInstance.pingType = signalType;
-					signalInstance.colorIndex = 0;
-					signalInstance.origin = signalHolder.transform;
-					signalInstance.minDist = 18;
-					signalInstance.maxDist = maxDist >= 0 ? maxDist : signalInstance.minDist;
-					signalInstance.SetLabel(longName);
-					signalInstance.displayPingInManager = false;
-					signalInstance.SetVisible(false);
-					signalHolder.SetActive(true);
-				}
+			public void addWorldgen(Quaternion? rot = null) {
+				GenUtil.registerWorldgen(signalHolder.ClassID, initialPosition, rot);
 			}
 			
 			public void fireRadio() {
 				if (radioMessage != null)
-					StoryGoal.Execute(radioStoryKey, radioMessage.goalType);//radioMessage.Trigger();
+					StoryGoal.Execute(storyGate, radioMessage.goalType);//radioMessage.Trigger();
 			}
 		
 			public void activate(int delay = 0) {					
-				signalInstance.displayPingInManager = true;
-				signalInstance.enabled = true;
-				signalInstance.SetVisible(true);
+				signalHolder.signalInstance.displayPingInManager = true;
+				signalHolder.signalInstance.enabled = true;
+				signalHolder.signalInstance.SetVisible(true);
 				
-				SignalInitializer init = signalHolder.EnsureComponent<SignalInitializer>();
-				init.ping = signalInstance;
-				init.description = longName;
-				if (delay > 0)
-					init.Invoke("triggerFX", delay);
-				else
-					init.triggerFX();
-				
+				signalHolder.activate(delay);				
 				
 				if (pdaEntry != null)
 					pdaEntry.unlock(false);
@@ -149,31 +128,105 @@ namespace ReikaKalseki.DIAlterra
 			
 			public void deactivate() { //Will not remove the PDA entry!
 				//signalInstance.displayPingInManager = false;
-				signalInstance.enabled = false;
-				signalInstance.SetVisible(false);
+				signalHolder.signalInstance.enabled = false;
+				signalHolder.signalInstance.SetVisible(false);
 			}
 			
 			public override string ToString()
 			{
 				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}, Icon={5}]", id, name, longName, radioText, pdaEntry, icon);
-			}
- 
-			
+			}			
 		}
 		
-		private class SignalInitializer : MonoBehaviour {
-			
-			internal string description;
+		internal class SignalInitializer : MonoBehaviour {
 		  
-			public PingInstance ping;
+			internal PingInstance ping;
+			
+			internal ModSignal signal;
 		  
 			private void Start() {
-		    	ping.SetLabel(description);
+				if (ping == null) {
+					//SBUtil.log("Ping was null, refetch");
+					ping = gameObject.GetComponentInParent<PingInstance>();
+					//SBUtil.log("TT is now "+ping.pingType);
+				}
+				if (ping != null && signal == null) {
+					//SBUtil.log("Signal was null, refetch");
+					signal = SignalManager.getSignal(SignalManager.types[ping.pingType]);
+				}
+				SBUtil.log("Starting signal init of "+signal+" / "+ping);
+				signal.signalHolder.signalInstance = ping;
+				signal.signalHolder.initializer = this;
+		    	ping.SetLabel(signal.longName);
+		    	
+				bool flag = true;
+				if (signal.storyGate != null) {
+					flag = StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
+				}
+				ping.displayPingInManager = flag;
+				ping.SetVisible(flag);
 			}
 			
 			internal void triggerFX() {
+				SBUtil.log("Firing signal unlock FX: "+signal.id);
 				SBUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
-				SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
+				Subtitles.main.AddRawLong("Signal location uploaded to PDA.", 0, 6);
+				//SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
+			}
+		}
+		
+		internal class SignalHolder : GenUtil.CustomPrefabImpl {
+			
+			private readonly ModSignal signal;
+			
+			internal PingInstance signalInstance;
+			internal SignalInitializer initializer;
+	       
+			internal SignalHolder(string template, ModSignal s) : base("signalholder_"+s.id, template) {
+				signal = s;
+		    }
+	
+			public override void prepareGameObject(GameObject go, Renderer r) {
+				LargeWorldEntity lw = go.EnsureComponent<LargeWorldEntity>();
+				lw.cellLevel = LargeWorldEntity.CellLevel.Global;
+				
+				go.SetActive(false);
+				go.transform.position = signal.initialPosition;
+				
+				signalInstance = go.EnsureComponent<PingInstance>();
+				signalInstance.pingType = signal.signalType;
+				signalInstance.colorIndex = 0;
+				signalInstance.origin = go.transform;
+				signalInstance.minDist = 18;
+				signalInstance.maxDist = signal.maxDistance >= 0 ? signal.maxDistance : signalInstance.minDist;
+				signalInstance.SetLabel(signal.longName);
+				
+				bool flag = true;
+				if (signal.storyGate != null) {
+					flag = StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
+				}
+				signalInstance.displayPingInManager = flag;
+				signalInstance.SetVisible(flag);
+				
+				initializer = go.EnsureComponent<SignalInitializer>();
+				initializer.ping = signalInstance;
+				initializer.signal = signal;
+				
+				SBUtil.log("Initialized GO holder for signal "+signal.id+" ["+flag+"]: "+go+" @ "+go.transform.position);
+				
+				go.SetActive(true);
+			}
+			
+			internal SignalHolder registerPrefab() {
+				Patch();
+				return this;
+			}
+			
+			internal void activate(int delay = 0) {
+				if (delay > 0)
+					initializer.Invoke("triggerFX", delay);
+				else
+					initializer.triggerFX();
 			}
 		}
 		
