@@ -51,7 +51,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static readonly VanillaFlora DEEP_MUSHROOM = new VanillaFlora(6, "29ab9e04-a045-413b-886b-e03fa6b86aee", "60fdf752-bc74-4f85-8a9c-72f86031a52f", "a6dac068-6f8d-4e32-b5e7-2e34a9f97d11", "e4ea0e38-7baa-49ce-b85c-89a22935574f").markResources();
 		public static readonly VanillaFlora GHOSTWEED = new VanillaFlora("1bb43d52-19ee-4a3a-85ef-f85a152cc334", 6.1, 0.1).markHarvestable();
-		public static readonly VanillaFlora GABE_FEATHER = new VanillaFlora(6, 0.2, "79134868-2f8e-4f43-a99f-a6fb8ce60b48", "79134868-2f8e-4f43-a99f-a6fb8ce60b48").markHarvestable();
+		public static readonly VanillaFlora GABE_FEATHER = new VanillaFlora(6, 0.2, "79134868-2f8e-4f43-a99f-a6fb8ce60b48", "8409a079-a96c-43d3-a891-af500b04e0af").markHarvestable();
 		public static readonly VanillaFlora BRINE_LILY = new VanillaFlora("f97bf790-a5bd-4e7f-a5e8-9fca1b37f81c", 6.5, 0.8);
 		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", 6.3);
 		
@@ -225,21 +225,12 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public IEnumerable<string> getPrefabs(bool lit, bool unlit) {
-			if (lit && unlit) {
-				List<string> li = new List<string>();
+			List<string> li = new List<string>();
+			if (unlit || prefabsLit.Count == 0)
 				li.AddRange(prefabs);
+			if (lit || prefabs.Count == 0)
 				li.AddRange(prefabsLit);
-				return li;
-			}
-			else if (lit) {
-				return new ReadOnlyCollection<string>(prefabsLit);
-			}
-			else if (unlit) {
-				return new ReadOnlyCollection<string>(prefabs);
-			}
-			else {
-				return null;
-			}
+			return li;
 		}
 		
 		public bool includes(string pfb) {
