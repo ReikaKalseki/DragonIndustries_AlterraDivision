@@ -20,7 +20,18 @@ namespace ReikaKalseki.DIAlterra
 	    }
 		
 	    public static double py3d(double dx, double dy, double dz) {
-	    	return Math.Sqrt(dx*dx+dy*dy+dz*dz);
+			return Math.Sqrt(py3dS(dx, dy, dz));
+	    }
+		
+	    public static double py3dS(double rawX, double rawY, double rawZ, double rawX2, double rawY2, double rawZ2) {
+	    	double dx = rawX2-rawX;
+	    	double dy = rawY2-rawY;
+	    	double dz = rawZ2-rawZ;
+	    	return py3dS(dx, dy, dz);
+	    }
+		
+	    public static double py3dS(double dx, double dy, double dz) {
+	    	return dx*dx+dy*dy+dz*dz;
 	    }
 		
 		public static Vector3 findRandomPointInsideEllipse(Vector3 center, float length, float width) {
@@ -82,6 +93,19 @@ namespace ReikaKalseki.DIAlterra
 			double denom = (x2-x1)*(x2-x1)+(z2-z1)*(z2-z1);
 			double num = (x2-x1)*(z1-point.z)-(x1-point.x)*(z2-z1);
 			return Math.Abs(num)/Math.Sqrt(denom);
+		}
+		
+		public static double getDistanceToLineSegment(Vector3 point, Vector3 a, Vector3 b) {
+			return getDistanceToLineSegment(point, a.x, a.y, a.z, b.x, b.y, b.z);
+		}
+		
+		public static double getDistanceToLineSegment(Vector3 point, double x1, double y1, double z1, double x2, double y2, double z2) {
+			double dist = py3dS(x1, y1, z1, x2, y2, z2);
+			if (dist <= 0.001)
+				return py3d(point.x, point.y, point.z, x1, y1, z1);
+			double t = ((point.x-x1)*(x2-x1)+(point.y-y1)*(y2-y1)+(point.z-z1)*(z2-z1))/dist;
+			t = t.Clamp(0D, 1D);
+			return py3d(point.x, point.y, point.z, x1+t*(x2-x1), y1+t*(y2-y1), z1+t*(z2-z1));
 		}
 
 		public static double linterpolate(double x, double x1, double x2, double y1, double y2) {

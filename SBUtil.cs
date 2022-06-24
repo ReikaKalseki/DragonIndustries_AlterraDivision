@@ -710,5 +710,12 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void teleportPlayer(Player ep, Vector3 to) {
+		  	if (ep.currentMountedVehicle != null) {
+		  		ep.currentMountedVehicle.transform.position = to;
+		  	}
+			ep.transform.position = to;
+		}
+		
 	}
 }

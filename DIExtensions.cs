@@ -15,6 +15,18 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class DIExtensions {
 		
+		public static Vector3 setLength(this Vector3 vec, double amt) {
+			return vec.normalized*((float)(amt));
+		}
+		
+		public static Vector3 addLength(this Vector3 vec, double amt) {
+			return vec.setLength(vec.magnitude+amt);
+		}
+		
+		public static Vector3 setY(this Vector3 vec, double y) {
+			return new Vector3(vec.x, (float)y, vec.z);
+		}
+		
 		public static XmlElement addProperty(this XmlNode xml, string name, Quaternion quat) {
 			XmlElement n = xml.OwnerDocument.CreateElement(name);
 			n.addProperty("x", quat.x);

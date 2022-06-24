@@ -15,7 +15,12 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly HashSet<string> alreadyRegisteredGen = new HashSet<string>();
 		private static readonly Dictionary<TechType, Databox> databoxes = new Dictionary<TechType, Databox>();
-		private static readonly Dictionary<TechType, Crate> crates = new Dictionary<TechType, Crate>();
+		private static readonly Dictionary<TechType, Crate>[] crates = new Dictionary<TechType, Crate>[2];
+		
+		static GenUtil() {
+			crates[0] = new Dictionary<TechType, Crate>();
+			crates[1] = new Dictionary<TechType, Crate>();
+		}
 		
 		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
 			registerOreWorldgen(ore, ore.isLargeResource, biome, amt, chance);
@@ -124,11 +129,12 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static string getOrCreateCrate(TechType tech, Action<GameObject> modify = null) {
-			Crate box = crates.ContainsKey(tech) ? crates[tech] : null;
+		public static string getOrCreateCrate(TechType tech, bool needsCutter = false, Action<GameObject> modify = null) {
+			int idx = needsCutter ? 1 : 0;
+			Crate box = crates[idx].ContainsKey(tech) ? crates[idx][tech] : null;
 			if (box == null) {
-				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8", modify); //battery
-				crates[tech] = box;
+				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8", needsCutter, modify); //battery
+				crates[idx][tech] = box;
 				box.Patch();
 			}
 			return box.ClassID;
@@ -209,9 +215,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		class Crate : ContainerPrefab {
+			
+			private readonly bool needsCutter;
 	        
-	        internal Crate(TechType tech, string template, Action<GameObject> modify) : base(tech, template, modify) {
-				
+	        internal Crate(TechType tech, string template, bool c, Action<GameObject> modify) : base(tech, template, modify) {
+				needsCutter = c;
 	        }
 			
 			public override void prepareGameObject(GameObject go, Renderer r) {
@@ -222,6 +230,9 @@ namespace ReikaKalseki.DIAlterra
 				}
 				pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(containedTech);
 				pre.prefabPlaceholders[0].highPriority = true;
+				if (needsCutter) {
+					go.EnsureComponent<Sealed>()._sealed = true;
+				}
 				modifyObject(go);
 			}
 			

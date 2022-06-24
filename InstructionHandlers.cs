@@ -205,5 +205,31 @@ namespace ReikaKalseki.DIAlterra
 	        }	
 	        return null;
 	    }
+		
+		public static void patchEveryReturnPre(List<CodeInstruction> codes, List<CodeInstruction> insert) {
+			patchEveryReturnPre(codes, (li, idx) => li.InsertRange(idx, insert));
+		}
+		
+		public static void patchEveryReturnPre(List<CodeInstruction> codes, Action<List<CodeInstruction>, int> injectHook) {
+			for (int i = codes.Count-1; i >= 0; i--) {
+				if (codes[i].opcode == OpCodes.Ret) {
+					injectHook(codes, i);
+				}
+			}
+		}
+		
+		public static void patchInitialHook(List<CodeInstruction> codes, params CodeInstruction[] insert) {
+			List<CodeInstruction> li = new List<CodeInstruction>();
+			foreach (CodeInstruction c in insert) {
+				li.Add(c);
+			}
+			patchInitialHook(codes, li);
+		}
+		
+		public static void patchInitialHook(List<CodeInstruction> codes, List<CodeInstruction> insert) {
+			for (int i = insert.Count-1; i >= 0; i--) {
+				codes.Insert(0, insert[i]);
+			}
+		}
 	}
 }
