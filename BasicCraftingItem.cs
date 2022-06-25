@@ -95,7 +95,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public sealed override GameObject GetGameObject() {
-			return SBUtil.getModPrefabBaseObject(this);
+			return ObjectUtil.getModPrefabBaseObject(this);
 		}
 		
 		public bool isResource() {

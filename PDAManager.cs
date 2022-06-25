@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Signal ID '"+id+"' already in use!");
 			PDAPage sig = new PDAPage(id, name, text, cat);
 			pages[sig.id] = sig;
-			SBUtil.log("Registered PDA page "+sig);
+			SNUtil.log("Registered PDA page "+sig);
 			return sig;
 		}
 		
@@ -75,13 +75,13 @@ namespace ReikaKalseki.DIAlterra
 			public PDAPage setVoiceover(string path) {
 				string sid = VanillaSounds.getID(path);
 				if (sid == null) {
-					SBUtil.log("Sound path "+path+" did not find an ID. Registering as custom.");
+					SNUtil.log("Sound path "+path+" did not find an ID. Registering as custom.");
 					pageData.audio = SoundManager.registerSound("pda_vo_"+id, path, SoundSystem.voiceBus);
 				}
 				else {
-					pageData.audio = SBUtil.getSound(path, sid);
+					pageData.audio = SNUtil.getSound(path, sid);
 				}
-				SBUtil.log("Setting "+this+" sound to "+pageData.audio.id+"="+pageData.audio.path);
+				SNUtil.log("Setting "+this+" sound to "+pageData.audio.id+"="+pageData.audio.path);
 				return this;
 			}
 			
@@ -106,7 +106,7 @@ namespace ReikaKalseki.DIAlterra
 					PDAEncyclopedia.Add(pageData.key, true);
 					
 					if (doSound)
-						SBUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
+						SNUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
 				}
 			}
 			
@@ -138,7 +138,7 @@ namespace ReikaKalseki.DIAlterra
 	        }
 			
 	        public override GameObject GetGameObject() {
-				GameObject go = SBUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
+				GameObject go = ObjectUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
 				StoryHandTarget tgt = go.EnsureComponent<StoryHandTarget>();
 				tgt.goal.goalType = Story.GoalType.Encyclopedia;
 				tgt.goal.key = page.id;

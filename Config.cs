@@ -33,7 +33,7 @@ namespace ReikaKalseki.DIAlterra
 				ConfigEntry e = getEntry(key);
 				e.enumIndex = name;
 				data[name] = e.defaultValue;
-				//SBUtil.log("Initializing config entry "+name+" to "+e.formatValue(e.defaultValue)+" hash = "+RuntimeHelpers.GetHashCode(e));
+				//SNUtil.log("Initializing config entry "+name+" to "+e.formatValue(e.defaultValue)+" hash = "+RuntimeHelpers.GetHashCode(e));
 			}
 		}
 		
@@ -42,7 +42,7 @@ namespace ReikaKalseki.DIAlterra
 			Directory.CreateDirectory(folder);
 			string path = Path.Combine(folder, filename);
 			if (File.Exists(path)) {
-				SBUtil.log("Loading config file at "+path);
+				SNUtil.log("Loading config file at "+path);
 				try {
 					XmlDocument doc = new XmlDocument();
 					doc.Load(path);
@@ -59,36 +59,36 @@ namespace ReikaKalseki.DIAlterra
 							float raw = entry.parse(val.InnerText);
 							float get = raw;
 							if (!entry.validate(ref get)) {
-								SBUtil.log("Chosen "+name+" value ("+raw+") was out of bounds, clamed to "+get);
+								SNUtil.log("Chosen "+name+" value ("+raw+") was out of bounds, clamed to "+get);
 							}
 							data[name] = get;
 							dataString[name] = val.InnerText;
 							missing.Remove(name);
 						}
 						catch (Exception ex) {
-							SBUtil.log("Config entry "+name+" failed to load: "+ex.ToString());
+							SNUtil.log("Config entry "+name+" failed to load: "+ex.ToString());
 						}
 					}
 					string vals = string.Join(";", data.Select(x => x.Key + "=" + x.Value).ToArray());
-					SBUtil.log("Config successfully loaded: "+vals);
+					SNUtil.log("Config successfully loaded: "+vals);
 					if (missing.Count > 0) {
 						string keys = string.Join(";", missing.ToArray());
-						SBUtil.log("Note: "+missing.Count+" entries were missing from the config and so stayed the default values.");
-						SBUtil.log("Missing keys: "+keys);
-						//SBUtil.log("It is recommended that you regenerate your config by renaming your current config file, letting a new one generate," +
+						SNUtil.log("Note: "+missing.Count+" entries were missing from the config and so stayed the default values.");
+						SNUtil.log("Missing keys: "+keys);
+						//SNUtil.log("It is recommended that you regenerate your config by renaming your current config file, letting a new one generate," +
 						         // "then copying your changes into the new one.");
-						SBUtil.log("Your config will be regenerated (keeping your changes) to add them to the file.");
+						SNUtil.log("Your config will be regenerated (keeping your changes) to add them to the file.");
 						File.Delete(path);
 						generateFile(path, e => getFloat(getEnum(e)));
 					}
 				}
 				catch (Exception ex)
 				{
-					SBUtil.log("Config failed to load: "+ex.ToString());
+					SNUtil.log("Config failed to load: "+ex.ToString());
 				}
 			}
 			else {
-				SBUtil.log("Config file does not exist at "+path+"; generating.");
+				SNUtil.log("Config file does not exist at "+path+"; generating.");
 				generateFile(path, e => e.defaultValue);
 			}
 		}
@@ -103,14 +103,14 @@ namespace ReikaKalseki.DIAlterra
 						createNode(doc, root, key, valGetter);
 					}
 					catch (Exception e) {
-						SBUtil.log("Could not generate XML node for "+key+": "+e.ToString());
+						SNUtil.log("Could not generate XML node for "+key+": "+e.ToString());
 					}
 				}
 				doc.Save(path);
-				SBUtil.log("Config successfully generated at "+path);
+				SNUtil.log("Config successfully generated at "+path);
 			}
 			catch (Exception ex) {
-				SBUtil.log("Config failed to generate: "+ex.ToString());
+				SNUtil.log("Config failed to generate: "+ex.ToString());
 			}
 		}
 			
@@ -122,7 +122,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			XmlElement val = doc.CreateElement("value");
 			float amt = valGetter(e);
-			//SBUtil.log(valGetter+": Parsed value "+amt+" for "+key);
+			//SNUtil.log(valGetter+": Parsed value "+amt+" for "+key);
 			val.InnerText = e.formatValue(amt);
 			node.AppendChild(val);
 			

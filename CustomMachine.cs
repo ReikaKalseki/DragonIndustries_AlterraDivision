@@ -55,7 +55,7 @@ namespace ReikaKalseki.DIAlterra
 		//protected abstract OrientedBounds[] GetBounds { get; }
 			
 		public sealed override GameObject GetGameObject() {
-			GameObject world = SBUtil.getModPrefabBaseObject(this);
+			GameObject world = ObjectUtil.getModPrefabBaseObject(this);
 			world.EnsureComponent<M>().prefab = this;
 			Constructable ctr = world.EnsureComponent<Constructable>();
 			ctr.techType = TechType;
@@ -105,7 +105,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
+			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 	}
 		

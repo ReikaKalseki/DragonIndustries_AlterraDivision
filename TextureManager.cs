@@ -35,7 +35,7 @@ namespace ReikaKalseki.DIAlterra
 			Texture2D newTex = ImageUtils.LoadTextureFromFile(path);
 			if (newTex == null) {
 				//newTex = NOT_FOUND;
-				SBUtil.log("Texture not found @ "+path);
+				SNUtil.log("Texture not found @ "+path);
 			}
 			return newTex;
 		}

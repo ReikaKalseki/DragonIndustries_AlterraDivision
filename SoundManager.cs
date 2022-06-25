@@ -46,10 +46,10 @@ namespace ReikaKalseki.DIAlterra
 			Bus bb = b != null && b.HasValue ? b.Value : SoundSystem.masterBus;
 			string bp = null;
 			bb.getPath(out bp);
-			SBUtil.log("Registered custom sound '"+id+"' @ "+path+" on bus "+bp);
+			SNUtil.log("Registered custom sound '"+id+"' @ "+path+" on bus "+bp);
 			Sound snd = AudioUtils.CreateSound(path, soundModeStreaming);
 			CustomSoundHandler.RegisterCustomSound(id, snd, bb);
-			sounds[id] = SBUtil.getSound(id, id, false);
+			sounds[id] = SNUtil.getSound(id, id, false);
 			return sounds[id];
 		}
 		

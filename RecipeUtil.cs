@@ -17,7 +17,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static void addIngredient(TechType recipe, TechType add, int amt) {
 			TechData rec = getRecipe(recipe);
 			rec.Ingredients.Add(new Ingredient(add, amt));
-			SBUtil.log("Adding "+add+"x"+amt+" to recipe "+recipe);
+			SNUtil.log("Adding "+add+"x"+amt+" to recipe "+recipe);
 		}
 		
 		public static void removeIngredient(TechType recipe, TechType item) {
@@ -68,7 +68,7 @@ namespace ReikaKalseki.DIAlterra {
 			CraftTreeHandler.Main.RemoveNode(node.recipeType, node.path.Split('\\'));
 			nodes.Remove(item);
 			//CraftTree.craftableTech.Remove(item);
-			SBUtil.log("Removing recipe "+item);
+			SNUtil.log("Removing recipe "+item);
 			return rec;
 		}
 		
@@ -116,7 +116,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void dumpCraftTree(CraftTree.Type type) {
-			SBUtil.log("Tree "+type+":");
+			SNUtil.log("Tree "+type+":");
 			CraftNode root = getRootNode(type);
 			dumpCraftTreeFromNode(root);
 		}
@@ -127,24 +127,24 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private static void dumpCraftTreeFromNode(CraftNode root, List<string> prefix) {
 			if (root == null) {
-				SBUtil.log(string.Join("/", prefix)+" -> null @ root");
+				SNUtil.log(string.Join("/", prefix)+" -> null @ root");
 				return;
 			}
 			List<TreeNode> nodes = root.nodes;
 			for (int i = 0; i < nodes.Count; i++) {
 				TreeNode node = nodes[i];
 				if (node == null) {
-					SBUtil.log(string.Join("/", prefix)+" -> null @ "+i);
+					SNUtil.log(string.Join("/", prefix)+" -> null @ "+i);
 				}
 				else {
 					try {
-						SBUtil.log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id);
+						SNUtil.log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id);
 						prefix.Add(node.id);
 						dumpCraftTreeFromNode((CraftNode)node, prefix);
 						prefix.RemoveAt(prefix.Count-1);
 					}
 					catch (Exception e) {
-						SBUtil.log(e.ToString());
+						SNUtil.log(e.ToString());
 					}
 				}
 			}
@@ -152,7 +152,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public static void dumpPDATree() {
 			foreach (var kvp in PDAEncyclopedia.entries) {
-				SBUtil.log("PDA entry '"+kvp.Key+"': "+kvp.Value);
+				SNUtil.log("PDA entry '"+kvp.Key+"': "+kvp.Value);
 			}
 			dumpCraftTreeFromNode(PDAEncyclopedia.tree);
 		}

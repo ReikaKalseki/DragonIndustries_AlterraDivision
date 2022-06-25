@@ -35,7 +35,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void registerWorldgen(BiomeType biome, int amt, float chance) {
-			SBUtil.log("Adding worldgen "+biome+" x"+amt+" @ "+chance+"% to "+this);
+			SNUtil.log("Adding worldgen "+biome+" x"+amt+" @ "+chance+"% to "+this);
 			GenUtil.registerOreWorldgen(this, biome, amt, chance);
 		}
 		
@@ -53,7 +53,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
+			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
@@ -65,7 +65,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public sealed override GameObject GetGameObject() {
-			return SBUtil.getModPrefabBaseObject(this);
+			return ObjectUtil.getModPrefabBaseObject(this);
 		}
 		
 		public bool isResource() {

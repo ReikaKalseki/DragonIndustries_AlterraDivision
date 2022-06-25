@@ -18,7 +18,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly Vector3 position;
 		
-		public Func<string, GameObject> spawner = s => SBUtil.createWorldObject(s, true, true);
+		public Func<string, GameObject> spawner = s => ObjectUtil.createWorldObject(s, true, true);
 		
 		static WorldGenerator() {
 			registerType(TAGNAME, e => {
@@ -51,7 +51,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected bool isColliding(Vector3 vec, List<GameObject> li) {
 			foreach (GameObject go in li) {
-				if (SBUtil.objectCollidesPosition(go, vec))
+				if (ObjectUtil.objectCollidesPosition(go, vec))
 					return true;
 			}
 			return false;

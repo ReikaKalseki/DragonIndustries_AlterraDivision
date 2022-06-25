@@ -62,7 +62,7 @@ namespace ReikaKalseki.DIAlterra
 			validateCoords(pos);
 			SpawnInfo info = new SpawnInfo(prefab, pos, getOrIdentity(rot), call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
-			//SBUtil.log("Registering prefab "+prefab+" @ "+pos);
+			//SNUtil.log("Registering prefab "+prefab+" @ "+pos);
 			return info;
 		}
 		
@@ -72,12 +72,12 @@ namespace ReikaKalseki.DIAlterra
 			validateCoords(gen.position);
 			Action<GameObject> call = go => {
 				UnityEngine.Object.Destroy(go);
-				SBUtil.log("Running world generator "+gen);
+				SNUtil.log("Running world generator "+gen);
 				gen.generate(new List<GameObject>());
 			};
 			SpawnInfo info = new SpawnInfo(VanillaResources.LIMESTONE.prefab, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
-			SBUtil.log("Queuing world generator "+gen);
+			SNUtil.log("Queuing world generator "+gen);
 			return info;
 		}
 		
@@ -160,7 +160,7 @@ namespace ReikaKalseki.DIAlterra
 	        }
 			
 	        public override sealed GameObject GetGameObject() {
-				return SBUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
+				return ObjectUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
 	        }
 			
 			public bool isResource() {
@@ -207,7 +207,7 @@ namespace ReikaKalseki.DIAlterra
 				string arg2 = Language.main.Get(TooltipFactory.techTypeTooltipStrings.Get(containedTech));
 				bpt.secondaryTooltip = Language.main.GetFormat<string, string>("DataboxToolipFormat", arg, arg2);
 				bpt.alreadyUnlockedTooltip = Language.main.GetFormat<string, string>("DataboxAlreadyUnlockedToolipFormat", arg, arg2);
-				bpt.useSound = SBUtil.getSound("event:/tools/scanner/new_blueprint");
+				bpt.useSound = SNUtil.getSound("event:/tools/scanner/new_blueprint");
 				bpt.onUseGoal = new Story.StoryGoal(bpt.primaryTooltip, Story.GoalType.Encyclopedia, 0);
 				modifyObject(go);
 			}

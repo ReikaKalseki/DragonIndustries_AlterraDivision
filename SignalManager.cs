@@ -37,7 +37,7 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Signal ID '"+id+"' already in use!");
 			ModSignal sig = new ModSignal(id, name, desc, pda, prompt);
 			signals[sig.id] = sig;
-			SBUtil.log("Constructed signal "+sig);
+			SNUtil.log("Constructed signal "+sig);
 			return sig;
 		}
 		
@@ -77,7 +77,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			public void addRadioTrigger(FMODAsset sound, float delay = 0) {
 				setStoryGate("radio_"+id);
-				radioMessage = SBUtil.addRadioMessage(storyGate, radioText, sound, delay);
+				radioMessage = SNUtil.addRadioMessage(storyGate, radioText, sound, delay);
 			}
 			
 			public void setStoryGate(string key) {
@@ -103,7 +103,7 @@ namespace ReikaKalseki.DIAlterra
 				
 				if (pdaEntry != null)
 					pdaEntry.register();
-				SBUtil.log("Registered signal "+this);
+				SNUtil.log("Registered signal "+this);
 			}
 			
 			public void addWorldgen(Quaternion? rot = null) {
@@ -146,15 +146,15 @@ namespace ReikaKalseki.DIAlterra
 		  
 			private void Start() {
 				if (ping == null) {
-					//SBUtil.log("Ping was null, refetch");
+					//SNUtil.log("Ping was null, refetch");
 					ping = gameObject.GetComponentInParent<PingInstance>();
-					//SBUtil.log("TT is now "+ping.pingType);
+					//SNUtil.log("TT is now "+ping.pingType);
 				}
 				if (ping != null && signal == null) {
-					//SBUtil.log("Signal was null, refetch");
+					//SNUtil.log("Signal was null, refetch");
 					signal = SignalManager.getSignal(SignalManager.types[ping.pingType]);
 				}
-				SBUtil.log("Starting signal init of "+signal+" / "+ping);
+				SNUtil.log("Starting signal init of "+signal+" / "+ping);
 				signal.signalHolder.signalInstance = ping;
 				signal.signalHolder.initializer = this;
 		    	ping.SetLabel(signal.longName);
@@ -168,10 +168,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			internal void triggerFX() {
-				SBUtil.log("Firing signal unlock FX: "+signal.id);
-				SBUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
+				SNUtil.log("Firing signal unlock FX: "+signal.id);
+				SNUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
 				Subtitles.main.AddRawLong("Signal location uploaded to PDA.", 0, 6);
-				//SBUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
+				//SNUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
 			}
 		}
 		
@@ -212,7 +212,7 @@ namespace ReikaKalseki.DIAlterra
 				initializer.ping = signalInstance;
 				initializer.signal = signal;
 				
-				SBUtil.log("Initialized GO holder for signal "+signal.id+" ["+flag+"]: "+go+" @ "+go.transform.position);
+				SNUtil.log("Initialized GO holder for signal "+signal.id+" ["+flag+"]: "+go+" @ "+go.transform.position);
 				
 				go.SetActive(true);
 			}

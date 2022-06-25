@@ -82,11 +82,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+SBUtil.formatFileName(this));
+			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 			
 		public sealed override GameObject GetGameObject() {
-			return SBUtil.getModPrefabBaseObject(this);
+			return ObjectUtil.getModPrefabBaseObject(this);
 		}
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {

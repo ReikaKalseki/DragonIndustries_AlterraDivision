@@ -32,7 +32,7 @@ namespace ReikaKalseki.DIAlterra
 				LocaleEntry lc = constructEntry(e);
 				entries[lc.key] = lc;
 			}
-			SBUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Values));
+			SNUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Values));
 		}
 		
 		private XmlDocument loadXML() {
@@ -43,7 +43,7 @@ namespace ReikaKalseki.DIAlterra
 				doc.Load(path);
 			}
 			else {
-				SBUtil.log("Could not find XML file "+path+"!");
+				SNUtil.log("Could not find XML file "+path+"!");
 			}
 			return doc;
 		}

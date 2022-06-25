@@ -33,19 +33,19 @@ namespace ReikaKalseki.DIAlterra
 					case "call": {
 						MethodInfo call = AccessTools.Method(t, member);
 						object ret = call.Invoke(inst, new object[0]);
-						SBUtil.writeToChat("Invoking "+type+"."+member+" returned: "+toString(ret));
+						SNUtil.writeToChat("Invoking "+type+"."+member+" returned: "+toString(ret));
 					}
 					break;
 					case "field": {
 						FieldInfo field = AccessTools.Field(t, member);
 						object ret = field.GetValue(inst);
-						SBUtil.writeToChat("Field "+type+"."+member+" contains: "+toString(ret));
+						SNUtil.writeToChat("Field "+type+"."+member+" contains: "+toString(ret));
 					}
 					break;
 				}
 			}
 			catch (Exception e) {
-				SBUtil.writeToChat("Exec threw exception: "+e.ToString());
+				SNUtil.writeToChat("Exec threw exception: "+e.ToString());
 			}
 		}
 		
@@ -65,7 +65,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void tempCode() {
-			//SBUtil.showPDANotification("I am pda text", "event:/player/story/Goal_BiomeSparseReef");
+			//SNUtil.showPDANotification("I am pda text", "event:/player/story/Goal_BiomeSparseReef");
 			//SeaToSea.SeaToSeaMod.treaderSignal.fireRadio();
 		}
 		
