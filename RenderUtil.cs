@@ -46,11 +46,10 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
-		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
+		public static bool swapTextures(Renderer r, string path)  {
 			bool flag = false;
 			foreach (String type in texTypes) {
-				string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb)+type;
-				Texture2D newTex = TextureManager.getTexture(path);
+				Texture2D newTex = TextureManager.getTexture(path+type);
 				if (newTex != null) {
 					r.materials[0].SetTexture(type, newTex);
 					r.sharedMaterial.SetTexture(type, newTex);
@@ -61,9 +60,14 @@ namespace ReikaKalseki.DIAlterra
 					//SBUtil.writeToChat("No texture found at "+path);
 				}
 			}
-			if (!flag) {
+			return flag;
+		}
+		
+		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
+			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
+			if (!swapTextures(r, path))
 				SNUtil.log("NO CUSTOM TEXTURES FOUND: "+pfb);
-			}
+			
 			if (pfb.glowIntensity > 0) {
 				setEmissivity(r, pfb.glowIntensity, "GlowStrength");
 				

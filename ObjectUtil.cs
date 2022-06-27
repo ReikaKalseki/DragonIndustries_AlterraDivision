@@ -429,5 +429,12 @@ namespace ReikaKalseki.DIAlterra
 			UnityEngine.Object.Destroy(go);
 		}
 		
+		public static Light addLight(GameObject go) {
+			GameObject child = new GameObject();
+			child.transform.parent = go.transform;
+			child.name = "Light Entity";
+			return child.AddComponent<Light>();
+		}
+		
 	}
 }

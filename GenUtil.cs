@@ -163,11 +163,11 @@ namespace ReikaKalseki.DIAlterra
 				return ObjectUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
 	        }
 			
-			public bool isResource() {
+			public virtual bool isResource() {
 				return false;
 			}
 			
-			public string getTextureFolder() {
+			public virtual string getTextureFolder() {
 				return null;
 			}
 			
