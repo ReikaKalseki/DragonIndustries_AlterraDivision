@@ -14,9 +14,11 @@ namespace ReikaKalseki.DIAlterra
 	public static class ObjectUtil {
 		
 		public static void removeComponent<C>(GameObject go) where C : Component {
-			Component c = go.GetComponent<C>();
-			if (c != null)
-				UnityEngine.Object.Destroy(c);
+			foreach (Component c in go.GetComponentsInParent<C>()) {
+				if (c is MonoBehaviour)
+					((MonoBehaviour)c).enabled = false;
+				UnityEngine.Object.DestroyImmediate(c);
+			}
 		}
 		
 		public static void dumpObjectData(GameObject go) {
@@ -159,6 +161,28 @@ namespace ReikaKalseki.DIAlterra
 			component.type = tech;
 			component2.ClassId = id;
 			return gameObject;
+		}
+		
+		public static GameObject removeChildObject(GameObject go, string name) {
+			GameObject find = getChildObject(go, name);
+			GameObject ret = null;
+			while (find != null) {
+				find.SetActive(false);
+				UnityEngine.Object.DestroyImmediate(find);
+				ret = find;
+			}
+			return ret;
+		}
+		
+		public static GameObject getChildObject(GameObject go, string name) {
+		 	Transform t = go.transform.Find(name);
+		 	if (t != null)
+		 		return t.gameObject;
+		 	t = go.transform.Find(name+"(Placeholder)");
+		 	if (t != null)
+		 		return t.gameObject;
+		 	t = go.transform.Find(name+"(Clone)");
+		 	return t != null ? t.gameObject : null;
 		}
     
 	    public static void setCrateItem(SupplyCrate c, TechType item) {

@@ -46,18 +46,25 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
-		public static bool swapTextures(Renderer r, string path)  {
+		public static bool swapTextures(Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
 			bool flag = false;
 			foreach (String type in texTypes) {
-				Texture2D newTex = TextureManager.getTexture(path+type);
-				if (newTex != null) {
-					r.materials[0].SetTexture(type, newTex);
-					r.sharedMaterial.SetTexture(type, newTex);
-					flag = true;
-					//SBUtil.writeToChat("Found "+type+" texture @ "+path);
-				}
-				else {
-					//SBUtil.writeToChat("No texture found at "+path);
+				for (int i = 0; i < r.materials.Length; i++) {
+					if ((textureLayers == null && i == 0) || (textureLayers != null && textureLayers.ContainsKey(i))) {
+						string suffix = textureLayers != null ? (string.IsNullOrEmpty(textureLayers[i]) ? "" : "_"+textureLayers[i]) : "";
+						if (path.EndsWith("/", StringComparison.InvariantCultureIgnoreCase) && suffix.StartsWith("_", StringComparison.InvariantCultureIgnoreCase)) {
+							suffix = suffix.Substring(1);
+						}
+						Texture2D newTex = TextureManager.getTexture(path+suffix+type);
+						if (newTex != null) {
+							r.materials[i].SetTexture(type, newTex);
+							flag = true;
+							//SNUtil.writeToChat("Found "+type+" texture @ "+path);
+						}
+						else {
+							//SNUtil.writeToChat("No texture found at "+path);
+						}
+					}
 				}
 			}
 			return flag;
@@ -76,13 +83,14 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static GameObject setModel(GameObject go, string localModelName, GameObject modelObj) {
-			Transform t = go.transform.Find(localModelName);
-			if (t != null)
-				UnityEngine.Object.Destroy(t.gameObject);
+		public static GameObject setModel(GameObject go, string localModelName, GameObject modelObj) { //FIXME duplicate models
+			GameObject prev = ObjectUtil.removeChildObject(go, localModelName);
 			modelObj = UnityEngine.Object.Instantiate(modelObj);
 			modelObj.name = localModelName;
 			modelObj.transform.parent = go.transform;
+			//modelObj.transform.localPosition = go.transform.localPosition;
+			//modelObj.transform.localRotation = go.transform.localRotation;
+			//modelObj.transform.localScale = go.transform.localScale;
 			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
 				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier) {
 					continue;

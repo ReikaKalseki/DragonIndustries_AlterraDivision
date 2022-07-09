@@ -182,6 +182,8 @@ namespace ReikaKalseki.DIAlterra
 			private readonly Action<GameObject> modify;
 	        
 	        internal ContainerPrefab(TechType tech, string template, Action<GameObject> m) : base("container_"+tech, template) {
+				if (tech == TechType.None)
+					throw new Exception("TechType for worldgen container "+GetType()+" was null!");
 				containedTech = tech;
 				modify = m;
 	        }
@@ -230,9 +232,12 @@ namespace ReikaKalseki.DIAlterra
 				}
 				pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(containedTech);
 				pre.prefabPlaceholders[0].highPriority = true;
+				pre.prefabPlaceholders[0].name = containedTech.AsString();
 				if (needsCutter) {
 					go.EnsureComponent<Sealed>()._sealed = true;
 				}
+				
+				SupplyCrate sp = go.EnsureComponent<SupplyCrate>();
 				modifyObject(go);
 			}
 			

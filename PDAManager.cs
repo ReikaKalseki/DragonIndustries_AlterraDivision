@@ -140,6 +140,8 @@ namespace ReikaKalseki.DIAlterra
 	        public override GameObject GetGameObject() {
 				GameObject go = ObjectUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
 				StoryHandTarget tgt = go.EnsureComponent<StoryHandTarget>();
+				if (tgt.goal == null)
+					tgt.goal = new Story.StoryGoal();
 				tgt.goal.goalType = Story.GoalType.Encyclopedia;
 				tgt.goal.key = page.id;
 				return go;

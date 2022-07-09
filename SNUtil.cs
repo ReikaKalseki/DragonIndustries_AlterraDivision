@@ -139,7 +139,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void teleportPlayer(Player ep, Vector3 to) {
 		  	if (ep.currentMountedVehicle != null) {
-		  		ep.currentMountedVehicle.transform.position = to;
+				ep.currentMountedVehicle.transform.position = to+(ep.currentMountedVehicle.transform.position-ep.transform.position);
 		  	}
 			ep.transform.position = to;
 		}

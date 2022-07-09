@@ -169,7 +169,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			internal void triggerFX() {
 				SNUtil.log("Firing signal unlock FX: "+signal.id);
-				SNUtil.playSound("event:/player/signal_upload"); //"signal uploaded to PDA"
+				SNUtil.playSound("event:/player/signal_upload"); //"signal location uploaded to PDA"
 				Subtitles.main.AddRawLong("Signal location uploaded to PDA.", 0, 6);
 				//SNUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
 			}

@@ -29,7 +29,6 @@ namespace ReikaKalseki.DIAlterra
 		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
 			baseTemplate = template;
 			
-			//TODO pickup sound
 			if (collectSound != null)
 				OnFinishedPatching += () => {CraftData.pickupSoundList[TechType] = collectSound;};
 		}

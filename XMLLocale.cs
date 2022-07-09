@@ -125,7 +125,8 @@ namespace ReikaKalseki.DIAlterra
 					return vec != null && vec.HasValue ? (T)Convert.ChangeType(vec.Value, t) : fallback;
 				}
 				if (t == typeof(string)) {
-					return (T)Convert.ChangeType(cleanString(element.getProperty(key)), t);
+					string get = element.getProperty(key, true);
+					return (T)Convert.ChangeType(get == null ? null : cleanString(get), t);
 				}
 				if (t == typeof(bool)) {
 					return (T)Convert.ChangeType(element.getBoolean(key), t);
