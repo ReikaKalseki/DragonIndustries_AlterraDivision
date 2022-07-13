@@ -423,8 +423,10 @@ namespace ReikaKalseki.DIAlterra
 			world.SetActive(false);
 			ModPrefab mod = (ModPrefab)pfb;
 			world.EnsureComponent<TechTag>().type = mod.TechType;
-			world.EnsureComponent<PrefabIdentifier>().ClassId = mod.ClassID;
+			PrefabIdentifier pi = world.EnsureComponent<PrefabIdentifier>();
+			pi.ClassId = mod.ClassID;
 			if (pfb.isResource()) {
+				world.EnsureComponent<ResourceTracker>().prefabIdentifier = pi;
 				world.EnsureComponent<ResourceTracker>().techType = mod.TechType;
 				world.EnsureComponent<ResourceTracker>().overrideTechType = mod.TechType;
 			}

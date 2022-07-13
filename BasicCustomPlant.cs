@@ -18,8 +18,9 @@ namespace ReikaKalseki.DIAlterra
 		public float glowIntensity {get; set;}		
 		public VanillaFlora baseTemplate {get; set;}
 		
+		public readonly BasicCustomPlantSeed seed;
+		
 		public HarvestType collectionMethod = HarvestType.DamageAlive;
-		public TechTypeReference harvestedItem;
 		public int finalCutBonus = 2;
 		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template) : this(e.key, e.name, e.desc, template) {
@@ -28,13 +29,14 @@ namespace ReikaKalseki.DIAlterra
 			
 		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template) : base(id, name, desc) {
 			baseTemplate = template;
-			harvestedItem = new ModPrefabTechReference(this);
+			seed = new BasicCustomPlantSeed(this);
 			OnFinishedPatching += () => {
-				if (collectionMethod != HarvestType.None && harvestedItem != null) {
+				if (collectionMethod != HarvestType.None) {
+					seed.Patch();
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
-	        		CraftData.harvestOutputList[TechType] = harvestedItem.getTechType();
+	        		CraftData.harvestOutputList[TechType] = seed.TechType;
 	        		CraftData.harvestFinalCutBonusList[TechType] = finalCutBonus;
-	        		SNUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType)+" from "+harvestedItem.GetType()+"="+harvestedItem.getTechType());
+	        		SNUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType));
 				}
 			};
 		}
@@ -45,7 +47,7 @@ namespace ReikaKalseki.DIAlterra
 			e.scanTime = scanTime;
 			e.locked = true;
 			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms");
-			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None || harvestedItem == null ? "Sea" : "Exploitable");
+			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None ? "Sea" : "Exploitable");
 			if (header != null)
 				page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+header));
 			page.register();
@@ -58,8 +60,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
-			Pickupable p = go.EnsureComponent<Pickupable>();
-			p.isPickupable = false;
+
 		}
 		
 		public sealed override string ToString() {
@@ -67,7 +68,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public sealed override GameObject GetGameObject() {
-			return ObjectUtil.getModPrefabBaseObject(this);
+			GameObject go = ObjectUtil.getModPrefabBaseObject(this);
+			Pickupable p = go.EnsureComponent<Pickupable>();
+			p.isPickupable = false;
+			return go;
 		}
 		
 		public bool isResource() {
@@ -76,6 +80,75 @@ namespace ReikaKalseki.DIAlterra
 		
 		public string getTextureFolder() {
 			return "Plants";
+		}
+		
+		public Plantable.PlantSize getSize() {
+			return Plantable.PlantSize.Large;
+		}
+		
+	}
+	
+	public class BasicCustomPlantSeed : Spawnable, DIPrefab<StringPrefabContainer> {
+		
+		public float glowIntensity {get; set;}		
+		public StringPrefabContainer baseTemplate {get; set;}
+		
+		public readonly BasicCustomPlant plant;
+		
+		public BasicCustomPlantSeed(BasicCustomPlant p) : base(p.ClassID+"_seed", p.FriendlyName+" Seed", p.Description) {
+			plant = p;
+			baseTemplate = new StringPrefabContainer("daff0e31-dd08-4219-8793-39547fdb745e");
+		}
+			
+		public sealed override GameObject GetGameObject() {
+			GameObject go = ObjectUtil.getModPrefabBaseObject(this);
+			Pickupable pp = go.EnsureComponent<Pickupable>();
+			pp.isPickupable = true;
+			
+			Plantable p = go.EnsureComponent<Plantable>();
+			p.aboveWater = false;
+			p.underwater = true;
+			p.isSeedling = true;
+			p.plantTechType = plant.TechType;
+			p.size = plant.getSize();
+			
+			p.pickupable = pp;
+			GrowingPlant grow = p.model.EnsureComponent<GrowingPlant>();
+			grow.seed = p;
+			GameObject pgo = ObjectUtil.createWorldObject(plant.ClassID, true, false);
+			pgo.SetActive(false);
+			//GameObject mdl = UnityEngine.Object.Instantiate(ObjectUtil.getChildObject(pgo, "coral_reef_plant_middle_05"));
+			//mdl.SetActive(false);
+			grow.grownModelPrefab = pgo;
+			//grow.growingTransform = grow.grownModelPrefab.transform;
+			//if (grow.growingTransform == null)
+			//	SNUtil.writeToChat("Seed for "+plant.FriendlyName+" had no growing transform!!");
+			CapsuleCollider cu = pgo.GetComponentInChildren<CapsuleCollider>();
+			if (cu != null) {
+				CapsuleCollider cc = p.model.EnsureComponent<CapsuleCollider>();
+				cc.radius = cu.radius*0.8F;
+				cc.center = cu.center;
+				cc.direction = cu.direction;
+				cc.height = cu.height;
+				cc.material = cu.material;
+				cc.name = cu.name;
+				cc.enabled = cu.enabled;
+				cc.isTrigger = cu.isTrigger;
+			}
+			
+			return go;
+		}
+		
+		public virtual void prepareGameObject(GameObject go, Renderer r) {
+			
+		}
+		
+		public bool isResource() {
+			return true;
+		}
+		
+		public string getTextureFolder() {
+			return "Items";
 		}
 		
 	}
