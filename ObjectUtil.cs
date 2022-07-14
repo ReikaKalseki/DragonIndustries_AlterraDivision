@@ -421,22 +421,27 @@ namespace ReikaKalseki.DIAlterra
 				return null;
 			}
 			world.SetActive(false);
+			convertTemplateObject(world, pfb);
+			return world;
+		}
+		
+		public static void convertTemplateObject<T>(GameObject go, DIPrefab<T> pfb) where T : PrefabReference {
 			ModPrefab mod = (ModPrefab)pfb;
-			world.EnsureComponent<TechTag>().type = mod.TechType;
-			PrefabIdentifier pi = world.EnsureComponent<PrefabIdentifier>();
+			go.EnsureComponent<TechTag>().type = mod.TechType;
+			PrefabIdentifier pi = go.EnsureComponent<PrefabIdentifier>();
 			pi.ClassId = mod.ClassID;
 			if (pfb.isResource()) {
-				world.EnsureComponent<ResourceTracker>().prefabIdentifier = pi;
-				world.EnsureComponent<ResourceTracker>().techType = mod.TechType;
-				world.EnsureComponent<ResourceTracker>().overrideTechType = mod.TechType;
+				ResourceTracker res = go.EnsureComponent<ResourceTracker>();
+				res.prefabIdentifier = pi;
+				res.techType = mod.TechType;
+				res.overrideTechType = mod.TechType;
 			}
-			Renderer r = world.GetComponentInChildren<Renderer>();
+			Renderer r = go.GetComponentInChildren<Renderer>();
 			if (pfb.getTextureFolder() != null)
 				RenderUtil.swapToModdedTextures(r, pfb);
-			pfb.prepareGameObject(world, r);
+			pfb.prepareGameObject(go, r);
 			//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);
-			world.name = pfb.GetType()+" "+mod.ClassID;
-			return world;
+			go.name = pfb.GetType()+" "+mod.ClassID;
 		}
 		
 		public static void convertResourceChunk(GameObject go, TechType tech) {

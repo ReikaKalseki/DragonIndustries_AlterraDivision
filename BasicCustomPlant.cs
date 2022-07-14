@@ -115,15 +115,19 @@ namespace ReikaKalseki.DIAlterra
 			p.pickupable = pp;
 			GrowingPlant grow = p.model.EnsureComponent<GrowingPlant>();
 			grow.seed = p;
-			GameObject pgo = ObjectUtil.createWorldObject(plant.ClassID, true, false);
-			pgo.SetActive(false);
-			//GameObject mdl = UnityEngine.Object.Instantiate(ObjectUtil.getChildObject(pgo, "coral_reef_plant_middle_05"));
-			//mdl.SetActive(false);
-			grow.grownModelPrefab = pgo;
-			//grow.growingTransform = grow.grownModelPrefab.transform;
-			//if (grow.growingTransform == null)
-			//	SNUtil.writeToChat("Seed for "+plant.FriendlyName+" had no growing transform!!");
-			CapsuleCollider cu = pgo.GetComponentInChildren<CapsuleCollider>();
+			grow.enabled = true;
+			
+			bool active = grow.grownModelPrefab.active;
+			grow.grownModelPrefab = UnityEngine.Object.Instantiate(grow.grownModelPrefab);
+			grow.grownModelPrefab.SetActive(active);
+			ObjectUtil.convertTemplateObject(grow.grownModelPrefab, plant);
+			grow.grownModelPrefab.SetActive(true); //FIXME does not work
+			Renderer r = grow.grownModelPrefab.GetComponentInChildren<Renderer>();
+			plant.prepareGameObject(grow.grownModelPrefab, r);
+			grow.growingTransform = grow.grownModelPrefab.transform;
+			grow.growingTransform.gameObject.SetActive(true);
+			
+			CapsuleCollider cu = plant.GetGameObject().GetComponentInChildren<CapsuleCollider>();
 			if (cu != null) {
 				CapsuleCollider cc = p.model.EnsureComponent<CapsuleCollider>();
 				cc.radius = cu.radius*0.8F;
