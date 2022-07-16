@@ -80,6 +80,7 @@ namespace ReikaKalseki.DIAlterra
 			SNUtil.log("component "+go.ToString(), indent);
 			SNUtil.log("object "+go.gameObject, indent);
 			SNUtil.log("chain "+go.gameObject.GetFullHierarchyPath(), indent);
+			SNUtil.log("active "+go.gameObject.activeSelf+"/"+go.gameObject.activeInHierarchy);
 			SNUtil.log("components: "+string.Join(", ", (object[])go.GetComponents<Component>()), indent);
 			Pickupable p = go.GetComponent<Pickupable>();
 			if (p != null) {
@@ -408,6 +409,7 @@ namespace ReikaKalseki.DIAlterra
 			GameObject prefab;
 			if (pfb is Craftable) {
 				world = getItemGO((Craftable)pfb, pfb.baseTemplate.getPrefabID());
+				world = UnityEngine.Object.Instantiate(world);
 			}
 			else if (UWE.PrefabDatabase.TryGetPrefab(pfb.baseTemplate.getPrefabID(), out prefab)) {
 				world = UnityEngine.Object.Instantiate(prefab);
@@ -425,7 +427,7 @@ namespace ReikaKalseki.DIAlterra
 			return world;
 		}
 		
-		public static void convertTemplateObject<T>(GameObject go, DIPrefab<T> pfb) where T : PrefabReference {
+		public static void convertTemplateObject<T>(GameObject go, DIPrefab<T> pfb, bool basicPropertiesOnly = false) where T : PrefabReference {
 			ModPrefab mod = (ModPrefab)pfb;
 			go.EnsureComponent<TechTag>().type = mod.TechType;
 			PrefabIdentifier pi = go.EnsureComponent<PrefabIdentifier>();
@@ -436,8 +438,10 @@ namespace ReikaKalseki.DIAlterra
 				res.techType = mod.TechType;
 				res.overrideTechType = mod.TechType;
 			}
-			Renderer r = go.GetComponentInChildren<Renderer>();
-			if (pfb.getTextureFolder() != null)
+			if (basicPropertiesOnly)
+				return;
+			Renderer r = go.GetComponentInChildren<Renderer>(true);
+			if (r != null && pfb.getTextureFolder() != null)
 				RenderUtil.swapToModdedTextures(r, pfb);
 			pfb.prepareGameObject(go, r);
 			//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);

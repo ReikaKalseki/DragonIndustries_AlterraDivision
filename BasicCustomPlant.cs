@@ -23,13 +23,13 @@ namespace ReikaKalseki.DIAlterra
 		public HarvestType collectionMethod = HarvestType.DamageAlive;
 		public int finalCutBonus = 2;
 		
-		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template) : this(e.key, e.name, e.desc, template) {
+		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedName) {
 			
 		}
 			
-		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template) : base(id, name, desc) {
+		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedName = "Seed") : base(id, name, desc) {
 			baseTemplate = template;
-			seed = new BasicCustomPlantSeed(this);
+			seed = new BasicCustomPlantSeed(this, seedName);
 			OnFinishedPatching += () => {
 				if (collectionMethod != HarvestType.None) {
 					seed.Patch();
@@ -59,6 +59,10 @@ namespace ReikaKalseki.DIAlterra
 			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 		
+		public Atlas.Sprite getSprite() {
+			return GetItemSprite();
+		}
+		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
 
 		}
@@ -82,8 +86,20 @@ namespace ReikaKalseki.DIAlterra
 			return "Plants";
 		}
 		
-		public Plantable.PlantSize getSize() {
+		public virtual Plantable.PlantSize getSize() {
 			return Plantable.PlantSize.Large;
+		}
+		
+		public virtual float getScaleInGrowbed(bool indoors) {
+			return 1;
+		}
+		
+		public virtual bool canGrowAboveWater() {
+			return false;
+		}
+		
+		public virtual bool canGrowUnderWater() {
+			return true;
 		}
 		
 	}
@@ -95,9 +111,20 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly BasicCustomPlant plant;
 		
-		public BasicCustomPlantSeed(BasicCustomPlant p) : base(p.ClassID+"_seed", p.FriendlyName+" Seed", p.Description) {
+		public Atlas.Sprite sprite;
+		
+		public BasicCustomPlantSeed(BasicCustomPlant p, string seedName = "Seed") : base(p.ClassID+"_seed", p.FriendlyName+" "+seedName, p.Description) {
 			plant = p;
+			sprite = plant.getSprite();
 			baseTemplate = new StringPrefabContainer("daff0e31-dd08-4219-8793-39547fdb745e");
+		}
+		
+		protected sealed override Atlas.Sprite GetItemSprite() {
+			return sprite;
+		}
+		
+		public override Vector2int SizeInInventory {
+			get {return plant.SizeInInventory;}
 		}
 			
 		public sealed override GameObject GetGameObject() {
@@ -106,13 +133,18 @@ namespace ReikaKalseki.DIAlterra
 			pp.isPickupable = true;
 			
 			Plantable p = go.EnsureComponent<Plantable>();
-			p.aboveWater = false;
-			p.underwater = true;
+			p.aboveWater = plant.canGrowAboveWater();
+			p.underwater = plant.canGrowUnderWater();
 			p.isSeedling = true;
 			p.plantTechType = plant.TechType;
-			p.size = plant.getSize();
-			
+			p.size = plant.getSize();			
 			p.pickupable = pp;
+			
+			p.modelScale = Vector3.one*plant.getScaleInGrowbed(false);
+			p.modelIndoorScale = Vector3.one*plant.getScaleInGrowbed(true);
+			
+			//ObjectUtil.convertTemplateObject(p.model, plant); //this is the GROWING but not grown one
+			/*
 			GrowingPlant grow = p.model.EnsureComponent<GrowingPlant>();
 			grow.seed = p;
 			grow.enabled = true;
@@ -125,8 +157,8 @@ namespace ReikaKalseki.DIAlterra
 			Renderer r = grow.grownModelPrefab.GetComponentInChildren<Renderer>();
 			plant.prepareGameObject(grow.grownModelPrefab, r);
 			grow.growingTransform = grow.grownModelPrefab.transform;
-			grow.growingTransform.gameObject.SetActive(true);
-			
+			grow.growingTransform.gameObject.SetActive(true);*/
+			/*
 			CapsuleCollider cu = plant.GetGameObject().GetComponentInChildren<CapsuleCollider>();
 			if (cu != null) {
 				CapsuleCollider cc = p.model.EnsureComponent<CapsuleCollider>();
@@ -138,7 +170,7 @@ namespace ReikaKalseki.DIAlterra
 				cc.name = cu.name;
 				cc.enabled = cu.enabled;
 				cc.isTrigger = cu.isTrigger;
-			}
+			}*/
 			
 			return go;
 		}

@@ -50,6 +50,8 @@ namespace ReikaKalseki.DIAlterra
 			bool flag = false;
 			foreach (String type in texTypes) {
 				for (int i = 0; i < r.materials.Length; i++) {
+					if (r.materials[i] == null)
+						continue;
 					if ((textureLayers == null && i == 0) || (textureLayers != null && textureLayers.ContainsKey(i))) {
 						string suffix = textureLayers != null ? (string.IsNullOrEmpty(textureLayers[i]) ? "" : "_"+textureLayers[i]) : "";
 						if (path.EndsWith("/", StringComparison.InvariantCultureIgnoreCase) && suffix.StartsWith("_", StringComparison.InvariantCultureIgnoreCase)) {
