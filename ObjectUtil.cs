@@ -138,6 +138,25 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void dumpObjectData(Mesh m) {
+			SNUtil.log("Mesh "+m+":");
+			if (m == null) {
+				SNUtil.log("Mesh is null");
+				return;
+			}
+			SNUtil.log("Mesh has "+m.subMeshCount+" submeshes");
+			SNUtil.log("Mesh has "+m.vertexCount+" vertices:");
+			if (m.isReadable) {
+				Vector3[] verts = m.vertices;
+				for (int i = 0; i < verts.Length; i++) {
+					SNUtil.log("Vertex "+i+": "+verts[i].ToString("F5"));
+				}
+			}
+			else {
+				SNUtil.log("[Not readable]");
+			}
+		}
+		
 		public static GameObject getItemGO(Craftable item, string template) {
 			return getItemGO(item.TechType, item.ClassID, template);
 		}
@@ -469,6 +488,12 @@ namespace ReikaKalseki.DIAlterra
 			child.transform.parent = go.transform;
 			child.name = "Light Entity";
 			return child.AddComponent<Light>();
+		}
+		
+		public static T copyComponent<T>(GameObject from, GameObject to) where T : Component {
+			T tgt = to.EnsureComponent<T>();
+			tgt.copyObject(from.GetComponent<T>());
+			return tgt;
 		}
 		
 	}

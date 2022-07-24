@@ -14,8 +14,69 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private static readonly Dictionary<TechType, RecipeNode> nodes = new Dictionary<TechType, RecipeNode>();
 		
+		private static readonly Dictionary<TechType, Dictionary<TechType, int>> originalRecipes = new Dictionary<TechType, Dictionary<TechType, int>>();
+		
+		private static bool shouldLogChanges = false;
+		
+		public static void startLoggingRecipeChanges() {
+			originalRecipes.Clear();
+			shouldLogChanges = true;
+		}
+		
+		public static void logChangedRecipes() {
+			SNUtil.log("Collated recipe changes: ");
+			List<string> oldR = new List<string>();
+			List<string> newR = new List<string>();
+			foreach (KeyValuePair<TechType, Dictionary<TechType, int>> kvp in originalRecipes) {
+				TechData rec = getRecipe(kvp.Key);
+				SNUtil.log("Recipe for "+kvp.Key+" was changed. Previous recipe:");
+
+				if (kvp.Value.Count > 0) {
+					string s = (""+kvp.Key).ToUpper();
+					foreach (KeyValuePair<TechType, int> kvp2 in kvp.Value) {
+						SNUtil.log(kvp2.Key+" x"+kvp2.Value);
+						s = s+".addIngredient("+(kvp2.Key+"").ToUpper()+", "+kvp2.Value+")";
+					}
+					s += ";";
+					oldR.Add(s);
+				}
+					
+				if (rec == null) {
+					SNUtil.log("Recipe was removed");
+				}
+				else {
+					SNUtil.log("New recipe:");	
+					string s = (""+kvp.Key).ToUpper();
+					foreach (Ingredient i in rec.Ingredients) {
+						SNUtil.log(i.techType+" x"+i.amount);
+						s = s+".addIngredient("+(i.techType+"").ToUpper()+", "+i.amount+")";
+					}
+					s += ";";
+					newR.Add(s);
+				}
+			}/*
+			List<string> lines = new List<string>();
+			lines.AddRange(oldR);
+			lines.Add("=============");
+			lines.AddRange(newR);
+			System.IO.File.WriteAllLines("E:/My Documents/Desktop Stuff/Game Stuff/Modding/Minecraft/Mods Website - Generator/exported/snrecipe.txt", lines.ToArray());*/
+			originalRecipes.Clear();
+			shouldLogChanges = false;
+		}
+		
+		private static void cacheOriginalRecipe(TechType item, TechData rec) {
+			if (originalRecipes.ContainsKey(item))
+				return;
+			Dictionary<TechType, int> dict = new Dictionary<TechType, int>();
+			foreach (Ingredient i in rec.Ingredients) {
+				dict[i.techType] = i.amount;
+			}
+			originalRecipes[item] = dict;
+		}
+		
 		public static void addIngredient(TechType recipe, TechType add, int amt) {
 			TechData rec = getRecipe(recipe);
+			cacheOriginalRecipe(recipe, rec);
 			rec.Ingredients.Add(new Ingredient(add, amt));
 			SNUtil.log("Adding "+add+"x"+amt+" to recipe "+recipe);
 		}
@@ -27,6 +88,7 @@ namespace ReikaKalseki.DIAlterra {
 		/** Return true in the func to delete the ingredient. */
 		public static void modifyIngredients(TechType recipe, Func<Ingredient, bool> a) {
 			TechData rec = getRecipe(recipe);
+			cacheOriginalRecipe(recipe, rec);
 			for (int idx = rec.Ingredients.Count-1; idx >= 0; idx--) {
 				Ingredient i = rec.Ingredients[idx];
 				if (a(i)) {

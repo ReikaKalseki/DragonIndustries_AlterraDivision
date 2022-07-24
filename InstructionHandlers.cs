@@ -194,7 +194,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		internal static string toString(CodeInstruction ci) {
-			return ci.opcode.Name+" "+(ci.operand != null ? ci.operand.ToString() : "<null>");
+			return ci.opcode.Name+" "+(ci.operand != null ? ci.operand+" ["+ci.operand.GetType()+"]" : "<null>");
 		}
 		
 	    public static Type getTypeBySimpleName(string name) {

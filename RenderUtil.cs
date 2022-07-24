@@ -90,26 +90,40 @@ namespace ReikaKalseki.DIAlterra
 			modelObj = UnityEngine.Object.Instantiate(modelObj);
 			modelObj.name = localModelName;
 			modelObj.transform.parent = go.transform;
-			//modelObj.transform.localPosition = go.transform.localPosition;
-			//modelObj.transform.localRotation = go.transform.localRotation;
-			//modelObj.transform.localScale = go.transform.localScale;
+			modelObj.transform.localPosition = Vector3.zero;
+			modelObj.transform.localEulerAngles = Vector3.zero;
+			modelObj.transform.localRotation = Quaternion.identity;
+			modelObj.transform.localScale = Vector3.one;
 			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
 				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier) {
 					continue;
 				}
-				UnityEngine.Object.Destroy(c);
+				UnityEngine.Object.DestroyImmediate(c);
 			}
 			return modelObj;
 		}
 		
-		public static Texture2D duplicateTexture(Texture2D source) {
-		    RenderTexture renderTex = RenderTexture.GetTemporary(
-		                source.width,
-		                source.height,
-		                0,
-		                RenderTextureFormat.Default,
-		                RenderTextureReadWrite.Linear);
+		public static void setMesh(GameObject go, Mesh m) {
+			if (m == null) {
+				SNUtil.writeToChat("Cannot set a GO mesh to null!");
+				return;
+			}
+			Color[] c = m.colors;
+			for (int i = 0; i < c.Length; i++) {
+				c[i] = new Color(c[i].r, c[i].g, c[i].b, 1);
+			}
+			m.colors = c;
+			foreach (MeshFilter mf in go.GetComponentsInChildren<MeshFilter>(true)) {
+				mf.mesh = m;
+			}
+			foreach (SkinnedMeshRenderer smr in go.GetComponentsInChildren<SkinnedMeshRenderer>(true)) {
+				smr.sharedMesh = m;
+				smr.enabled = true;
+			}
+		}
 		
+		public static Texture2D duplicateTexture(Texture2D source) {
+		    RenderTexture renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);		
 		    Graphics.Blit(source, renderTex);
 		    RenderTexture previous = RenderTexture.active;
 		    RenderTexture.active = renderTex;

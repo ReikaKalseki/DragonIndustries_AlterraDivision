@@ -13,7 +13,7 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class Config<E>
 	{
-		private readonly string filename = "FortressTweaks_Config.xml";
+		private readonly string filename;
 		private readonly Dictionary<string, float> data = new Dictionary<string, float>();
 		private readonly Dictionary<string, string> dataString = new Dictionary<string, string>();
 		private readonly Dictionary<E, ConfigEntry> entryCache = new Dictionary<E, ConfigEntry>();
