@@ -125,6 +125,10 @@ namespace ReikaKalseki.DIAlterra
 		protected sealed override Atlas.Sprite GetItemSprite() {
 			return sprite == null ? base.GetItemSprite() : sprite;
 		}
+		
+		public Atlas.Sprite getIcon() {
+			return GetItemSprite();
+		}
 
 		public sealed override float CraftingTime {
 			get {

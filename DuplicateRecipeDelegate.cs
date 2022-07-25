@@ -20,6 +20,8 @@ namespace ReikaKalseki.DIAlterra
 		public TechCategory category = TechCategory.Misc;
 		public TechGroup group = TechGroup.Uncategorized;
 		
+		private static readonly List<DuplicateRecipeDelegate> delegates = new List<DuplicateRecipeDelegate>();
+		
 		public DuplicateRecipeDelegate(PdaItem s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName, s.Description) {
 			basis = s.TechType;
 			prefab = s;
@@ -27,12 +29,23 @@ namespace ReikaKalseki.DIAlterra
 			unlock = s.RequiredForUnlock;
 			group = s.GroupForPDA;
 			category = s.CategoryForPDA;
+			delegates.Add(this);
 		}
 		
-		public DuplicateRecipeDelegate(TechType from, TechData r) : base(from.AsString()+"_delegate", Language.main.Get(from), Language.main.Get("Tooltip_"+from.AsString())) {
+		public DuplicateRecipeDelegate(TechType from, TechData r) : base(from.AsString()+"_delegate", "", "") {
 			basis = from;
 			prefab = null;
 			recipe = r;
+			delegates.Add(this);
+		}
+		
+		public static void updateLocale() {
+			foreach (DuplicateRecipeDelegate d in delegates) {
+				if (d.prefab == null) {
+					Language.main.strings[d.TechType.AsString()] = Language.main.strings[d.basis.AsString()];
+					Language.main.strings["Tooltip_"+d.TechType.AsString()] = Language.main.strings["Tooltip_"+d.basis.AsString()];
+				}
+			}
 		}
 
 		public override TechGroup GroupForPDA {
