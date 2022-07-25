@@ -22,7 +22,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly List<DuplicateRecipeDelegate> delegates = new List<DuplicateRecipeDelegate>();
 		
-		public DuplicateRecipeDelegate(PdaItem s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName, s.Description) {
+		public DuplicateRecipeDelegate(PdaItem s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName+" (x"+r.craftAmount+")", s.Description) {
 			basis = s.TechType;
 			prefab = s;
 			recipe = r;
@@ -42,7 +42,7 @@ namespace ReikaKalseki.DIAlterra
 		public static void updateLocale() {
 			foreach (DuplicateRecipeDelegate d in delegates) {
 				if (d.prefab == null) {
-					Language.main.strings[d.TechType.AsString()] = Language.main.strings[d.basis.AsString()];
+					Language.main.strings[d.TechType.AsString()] = Language.main.strings[d.basis.AsString()]+" (x"+d.recipe.craftAmount+")";
 					Language.main.strings["Tooltip_"+d.TechType.AsString()] = Language.main.strings["Tooltip_"+d.basis.AsString()];
 				}
 			}

@@ -119,7 +119,7 @@ namespace ReikaKalseki.DIAlterra {
 			return rec;
 		}
 		
-		public static TechData removeRecipe(TechType item) {
+		public static TechData removeRecipe(TechType item, bool removeCategories = false) {
 			TechData rec = CraftDataHandler.GetTechData(item);
 			CraftData.techData.Remove(item);
 			RecipeNode node = getRecipeNode(item);
@@ -130,6 +130,13 @@ namespace ReikaKalseki.DIAlterra {
 			CraftTreeHandler.Main.RemoveNode(node.recipeType, node.path.Split('\\'));
 			nodes.Remove(item);
 			//CraftTree.craftableTech.Remove(item);
+			if (removeCategories) {
+				foreach (TechGroup grp in Enum.GetValues(typeof(TechGroup))) {
+					foreach (TechCategory cat in Enum.GetValues(typeof(TechCategory)))
+						CraftDataHandler.RemoveFromGroup(grp, cat, item);
+				}
+				//CraftDataHandler.AddToGroup(TechGroup.Uncategorized, TechCategory.Misc, item);
+			}
 			SNUtil.log("Removing recipe "+item);
 			return rec;
 		}
