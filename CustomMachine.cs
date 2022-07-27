@@ -7,6 +7,8 @@ using SMLHelper.V2.Crafting;
 
 using UnityEngine;
 
+using ReikaKalseki.DIAlterra;
+
 namespace ReikaKalseki.DIAlterra
 {
 	public abstract class CustomMachine<M> : Buildable, DIPrefab<CustomMachine<M>, StringPrefabContainer> where M : CustomMachineLogic {
@@ -49,6 +51,22 @@ namespace ReikaKalseki.DIAlterra
 		public override sealed TechCategory CategoryForPDA {
 			get {
 				return TechCategory.InteriorModule;
+			}
+		}
+		
+		public void addFragments(int needed, float scanTime = 5, params MachineFragment[] fragments) {
+			SNUtil.log("Creating "+fragments.Length+" fragments for "+this);
+			foreach (MachineFragment m in fragments) {
+				m.machine = TechType;
+				m.fragmentPrefab = GenUtil.getOrCreateFragment(this, m.template, m.objectModify);
+				SNUtil.addPDAEntry(m.fragmentPrefab, scanTime, null, null, null, e => {
+					e.blueprint = TechType;
+					e.destroyAfterScan = true;
+					e.isFragment = true;
+					e.totalFragments = needed;
+					e.key = m.fragmentPrefab.TechType; //or this?
+				});
+				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID);
 			}
 		}
 		
@@ -107,6 +125,21 @@ namespace ReikaKalseki.DIAlterra
 		protected sealed override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
+	}
+	
+	public class MachineFragment {
+		
+		public readonly string template;
+		public readonly Action<GameObject> objectModify;
+		
+		public TechType machine;
+		public GenUtil.ContainerPrefab fragmentPrefab;
+		
+		public MachineFragment(string pfb, Action<GameObject> a = null) {
+			template = pfb;
+			objectModify = a;
+		}
+		
 	}
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {

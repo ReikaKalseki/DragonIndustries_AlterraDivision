@@ -19,6 +19,8 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
 		private static readonly int batchSize = 160;
 		
+		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
+		
 		public static Assembly getModDLL() {
 			if (modDLL == null)
 				modDLL = Assembly.GetExecutingAssembly();
@@ -57,6 +59,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 				else {
 					log("TechType '"+tech+"' not found!");
+					//log("Tech list: "+string.Join(", ", Enum.GetNames(typeof(TechType))));
 					return TechType.None;
 				}
 			}
@@ -142,6 +145,24 @@ namespace ReikaKalseki.DIAlterra
 				ep.currentMountedVehicle.transform.position = to+(ep.currentMountedVehicle.transform.position-ep.transform.position);
 		  	}
 			ep.transform.position = to;
+		}
+		
+		public static void addPDAEntry(Spawnable pfb, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
+			PDAScanner.EntryData e = new PDAScanner.EntryData();
+			e.key = pfb.TechType;
+			e.scanTime = scanTime;
+			e.locked = true;
+			if (modify != null) {
+				modify(e);
+			}
+			if (pageCategory != null && !string.IsNullOrEmpty(pageText)) {
+				PDAManager.PDAPage page = PDAManager.createPage(""+pfb.TechType, pfb.FriendlyName, pageText, pageCategory);
+				if (pageHeader != null)
+					page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+pageHeader));
+				page.register();
+				e.encyclopedia = page.id;
+			}
+			PDAHandler.AddCustomScannerEntry(e);
 		}
 		
 	}

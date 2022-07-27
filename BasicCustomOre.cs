@@ -39,16 +39,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void addPDAEntry(string text, float scanTime = 2, string header = null) {
-			PDAScanner.EntryData e = new PDAScanner.EntryData();
-			e.key = TechType;
-			e.scanTime = scanTime;
-			e.locked = true;
-			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "PlanetaryGeology");
-			if (header != null)
-				page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+header));
-			page.register();
-			e.encyclopedia = page.id;
-			PDAHandler.AddCustomScannerEntry(e);
+			SNUtil.addPDAEntry(this, scanTime, "PlanetaryGeology", text, header, null);
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {

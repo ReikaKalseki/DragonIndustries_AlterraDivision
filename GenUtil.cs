@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly HashSet<string> alreadyRegisteredGen = new HashSet<string>();
 		private static readonly Dictionary<TechType, Databox> databoxes = new Dictionary<TechType, Databox>();
 		private static readonly Dictionary<TechType, Crate>[] crates = new Dictionary<TechType, Crate>[2];
+		private static readonly Dictionary<TechType, Dictionary<string, Fragment>> fragments = new Dictionary<TechType, Dictionary<string, Fragment>>();
 		
 		static GenUtil() {
 			crates[0] = new Dictionary<TechType, Crate>();
@@ -86,7 +88,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnDatabox(Vector3 pos, TechType tech, Quaternion? rot = null) {
-			return registerWorldgen(getOrCreateDatabox(tech), pos, rot);
+			return registerWorldgen(getOrCreateDatabox(tech).ClassID, pos, rot);
 		}
 		
 		public static SpawnInfo spawnPDA(Vector3 pos, PDAManager.PDAPage page, Vector3? rot = null) {
@@ -102,7 +104,15 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo spawnItemCrate(Vector3 pos, TechType item, Quaternion? rot = null) {
-			return registerWorldgen(getOrCreateCrate(item), pos, rot);
+			return registerWorldgen(getOrCreateCrate(item).ClassID, pos, rot);
+		}
+		
+		public static SpawnInfo spawnFragment(Vector3 pos, MachineFragment mf, Quaternion? rot = null) {
+			return registerWorldgen(mf.fragmentPrefab.ClassID, pos, rot);
+		}
+		
+		public static SpawnInfo spawnFragment(Vector3 pos, Spawnable item, string template, Quaternion? rot = null) {
+			return registerWorldgen(getOrCreateFragment(item, template).ClassID, pos, rot);
 		}
 		
 		public static SpawnInfo spawnResource(VanillaResources res, Vector3 pos, Vector3? rot = null) {
@@ -129,7 +139,7 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static string getOrCreateCrate(TechType tech, bool needsCutter = false, Action<GameObject> modify = null) {
+		public static ContainerPrefab getOrCreateCrate(TechType tech, bool needsCutter = false, Action<GameObject> modify = null) {
 			int idx = needsCutter ? 1 : 0;
 			Crate box = crates[idx].ContainsKey(tech) ? crates[idx][tech] : null;
 			if (box == null) {
@@ -137,17 +147,39 @@ namespace ReikaKalseki.DIAlterra
 				crates[idx][tech] = box;
 				box.Patch();
 			}
-			return box.ClassID;
+			return box;
 		}
 		
-		public static string getOrCreateDatabox(TechType tech, Action<GameObject> modify = null) {
+		public static ContainerPrefab getOrCreateDatabox(TechType tech, Action<GameObject> modify = null) {
 			Databox box = databoxes.ContainsKey(tech) ? databoxes[tech] : null;
 			if (box == null) {
 				box = new Databox(tech, "1b8e6f01-e5f0-4ab7-8ba9-b2b909ce68d6", modify); //compass databox
 				databoxes[tech] = box;
 				box.Patch();
 			}
-			return box.ClassID;
+			return box;
+		}
+		
+		public static ContainerPrefab getOrCreateFragment(Spawnable tech, string template, Action<GameObject> modify = null) {
+			Dictionary<string, Fragment> li = fragments.ContainsKey(tech.TechType) ? fragments[tech.TechType] : null;
+			if (li == null) {
+				li = new Dictionary<string, Fragment>();
+				fragments[tech.TechType] = li;
+			}
+			Fragment f = li.ContainsKey(template) ? li[template] : null;
+			if (f == null) {
+				f = new Fragment(tech, template, modify, li.Count);
+				li[template] = f;
+				f.Patch();
+			}
+			return f;
+		}
+		
+		public static ContainerPrefab getFragment(TechType tech, int idx) {
+			Dictionary<string, Fragment> li = fragments.ContainsKey(tech) ? fragments[tech] : null;
+			if (li == null || li.Count == 0)
+				return null;
+			return li.Values.ToArray<Fragment>()[idx];
 		}
 		
 		public abstract class CustomPrefabImpl : Spawnable, DIPrefab<StringPrefabContainer> {
@@ -155,7 +187,7 @@ namespace ReikaKalseki.DIAlterra
 			public float glowIntensity {get; set;}		
 			public StringPrefabContainer baseTemplate {get; set;}
 	        
-	        public CustomPrefabImpl(string name, string template) : base(name, "", "") {
+	        public CustomPrefabImpl(string name, string template, string display = "") : base(name, display, "") {
 				baseTemplate = new StringPrefabContainer(template);
 	        }
 			
@@ -181,7 +213,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			private readonly Action<GameObject> modify;
 	        
-	        internal ContainerPrefab(TechType tech, string template, Action<GameObject> m) : base("container_"+tech, template) {
+			internal ContainerPrefab(TechType tech, string template, Action<GameObject> m, string pre = "container", string suff = "", string disp = "") : base(pre+"_"+tech+suff, template, disp) {
 				if (tech == TechType.None)
 					throw new Exception("TechType for worldgen container "+GetType()+" was null!");
 				containedTech = tech;
@@ -211,6 +243,31 @@ namespace ReikaKalseki.DIAlterra
 				bpt.alreadyUnlockedTooltip = Language.main.GetFormat<string, string>("DataboxAlreadyUnlockedToolipFormat", arg, arg2);
 				bpt.useSound = SNUtil.getSound("event:/tools/scanner/new_blueprint");
 				bpt.onUseGoal = new Story.StoryGoal(bpt.primaryTooltip, Story.GoalType.Encyclopedia, 0);
+				modifyObject(go);
+			}
+			
+		}
+		
+		class Fragment : ContainerPrefab {
+			
+			private readonly Spawnable prefab;
+	        
+	        internal Fragment(Spawnable tech, string template, Action<GameObject> modify, int index) : base(tech.TechType, template, modify, "fragment", "_"+index, tech.FriendlyName+" Fragment") {
+				prefab = tech;
+	        }
+			
+			public override void prepareGameObject(GameObject go, Renderer r) {/*
+	            TechFragment bpt = go.EnsureComponent<TechFragment>();
+	            bpt.defaultTechType = containedTech;
+	            bpt.techList.Clear();
+	            bpt.techList.Add(new TechFragment.RandomTech{techType = containedTech, chance = 100});*/
+				Pickupable p = go.EnsureComponent<Pickupable>();
+				p.overrideTechType = TechType;
+				ResourceTracker rt = go.EnsureComponent<ResourceTracker>();
+				rt.techType = TechType;
+				rt.overrideTechType = TechType;
+				rt.prefabIdentifier = go.GetComponent<PrefabIdentifier>();
+				rt.pickupable = p;
 				modifyObject(go);
 			}
 			
