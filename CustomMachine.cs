@@ -59,15 +59,15 @@ namespace ReikaKalseki.DIAlterra
 			foreach (MachineFragment m in fragments) {
 				m.machine = TechType;
 				m.fragmentPrefab = GenUtil.getOrCreateFragment(this, m.template, m.objectModify);
-				SNUtil.addPDAEntry(m.fragmentPrefab, scanTime, null, null, null, e => {
-					e.blueprint = TechType;
-					e.destroyAfterScan = true;
-					e.isFragment = true;
-					e.totalFragments = needed;
-					e.key = m.fragmentPrefab.TechType; //or this?
-				});
 				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID);
 			}
+			SNUtil.addPDAEntry(fragments[0].fragmentPrefab, scanTime, null, null, null, e => {
+				e.blueprint = TechType;
+				e.destroyAfterScan = true;
+				e.isFragment = true;
+				e.totalFragments = needed;
+				e.key = GenUtil.getFragment(TechType, 0).TechType;
+			});
 		}
 		
 		//protected abstract OrientedBounds[] GetBounds { get; }

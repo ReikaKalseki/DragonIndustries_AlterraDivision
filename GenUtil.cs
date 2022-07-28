@@ -17,7 +17,7 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly HashSet<string> alreadyRegisteredGen = new HashSet<string>();
 		private static readonly Dictionary<TechType, Databox> databoxes = new Dictionary<TechType, Databox>();
 		private static readonly Dictionary<TechType, Crate>[] crates = new Dictionary<TechType, Crate>[2];
-		private static readonly Dictionary<TechType, Dictionary<string, Fragment>> fragments = new Dictionary<TechType, Dictionary<string, Fragment>>();
+		private static readonly Dictionary<TechType, FragmentGroup> fragments = new Dictionary<TechType, FragmentGroup>();
 		
 		static GenUtil() {
 			crates[0] = new Dictionary<TechType, Crate>();
@@ -161,25 +161,23 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static ContainerPrefab getOrCreateFragment(Spawnable tech, string template, Action<GameObject> modify = null) {
-			Dictionary<string, Fragment> li = fragments.ContainsKey(tech.TechType) ? fragments[tech.TechType] : null;
+			FragmentGroup li = fragments.ContainsKey(tech.TechType) ? fragments[tech.TechType] : null;
 			if (li == null) {
-				li = new Dictionary<string, Fragment>();
+				li = new FragmentGroup();
 				fragments[tech.TechType] = li;
 			}
-			Fragment f = li.ContainsKey(template) ? li[template] : null;
+			Fragment f = li.variants.ContainsKey(template) ? li.variants[template] : null;
 			if (f == null) {
-				f = new Fragment(tech, template, modify, li.Count);
-				li[template] = f;
-				f.Patch();
+				f = li.addVariant(tech, template, modify);
 			}
 			return f;
 		}
 		
 		public static ContainerPrefab getFragment(TechType tech, int idx) {
-			Dictionary<string, Fragment> li = fragments.ContainsKey(tech) ? fragments[tech] : null;
-			if (li == null || li.Count == 0)
+			FragmentGroup li = fragments.ContainsKey(tech) ? fragments[tech] : null;
+			if (li == null || li.variantList.Count == 0)
 				return null;
-			return li.Values.ToArray<Fragment>()[idx];
+			return li.variantList[idx];
 		}
 		
 		public abstract class CustomPrefabImpl : Spawnable, DIPrefab<StringPrefabContainer> {
@@ -248,7 +246,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		class Fragment : ContainerPrefab {
+		sealed class Fragment : ContainerPrefab {
 			
 			private readonly Spawnable prefab;
 	        
@@ -261,14 +259,45 @@ namespace ReikaKalseki.DIAlterra
 	            bpt.defaultTechType = containedTech;
 	            bpt.techList.Clear();
 	            bpt.techList.Add(new TechFragment.RandomTech{techType = containedTech, chance = 100});*/
+				TechType tt = fragments[prefab.TechType].sharedTechType; // NOT our techtype since needs to be shared!
+				go.EnsureComponent<TechTag>().type = tt;
 				Pickupable p = go.EnsureComponent<Pickupable>();
-				p.overrideTechType = TechType;
+				p.overrideTechType = tt;
 				ResourceTracker rt = go.EnsureComponent<ResourceTracker>();
-				rt.techType = TechType;
-				rt.overrideTechType = TechType;
+				rt.techType = tt;
+				rt.overrideTechType = tt;
 				rt.prefabIdentifier = go.GetComponent<PrefabIdentifier>();
 				rt.pickupable = p;
 				modifyObject(go);
+			}
+
+			protected override void ProcessPrefab(GameObject go) {
+				base.ProcessPrefab(go);
+				TechType tt = fragments[prefab.TechType].sharedTechType; // NOT our techtype since needs to be shared!
+				go.EnsureComponent<TechTag>().type = tt;
+			}
+			
+		}
+		
+		class FragmentGroup {
+			
+			internal readonly Dictionary<string, Fragment> variants = new Dictionary<string, Fragment>();
+			internal readonly List<Fragment> variantList = new List<Fragment>();
+			
+			internal TechType sharedTechType = TechType.None;
+			
+			public FragmentGroup() {
+				
+			}
+			
+			internal Fragment addVariant(Spawnable tech, string template, Action<GameObject> modify) {
+				Fragment f = new Fragment(tech, template, modify, variantList.Count);
+				f.Patch();
+				variants[template] = f;
+				variantList.Add(f);
+				if (sharedTechType == TechType.None)
+					sharedTechType = f.TechType;
+				return f;
 			}
 			
 		}
