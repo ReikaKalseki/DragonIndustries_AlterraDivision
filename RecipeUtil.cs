@@ -54,12 +54,12 @@ namespace ReikaKalseki.DIAlterra {
 					s += ";";
 					newR.Add(s);
 				}
-			}/*
+			}
 			List<string> lines = new List<string>();
 			lines.AddRange(oldR);
 			lines.Add("=============");
 			lines.AddRange(newR);
-			System.IO.File.WriteAllLines("E:/My Documents/Desktop Stuff/Game Stuff/Modding/Minecraft/Mods Website - Generator/exported/snrecipe.txt", lines.ToArray());*/
+			System.IO.File.WriteAllLines("E:/My Documents/Desktop Stuff/Game Stuff/Modding/Minecraft/Mods Website - Generator/exported/snrecipe.txt", lines.ToArray());
 			originalRecipes.Clear();
 			shouldLogChanges = false;
 		}

@@ -93,14 +93,30 @@ namespace ReikaKalseki.DIAlterra
 		
 		internal static int getInstruction(List<CodeInstruction> li, int start, int index, OpCode opcode, params object[] args) {
 			int count = 0;
-			for (int i = start; i < li.Count; i++) {
-				CodeInstruction insn = li[i];
-				if (insn.opcode == opcode) {
-					if (match(insn, args)) {
-						if (count == index)
-							return i;
-						else
-							count++;
+			if (index < 0) {
+				index = (-index)-1;
+				for (int i = li.Count-1; i >= 0; i--) {
+					CodeInstruction insn = li[i];
+					if (insn.opcode == opcode) {
+						if (match(insn, args)) {
+							if (count == index)
+								return i;
+							else
+								count++;
+						}
+					}
+				}
+			}
+			else {
+				for (int i = start; i < li.Count; i++) {
+					CodeInstruction insn = li[i];
+					if (insn.opcode == opcode) {
+						if (match(insn, args)) {
+							if (count == index)
+								return i;
+							else
+								count++;
+						}
 					}
 				}
 			}
@@ -171,10 +187,19 @@ namespace ReikaKalseki.DIAlterra
 			}
 			else if (insn.opcode == OpCodes.Ldarg) { //int pos
 				return insn.operand == args[0];
-			}/*
-			else if (insn.opcode == OpCodes.Ldc_I4 || insn.opcode == OpCodes.Ldc_R4 || insn.opcode == OpCodes.Ldc_I8 || insn.opcode == OpCodes.Ldc_R8) { //ldc
-				return insn.operand == args[0];
-			}*/
+			}
+			else if (insn.opcode == OpCodes.Ldc_I4) { //ldc
+				return insn.LoadsConstant((int)args[0]);
+			}
+			else if (insn.opcode == OpCodes.Ldc_R4) { //ldc
+				return insn.LoadsConstant((float)args[0]);
+			}
+			else if (insn.opcode == OpCodes.Ldc_I8) { //ldc
+				return insn.LoadsConstant((long)args[0]);
+			}
+			else if (insn.opcode == OpCodes.Ldc_R8) { //ldc
+				return insn.LoadsConstant((double)args[0]);
+			}
 			else if (insn.opcode == OpCodes.Ldloc_S || insn.opcode == OpCodes.Stloc_S) { //LocalBuilder contains a pos and type
 				LocalBuilder loc = (LocalBuilder)insn.operand;
 				return args[0] is int && loc.LocalIndex == (int)args[0]/* && loc.LocalType == args[1]*/;
