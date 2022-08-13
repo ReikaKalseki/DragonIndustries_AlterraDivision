@@ -8,6 +8,8 @@ using SMLHelper.V2.Assets;
 
 using UnityEngine;
 
+using ReikaKalseki.DIAlterra;
+
 namespace ReikaKalseki.DIAlterra {
 	
 	public static class RecipeUtil {

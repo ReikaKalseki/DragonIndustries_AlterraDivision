@@ -189,16 +189,16 @@ namespace ReikaKalseki.DIAlterra
 				return insn.operand == args[0];
 			}
 			else if (insn.opcode == OpCodes.Ldc_I4) { //ldc
-				return insn.LoadsConstant((int)args[0]);
+				return insn.LoadsConstant(Convert.ToInt32(args[0]));
 			}
 			else if (insn.opcode == OpCodes.Ldc_R4) { //ldc
-				return insn.LoadsConstant((float)args[0]);
+				return insn.LoadsConstant(Convert.ToSingle(args[0]));
 			}
 			else if (insn.opcode == OpCodes.Ldc_I8) { //ldc
-				return insn.LoadsConstant((long)args[0]);
+				return insn.LoadsConstant(Convert.ToInt64(args[0]));
 			}
 			else if (insn.opcode == OpCodes.Ldc_R8) { //ldc
-				return insn.LoadsConstant((double)args[0]);
+				return insn.LoadsConstant(Convert.ToDouble(args[0]));
 			}
 			else if (insn.opcode == OpCodes.Ldloc_S || insn.opcode == OpCodes.Stloc_S) { //LocalBuilder contains a pos and type
 				LocalBuilder loc = (LocalBuilder)insn.operand;

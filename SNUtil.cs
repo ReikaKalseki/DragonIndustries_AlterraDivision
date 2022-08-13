@@ -67,6 +67,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void log(string s, int indent = 0) {
+			while (s.Length > 4096) {
+				string part = s.Substring(0, 4096);
+				log(part);
+				s = s.Substring(4096);
+			}
 			string id = getModDLL().GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
 			if (indent > 0) {
 				s = s.PadLeft(s.Length+indent, ' ');
@@ -75,6 +80,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void writeToChat(string s) {
+			while (s.Length >= 4096) {
+				string part = s.Substring(0, 4096);
+				ErrorMessage.AddMessage(part);
+				s = s.Substring(4096);
+			}
 			ErrorMessage.AddMessage(s);
 		}
 		

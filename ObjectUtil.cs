@@ -426,7 +426,7 @@ namespace ReikaKalseki.DIAlterra
 		public static GameObject getModPrefabBaseObject<T>(DIPrefab<T> pfb) where T : PrefabReference {
 			GameObject world = null;
 			GameObject prefab;
-			if (pfb is Craftable) {
+			if (pfb is Craftable && false) {
 				world = getItemGO((Craftable)pfb, pfb.baseTemplate.getPrefabID());
 				world = UnityEngine.Object.Instantiate(world);
 			}

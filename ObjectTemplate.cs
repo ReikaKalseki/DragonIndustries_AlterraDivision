@@ -44,11 +44,21 @@ namespace ReikaKalseki.DIAlterra
 			if (key == "object" && !e.hasProperty("prefab") && e.hasProperty("type")) //quickfix for back compat
 				key = "generator";
 			Func<XmlElement, ObjectTemplate> builder = types[key];
-			ObjectTemplate ot = builder(e);
-			if (ot == null)
-				return null;
-			ot.loadFromXML(e);
-			return ot;
+			try {
+				ObjectTemplate ot = builder(e);
+				if (ot == null)
+					return null;
+				try {
+					ot.loadFromXML(e);
+				}
+				catch (Exception ex) {
+					throw new Exception("Unable to load object xml block of type '"+key+"': "+e.OuterXml, ex);
+				}
+				return ot;
+			}
+			catch (Exception ex) {
+				throw new Exception("Unable to construct object from xml block of type '"+key+"': "+e.OuterXml, ex);
+			}
 		}
 	}
 }

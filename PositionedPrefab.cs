@@ -22,6 +22,8 @@ namespace ReikaKalseki.DIAlterra
 		internal Quaternion rotation;
 		[SerializeField]
 		internal Vector3 scale = Vector3.one;
+			
+		internal Guid? xmlID;
 		
 		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null)
 		{
@@ -54,6 +56,16 @@ namespace ReikaKalseki.DIAlterra
 			return prefabName;
 		}
 		
+		public virtual GameObject createWorldObject() {
+			GameObject ret = ObjectUtil.createWorldObject(prefabName);
+			if (ret != null) {
+				ret.transform.position = position;
+				ret.transform.rotation = rotation;
+				ret.transform.localScale = scale;
+			}
+			return ret;
+		}
+		
 		public Vector3 getPosition() {
 			return new Vector3(position.x, position.y, position.z);
 		}
@@ -72,6 +84,9 @@ namespace ReikaKalseki.DIAlterra
 			XmlElement rot = n.addProperty("rotation", rotation.eulerAngles);
 			rot.addProperty("quaternion", rotation);
 			n.addProperty("scale", scale);
+				
+			if (xmlID != null && xmlID.HasValue)
+				n.addProperty("xmlID", xmlID.Value.ToString());
 		}
 			
 		public override string ToString() {
@@ -100,6 +115,11 @@ namespace ReikaKalseki.DIAlterra
 			Vector3? sc = e.getVector("scale", true);
 			if (sc != null && sc.HasValue)
 				scale = sc.Value;
+			
+			string xmlid = e.getProperty("xmlID", true);
+			if (!string.IsNullOrEmpty(xmlid)) {
+			    xmlID = new Guid(xmlid);
+			}
 		}
 		
 		protected virtual void setPrefabName(string name) {

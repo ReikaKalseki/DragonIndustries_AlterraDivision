@@ -21,7 +21,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 			
-		public CustomBattery(string id, string name, string desc, int cap) : base(id, name, desc, "WorldEntities/Tools/Battery") {
+		public CustomBattery(string id, string name, string desc, int cap) : base(id, name, desc, "d4bfebc0-a5e6-47d3-b4a7-d5e47f614ed6") {
 			capacity = cap;
 			sprite = TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
@@ -42,6 +42,7 @@ namespace ReikaKalseki.DIAlterra
 			base.prepareGameObject(go, r);
 			go.EnsureComponent<Battery>()._capacity = capacity;
 			go.EnsureComponent<Battery>().charge = capacity;
+			go.SetActive(false);
 		}
 		
 	}
