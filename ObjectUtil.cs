@@ -13,8 +13,16 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class ObjectUtil {
 		
+		public static void removeComponent(GameObject go, Type tt) {
+			foreach (Component c in go.GetComponentsInChildren(tt)) {
+				if (c is MonoBehaviour)
+					((MonoBehaviour)c).enabled = false;
+				UnityEngine.Object.DestroyImmediate(c);
+			}
+		}
+		
 		public static void removeComponent<C>(GameObject go) where C : Component {
-			foreach (Component c in go.GetComponentsInParent<C>()) {
+			foreach (Component c in go.GetComponentsInChildren<C>()) {
 				if (c is MonoBehaviour)
 					((MonoBehaviour)c).enabled = false;
 				UnityEngine.Object.DestroyImmediate(c);

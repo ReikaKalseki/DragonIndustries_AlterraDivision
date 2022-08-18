@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using System.Collections.Generic;
+using System.Linq;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Assets;
@@ -83,8 +84,10 @@ namespace ReikaKalseki.DIAlterra {
 			SNUtil.log("Adding "+add+"x"+amt+" to recipe "+recipe);
 		}
 		
-		public static void removeIngredient(TechType recipe, TechType item) {
-			modifyIngredients(recipe, i => i.techType == item);
+		public static Ingredient removeIngredient(TechType recipe, TechType item) {
+			Ingredient ret = null;
+			modifyIngredients(recipe, i => {if (i.techType == item){ret = i; return true;}return false;});
+			return ret;
 		}
 		
 		/** Return true in the func to delete the ingredient. */
@@ -111,6 +114,10 @@ namespace ReikaKalseki.DIAlterra {
 			if (fab != CraftTree.Type.None)
 	        	CraftTreeHandler.AddCraftingNode(fab, item, path == null ? new string[0] : path);
 			return rec;
+		}
+		
+		public static bool recipeExists(TechType item) {
+			return CraftDataHandler.GetTechData(item) != null;
 		}
 		
 		public static TechData getRecipe(TechType item) {
@@ -234,6 +241,23 @@ namespace ReikaKalseki.DIAlterra {
 				ret.Add(new Ingredient(p.item.getTechType(), p.amount));
 			}
 			return ret;
+		}
+		
+		public static List<TechType> buildLinkedItems(params PlannedIngredient[] li) {
+			return buildLinkedItems(li.ToList());
+		}
+		
+		public static List<TechType> buildLinkedItems(List<PlannedIngredient> li) {
+			List<TechType> ret = new List<TechType>();
+			foreach (PlannedIngredient p in li) {
+				for (int i = 0; i < p.amount; i++)
+					ret.Add(p.item.getTechType());
+			}
+			return ret;
+		}
+		
+		public static string toString(TechData rec) {
+			return string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => r.techType+" x"+r.amount).ToArray())+" = x"+rec.craftAmount+" & "+string.Join("+", rec.LinkedItems.ToArray());
 		}
 		
 		public class RecipeNode {

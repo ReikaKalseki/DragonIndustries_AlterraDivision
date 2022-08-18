@@ -21,8 +21,9 @@ namespace ReikaKalseki.DIAlterra
 		public bool isAdvanced = false;
 		public Atlas.Sprite sprite = null;
 		public float craftingTime = 0;
+		public readonly List<PlannedIngredient> byproducts = new List<PlannedIngredient>();
 		
-		public float glowIntensity {get; set;}		
+		public float glowIntensity {get; set;}			
 		public StringPrefabContainer baseTemplate {get; set;}
 		
 		public BasicCraftingItem(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
@@ -37,7 +38,7 @@ namespace ReikaKalseki.DIAlterra
 				addedTab = true;
 			}
 			
-			baseTemplate = new StringPrefabContainer(template);
+			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -114,7 +115,8 @@ namespace ReikaKalseki.DIAlterra
 			return new TechData
 			{
 				Ingredients = RecipeUtil.buildRecipeList(recipe),
-				craftAmount = numberCrafted
+				craftAmount = numberCrafted,
+				LinkedItems = RecipeUtil.buildLinkedItems(byproducts)
 			};
 		}
 	

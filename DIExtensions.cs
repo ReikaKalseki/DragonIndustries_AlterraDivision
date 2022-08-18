@@ -46,6 +46,16 @@ namespace ReikaKalseki.DIAlterra
 			return n;
 		}
 		
+		public static XmlElement addProperty(this XmlNode xml, string name, Color c) {
+			XmlElement n = xml.OwnerDocument.CreateElement(name);
+			n.addProperty("r", c.r);
+			n.addProperty("g", c.g);
+			n.addProperty("b", c.b);
+			n.addProperty("a", c.a);
+			xml.AppendChild(n);
+			return n;
+		}
+		
 		public static XmlElement addProperty(this XmlNode xml, string name, int value) {
 			return xml.addProperty(name, value.ToString());
 		}
@@ -149,11 +159,11 @@ namespace ReikaKalseki.DIAlterra
 		public static Vector3? getVector(this XmlElement xml, string name, out XmlElement elem, bool allowNull = false) {
 			List<XmlElement> li = xml.getDirectElementsByTagName(name);
 			if (li.Count == 1) {
-				string x = li[0].getProperty("x");
-				string y = li[0].getProperty("y");
-				string z = li[0].getProperty("z");
+				double x = li[0].getFloat("x", double.NaN);
+				double y = li[0].getFloat("y", double.NaN);
+				double z = li[0].getFloat("z", double.NaN);
 				elem = li[0];
-				return new Vector3((float)double.Parse(x), (float)double.Parse(y), (float)double.Parse(z));
+				return new Vector3((float)x, (float)y, (float)z);
 			}
 			else if (li.Count == 0 && allowNull) {
 				elem = null;
@@ -167,17 +177,34 @@ namespace ReikaKalseki.DIAlterra
 		public static Quaternion? getQuaternion(this XmlElement xml, string name, bool allowNull = false) {
 			List<XmlElement> li = xml.getDirectElementsByTagName(name);
 			if (li.Count == 1) {
-				string x = li[0].getProperty("x");
-				string y = li[0].getProperty("y");
-				string z = li[0].getProperty("z");
-				string w = li[0].getProperty("w");
-				return new Quaternion((float)double.Parse(x), (float)double.Parse(y), (float)double.Parse(z), (float)double.Parse(w));
+				double x = li[0].getFloat("x", double.NaN);
+				double y = li[0].getFloat("y", double.NaN);
+				double z = li[0].getFloat("z", double.NaN);
+				double w = li[0].getFloat("w", double.NaN);
+				return new Quaternion((float)x, (float)y, (float)z, (float)w);
 			}
 			else if (li.Count == 0 && allowNull) {
 				return null;
 			}
 			else {
 				throw new Exception("You must have exactly one matching named element for getQuaternion '"+name+"'! "+xml.format());
+			}
+		}
+		
+		public static Color? getColor(this XmlElement xml, string name, bool includeAlpha, bool allowNull = false) {
+			List<XmlElement> li = xml.getDirectElementsByTagName(name);
+			if (li.Count == 1) {
+				double r = li[0].getFloat("r", double.NaN);
+				double g = li[0].getFloat("g", double.NaN);
+				double b = li[0].getFloat("b", double.NaN);
+				double a = includeAlpha ? li[0].getFloat("a", double.NaN) : 1;
+				return new Color((float)r, (float)g, (float)b, (float)a);
+			}
+			else if (li.Count == 0 && allowNull) {
+				return null;
+			}
+			else {
+				throw new Exception("You must have exactly one matching named element for getColor '"+name+"'! "+xml.format());
 			}
 		}
 		

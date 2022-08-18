@@ -256,5 +256,14 @@ namespace ReikaKalseki.DIAlterra
 				codes.Insert(0, insert[i]);
 			}
 		}
+		
+		public static List<CodeInstruction> extract(List<CodeInstruction> codes, int from, int to) {
+			List<CodeInstruction> li = new List<CodeInstruction>();
+			for (int i = from; i <= to; i++) {
+				li.Add(codes[i]);
+			}
+			codes.RemoveRange(from, to-from+1);
+			return li;
+		}
 	}
 }

@@ -9,41 +9,48 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public sealed class DuplicateRecipeDelegate : PdaItem {
+	public sealed class DuplicateRecipeDelegate : PdaItem, DuplicateItemDelegate {
 		
 		public readonly PdaItem prefab;
 		public readonly TechType basis;
-		private readonly TechData recipe;
+		public readonly string nameSuffix;
 		
 		public Atlas.Sprite sprite = null;
 		public TechType unlock = TechType.None;
 		public TechCategory category = TechCategory.Misc;
 		public TechGroup group = TechGroup.Uncategorized;
 		
-		private static readonly List<DuplicateRecipeDelegate> delegates = new List<DuplicateRecipeDelegate>();
+		private static readonly List<DuplicateItemDelegate> delegates = new List<DuplicateItemDelegate>();
 		
-		public DuplicateRecipeDelegate(PdaItem s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName+" (x"+r.craftAmount+")", s.Description) {
+		public DuplicateRecipeDelegate(PdaItem s, string suff = "") : base(s.ClassID+"_delegate", s.FriendlyName+suff, s.Description) {
 			basis = s.TechType;
 			prefab = s;
-			recipe = r;
 			unlock = s.RequiredForUnlock;
 			group = s.GroupForPDA;
 			category = s.CategoryForPDA;
+			nameSuffix = suff;
 			delegates.Add(this);
 		}
 		
-		public DuplicateRecipeDelegate(TechType from, TechData r) : base(from.AsString()+"_delegate", "", "") {
+		public DuplicateRecipeDelegate(TechType from, string suff = "") : base(from.AsString()+"_delegate", "", "") {
 			basis = from;
 			prefab = null;
-			recipe = r;
+			sprite = SpriteManager.Get(from);
+			nameSuffix = suff;
 			delegates.Add(this);
+		}
+		
+		public static void addDelegate(DuplicateItemDelegate d) {
+			delegates.Add(d);
 		}
 		
 		public static void updateLocale() {
-			foreach (DuplicateRecipeDelegate d in delegates) {
-				if (d.prefab == null) {
-					Language.main.strings[d.TechType.AsString()] = Language.main.strings[d.basis.AsString()]+" (x"+d.recipe.craftAmount+")";
-					Language.main.strings["Tooltip_"+d.TechType.AsString()] = Language.main.strings["Tooltip_"+d.basis.AsString()];
+			foreach (DuplicateItemDelegate d in delegates) {
+				if (d.getPrefab() == null) {
+					TechType tt = d.getBasis();
+					TechType dt = ((ModPrefab)d).TechType;
+					Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
+					Language.main.strings["Tooltip_"+dt.AsString()] = Language.main.strings["Tooltip_"+tt.AsString()];
 				}
 			}
 		}
@@ -78,8 +85,30 @@ namespace ReikaKalseki.DIAlterra
 			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
 		}
 		
-		protected override TechData GetBlueprintRecipe() {
-			return recipe;
+		public string getNameSuffix() {
+			return nameSuffix;
 		}
+		
+		public PdaItem getPrefab() {
+			return prefab;
+		}
+		
+		public TechType getBasis() {
+			return basis;
+		}
+		
+		protected override TechData GetBlueprintRecipe() {
+			return null;
+		}
+	}
+	
+	public interface DuplicateItemDelegate {
+		
+		string getNameSuffix();
+		
+		PdaItem getPrefab();
+		
+		TechType getBasis();
+		
 	}
 }
