@@ -107,7 +107,7 @@ namespace ReikaKalseki.DIAlterra
 			return registerWorldgen(getOrCreateCrate(item).ClassID, pos, rot);
 		}
 		
-		public static SpawnInfo spawnFragment(Vector3 pos, MachineFragment mf, Quaternion? rot = null) {
+		public static SpawnInfo spawnFragment(Vector3 pos, TechnologyFragment mf, Quaternion? rot = null) {
 			return registerWorldgen(mf.fragmentPrefab.ClassID, pos, rot);
 		}
 		
@@ -161,14 +161,18 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static ContainerPrefab getOrCreateFragment(Spawnable tech, string template, Action<GameObject> modify = null) {
-			FragmentGroup li = fragments.ContainsKey(tech.TechType) ? fragments[tech.TechType] : null;
+			return getOrCreateFragment(tech.TechType, tech.FriendlyName, template, modify);
+		}
+		
+		public static ContainerPrefab getOrCreateFragment(TechType tech, string name, string template, Action<GameObject> modify = null) {
+			FragmentGroup li = fragments.ContainsKey(tech) ? fragments[tech] : null;
 			if (li == null) {
 				li = new FragmentGroup();
-				fragments[tech.TechType] = li;
+				fragments[tech] = li;
 			}
 			Fragment f = li.variants.ContainsKey(template) ? li.variants[template] : null;
 			if (f == null) {
-				f = li.addVariant(tech, template, modify);
+				f = li.addVariant(tech, name, template, modify);
 			}
 			return f;
 		}
@@ -248,18 +252,16 @@ namespace ReikaKalseki.DIAlterra
 		
 		sealed class Fragment : ContainerPrefab {
 			
-			private readonly Spawnable prefab;
-	        
-	        internal Fragment(Spawnable tech, string template, Action<GameObject> modify, int index) : base(tech.TechType, template, modify, "fragment", "_"+index, tech.FriendlyName+" Fragment") {
-				prefab = tech;
-	        }
+			internal Fragment(TechType tech, string name, string template, Action<GameObject> modify, int index) : base(tech, template, modify, "fragment", "_"+index, name+" Fragment") {
+				
+			}
 			
 			public override void prepareGameObject(GameObject go, Renderer r) {/*
 	            TechFragment bpt = go.EnsureComponent<TechFragment>();
 	            bpt.defaultTechType = containedTech;
 	            bpt.techList.Clear();
 	            bpt.techList.Add(new TechFragment.RandomTech{techType = containedTech, chance = 100});*/
-				TechType tt = fragments[prefab.TechType].sharedTechType; // NOT our techtype since needs to be shared!
+				TechType tt = fragments[containedTech].sharedTechType; // NOT our techtype since needs to be shared!
 				go.EnsureComponent<TechTag>().type = tt;
 				Pickupable p = go.EnsureComponent<Pickupable>();
 				p.overrideTechType = tt;
@@ -273,7 +275,7 @@ namespace ReikaKalseki.DIAlterra
 
 			protected override void ProcessPrefab(GameObject go) {
 				base.ProcessPrefab(go);
-				TechType tt = fragments[prefab.TechType].sharedTechType; // NOT our techtype since needs to be shared!
+				TechType tt = fragments[containedTech].sharedTechType; // NOT our techtype since needs to be shared!
 				go.EnsureComponent<TechTag>().type = tt;
 			}
 			
@@ -290,8 +292,8 @@ namespace ReikaKalseki.DIAlterra
 				
 			}
 			
-			internal Fragment addVariant(Spawnable tech, string template, Action<GameObject> modify) {
-				Fragment f = new Fragment(tech, template, modify, variantList.Count);
+			internal Fragment addVariant(TechType tech, string name, string template, Action<GameObject> modify) {
+				Fragment f = new Fragment(tech, name, template, modify, variantList.Count);
 				f.Patch();
 				variants[template] = f;
 				variantList.Add(f);

@@ -54,10 +54,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public void addFragments(int needed, float scanTime = 5, params MachineFragment[] fragments) {
+		public void addFragments(int needed, float scanTime = 5, params TechnologyFragment[] fragments) {
 			SNUtil.log("Creating "+fragments.Length+" fragments for "+this);
-			foreach (MachineFragment m in fragments) {
-				m.machine = TechType;
+			foreach (TechnologyFragment m in fragments) {
+				m.target = TechType;
 				m.fragmentPrefab = GenUtil.getOrCreateFragment(this, m.template, m.objectModify);
 				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID);
 			}
@@ -125,21 +125,6 @@ namespace ReikaKalseki.DIAlterra
 		protected sealed override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
-	}
-	
-	public class MachineFragment {
-		
-		public readonly string template;
-		public readonly Action<GameObject> objectModify;
-		
-		public TechType machine;
-		public GenUtil.ContainerPrefab fragmentPrefab;
-		
-		public MachineFragment(string pfb, Action<GameObject> a = null) {
-			template = pfb;
-			objectModify = a;
-		}
-		
 	}
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {

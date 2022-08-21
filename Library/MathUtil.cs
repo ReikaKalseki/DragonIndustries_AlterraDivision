@@ -60,6 +60,10 @@ namespace ReikaKalseki.DIAlterra
 		public static bool isPointInsideEllipse(double x, double y, double z, double ra, double rb, double rc) {
 			return (ra > 0 ? ((x*x)/(ra*ra)) : 0) + (rb > 0 ? ((y*y)/(rb*rb)) : 0) + (rc > 0 ? ((z*z)/(rc*rc)) : 0) <= 1;
 		}
+
+		public static bool isPointInCylinder(Vector3 center, Vector3 point, double r, double h) {
+			return Math.Abs(point.y-center.y) <= h && (center-point).setY(0).magnitude <= r;
+		}
 		
 		public static void rotateObjectAround(GameObject go, Vector3 point, double amt) {
 			go.transform.RotateAround(point, Vector3.up, (float)amt);

@@ -19,6 +19,7 @@ namespace ReikaKalseki.DIAlterra
 		public int numberCrafted = 1;
 		public TechType unlockRequirement = TechType.None;
 		public bool isAdvanced = false;
+		public bool isElectronics = false;
 		public Atlas.Sprite sprite = null;
 		public float craftingTime = 0;
 		public readonly List<PlannedIngredient> byproducts = new List<PlannedIngredient>();
@@ -85,7 +86,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override TechCategory CategoryForPDA {
 			get {
-				return isAdvanced ? TechCategory.AdvancedMaterials : TechCategory.BasicMaterials;
+				return isElectronics ? TechCategory.Electronics : (isAdvanced ? TechCategory.AdvancedMaterials : TechCategory.BasicMaterials);
 			}
 		}
 
