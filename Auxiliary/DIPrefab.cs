@@ -38,6 +38,12 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
+	public interface MultiTexturePrefab<T> : DIPrefab<T> where T : PrefabReference {
+		
+		Dictionary<int,string> getTextureLayers();
+		
+	}
+	
 	public sealed class StringPrefabContainer : PrefabReference {
 		
 		public readonly string prefab;

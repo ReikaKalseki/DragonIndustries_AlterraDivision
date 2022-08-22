@@ -74,7 +74,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
 			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
-			if (!swapTextures(r, path))
+			Dictionary<int,string> dict = null;
+			if (pfb is MultiTexturePrefab<T>)
+				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers();
+			if (!swapTextures(r, path, dict))
 				SNUtil.log("NO CUSTOM TEXTURES FOUND: "+pfb);
 			
 			if (pfb.glowIntensity > 0) {
@@ -94,13 +97,17 @@ namespace ReikaKalseki.DIAlterra
 			modelObj.transform.localEulerAngles = Vector3.zero;
 			modelObj.transform.localRotation = Quaternion.identity;
 			modelObj.transform.localScale = Vector3.one;
+			convertToModel(modelObj);
+			return modelObj;
+		}
+		
+		public static void convertToModel(GameObject modelObj) {
 			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
 				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier) {
 					continue;
 				}
 				UnityEngine.Object.DestroyImmediate(c);
 			}
-			return modelObj;
 		}
 		
 		public static void setMesh(GameObject go, Mesh m) {
