@@ -92,7 +92,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"Resources", isAdvanced ? "AdvancedMaterials" : "BasicMaterials"};//new string[]{"DIIntermediate"};
+				return new string[]{"Resources", isElectronics ? "Electronics" : (isAdvanced ? "AdvancedMaterials" : "BasicMaterials")};//new string[]{"DIIntermediate"};
 			}
 		}
 			

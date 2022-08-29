@@ -112,7 +112,11 @@ namespace ReikaKalseki.DIAlterra
 			return py3d(point.x, point.y, point.z, x1+t*(x2-x1), y1+t*(y2-y1), z1+t*(z2-z1));
 		}
 
-		public static double linterpolate(double x, double x1, double x2, double y1, double y2) {
+		public static double linterpolate(double x, double x1, double x2, double y1, double y2, bool clamp = false) {
+			if (clamp && x <= x1)
+				return y1;
+			else if (clamp && x >= x2)
+				return y2;
 			return y1+(x-x1)/(x2-x1)*(y2-y1);
 		}
 

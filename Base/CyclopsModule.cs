@@ -17,7 +17,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected CyclopsModule(string id, string name, string desc) : base(id, name, desc, "WorldEntities/Tools/CyclopsHullModule3") {
-
+			dependency = TechType.Cyclops;
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -35,12 +35,6 @@ namespace ReikaKalseki.DIAlterra
 		public override sealed EquipmentType EquipmentType {
 			get {
 				return EquipmentType.CyclopsModule;
-			}
-		}
-
-		public override TechType RequiredForUnlock {
-			get {
-				return TechType.Cyclops;
 			}
 		}
 

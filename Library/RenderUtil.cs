@@ -15,15 +15,23 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
 		
-		public static void setEmissivity(Renderer r, float amt, string type) {
-			r.materials[0].SetFloat("_"+type, amt);
-			r.sharedMaterial.SetFloat("_"+type, amt);
-			r.materials[0].SetFloat("_"+type+"Night", amt);
-			r.sharedMaterial.SetFloat("_"+type+"Night", amt);
+		public static void setEmissivity(Renderer r, float amt, string type, HashSet<int> matIndices = null) {
+			Material[] mr = r.materials;
+			for (int i = 0; i < mr.Length; i++) {
+				if (matIndices != null && !matIndices.Contains(i))
+					continue;
+				Material m = mr[i];
+				m.SetFloat("_"+type, amt);
+				m.SetFloat("_"+type+"Night", amt);
+			}
 		}
 		
-		public static void makeTransparent(Renderer r) {
-			foreach (Material m in r.materials) {
+		public static void makeTransparent(Renderer r, HashSet<int> matIndices = null) {
+			Material[] mr = r.materials;
+			for (int i = 0; i < mr.Length; i++) {
+				if (matIndices != null && !matIndices.Contains(i))
+					continue;
+				Material m = mr[i];
 				m.EnableKeyword("_ZWRITE_ON");
 	  			m.EnableKeyword("WBOIT");
 				m.SetInt("_ZWrite", 0);
@@ -47,6 +55,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static bool swapTextures(Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
+			if (r == null)
+				throw new Exception("Tried to retexture a null renderer!");
 			bool flag = false;
 			foreach (String type in texTypes) {
 				for (int i = 0; i < r.materials.Length; i++) {
@@ -83,8 +93,8 @@ namespace ReikaKalseki.DIAlterra
 			if (pfb.glowIntensity > 0) {
 				setEmissivity(r, pfb.glowIntensity, "GlowStrength");
 				
-				r.materials[0].EnableKeyword("MARMO_EMISSION");
-				r.sharedMaterial.EnableKeyword("MARMO_EMISSION");
+				foreach (Material m in r.materials)
+					m.EnableKeyword("MARMO_EMISSION");
 			}
 		}
 		

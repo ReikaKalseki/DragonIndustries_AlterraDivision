@@ -256,6 +256,16 @@ namespace ReikaKalseki.DIAlterra {
 			return ret;
 		}
 		
+		public static TechData copyRecipe(TechData from) {
+			TechData ret = new TechData();
+			ret.craftAmount = from.craftAmount;
+			ret.LinkedItems.AddRange(from.LinkedItems);
+			foreach (Ingredient i in from.Ingredients) {
+				ret.Ingredients.Add(new Ingredient(i.techType, i.amount));
+			}
+			return ret;
+		}
+		
 		public static string toString(TechData rec) {
 			return string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => r.techType+" x"+r.amount).ToArray())+" = x"+rec.craftAmount+" & "+string.Join("+", rec.LinkedItems.ToArray());
 		}

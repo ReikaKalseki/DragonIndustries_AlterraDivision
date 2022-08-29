@@ -23,13 +23,13 @@ namespace ReikaKalseki.DIAlterra
 		public HarvestType collectionMethod = HarvestType.DamageAlive;
 		public int finalCutBonus = 2;
 		
-		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedName) {
+		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
 			
 		}
 			
-		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedName = "Seed") : base(id, name, desc) {
+		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedPfb, string seedName = "Seed") : base(id, name, desc) {
 			baseTemplate = template;
-			seed = new BasicCustomPlantSeed(this, seedName);
+			seed = new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
 				if (collectionMethod != HarvestType.None) {
 					seed.Patch();
@@ -113,10 +113,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Atlas.Sprite sprite;
 		
-		public BasicCustomPlantSeed(BasicCustomPlant p, string seedName = "Seed") : base(p.ClassID+"_seed", p.FriendlyName+" "+seedName, p.Description) {
+		public BasicCustomPlantSeed(BasicCustomPlant p, string pfb, string seedName = "Seed") : base(p.ClassID+"_seed", p.FriendlyName+" "+seedName, p.Description) {
 			plant = p;
 			sprite = plant.getSprite();
-			baseTemplate = new StringPrefabContainer("daff0e31-dd08-4219-8793-39547fdb745e");
+			baseTemplate = new StringPrefabContainer(pfb);
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {

@@ -13,6 +13,18 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class ObjectUtil {
 		
+		public static void removeItem(StorageContainer sc, InventoryItem ii) {
+			sc.container.RemoveItem(ii.item);
+			UnityEngine.Object.DestroyImmediate(ii.item.gameObject);
+		}
+		
+		public static bool isPDA(GameObject go) {
+			if (!go.GetComponent<StoryHandTarget>())
+				return false;
+			PrefabPlaceholdersGroup pp = go.GetComponent<PrefabPlaceholdersGroup>();
+			return pp && pp.prefabPlaceholders != null && pp.prefabPlaceholders.Length > 0 && pp.prefabPlaceholders[0] && pp.prefabPlaceholders[0].prefabClassId == "4e8d9640-dd23-46ca-99f2-6924fcf250a4";
+		}
+		
 		public static void removeComponent(GameObject go, Type tt) {
 			foreach (Component c in go.GetComponentsInChildren(tt)) {
 				if (c is MonoBehaviour)
@@ -198,6 +210,7 @@ namespace ReikaKalseki.DIAlterra
 				find.SetActive(false);
 				UnityEngine.Object.DestroyImmediate(find);
 				ret = find;
+				find = getChildObject(go, name);
 			}
 			return ret;
 		}

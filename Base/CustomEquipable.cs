@@ -18,6 +18,8 @@ namespace ReikaKalseki.DIAlterra
 		public bool isArmor {get; set;}	
 		public StringPrefabContainer baseTemplate {get; set;}
 		
+		public TechType dependency = TechType.None;
+		
 		protected CustomEquipable(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
 			
 		}
@@ -49,6 +51,22 @@ namespace ReikaKalseki.DIAlterra
 		public CustomEquipable addIngredient(TechTypeReference item, int amt) {
 			recipe.Add(new PlannedIngredient(item, amt));
 			return this;
+		}
+
+		public override sealed TechType RequiredForUnlock {
+			get {
+				return dependency == TechType.Unobtanium ? TechType.None : dependency;
+			}
+		}
+
+		public override sealed bool UnlockedAtStart {
+			get {
+				return dependency != TechType.Unobtanium && RequiredForUnlock == null && CompoundTechsForUnlock == null;
+			}
+		}
+		
+		public void preventNaturalUnlock() {
+			dependency = TechType.Unobtanium;
 		}
 
 		public override QuickSlotType QuickSlotType {

@@ -158,6 +158,17 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void addPDAEntry(Spawnable pfb, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
+			PDAManager.PDAPage page = null;
+			if (pageCategory != null && !string.IsNullOrEmpty(pageText)) {
+				page = PDAManager.createPage(""+pfb.TechType, pfb.FriendlyName, pageText, pageCategory);
+				if (pageHeader != null)
+					page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+pageHeader));
+				page.register();
+			}
+			addPDAEntry(pfb, scanTime, page, modify);
+		}
+		
+		public static void addPDAEntry(Spawnable pfb, float scanTime, PDAManager.PDAPage page = null, Action<PDAScanner.EntryData> modify = null) {
 			PDAScanner.EntryData e = new PDAScanner.EntryData();
 			e.key = pfb.TechType;
 			e.scanTime = scanTime;
@@ -165,12 +176,12 @@ namespace ReikaKalseki.DIAlterra
 			if (modify != null) {
 				modify(e);
 			}
-			if (pageCategory != null && !string.IsNullOrEmpty(pageText)) {
-				PDAManager.PDAPage page = PDAManager.createPage(""+pfb.TechType, pfb.FriendlyName, pageText, pageCategory);
-				if (pageHeader != null)
-					page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+pageHeader));
-				page.register();
+			if (page != null) {
 				e.encyclopedia = page.id;
+				SNUtil.log("Bound scanner entry for "+pfb.FriendlyName+" to "+page.id);
+			}
+			else {
+				SNUtil.log("Scanner entry for "+pfb.FriendlyName+" had no ency page.");
 			}
 			PDAHandler.AddCustomScannerEntry(e);
 		}

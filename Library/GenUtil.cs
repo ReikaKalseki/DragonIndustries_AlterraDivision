@@ -139,11 +139,11 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static ContainerPrefab getOrCreateCrate(TechType tech, bool needsCutter = false, Action<GameObject> modify = null) {
+		public static ContainerPrefab getOrCreateCrate(TechType tech, bool moddedItem = false, bool needsCutter = false, Action<GameObject> modify = null) {
 			int idx = needsCutter ? 1 : 0;
 			Crate box = crates[idx].ContainsKey(tech) ? crates[idx][tech] : null;
 			if (box == null) {
-				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8", needsCutter, modify); //battery
+				box = new Crate(tech, moddedItem, "580154dd-b2a3-4da1-be14-9a22e20385c8", needsCutter, modify); //battery
 				crates[idx][tech] = box;
 				box.Patch();
 			}
@@ -266,8 +266,8 @@ namespace ReikaKalseki.DIAlterra
 				Pickupable p = go.EnsureComponent<Pickupable>();
 				p.overrideTechType = tt;
 				ResourceTracker rt = go.EnsureComponent<ResourceTracker>();
-				rt.techType = tt;
-				rt.overrideTechType = tt;
+				rt.techType = TechType.Fragment;
+				rt.overrideTechType = TechType.Fragment;
 				rt.prefabIdentifier = go.GetComponent<PrefabIdentifier>();
 				rt.pickupable = p;
 				modifyObject(go);
@@ -307,18 +307,50 @@ namespace ReikaKalseki.DIAlterra
 		class Crate : ContainerPrefab {
 			
 			private readonly bool needsCutter;
+			private readonly bool isModdedItem;
 	        
-	        internal Crate(TechType tech, string template, bool c, Action<GameObject> modify) : base(tech, template, modify) {
+	        internal Crate(TechType tech, bool mod, string template, bool c, Action<GameObject> modify) : base(tech, template, modify) {
 				needsCutter = c;
+				isModdedItem = mod;
 	        }
 			
 			public override void prepareGameObject(GameObject go, Renderer r) {
 				PrefabPlaceholdersGroup pre = go.EnsureComponent<PrefabPlaceholdersGroup>();
+					ObjectUtil.dumpObjectData(go);
 				if (pre.prefabPlaceholders.Length != 1) {
+					GameObject pp = null;
+					foreach (Transform t in go.transform) {
+						if (t.gameObject && t.gameObject != go && t.gameObject.name != "Crate_treasure_chest") {
+							pp = t.gameObject;
+							break;
+						}
+					}
+					if (pp == null) {
+						pp = new GameObject();
+						pp.name = containedTech.AsString();
+						pp.transform.parent = go.transform;
+					}
 					pre.prefabPlaceholders = new PrefabPlaceholder[1];
-					pre.prefabPlaceholders[0] = go.AddComponent<PrefabPlaceholder>();
+					pre.prefabPlaceholders[0] = pp.AddComponent<PrefabPlaceholder>();
 				}
-				pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(containedTech);
+				string id = CraftData.GetClassIdForTechType(containedTech);
+				if (string.IsNullOrEmpty(id)) {
+					SNUtil.writeToChat("Could not find class id for techtype for crate: "+containedTech);
+					id = CraftData.GetClassIdForTechType(TechType.Titanium);
+				}
+				Pickupable item = go.GetComponentInChildren<Pickupable>(true);
+				if (item == null && isModdedItem) {
+					GameObject inner = ObjectUtil.createWorldObject(id, true, false);
+					inner.transform.parent = go.transform;
+					inner.SetActive(true);
+					item = inner.GetComponent<Pickupable>();
+				}
+				if (item) {
+					item.transform.localPosition = Vector3.zero;
+					item.transform.localRotation = Quaternion.identity;
+					item.GetComponent<Rigidbody>().isKinematic = true;
+				}
+				pre.prefabPlaceholders[0].prefabClassId = id;
 				pre.prefabPlaceholders[0].highPriority = true;
 				pre.prefabPlaceholders[0].name = containedTech.AsString();
 				if (needsCutter) {
