@@ -13,6 +13,15 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class ObjectUtil {
 		
+		public static void makeMapRoomScannable(GameObject go, TechType tt) {
+			ResourceTracker res = go.EnsureComponent<ResourceTracker>();
+			res.prefabIdentifier = go.GetComponent<PrefabIdentifier>();
+			res.techType = tt;
+			res.overrideTechType = tt;
+			res.pickupable = go.GetComponentInChildren<Pickupable>();
+			res.rb = go.GetComponentInChildren<Rigidbody>();
+		}
+		
 		public static void removeItem(StorageContainer sc, InventoryItem ii) {
 			sc.container.RemoveItem(ii.item);
 			UnityEngine.Object.DestroyImmediate(ii.item.gameObject);

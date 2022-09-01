@@ -133,7 +133,7 @@ namespace ReikaKalseki.DIAlterra {
 			CraftData.techData.Remove(item);
 			RecipeNode node = getRecipeNode(item);
 			if (node == null)
-				throw new Exception("No node found for recipe "+item+"\n\n"+nodes.toDebugString<TechType, RecipeNode>());
+				throw new Exception("No node found for recipe "+item+"\n\n"+nodes.toDebugString());
 			if (node.path == null)
 				throw new Exception("Invalid pathless node "+node);
 			CraftTreeHandler.Main.RemoveNode(node.recipeType, node.path.Split('\\'));
@@ -148,6 +148,26 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			SNUtil.log("Removing recipe "+item);
 			return rec;
+		}
+		
+		public static void changeRecipePath(TechType item, params string[] path) {
+			RecipeNode node = getRecipeNode(item);
+			if (node == null)
+				throw new Exception("No node found for recipe "+item+"\n\n"+nodes.toDebugString());
+			if (node.path == null)
+				throw new Exception("Invalid pathless node "+node);
+			CraftTreeHandler.Main.RemoveNode(node.recipeType, node.path.Split('\\'));
+			nodes.Remove(item);
+			CraftTreeHandler.AddCraftingNode(node.recipeType, item, path);
+			SNUtil.log("Repathing recipe "+item+": "+node.path+" > "+string.Join("\\", path));
+		}
+		
+		public static void setItemCategory(TechType item, TechGroup tg, TechCategory tc) {
+			foreach (TechGroup grp in Enum.GetValues(typeof(TechGroup))) {
+				foreach (TechCategory cat in Enum.GetValues(typeof(TechCategory)))
+					CraftDataHandler.RemoveFromGroup(grp, cat, item);
+			}
+			CraftDataHandler.AddToGroup(tg, tc, item);
 		}
 		
 		public static RecipeNode getRecipeNode(TechType item) {
@@ -263,6 +283,7 @@ namespace ReikaKalseki.DIAlterra {
 			foreach (Ingredient i in from.Ingredients) {
 				ret.Ingredients.Add(new Ingredient(i.techType, i.amount));
 			}
+			ret.craftAmount = from.craftAmount;
 			return ret;
 		}
 		

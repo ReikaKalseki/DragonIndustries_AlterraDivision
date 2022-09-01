@@ -18,11 +18,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public int numberCrafted = 1;
 		public TechType unlockRequirement = TechType.None;
-		public bool isAdvanced = false;
-		public bool isElectronics = false;
 		public Atlas.Sprite sprite = null;
 		public float craftingTime = 0;
 		public readonly List<PlannedIngredient> byproducts = new List<PlannedIngredient>();
+		public string craftingSubCategory = ""+TechCategory.BasicMaterials;
 		
 		public float glowIntensity {get; set;}			
 		public StringPrefabContainer baseTemplate {get; set;}
@@ -86,13 +85,21 @@ namespace ReikaKalseki.DIAlterra
 
 		public override TechCategory CategoryForPDA {
 			get {
-				return isElectronics ? TechCategory.Electronics : (isAdvanced ? TechCategory.AdvancedMaterials : TechCategory.BasicMaterials);
+				TechCategory ret = TechCategory.Misc;
+				if (Enum.TryParse(craftingSubCategory, out ret))
+				    return ret;
+				else if (TechCategoryHandler.Main.TryGetModdedTechCategory(craftingSubCategory, out ret))
+					return ret;
+				else
+					return TechCategory.BasicMaterials;
 			}
 		}
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"Resources", isElectronics ? "Electronics" : (isAdvanced ? "AdvancedMaterials" : "BasicMaterials")};//new string[]{"DIIntermediate"};
+				//SNUtil.log("Fetching craftingsubcat "+craftingSubCategory+" from "+FriendlyName);
+				//RecipeUtil.dumpCraftTree(CraftTree.Type.Fabricator);
+				return new string[]{"Resources", craftingSubCategory};
 			}
 		}
 			

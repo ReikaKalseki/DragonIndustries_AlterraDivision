@@ -51,6 +51,7 @@ namespace ReikaKalseki.DIAlterra
 					TechType dt = ((ModPrefab)d).TechType;
 					Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
 					Language.main.strings["Tooltip_"+dt.AsString()] = Language.main.strings["Tooltip_"+tt.AsString()];
+					SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()]);
 				}
 			}
 		}

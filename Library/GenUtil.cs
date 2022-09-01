@@ -316,7 +316,6 @@ namespace ReikaKalseki.DIAlterra
 			
 			public override void prepareGameObject(GameObject go, Renderer r) {
 				PrefabPlaceholdersGroup pre = go.EnsureComponent<PrefabPlaceholdersGroup>();
-					ObjectUtil.dumpObjectData(go);
 				if (pre.prefabPlaceholders.Length != 1) {
 					GameObject pp = null;
 					foreach (Transform t in go.transform) {

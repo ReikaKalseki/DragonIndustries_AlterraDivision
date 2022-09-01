@@ -252,13 +252,31 @@ namespace ReikaKalseki.DIAlterra
 		    	return false;
 		    return o is IDictionary && o.GetType().IsGenericType && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
 		}
+		/*
+		public static string toDebugString(this IDictionary<object, object> dict) {
+			return "{" + string.Join(",", dict.Select(kv => kv.Key + "=" + stringify(kv.Value)).ToArray()) + "}";
+		}
 		
+		public static string toDebugString(this IEnumerable<object> c) {
+			return "[" + string.Join(",", c.Select<object, string>(stringify).ToArray()) + "]";
+		}
+		*/
 		public static string toDebugString<K, V>(this IDictionary<K, V> dict) {
-		    return "{" + string.Join(",", dict.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+			return "{" + string.Join(",", dict.Select(kv => kv.Key + "=" + stringify(kv.Value)).ToArray()) + "}";//return toDebugString((IDictionary<object, object>)dict);
 		}
 		
 		public static string toDebugString<E>(this IEnumerable<E> c) {
-		    return "[" + string.Join(",", c.ToArray()) + "]";
+			return "[" + string.Join(",", c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
+		}
+		
+		public static string stringify(object obj) {
+			if (obj == null)
+				return "null";
+			if (obj.isDictionary())
+				return "dict:"+((IDictionary<object, object>)obj).toDebugString();
+			if (obj.isEnumerable())
+				return "enumerable:"+((IEnumerable<object>)obj).toDebugString();
+			return obj.ToString();
 		}
 		
 		public static T copyObject<T>(this T comp, T from) where T : class {

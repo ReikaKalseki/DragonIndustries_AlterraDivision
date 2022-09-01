@@ -38,6 +38,7 @@ namespace ReikaKalseki.DIAlterra
 			suffixName = " (x"+r.craftAmount+")";
 			FriendlyName = FriendlyName+suffixName;
 			DuplicateRecipeDelegate.addDelegate(this);
+			OnFinishedPatching += () => {SNUtil.log("Constructed craftable delegate of "+s.ClassID+": "+TechType+" @ "+RecipeUtil.toString(r)+" @ "+string.Join("/", craftingMenuTree));};
 		}
 		
 		public DuplicateRecipeDelegateWithRecipe(TechType from, TechData r) : base(from.AsString()+"_delegate", "", "") {
@@ -47,6 +48,7 @@ namespace ReikaKalseki.DIAlterra
 			suffixName = r.craftAmount > 1 ? " (x"+r.craftAmount+")" : "";
 			sprite = SpriteManager.Get(from);
 			DuplicateRecipeDelegate.addDelegate(this);
+			OnFinishedPatching += () => {SNUtil.log("Constructed craftable delegate of "+from+": "+TechType+" @ "+RecipeUtil.toString(r)+" @ "+string.Join("/", craftingMenuTree));};
 		}
 		
 		public void setRecipe(int amt = 1) {
@@ -71,6 +73,12 @@ namespace ReikaKalseki.DIAlterra
 		public override TechType RequiredForUnlock {
 			get {
 				return unlock;
+			}
+		}
+
+		public override bool UnlockedAtStart {
+			get {
+				return unlock == TechType.None;
 			}
 		}
 
