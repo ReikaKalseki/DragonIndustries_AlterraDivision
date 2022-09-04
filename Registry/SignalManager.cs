@@ -71,13 +71,13 @@ namespace ReikaKalseki.DIAlterra
 				pdaEntry = string.IsNullOrEmpty(pda) ? null : PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
 			}
 			
-			public void addRadioTrigger(string soundPath, float delay = 0) {
-				addRadioTrigger(SoundManager.registerSound("radio_"+id, soundPath, SoundSystem.voiceBus), delay);
+			public void addRadioTrigger(string soundPath) {
+				addRadioTrigger(SoundManager.registerSound("radio_"+id, soundPath, SoundSystem.voiceBus));
 			}
 			
-			public void addRadioTrigger(FMODAsset sound, float delay = 0) {
+			public void addRadioTrigger(FMODAsset sound) {
 				setStoryGate("radio_"+id);
-				radioMessage = SNUtil.addRadioMessage(storyGate, radioText, sound, delay);
+				radioMessage = SNUtil.addRadioMessage(storyGate, radioText, sound);
 			}
 			
 			public void setStoryGate(string key) {
@@ -113,6 +113,10 @@ namespace ReikaKalseki.DIAlterra
 			public void fireRadio() {
 				if (radioMessage != null)
 					StoryGoal.Execute(storyGate, radioMessage.goalType);//radioMessage.Trigger();
+			}
+			
+			public bool isRadioFired() {
+				return !string.IsNullOrEmpty(storyGate) && StoryGoalManager.main.completedGoals.Contains(storyGate);
 			}
 		
 			public void activate(int delay = 0) {					

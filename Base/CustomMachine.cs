@@ -130,8 +130,12 @@ namespace ReikaKalseki.DIAlterra
 	public abstract class CustomMachineLogic : MonoBehaviour {
 		
 		internal ModPrefab prefab;
+		private SubRoot sub;		
+		private StorageContainer storage;
 		
 		private float lastDayTime;
+		
+		private float lastReceived;
 		
 		void Start() {
 			
@@ -141,6 +145,62 @@ namespace ReikaKalseki.DIAlterra
 			float time = DayNightCycle.main.timePassedAsFloat;
 			updateEntity(time-lastDayTime);
 			lastDayTime = time;
+			if (!storage)
+				storage = gameObject.GetComponentInChildren<StorageContainer>();
+			Transform par = transform.parent;
+			if (!par || !par.GetComponent<SubRoot>()) {
+				findClosestSub();
+			}
+			if (!sub) {
+				sub = gameObject.GetComponentInParent<SubRoot>();
+				if (!sub) {
+					findClosestSub();
+				}
+			}
+		}
+		
+		protected SubRoot getSub() {
+			return sub;
+		}
+		
+		protected StorageContainer getStorage() {
+			return storage;
+		}
+		
+		protected bool consumePower(float baseCost, float sc) {
+			//SNUtil.writeToChat("Wanted "+baseCost+"*"+sc+" from "+sub);
+			if (!sub)
+				return false;
+			float amt = baseCost*sc;
+			//SNUtil.writeToChat(sc+" > "+amt);
+			if (amt > 0) {
+				float trash;
+				sub.powerRelay.ConsumeEnergy(amt, out lastReceived);
+				lastReceived += 0.0001F;
+				if (lastReceived < amt)
+					sub.powerRelay.AddEnergy(lastReceived, out trash);
+				else
+					return true;
+			}
+			return false;
+		}
+		
+		private void findClosestSub() {
+			SNUtil.log("Custom machine "+this+" @ "+transform.position+" did not have proper parent component hierarchy: "+transform.parent);
+			foreach (SubRoot s in UnityEngine.Object.FindObjectsOfType<SubRoot>()) {
+				if (!sub || Vector3.Distance(s.transform.position, transform.position) < Vector3.Distance(sub.transform.position, transform.position)) {
+					sub = s;
+				}
+			}
+			if (sub)
+				gameObject.transform.parent = sub.gameObject.transform;
+			
+			foreach (SkyApplier sky in gameObject.GetComponents<SkyApplier>()) {
+				sky.renderers = gameObject.GetComponentsInChildren<Renderer>();
+				sky.enabled = true;
+				sky.RefreshDirtySky();
+				sky.ApplySkybox();
+			}
 		}
 		
 		protected abstract void updateEntity(float seconds);

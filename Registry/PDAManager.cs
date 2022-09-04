@@ -110,6 +110,10 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			
+			public bool isUnlocked() {
+				return pageData.unlocked || PDAEncyclopedia.entries.ContainsKey(pageData.key);
+			}
+			
 			public override string ToString() {
 				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}]", id, name, text.Replace("\n", ""), category);
 			}

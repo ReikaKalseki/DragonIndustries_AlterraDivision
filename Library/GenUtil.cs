@@ -139,11 +139,11 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static ContainerPrefab getOrCreateCrate(TechType tech, bool moddedItem = false, bool needsCutter = false, Action<GameObject> modify = null) {
+		public static ContainerPrefab getOrCreateCrate(TechType tech, bool needsCutter = false, Action<GameObject> modify = null) {
 			int idx = needsCutter ? 1 : 0;
 			Crate box = crates[idx].ContainsKey(tech) ? crates[idx][tech] : null;
 			if (box == null) {
-				box = new Crate(tech, moddedItem, "580154dd-b2a3-4da1-be14-9a22e20385c8", needsCutter, modify); //battery
+				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8", needsCutter, modify); //battery
 				crates[idx][tech] = box;
 				box.Patch();
 			}
@@ -307,11 +307,9 @@ namespace ReikaKalseki.DIAlterra
 		class Crate : ContainerPrefab {
 			
 			private readonly bool needsCutter;
-			private readonly bool isModdedItem;
 	        
-	        internal Crate(TechType tech, bool mod, string template, bool c, Action<GameObject> modify) : base(tech, template, modify) {
+	        internal Crate(TechType tech, string template, bool c, Action<GameObject> modify) : base(tech, template, modify) {
 				needsCutter = c;
-				isModdedItem = mod;
 	        }
 			
 			public override void prepareGameObject(GameObject go, Renderer r) {
@@ -337,18 +335,12 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.writeToChat("Could not find class id for techtype for crate: "+containedTech);
 					id = CraftData.GetClassIdForTechType(TechType.Titanium);
 				}
-				Pickupable item = go.GetComponentInChildren<Pickupable>(true);
-				if (item == null && isModdedItem) {
-					GameObject inner = ObjectUtil.createWorldObject(id, true, false);
-					inner.transform.parent = go.transform;
-					inner.SetActive(true);
-					item = inner.GetComponent<Pickupable>();
-				}
-				if (item) {
-					item.transform.localPosition = Vector3.zero;
-					item.transform.localRotation = Quaternion.identity;
-					item.GetComponent<Rigidbody>().isKinematic = true;
-				}
+				GameObject item = ObjectUtil.createWorldObject(id, true, false);
+				item.transform.parent = go.transform;
+				item.SetActive(true);
+				item.transform.localPosition = Vector3.zero;
+				item.transform.localRotation = Quaternion.identity;
+				item.GetComponent<Rigidbody>().isKinematic = true;
 				pre.prefabPlaceholders[0].prefabClassId = id;
 				pre.prefabPlaceholders[0].highPriority = true;
 				pre.prefabPlaceholders[0].name = containedTech.AsString();
@@ -357,7 +349,34 @@ namespace ReikaKalseki.DIAlterra
 				}
 				
 				SupplyCrate sp = go.EnsureComponent<SupplyCrate>();
+				go.EnsureComponent<CustomCrate>();
 				modifyObject(go);
+			}
+			
+		}
+		
+		class CustomCrate : MonoBehaviour {
+			
+			private PrefabPlaceholder reference;
+			
+			void Update() {
+				if (!reference)
+					reference = gameObject.GetComponentInChildren<PrefabPlaceholder>();
+				cleanDuplicateInternalItems();
+			}
+			
+			private void cleanDuplicateInternalItems() {
+				if (reference && !string.IsNullOrEmpty(reference.prefabClassId)) {
+					bool found = false;
+					foreach (PrefabIdentifier pi in gameObject.GetComponentsInChildren<PrefabIdentifier>()) {
+						if (pi && pi.classId == reference.prefabClassId) {
+							if (found)
+								UnityEngine.Object.DestroyImmediate(pi.gameObject);
+							else
+								found = true;
+						}
+					}
+				}
 			}
 			
 		}

@@ -32,6 +32,13 @@ namespace ReikaKalseki.DIAlterra
 			return batch*batchSize+batchOffsetM;
 		}
 		
+		/*
+batch_id = ((1117, -268, 568) + (2048.0,3040.0,2048.0)) / 160
+batch_id = (3165.0, 2772.0, 2616.0) / 160
+batch_id = (19.78125, 17.325, 16.35)
+batch_id = (19, 17, 16)
+		 */
+		
 		public static GameObject dropItem(Vector3 pos, TechType item) {
 			string id = CraftData.GetClassIdForTechType(item);
 			if (id != null) {

@@ -3349,11 +3349,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static string getPrefab(string id) {
-			return data[id];
+			return data.ContainsKey(id) ? data[id] : null;
 		}
 		
 		public static string getPrefabID(string name) {
-			return inverse[name];
+			return inverse.ContainsKey(name) ? inverse[name] : null;
 		}
 		
 		public static string getPrefabIDByShortName(string name) {

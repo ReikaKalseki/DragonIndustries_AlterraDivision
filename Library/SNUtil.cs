@@ -92,12 +92,19 @@ namespace ReikaKalseki.DIAlterra
 			playSoundAt(getSound(path), Player.main.transform.position, queue);
 		}
 		
-		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false) {
+		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
+			if (distanceFalloff > 0) {
+				float dist = Vector3.Distance(position, Player.main.transform.position);
+				if (dist >= distanceFalloff)
+					return;
+				else
+					vol *= 1-(dist/distanceFalloff);
+			}
 			//SBUtil.writeToChat("playing sound "+snd.id);
 			if (queue)
 				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
 			else
-				FMODUWE.PlayOneShot(snd, position);
+				FMODUWE.PlayOneShot(snd, position, vol);
 		}
 		
 		public static FMODAsset getSound(string path, string id = null, bool addBrackets = true) {
@@ -135,16 +142,16 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static Story.StoryGoal addRadioMessage(string key, string text, string soundPath, float delay = 0) {
-			return addRadioMessage(key, text, SoundManager.registerSound("radio_"+key, soundPath, SoundSystem.voiceBus), delay);
+		public static Story.StoryGoal addRadioMessage(string key, string text, string soundPath) {
+			return addRadioMessage(key, text, SoundManager.registerSound("radio_"+key, soundPath, SoundSystem.voiceBus));
 		}
 		
-		public static Story.StoryGoal addRadioMessage(string key, string text, FMODAsset sound, float delay = 0) {
-			return addVOLine(key, Story.GoalType.Radio, text, sound, delay);
+		public static Story.StoryGoal addRadioMessage(string key, string text, FMODAsset sound) {
+			return addVOLine(key, Story.GoalType.Radio, text, sound);
 		}
 		
-		public static Story.StoryGoal addVOLine(string key, Story.GoalType type, string text, FMODAsset sound, float delay = 0) {
-			Story.StoryGoal sg = new Story.StoryGoal(key, type, delay);
+		public static Story.StoryGoal addVOLine(string key, Story.GoalType type, string text, FMODAsset sound) {
+			Story.StoryGoal sg = new Story.StoryGoal(key, type, 0);
 			PDALogHandler.AddCustomEntry(key, key, null, sound);
 			LanguageHandler.SetLanguageLine(key, text);
 			return sg;
