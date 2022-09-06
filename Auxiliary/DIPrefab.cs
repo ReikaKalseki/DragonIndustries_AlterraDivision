@@ -36,6 +36,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		void prepareGameObject(GameObject go, Renderer r);
 		
+		Atlas.Sprite getIcon();
+		
 	}
 	
 	public interface MultiTexturePrefab<T> : DIPrefab<T> where T : PrefabReference {

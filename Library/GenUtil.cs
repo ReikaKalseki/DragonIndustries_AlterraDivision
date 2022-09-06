@@ -204,6 +204,10 @@ namespace ReikaKalseki.DIAlterra
 			public virtual string getTextureFolder() {
 				return null;
 			}
+		
+			public Atlas.Sprite getIcon() {
+				return null;
+			}
 			
 			public abstract void prepareGameObject(GameObject go, Renderer r);
 			

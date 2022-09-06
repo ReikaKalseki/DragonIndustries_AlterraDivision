@@ -25,7 +25,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public string suffixName = "";
 		
-		public DuplicateRecipeDelegateWithRecipe(BasicCraftingItem s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName, s.Description) {
+		public DuplicateRecipeDelegateWithRecipe(Craftable s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName, s.Description) {
 			basis = s.TechType;
 			prefab = s;
 			recipe = r;
@@ -36,7 +36,8 @@ namespace ReikaKalseki.DIAlterra
 			craftTime = s.CraftingTime;
 			craftingMenuTree = s.StepsToFabricatorTab;
 			suffixName = " (x"+r.craftAmount+")";
-			sprite = s.sprite;
+			if (s is BasicCraftingItem)
+				sprite = ((BasicCraftingItem)s).sprite;
 			FriendlyName = FriendlyName+suffixName;
 			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += () => {SNUtil.log("Constructed craftable delegate of "+s.ClassID+": "+TechType+" @ "+RecipeUtil.toString(r)+" @ "+string.Join("/", craftingMenuTree));};

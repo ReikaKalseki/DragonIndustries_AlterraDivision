@@ -66,5 +66,9 @@ namespace ReikaKalseki.DIAlterra
 			return "Resources";
 		}
 		
+		public Atlas.Sprite getIcon() {
+			return GetItemSprite();
+		}
+		
 	}
 }

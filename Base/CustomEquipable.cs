@@ -119,6 +119,10 @@ namespace ReikaKalseki.DIAlterra
 			return "Items/Tools";
 		}
 		
+		public Atlas.Sprite getIcon() {
+			return GetItemSprite();
+		}
+		
 		protected override sealed TechData GetBlueprintRecipe() {
 			return new TechData
 			{

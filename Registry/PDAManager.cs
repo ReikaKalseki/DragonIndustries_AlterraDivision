@@ -101,7 +101,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		
 			public void unlock(bool doSound = true) {
-				if (!pageData.unlocked) {
+				if (!isUnlocked()) {
 					pageData.unlocked = true;
 					PDAEncyclopedia.Add(pageData.key, true);
 					
@@ -161,6 +161,10 @@ namespace ReikaKalseki.DIAlterra
 			
 			public void prepareGameObject(GameObject go, Renderer r) {
 				
+			}
+		
+			public Atlas.Sprite getIcon() {
+				return SpriteManager.Get(TechType.PDA);
 			}
 			
 		}

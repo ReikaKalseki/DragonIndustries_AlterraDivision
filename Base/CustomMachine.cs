@@ -102,6 +102,10 @@ namespace ReikaKalseki.DIAlterra
 			return "Machines";
 		}
 		
+		public Atlas.Sprite getIcon() {
+			return GetItemSprite();
+		}
+		
 		public void prepareGameObject(GameObject go, Renderer r) {
 			
 		}

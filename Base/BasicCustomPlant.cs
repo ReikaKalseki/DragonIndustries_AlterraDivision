@@ -86,6 +86,10 @@ namespace ReikaKalseki.DIAlterra
 			return "Plants";
 		}
 		
+		public Atlas.Sprite getIcon() {
+			return GetItemSprite();
+		}
+		
 		public virtual Plantable.PlantSize getSize() {
 			return Plantable.PlantSize.Large;
 		}
@@ -100,7 +104,15 @@ namespace ReikaKalseki.DIAlterra
 		
 		public virtual bool canGrowUnderWater() {
 			return true;
+		}/*
+		
+		public virtual float getGrowthTime() {
+			return 1200;
 		}
+		
+		public virtual void prepareGrowingPlant(GrowingPlant g) {
+			
+		}*/
 		
 	}
 	
@@ -126,6 +138,14 @@ namespace ReikaKalseki.DIAlterra
 		public override Vector2int SizeInInventory {
 			get {return plant.SizeInInventory;}
 		}
+		/*
+		public GrowingPlant getPlant(GameObject go) {
+			return go.GetComponent<Plantable>().model.GetComponent<GrowingPlant>();
+		}*/
+		
+		public Atlas.Sprite getIcon() {
+			return plant.getIcon();
+		}
 			
 		public sealed override GameObject GetGameObject() {
 			GameObject go = ObjectUtil.getModPrefabBaseObject(this);
@@ -142,6 +162,10 @@ namespace ReikaKalseki.DIAlterra
 			
 			p.modelScale = Vector3.one*plant.getScaleInGrowbed(false);
 			p.modelIndoorScale = Vector3.one*plant.getScaleInGrowbed(true);
+			
+			//GrowingPlant g = getPlant(go);
+			//g.growthDuration = plant.getGrowthTime();
+			//plant.prepareGrowingPlant(g);
 			
 			//ObjectUtil.convertTemplateObject(p.model, plant); //this is the GROWING but not grown one
 			/*
