@@ -18,6 +18,8 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Int3 batchOffset = new Int3(13, 19, 13);
 		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
 		private static readonly int batchSize = 160;
+	    
+	    private static FMODAsset unlockSound;
 		
 		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
 		
@@ -192,6 +194,26 @@ namespace ReikaKalseki.DIAlterra
 			}
 			PDAHandler.AddCustomScannerEntry(e);
 		}
+		
+		public static void triggerTechPopup(TechType tt) {
+		   	KnownTech.AnalysisTech at = new KnownTech.AnalysisTech();
+		   	at.techType = tt;
+		   	at.unlockMessage = "NotificationBlueprintUnlocked";
+		   	at.unlockSound = getUnlockSound();
+		   	uGUI_PopupNotification.main.OnAnalyze(at, true);
+		}
+	    
+	    public static FMODAsset getUnlockSound() {
+	    	if (unlockSound == null) {
+	    		foreach (KnownTech.AnalysisTech kt in KnownTech.analysisTech) {
+	    			if (kt.unlockMessage == "NotificationBlueprintUnlocked") {
+	    				unlockSound = kt.unlockSound;
+	    				break;
+	    			}
+	    		}
+	    	}
+	    	return unlockSound;
+	    }
 		
 	}
 }

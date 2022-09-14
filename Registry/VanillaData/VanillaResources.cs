@@ -59,7 +59,8 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources LARGE_MAGNETITE = new VanillaResources("f67c158c-3b83-473c-ad52-93fd2eeef66b");
 		public static readonly VanillaResources LARGE_URANIUM = new VanillaResources("fb5de2b6-1fe8-44fc-a555-dc0a09dc292a");
 		
-		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();
+		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();		
+		private static readonly Dictionary<string, VanillaResources> lookup = new Dictionary<string, VanillaResources>();
 		
 		public readonly string prefab;
 		public readonly string pathname;
@@ -69,6 +70,7 @@ namespace ReikaKalseki.DIAlterra
 		private VanillaResources(string id) {
 			prefab = id;
 			pathname = PrefabData.getPrefab(id);
+			lookup[prefab] = this;
 		}
 		
 		public static VanillaResources getByName(string n) {
@@ -95,6 +97,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public string getPrefabID() {
 			return prefab;
+		}
+		
+		public static VanillaResources getFromID(string pfb) {
+			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
 		}
 		
 	}

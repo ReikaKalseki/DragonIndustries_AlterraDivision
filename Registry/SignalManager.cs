@@ -168,7 +168,7 @@ namespace ReikaKalseki.DIAlterra
 					flag = StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
 				}
 				ping.displayPingInManager = flag;
-				ping.SetVisible(flag);
+				//ping.SetVisible(flag);
 			}
 			
 			internal void triggerFX() {

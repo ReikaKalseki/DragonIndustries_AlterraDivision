@@ -287,6 +287,30 @@ namespace ReikaKalseki.DIAlterra {
 			return ret;
 		}
 		
+		public static TechData createUncrafting(TechType item, TechType primary = TechType.None) {
+			TechData rec = getRecipe(item);
+			TechData ret = new TechData();
+			foreach (Ingredient ing in rec.Ingredients) {
+				if (primary != TechType.None && primary == ing.techType) {
+					ret.craftAmount = ing.amount;
+				}
+				else {
+					for (int i = 0; i < ing.amount; i++)
+						ret.LinkedItems.Add(ing.techType);
+				}
+			}
+			ret.Ingredients.Add(new Ingredient(item, rec.craftAmount));
+			Dictionary<TechType, int> counts = new Dictionary<TechType, int>();
+			foreach (TechType tt in rec.LinkedItems) {
+				int has = counts.ContainsKey(tt) ? counts[tt] : 0;
+				counts[tt] = has+1;
+			}
+			foreach (KeyValuePair<TechType, int> kvp in counts) {
+				rec.Ingredients.Add(new Ingredient(kvp.Key, kvp.Value));
+			}
+			return ret;
+		}
+		
 		public static string toString(TechData rec) {
 			return string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => r.techType+" x"+r.amount).ToArray())+" = x"+rec.craftAmount+" & "+string.Join("+", rec.LinkedItems.ToArray());
 		}

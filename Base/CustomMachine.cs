@@ -42,16 +42,20 @@ namespace ReikaKalseki.DIAlterra
 			return this;
 		}
 
-		public override sealed TechGroup GroupForPDA {
+		public override TechGroup GroupForPDA {
 			get {
-				return TechGroup.InteriorModules;
+				return isOutdoors() ? TechGroup.ExteriorModules : TechGroup.InteriorModules;
 			}
 		}
 
-		public override sealed TechCategory CategoryForPDA {
+		public override TechCategory CategoryForPDA {
 			get {
-				return TechCategory.InteriorModule;
+				return isOutdoors() ? TechCategory.ExteriorModule : TechCategory.InteriorModule;
 			}
+		}
+		
+		public virtual bool isOutdoors() {
+			return false;
 		}
 		
 		public void addFragments(int needed, float scanTime = 5, params TechnologyFragment[] fragments) {
@@ -133,7 +137,7 @@ namespace ReikaKalseki.DIAlterra
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {
 		
-		internal ModPrefab prefab;
+		internal Buildable prefab;
 		private SubRoot sub;		
 		private StorageContainer storage;
 		
@@ -142,12 +146,27 @@ namespace ReikaKalseki.DIAlterra
 		private float lastReceived;
 		
 		void Start() {
-			
+			setupSky();
+		}
+		
+		private void setupSky() {
+			SkyApplier[] skies = gameObject.GetComponentsInChildren<SkyApplier>(true);
+			foreach (SkyApplier sk in skies) {
+				sk.renderers = gameObject.GetComponentsInChildren<Renderer>();
+				mset.Sky baseSky = prefab.CategoryForPDA == TechCategory.ExteriorModule ? WaterBiomeManager.main.GetBiomeEnvironment(transform.position) : MarmoSkies.main.skyBaseInterior;
+				sk.environmentSky = baseSky;
+				sk.applySky = baseSky;
+				sk.enabled = true;
+				sk.ApplySkybox();
+				sk.RefreshDirtySky();
+			}
 		}
 		
 		void Update() {
 			float time = DayNightCycle.main.timePassedAsFloat;
 			updateEntity(time-lastDayTime);
+			if (time-lastDayTime >= 5)
+				setupSky();
 			lastDayTime = time;
 			if (!storage)
 				storage = gameObject.GetComponentInChildren<StorageContainer>();

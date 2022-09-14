@@ -233,13 +233,14 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		class Databox : ContainerPrefab {
+		class Databox : ContainerPrefab, Story.IStoryGoalListener {
 	        
 	        internal Databox(TechType tech, string template, Action<GameObject> modify) : base(tech, template, modify) {
 				
 	        }
 			
 			public override void prepareGameObject(GameObject go, Renderer r) {
+				Story.StoryGoalManager.main.AddListener(this);
 	            BlueprintHandTarget bpt = go.EnsureComponent<BlueprintHandTarget>();
 	            bpt.unlockTechType = containedTech;
 	            bpt.primaryTooltip = containedTech.AsString();
@@ -247,9 +248,15 @@ namespace ReikaKalseki.DIAlterra
 				string arg2 = Language.main.Get(TooltipFactory.techTypeTooltipStrings.Get(containedTech));
 				bpt.secondaryTooltip = Language.main.GetFormat<string, string>("DataboxToolipFormat", arg, arg2);
 				bpt.alreadyUnlockedTooltip = Language.main.GetFormat<string, string>("DataboxAlreadyUnlockedToolipFormat", arg, arg2);
-				bpt.useSound = SNUtil.getSound("event:/tools/scanner/new_blueprint");
+				//redundant with the goal//bpt.useSound = SNUtil.getSound("event:/tools/scanner/new_blueprint");
 				bpt.onUseGoal = new Story.StoryGoal(bpt.primaryTooltip, Story.GoalType.Encyclopedia, 0);
+				
 				modifyObject(go);
+			}
+			
+			public void NotifyGoalComplete(string key) {
+				if (key == containedTech.AsString())
+					SNUtil.triggerTechPopup(containedTech);
 			}
 			
 		}
@@ -362,11 +369,21 @@ namespace ReikaKalseki.DIAlterra
 		class CustomCrate : MonoBehaviour {
 			
 			private PrefabPlaceholder reference;
+			private SupplyCrate crate;
 			
 			void Update() {
 				if (!reference)
 					reference = gameObject.GetComponentInChildren<PrefabPlaceholder>();
+				if (!crate)
+					crate = gameObject.GetComponentInChildren<SupplyCrate>();
 				cleanDuplicateInternalItems();
+				if (crate.open) {
+					foreach (PrefabIdentifier pi in gameObject.GetComponentsInChildren<PrefabIdentifier>()) {
+						if (pi && pi.classId == reference.prefabClassId) {
+							pi.gameObject.SetActive(true);
+						}
+					}
+				}
 			}
 			
 			private void cleanDuplicateInternalItems() {

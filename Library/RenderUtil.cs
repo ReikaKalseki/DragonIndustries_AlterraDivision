@@ -139,6 +139,20 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static Texture2D getSpriteTexture(Sprite s) {
+			if (!Mathf.Approximately(s.rect.width, s.texture.width)) {
+	        	Texture2D newTex = new Texture2D((int)s.rect.width, (int)s.rect.height);
+	        	Rect r = s.textureRect;
+	            Color[] newColors = s.texture.GetPixels((int)r.x, (int)r.y, (int)r.width, (int)r.height);
+	            newTex.SetPixels(newColors);
+	            newTex.Apply();
+	            return newTex;
+	       	}
+			else {
+	             return s.texture;
+			}
+	    }
+		
 		public static Texture2D duplicateTexture(Texture2D source) {
 		    RenderTexture renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);		
 		    Graphics.Blit(source, renderTex);

@@ -46,14 +46,18 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void updateLocale() {
 			foreach (DuplicateItemDelegate d in delegates) {
-				if (d.getPrefab() == null) {
+				if (d.getPrefab() == null || !string.IsNullOrEmpty(d.getNameSuffix())) {
 					TechType tt = d.getBasis();
 					TechType dt = ((ModPrefab)d).TechType;
 					Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
-					Language.main.strings["Tooltip_"+dt.AsString()] = Language.main.strings["Tooltip_"+tt.AsString()];
+					Language.main.strings["Tooltip_"+dt.AsString()] = d.getTooltip();
 					SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()]);
 				}
 			}
+		}
+		
+		public string getTooltip() {
+			return Language.main.strings["Tooltip_"+basis.AsString()];
 		}
 
 		public override TechGroup GroupForPDA {
@@ -110,6 +114,8 @@ namespace ReikaKalseki.DIAlterra
 		PdaItem getPrefab();
 		
 		TechType getBasis();
+		
+		string getTooltip();
 		
 	}
 }

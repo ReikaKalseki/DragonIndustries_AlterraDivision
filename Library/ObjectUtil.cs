@@ -226,14 +226,53 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static GameObject getChildObject(GameObject go, string name) {
-		 	Transform t = go.transform.Find(name);
-		 	if (t != null)
-		 		return t.gameObject;
-		 	t = go.transform.Find(name+"(Placeholder)");
-		 	if (t != null)
-		 		return t.gameObject;
-		 	t = go.transform.Find(name+"(Clone)");
-		 	return t != null ? t.gameObject : null;
+			bool startWild = name[0] == '*';
+			bool endWild = name[name.Length-1] == '*';
+			if (startWild || endWild) {
+				//SNUtil.log("Looking for child wildcard match "+name+" > "+startWild+", "+endWild);
+				return findFirstChildMatching(go, name, startWild, endWild);
+			}
+			else {
+			 	Transform t = go.transform.Find(name);
+			 	if (t != null)
+			 		return t.gameObject;
+			 	t = go.transform.Find(name+"(Placeholder)");
+			 	if (t != null)
+			 		return t.gameObject;
+			 	t = go.transform.Find(name+"(Clone)");
+			 	return t != null ? t.gameObject : null;
+			}
+		}
+		
+		public static GameObject findFirstChildMatching(GameObject go, string s0, bool startWild, bool endWild) {
+			string s = s0;
+			if (startWild)
+				s = s.Substring(1);
+			if (endWild)
+				s = s.Substring(0, s.Length-1);
+			foreach (Transform t in go.transform) {
+				string name = t.gameObject.name;
+				bool match = false;
+				if (startWild && endWild) {
+					match = name.Contains(s);
+				}
+				else if (startWild) {
+					match = name.EndsWith(s, StringComparison.InvariantCulture);
+				}
+				else if (endWild) {
+					match = name.StartsWith(s, StringComparison.InvariantCulture);
+				}
+				if (match) {
+					return t.gameObject;
+				}
+				else {
+					//SNUtil.log("Found no match for "+s0+" against "+t.gameObject.GetFullHierarchyPath());
+					GameObject inner = findFirstChildMatching(t.gameObject, s0, startWild, endWild);
+					if (inner)
+						return inner;
+				}
+			}
+			return null;
 		}
     
 	    public static void setCrateItem(SupplyCrate c, TechType item) {

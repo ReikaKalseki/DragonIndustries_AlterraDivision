@@ -27,7 +27,7 @@ namespace ReikaKalseki.DIAlterra
 		protected CustomEquipable(string id, string name, string desc, string template) : base(id, name, desc) {
 			this.id = id;
 			
-			baseTemplate = new StringPrefabContainer(template);
+			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);
 		}
 		/*
 		public TechType getTechType() {

@@ -9,55 +9,41 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public sealed class DuplicateRecipeDelegateWithRecipe : Craftable, DuplicateItemDelegate {
+	public sealed class UncraftingRecipeItem : Craftable, DuplicateItemDelegate {
 		
 		public readonly PdaItem prefab;
 		public readonly TechType basis;
-		private readonly TechData recipe;
 		
 		public Atlas.Sprite sprite = null;
-		public TechType unlock = TechType.None;
 		public TechCategory category = TechCategory.Misc;
 		public TechGroup group = TechGroup.Uncategorized;
 		public CraftTree.Type craftingType = CraftTree.Type.None;
-		public float craftTime = 0.1F;
+		public float craftTime = 1F;
 		public string[] craftingMenuTree = new string[0];
 		
 		public string suffixName = "";
 		
-		public DuplicateRecipeDelegateWithRecipe(Craftable s, TechData r) : base(s.ClassID+"_delegate", s.FriendlyName, s.Description) {
+		public UncraftingRecipeItem(Craftable s) : base(s.ClassID+"_uncrafting", s.FriendlyName, s.Description) {
 			basis = s.TechType;
 			prefab = s;
-			recipe = r;
-			unlock = s.RequiredForUnlock;
 			group = s.GroupForPDA;
 			category = s.CategoryForPDA;
 			craftingType = s.FabricatorType;
 			craftTime = s.CraftingTime;
 			craftingMenuTree = s.StepsToFabricatorTab;
-			suffixName = " (x"+r.craftAmount+")";
 			if (s is BasicCraftingItem)
 				sprite = ((BasicCraftingItem)s).sprite;
 			FriendlyName = FriendlyName+suffixName;
 			DuplicateRecipeDelegate.addDelegate(this);
-			OnFinishedPatching += () => {SNUtil.log("Constructed craftable delegate of "+s.ClassID+": "+TechType+" @ "+RecipeUtil.toString(r)+" @ "+string.Join("/", craftingMenuTree));};
+			OnFinishedPatching += () => {SNUtil.log("Constructed uncrafting of "+s.ClassID+": "+TechType+" @ "+string.Join("/", craftingMenuTree));};
 		}
 		
-		public DuplicateRecipeDelegateWithRecipe(TechType from, TechData r) : base(from.AsString()+"_delegate", "", "") {
+		public UncraftingRecipeItem(TechType from) : base(from.AsString()+"_uncrafting", "", "") {
 			basis = from;
 			prefab = null;
-			recipe = r;
-			suffixName = r.craftAmount > 1 ? " (x"+r.craftAmount+")" : "";
 			sprite = SpriteManager.Get(from);
 			DuplicateRecipeDelegate.addDelegate(this);
-			OnFinishedPatching += () => {SNUtil.log("Constructed craftable delegate of "+from+": "+TechType+" @ "+RecipeUtil.toString(r)+" @ "+string.Join("/", craftingMenuTree));};
-		}
-		
-		public void setRecipe(int amt = 1) {
-			for (int i = 0; i < amt; i++)
-				recipe.LinkedItems.Add(basis);
-			recipe.craftAmount = 0;
-			suffixName = amt > 1 ? " (x"+amt+")" : "";
+			OnFinishedPatching += () => {SNUtil.log("Constructed uncrafting of "+from+": "+TechType+" @ "+string.Join("/", craftingMenuTree));};
 		}
 
 		public override TechGroup GroupForPDA {
@@ -74,13 +60,13 @@ namespace ReikaKalseki.DIAlterra
 
 		public override TechType RequiredForUnlock {
 			get {
-				return unlock;
+				return basis;
 			}
 		}
 
 		public override bool UnlockedAtStart {
 			get {
-				return unlock == TechType.None;
+				return false;//unlock == TechType.None;
 			}
 		}
 
@@ -115,11 +101,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected override TechData GetBlueprintRecipe() {
-			return recipe;
+			return RecipeUtil.createUncrafting(basis);
 		}
 		
 		public string getNameSuffix() {
-			return suffixName;
+			return " (Uncrafting)";
 		}
 		
 		public PdaItem getPrefab() {
@@ -131,7 +117,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public string getTooltip() {
-			return Language.main.strings["Tooltip_"+basis.AsString()];
+			return "Reclaiming the crafting ingredients.";
 		}
 	}
 }

@@ -100,14 +100,17 @@ namespace ReikaKalseki.DIAlterra
 				prefabID.Patch();
 			}
 		
-			public void unlock(bool doSound = true) {
+			public bool unlock(bool doSound = true) {
 				if (!isUnlocked()) {
 					pageData.unlocked = true;
 					PDAEncyclopedia.Add(pageData.key, true);
 					
 					if (doSound)
 						SNUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
+					
+					return true;
 				}
+				return false;
 			}
 			
 			public bool isUnlocked() {
@@ -115,7 +118,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public override string ToString() {
-				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}]", id, name, text.Replace("\n", ""), category);
+				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}, Header={4}]", id, name, text.Replace("\n", ""), category, pageData.image);
 			}
 			
 			public string getPDAClassID() {

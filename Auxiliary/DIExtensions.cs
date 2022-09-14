@@ -15,6 +15,10 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class DIExtensions {
 		
+		public static Sprite setTexture(this Sprite s, Texture2D tex) {
+			return Sprite.Create(tex, s.textureRect, s.pivot, s.pixelsPerUnit, 0, SpriteMeshType.FullRect, s.border);
+		}
+		
 		public static Vector3 setLength(this Vector3 vec, double amt) {
 			return vec.normalized*((float)(amt));
 		}

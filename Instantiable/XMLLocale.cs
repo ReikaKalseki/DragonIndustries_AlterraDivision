@@ -32,7 +32,10 @@ namespace ReikaKalseki.DIAlterra
 				LocaleEntry lc = constructEntry(e);
 				entries[lc.key] = lc;
 			}
-			SNUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Values));
+			SNUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Keys));/*
+			foreach (LocaleEntry e in entries.Values) {
+				SNUtil.log(e.ToString());
+			}*/
 		}
 		
 		private XmlDocument loadXML() {

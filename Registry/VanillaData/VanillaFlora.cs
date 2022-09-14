@@ -151,6 +151,8 @@ namespace ReikaKalseki.DIAlterra
 		public readonly double baseOffset; //amount needed to rise to only just embed, always > 0
 		public readonly double maximumSink; //further sinkability from @ vineBaseOffset, always > 0
 		
+		private static readonly Dictionary<string, VanillaFlora> lookup = new Dictionary<string, VanillaFlora>();
+		
 		public bool isHarvestable {get; private set;}
 		public bool hasResources {get; private set;}
 		public bool isEdible {get; private set;}
@@ -178,6 +180,7 @@ namespace ReikaKalseki.DIAlterra
 				else {
 					prefabs.Add(id);
 				}
+				lookup[id] = this;
 			}
 			baseOffset = y;
 			maximumSink = ym;
@@ -239,6 +242,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public string getPrefabID() {
 			return getRandomPrefab(false);
+		}
+		
+		public static VanillaFlora getFromID(string pfb) {
+			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
 		}
 	}
 }

@@ -73,14 +73,21 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly string prefab;
 		public readonly string pathname;
+		
+		private static readonly Dictionary<string, VanillaCreatures> lookup = new Dictionary<string, VanillaCreatures>();
 				
 		private VanillaCreatures(string id) {
 			prefab = id;
 			pathname = PrefabData.getPrefab(id);
+			lookup[prefab] = this;
 		}
 		
 		public string getPrefabID() {
 			return prefab;
+		}
+		
+		public static VanillaCreatures getFromID(string pfb) {
+			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
 		}
 		
 	}
