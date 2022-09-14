@@ -11,7 +11,9 @@ using UnityEngine.Serialization;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class VanillaResources : PrefabReference {
+	public class VanillaResources : PrefabReference {	
+		
+		private static readonly Dictionary<string, VanillaResources> lookup = new Dictionary<string, VanillaResources>();
 		
 		public static readonly VanillaResources SCRAP1 = new VanillaResources("7cd86cbf-0708-41dc-84d7-58c648e25b06"); //"WorldEntities/Natural/metal3",
 		public static readonly VanillaResources SCRAP2 = new VanillaResources("7e507655-9fbf-42e0-8422-163ddd668747"); //"WorldEntities/Natural/metal2",
@@ -59,8 +61,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources LARGE_MAGNETITE = new VanillaResources("f67c158c-3b83-473c-ad52-93fd2eeef66b");
 		public static readonly VanillaResources LARGE_URANIUM = new VanillaResources("fb5de2b6-1fe8-44fc-a555-dc0a09dc292a");
 		
-		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();		
-		private static readonly Dictionary<string, VanillaResources> lookup = new Dictionary<string, VanillaResources>();
+		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();	
 		
 		public readonly string prefab;
 		public readonly string pathname;

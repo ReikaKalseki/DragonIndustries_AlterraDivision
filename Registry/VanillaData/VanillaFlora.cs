@@ -16,6 +16,8 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class VanillaFlora : PrefabReference {
 		
+		private static readonly Dictionary<string, VanillaFlora> lookup = new Dictionary<string, VanillaFlora>();
+		
 		//median 4.81
 		public static readonly VanillaFlora ANCHOR_POD_SMALL1 = new VanillaFlora("228e5af5-a579-4c99-9fb0-04b653f73cd3", 2.78, 1.36);
 		public static readonly VanillaFlora ANCHOR_POD_SMALL2 = new VanillaFlora("1645f35d-af23-4b98-b1e4-44d430421721", 5.08, 6.48);
@@ -150,8 +152,6 @@ namespace ReikaKalseki.DIAlterra
 		private readonly List<string> prefabsLit = new List<string>();
 		public readonly double baseOffset; //amount needed to rise to only just embed, always > 0
 		public readonly double maximumSink; //further sinkability from @ vineBaseOffset, always > 0
-		
-		private static readonly Dictionary<string, VanillaFlora> lookup = new Dictionary<string, VanillaFlora>();
 		
 		public bool isHarvestable {get; private set;}
 		public bool hasResources {get; private set;}

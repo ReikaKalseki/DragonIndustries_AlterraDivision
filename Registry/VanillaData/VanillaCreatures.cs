@@ -13,6 +13,8 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class VanillaCreatures : PrefabReference {
 		
+		private static readonly Dictionary<string, VanillaCreatures> lookup = new Dictionary<string, VanillaCreatures>();
+		
 		public static readonly VanillaCreatures PEEPER = new VanillaCreatures("3fcd548b-781f-46ba-b076-7412608deeef");
 		public static readonly VanillaCreatures BOOMERANG = new VanillaCreatures("fa4cfe65-4eaf-4d51-ba0d-e8cc9632fd47");
 		public static readonly VanillaCreatures SPADEFISH = new VanillaCreatures("d040bec1-0368-4f7c-aed6-93b5e1852d45");
@@ -73,8 +75,6 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly string prefab;
 		public readonly string pathname;
-		
-		private static readonly Dictionary<string, VanillaCreatures> lookup = new Dictionary<string, VanillaCreatures>();
 				
 		private VanillaCreatures(string id) {
 			prefab = id;

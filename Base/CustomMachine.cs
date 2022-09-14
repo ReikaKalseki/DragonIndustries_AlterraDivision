@@ -150,10 +150,16 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private void setupSky() {
+			if (prefab == null || !WaterBiomeManager.main || !MarmoSkies.main)
+				return;
+			mset.Sky baseSky = prefab.CategoryForPDA == TechCategory.ExteriorModule ? WaterBiomeManager.main.GetBiomeEnvironment(transform.position) : MarmoSkies.main.skyBaseInterior;
+			if (!baseSky)
+				return;
 			SkyApplier[] skies = gameObject.GetComponentsInChildren<SkyApplier>(true);
 			foreach (SkyApplier sk in skies) {
+				if (!sk)
+					continue;
 				sk.renderers = gameObject.GetComponentsInChildren<Renderer>();
-				mset.Sky baseSky = prefab.CategoryForPDA == TechCategory.ExteriorModule ? WaterBiomeManager.main.GetBiomeEnvironment(transform.position) : MarmoSkies.main.skyBaseInterior;
 				sk.environmentSky = baseSky;
 				sk.applySky = baseSky;
 				sk.enabled = true;

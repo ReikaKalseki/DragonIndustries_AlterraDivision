@@ -20,38 +20,48 @@ namespace ReikaKalseki.DIAlterra
 		public TechCategory category = TechCategory.Misc;
 		public TechGroup group = TechGroup.Uncategorized;
 		
-		private static readonly List<DuplicateItemDelegate> delegates = new List<DuplicateItemDelegate>();
+		private static readonly Dictionary<TechType, List<DuplicateItemDelegate>> delegates = new Dictionary<TechType, List<DuplicateItemDelegate>>();
 		
-		public DuplicateRecipeDelegate(PdaItem s, string suff = "") : base(s.ClassID+"_delegate", s.FriendlyName+suff, s.Description) {
+		public DuplicateRecipeDelegate(PdaItem s, string suff = "") : base(s.ClassID+"_delegate"+getIndexSuffix(s.TechType), s.FriendlyName+suff, s.Description) {
 			basis = s.TechType;
 			prefab = s;
 			unlock = s.RequiredForUnlock;
 			group = s.GroupForPDA;
 			category = s.CategoryForPDA;
 			nameSuffix = suff;
-			delegates.Add(this);
+			addDelegate(this);
 		}
 		
-		public DuplicateRecipeDelegate(TechType from, string suff = "") : base(from.AsString()+"_delegate", "", "") {
+		public DuplicateRecipeDelegate(TechType from, string suff = "") : base(from.AsString()+"_delegate"+getIndexSuffix(from), "", "") {
 			basis = from;
 			prefab = null;
 			sprite = SpriteManager.Get(from);
 			nameSuffix = suff;
-			delegates.Add(this);
+			addDelegate(this);
+		}
+		
+		private static string getIndexSuffix(TechType tt) {
+			int count = delegates.ContainsKey(tt) ? delegates[tt].Count : 0;
+			return count <= 0 ? "" : count.ToString();
 		}
 		
 		public static void addDelegate(DuplicateItemDelegate d) {
-			delegates.Add(d);
+			TechType tt = d.getBasis();
+			List<DuplicateItemDelegate> li = delegates.ContainsKey(tt) ? delegates[tt] : new List<DuplicateItemDelegate>();
+			li.Add(d);
+			delegates[tt] = li;
 		}
 		
 		public static void updateLocale() {
-			foreach (DuplicateItemDelegate d in delegates) {
-				if (d.getPrefab() == null || !string.IsNullOrEmpty(d.getNameSuffix())) {
-					TechType tt = d.getBasis();
-					TechType dt = ((ModPrefab)d).TechType;
-					Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
-					Language.main.strings["Tooltip_"+dt.AsString()] = d.getTooltip();
-					SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()]);
+			foreach (List<DuplicateItemDelegate> li in delegates.Values) {
+				foreach (DuplicateItemDelegate d in li) {
+					if (d.getPrefab() == null || !string.IsNullOrEmpty(d.getNameSuffix())) {
+						TechType tt = d.getBasis();
+						TechType dt = ((ModPrefab)d).TechType;
+						Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
+						Language.main.strings["Tooltip_"+dt.AsString()] = d.getTooltip();
+						SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()]);
+					}
 				}
 			}
 		}
