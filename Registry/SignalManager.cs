@@ -163,12 +163,10 @@ namespace ReikaKalseki.DIAlterra
 				signal.signalHolder.initializer = this;
 		    	ping.SetLabel(signal.longName);
 		    	
-				bool flag = true;
-				if (signal.storyGate != null) {
-					flag = StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
-				}
-				ping.displayPingInManager = flag;
-				//ping.SetVisible(flag);
+				bool available = signal.storyGate == null || StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
+				ping.displayPingInManager = available;
+				if (!available)
+					ping.SetVisible(false);
 			}
 			
 			internal void triggerFX() {

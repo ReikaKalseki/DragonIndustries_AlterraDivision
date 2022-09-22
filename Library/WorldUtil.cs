@@ -53,5 +53,15 @@ batch_id = (19, 17, 16)
 	    	}
 		}
 		
+		public static mset.Sky getSkybox(string biome) {
+			int idx = WaterBiomeManager.main.GetBiomeIndex(biome);
+			if (idx < 0) {
+				SNUtil.writeToChat("Biome '"+biome+"' had no sky lookup. See log for biome table.");
+				SNUtil.log(WaterBiomeManager.main.biomeLookup.toDebugString());
+				return null;
+			}
+			return idx < WaterBiomeManager.main.biomeSkies.Count ? WaterBiomeManager.main.biomeSkies[idx] : null;
+		}
+		
 	}
 }

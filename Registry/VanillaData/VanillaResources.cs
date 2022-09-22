@@ -104,5 +104,9 @@ namespace ReikaKalseki.DIAlterra
 			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
 		}
 		
+		public override string ToString() {
+			return name;
+		}
+		
 	}
 }

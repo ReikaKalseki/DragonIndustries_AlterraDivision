@@ -42,8 +42,8 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures CRASHFISH = new VanillaCreatures("7d307502-46b7-4f86-afb0-65fe8867f893");
 		public static readonly VanillaCreatures BITER = new VanillaCreatures("4064a71a-c464-4db2-942a-56391fe69951");
 		public static readonly VanillaCreatures BLIGHTER = new VanillaCreatures("eed4ec38-0363-40de-84dc-de6dd9b9e876");
-		public static readonly VanillaCreatures SANDCRAB = new VanillaCreatures("3e0a11f1-e2b2-4c4f-9a8e-0b0a77dcc065");
-		public static readonly VanillaCreatures BLOODCRAWLER = new VanillaCreatures("7ce2ca9d-6154-4988-9b02-38f670e741b8"); //or maybe "830a8fa0-d92d-4683-a193-7531e6968042"
+		public static readonly VanillaCreatures CAVECRAWLER = new VanillaCreatures("3e0a11f1-e2b2-4c4f-9a8e-0b0a77dcc065"/*, "7ce2ca9d-6154-4988-9b02-38f670e741b8"*/);
+		public static readonly VanillaCreatures BLOODCRAWLER = new VanillaCreatures("830a8fa0-d92d-4683-a193-7531e6968042");
 		public static readonly VanillaCreatures MESMER = new VanillaCreatures("ad18b555-9073-445e-808a-d8b39d72f22e");
 		public static readonly VanillaCreatures BLEEDER = new VanillaCreatures("3406b655-0390-4ea7-8b75-a5c4705fc568");
 		public static readonly VanillaCreatures LAVALARVA = new VanillaCreatures("423a8e49-eabe-473b-9b45-4aa52de1596f");
@@ -73,8 +73,34 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures GHOST_LEVIATHAN = new VanillaCreatures("54701bfc-bb1a-4a84-8f79-ba4f76691bef");
 		public static readonly VanillaCreatures SEADRAGON = new VanillaCreatures("ff43eacd-1a9e-4182-ab7b-aa43c16d1e53");
 		
+		private static readonly Dictionary<string, VanillaCreatures> names = new Dictionary<string, VanillaCreatures>();
+		
+		public static VanillaCreatures getByName(string n) {
+			populateNames();
+			return names.ContainsKey(n) ? names[n] : null;
+		}
+		
+		public static List<VanillaCreatures> getAll() {
+			populateNames();
+			return new List<VanillaCreatures>(names.Values);
+		}
+		
+		private static void populateNames() {
+			if (names.Count == 0) {
+				foreach (FieldInfo f in typeof(VanillaCreatures).GetFields()) {
+					if (f.IsStatic && f.FieldType == typeof(VanillaCreatures)) {
+						VanillaCreatures vf = (VanillaCreatures)f.GetValue(null);
+						names[f.Name] = vf;
+						vf.name = f.Name;
+					}
+				}
+			}
+		}
+		
 		public readonly string prefab;
 		public readonly string pathname;
+		
+		private string name;
 				
 		private VanillaCreatures(string id) {
 			prefab = id;
@@ -88,6 +114,16 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static VanillaCreatures getFromID(string pfb) {
 			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
+		}
+		
+		public string getName() {
+			if (name == null)
+				populateNames();
+			return name;
+		}
+		
+		public override string ToString() {
+			return getName();
 		}
 		
 	}

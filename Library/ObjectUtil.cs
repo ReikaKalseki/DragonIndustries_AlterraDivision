@@ -44,10 +44,19 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void removeComponent<C>(GameObject go) where C : Component {
-			foreach (Component c in go.GetComponentsInChildren<C>()) {
-				if (c is MonoBehaviour)
-					((MonoBehaviour)c).enabled = false;
-				UnityEngine.Object.DestroyImmediate(c);
+			applyToComponents<C>(go, true, true, true);
+		}
+		
+		public static void setActive<C>(GameObject go, bool active) where C : Component {
+			applyToComponents<C>(go, false, true, active);
+		}
+		
+		private static void applyToComponents<C>(GameObject go, bool destroy, bool setA, bool setTo) where C : Component {
+			foreach (Component c in go.GetComponentsInChildren<C>(true)) {
+				if (c is MonoBehaviour && setA)
+					((MonoBehaviour)c).enabled = setTo;
+				if (destroy)
+					UnityEngine.Object.DestroyImmediate(c);
 			}
 		}
 		
@@ -213,14 +222,47 @@ namespace ReikaKalseki.DIAlterra
 			return gameObject;
 		}
 		
-		public static GameObject removeChildObject(GameObject go, string name) {
+		public static int removeChildObject(GameObject go, string name) {
 			GameObject find = getChildObject(go, name);
-			GameObject ret = null;
+			int found = 0;
 			while (find != null) {
 				find.SetActive(false);
 				UnityEngine.Object.DestroyImmediate(find);
-				ret = find;
 				find = getChildObject(go, name);
+				found++;
+			}
+			return found;
+		}
+		
+		public static List<GameObject> getChildObjects(GameObject go, string name) {
+			bool startWild = name[0] == '*';
+			bool endWild = name[name.Length-1] == '*';
+			string seek = name;
+			if (startWild)
+				seek = seek.Substring(1);
+			if (endWild)
+				seek = seek.Substring(0, seek.Length-1);
+			//SNUtil.writeToChat(seek+" > "+startWild+"&"+endWild);
+			List<GameObject> ret = new List<GameObject>();
+			foreach (Transform t in go.transform) {
+				string n = t.gameObject.name;
+				bool match = false;
+				if (startWild && endWild) {
+					match = n.Contains(seek);
+				}
+				else if (startWild) {
+					match = n.EndsWith(seek, StringComparison.InvariantCulture);
+				}
+				else if (endWild) {
+					match = n.StartsWith(seek, StringComparison.InvariantCulture);
+				}
+				else {
+					match = n == seek;
+				}
+				//SNUtil.writeToChat(seek+"&&"+n+" > "+match);
+				if (match) {
+					ret.Add(t.gameObject);
+				}
 			}
 			return ret;
 		}
@@ -426,9 +468,17 @@ namespace ReikaKalseki.DIAlterra
 				piece = Base.pieces[res];
 			}
 			else {
-				piece = Base.pieces[(int)Enum.Parse(typeof(Base.Piece), n)];
+				res = (int)Enum.Parse(typeof(Base.Piece), n);
+				piece = Base.pieces[res];
 			}
-			return piece != null && piece.HasValue ? getBasePiece(piece.Value, clone) : null;
+			GameObject ret = piece != null && piece.HasValue ? getBasePiece(piece.Value, clone) : null;
+			if (ret && clone && res == (int)Base.Piece.RoomWaterParkHatch) {
+				foreach (Transform t in ret.transform) {
+					if (t && t.name == "BaseCorridorHatch(Clone)")
+						UnityEngine.Object.DestroyImmediate(t.gameObject);
+				}
+			}
+			return ret;
 		}
 		
 		public static GameObject getBasePiece(Base.Piece piece, bool clone = true) {
@@ -564,6 +614,33 @@ namespace ReikaKalseki.DIAlterra
 			T tgt = to.EnsureComponent<T>();
 			tgt.copyObject(from.GetComponent<T>());
 			return tgt;
+		}
+		
+		public static void ignoreCollisions(GameObject from, params GameObject[] with) {
+			foreach (GameObject go in with) {
+				foreach (Collider c in go.GetComponentsInChildren<Collider>(true)) {
+					foreach (Collider c0 in from.GetComponentsInChildren<Collider>(true)) {
+						Physics.IgnoreCollision(c0, c);
+					}
+				}
+			}
+		}
+		
+		public static void setSky(GameObject go, mset.Sky sky) {
+			if (!go)
+				return;
+			go.EnsureComponent<SkyApplier>();
+			foreach (SkyApplier sk in go.GetComponentsInChildren<SkyApplier>(true)) {
+				if (!sk)
+					continue;
+				if (sk.renderers == null)
+					sk.renderers = go.GetComponentsInChildren<Renderer>();
+				sk.environmentSky = sky;
+				sk.applySky = sk.environmentSky;
+				sk.enabled = true;
+				sk.ApplySkybox();
+				sk.RefreshDirtySky();
+			}
 		}
 		
 	}

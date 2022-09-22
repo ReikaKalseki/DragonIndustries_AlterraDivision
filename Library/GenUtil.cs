@@ -381,6 +381,7 @@ namespace ReikaKalseki.DIAlterra
 					foreach (PrefabIdentifier pi in gameObject.GetComponentsInChildren<PrefabIdentifier>()) {
 						if (pi && pi.classId == reference.prefabClassId) {
 							pi.gameObject.SetActive(true);
+							pi.gameObject.transform.localPosition = Vector3.up*0.22F;
 						}
 					}
 				}

@@ -123,6 +123,7 @@ namespace ReikaKalseki.DIAlterra
 		//public static readonly VanillaFlora BLOOD_ROOT = new VanillaFlora("4bfe1877-1b83-4d5d-9470-3bb2d5f389cc", -999, -999, 5beba896-bccf-4993-8bcb-1cdabb68e706", "a0c5b949-22a4-4899-9c51-64ccce6956bc", "a0cbac2e-f86d-4ab0-a090-8115f5196f7c", "abe572e9-126b-43eb-bf5c-4edf9ec365c1", "b0cae640-b155-4bac-9ed5-29ba64a1ee9f", "cd004d89-f798-40d0-bf65-ee4c1c48700c", "d8efe522-5355-48b8-b4fb-4d077bbc621d", "da7341c3-e6a3-4cd3-ad57-49a4dc732ac9", "db79ee0b-65e9-4ea1-8b8b-948bbae128f7", "e3fd373d-6ecc-497a-b396-816f3cb5f9b6", "e40daa31-8eb8-463a-b91a-d3aedb631744", "f0a54d9a-7717-473f-8450-5ff24824ed7e);
 		public static readonly VanillaFlora BLOOD_KELP = new VanillaFlora(6, 0.1, "1c28891f-df08-4eee-a081-118955b0d303", "461487ff-aea5-426e-b473-a378dca662b9", "66f2188b-b537-49ac-b6e7-08f446eca9e8", "8c4ba581-e392-41ab-80a9-a4a2745dcfdb", "a4912ba2-5643-46ee-bd69-6be53dd55d45", "d0811984-35bb-435f-acad-3abcf4fb5d32", "d69d04e9-bef6-4229-9bea-a76378cb0018", "e0ae8532-a6d5-436f-bdc0-846061d91686").markResources();
 		public static readonly VanillaFlora COVE_TREE = new VanillaFlora("0e7cc3b9-cdf2-42d9-9c1f-c11b94277c19", 5, 4);
+		public static readonly VanillaFlora GRUE_CLUSTER = new VanillaFlora(6, "71498905-2ce2-4622-8d6f-40212f6202df", "6f5c4850-b8bd-461a-999d-1c49d69ffe3a", "94d7ed83-abb8-49af-9f27-10771dcd1485", "82287160-87eb-4fdd-ae33-945ba666ae60");
 		
 		private static readonly Dictionary<string, VanillaFlora> names = new Dictionary<string, VanillaFlora>();
 		
@@ -246,6 +247,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static VanillaFlora getFromID(string pfb) {
 			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
+		}
+		
+		public override string ToString() {
+			return getName();
 		}
 	}
 }

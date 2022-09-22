@@ -99,7 +99,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static GameObject setModel(GameObject go, string localModelName, GameObject modelObj) { //FIXME duplicate models
-			GameObject prev = ObjectUtil.removeChildObject(go, localModelName);
+			ObjectUtil.removeChildObject(go, localModelName);
 			modelObj = UnityEngine.Object.Instantiate(modelObj);
 			modelObj.name = localModelName;
 			modelObj.transform.parent = go.transform;
@@ -180,12 +180,21 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static void dumpTexture(string fn, Texture2D img) {
+		public static void dumpTexture(string fn, Texture2D img, string pathOverride = null) {
 			if (img != null) {
 				byte[] raw = duplicateTexture(img).EncodeToPNG();
-				File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TextureDump", fn+".png"), raw);
+				string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+				string path = Path.Combine(folder, "TextureDump", fn+".png");
+				if (!string.IsNullOrEmpty(pathOverride))
+					path = Path.Combine(pathOverride, fn+".png");
+				Directory.CreateDirectory(Path.GetDirectoryName(path));
+				File.WriteAllBytes(path, raw);
 			}
 		}
+		/*
+		public static Texture2D getVanillaTexture(string tex) {
+			return null;//FIXME how
+		}*/
 		
 	}
 }

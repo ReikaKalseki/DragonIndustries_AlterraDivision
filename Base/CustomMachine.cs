@@ -160,11 +160,7 @@ namespace ReikaKalseki.DIAlterra
 				if (!sk)
 					continue;
 				sk.renderers = gameObject.GetComponentsInChildren<Renderer>();
-				sk.environmentSky = baseSky;
-				sk.applySky = baseSky;
-				sk.enabled = true;
-				sk.ApplySkybox();
-				sk.RefreshDirtySky();
+				ObjectUtil.setSky(gameObject, baseSky);
 			}
 		}
 		

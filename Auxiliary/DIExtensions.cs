@@ -50,6 +50,15 @@ namespace ReikaKalseki.DIAlterra
 			return n;
 		}
 		
+		public static XmlElement addProperty(this XmlNode xml, string name, Vector4 vec) {
+			Quaternion quat = new Quaternion();
+			quat.x = vec.x;
+			quat.y = vec.y;
+			quat.z = vec.z;
+			quat.w = vec.w;
+			return addProperty(xml, name, quat);
+		}
+		
 		public static XmlElement addProperty(this XmlNode xml, string name, Color c) {
 			XmlElement n = xml.OwnerDocument.CreateElement(name);
 			n.addProperty("r", c.r);
@@ -158,6 +167,18 @@ namespace ReikaKalseki.DIAlterra
 		public static Vector3? getVector(this XmlElement xml, string name, bool allowNull = false) {
 			XmlElement trash;
 			return getVector(xml, name, out trash, allowNull);
+		}
+		
+		public static Vector4? getVector4(this XmlElement xml, string name, bool allowNull = false) {
+			Quaternion? quat = getQuaternion(xml, name, allowNull);
+			if (quat == null || !quat.HasValue)
+				return null;
+			Vector4 vec = new Vector4();
+			vec.x = quat.Value.x;
+			vec.y = quat.Value.y;
+			vec.z = quat.Value.z;
+			vec.w = quat.Value.w;
+			return vec;
 		}
 		
 		public static Vector3? getVector(this XmlElement xml, string name, out XmlElement elem, bool allowNull = false) {
@@ -271,6 +292,15 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static string toDebugString<E>(this IEnumerable<E> c) {
 			return "[" + string.Join(",", c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
+		}
+		
+		public static bool overlaps<E>(this ICollection<E> c, ICollection<E> other) {
+			foreach (E e in c) {
+				if (other.Contains(e)) {
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		public static string stringify(object obj) {

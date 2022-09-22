@@ -231,6 +231,10 @@ namespace ReikaKalseki.DIAlterra
 	        return null;
 	    }
 		
+		public static void patchEveryReturnPre(List<CodeInstruction> codes, params CodeInstruction[] insert) {
+			patchEveryReturnPre(codes, insert.ToList<CodeInstruction>());
+		}
+		
 		public static void patchEveryReturnPre(List<CodeInstruction> codes, List<CodeInstruction> insert) {
 			patchEveryReturnPre(codes, (li, idx) => li.InsertRange(idx, insert));
 		}

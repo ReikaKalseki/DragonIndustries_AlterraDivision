@@ -60,6 +60,20 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
+	public sealed class TechTypePrefabContainer : PrefabReference {
+		
+		public readonly TechType tech;
+		
+		public TechTypePrefabContainer(TechType t) {
+			tech = t;
+		}
+		
+		public string getPrefabID() {
+			return CraftData.GetClassIdForTechType(tech);
+		}
+		
+	}
+	
 	public sealed class ModPrefabTechReference : TechTypeReference {
 		
 		public readonly ModPrefab prefab;
