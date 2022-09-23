@@ -9,7 +9,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Story;
 using ReikaKalseki.DIAlterra;
-using ReikaKalseki.SeaToSea;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 

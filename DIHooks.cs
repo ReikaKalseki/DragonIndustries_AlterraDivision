@@ -51,7 +51,8 @@ namespace ReikaKalseki.DIAlterra {
 	    }
     
 	    public static void onTick(DayNightCycle cyc) {
-	    	onDayNightTickEvent.Invoke(cyc);
+	    	if (onDayNightTickEvent != null)
+	    		onDayNightTickEvent.Invoke(cyc);
 	    }
 	    
 	    public static void onWorldLoaded() {
@@ -61,7 +62,8 @@ namespace ReikaKalseki.DIAlterra {
 	    	DuplicateRecipeDelegate.updateLocale();
 	    	CustomEgg.updateLocale();
 	    	
-	    	onWorldLoadedEvent.Invoke();
+	    	if (onWorldLoadedEvent != null)
+	    		onWorldLoadedEvent.Invoke();
 	    }
 	    
 	    public static void tickPlayer(Player ep) {
@@ -70,14 +72,20 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	StoryHandler.instance.tick(ep);
 	    	
-	    	onPlayerTickEvent.Invoke(ep);
+	    	if (onPlayerTickEvent != null)
+	    		onPlayerTickEvent.Invoke(ep);
 	    }
    
 		public static float recalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer) {
-	    	DamageToDeal deal = new DamageToDeal(damage, type, target, dealer);
-	    	onDamageEvent.Invoke(deal);
-	   		return deal.amount;
-		}
+	    	if (onDamageEvent != null) {
+	    		DamageToDeal deal = new DamageToDeal(damage, type, target, dealer);
+	    		onDamageEvent.Invoke(deal);
+	   			return deal.amount;
+	    	}
+	    	else {
+	    		return damage;
+	    	}
+		}	
     
 	    public static void onItemPickedUp(Pickupable p) {
 	    	TechType tt = TechType.None;
@@ -98,7 +106,8 @@ namespace ReikaKalseki.DIAlterra {
 				}
 			}
 	    	
-	    	onItemPickedUpEvent.Invoke(p);
+	    	if (onItemPickedUpEvent != null)
+	    		onItemPickedUpEvent.Invoke(p);
 	    }
     
 	    public static void onEntityRegister(CellManager cm, LargeWorldEntity lw) {
@@ -129,7 +138,8 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 	    	}*/
-	    	onEntityRegisterEvent.Invoke(cm, lw);
+	    	if (onEntityRegisterEvent != null)
+	    		onEntityRegisterEvent.Invoke(cm, lw);
 	    }
 	    
 	    public static void onFarmedPlantGrowingSpawn(Plantable p, GameObject plant) {
@@ -154,7 +164,8 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void onSkyApplierSpawn(SkyApplier pk) {
-	    	onSkyApplierSpawnEvent.Invoke(pk);
+	    	if (onSkyApplierSpawnEvent != null)
+	    		onSkyApplierSpawnEvent.Invoke(pk);
 	    }
 	    
 	    public static void onStoryGoalCompleted(string key) {

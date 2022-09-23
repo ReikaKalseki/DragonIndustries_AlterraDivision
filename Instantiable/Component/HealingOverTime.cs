@@ -12,7 +12,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra {
 	
-	class HealingOverTime : MonoBehaviour {
+	public class HealingOverTime : MonoBehaviour {
 		
 		private static readonly float TICK_RATE = 0.25F;
 		
@@ -23,7 +23,7 @@ namespace ReikaKalseki.DIAlterra {
 		private float healRate;
 		private float startTime;
 		
-		internal void setValues(float total, float seconds) {
+		public void setValues(float total, float seconds) {
 			totalToHeal = total;
 			totalDuration = seconds;
 			healingRemaining = total;
@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra {
 			InvokeRepeating("tick", 0f, TICK_RATE);
 		}
 
-		public void tick() {
+		internal void tick() {
 			float amt = Mathf.Min(healingRemaining, healRate);
 			Player.main.GetComponent<LiveMixin>().AddHealth(amt);
 			healingRemaining -= amt;

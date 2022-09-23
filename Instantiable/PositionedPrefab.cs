@@ -15,15 +15,15 @@ namespace ReikaKalseki.DIAlterra
 	public class PositionedPrefab : ObjectTemplate {
 		
 		[SerializeField]
-		internal string prefabName;
+		public string prefabName;
 		[SerializeField]
-		internal Vector3 position;
+		public Vector3 position;
 		[SerializeField]
-		internal Quaternion rotation;
+		public Quaternion rotation;
 		[SerializeField]
-		internal Vector3 scale = Vector3.one;
+		public Vector3 scale = Vector3.one;
 			
-		internal Guid? xmlID;
+		protected Guid? xmlID;
 		
 		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null)
 		{
@@ -46,6 +46,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public sealed override string getID() {
 			return prefabName;
+		}
+		
+		public string getXMLID() {
+			return xmlID.HasValue ? xmlID.Value.ToString() : null;
 		}
 		
 		public virtual void replaceObject(string pfb) {
