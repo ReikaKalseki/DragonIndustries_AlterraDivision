@@ -88,7 +88,7 @@ namespace ReikaKalseki.DIAlterra
 			if (pfb is MultiTexturePrefab<T>)
 				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers();
 			if (!swapTextures(r, path, dict))
-				SNUtil.log("NO CUSTOM TEXTURES FOUND: "+pfb);
+				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb);
 			
 			if (pfb.glowIntensity > 0) {
 				setEmissivity(r, pfb.glowIntensity, "GlowStrength");

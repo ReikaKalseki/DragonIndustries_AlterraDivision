@@ -31,6 +31,8 @@ namespace ReikaKalseki.DIAlterra
 			FileLog.Log(ex.StackTrace);
 			FileLog.Log(ex.ToString());
         }
+		
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(WorldGenerator).TypeHandle);
     }
   }
 }

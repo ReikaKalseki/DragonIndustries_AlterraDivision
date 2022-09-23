@@ -146,6 +146,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	TechTag tt = p.gameObject.GetComponent<TechTag>();
 	    	if (tt) {
 	    		BasicCustomPlant plantType = BasicCustomPlant.getPlant(tt.type);
+	    		//SNUtil.writeToChat("Planted "+tt+" > "+plantType);
 	    		if (plantType != null) {
 		    		RenderUtil.swapToModdedTextures(plant.GetComponentInChildren<Renderer>(true), plantType);
 		    		plant.gameObject.EnsureComponent<TechTag>().type = tt.type;
@@ -157,6 +158,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	TechTag tt = p.gameObject.GetComponent<TechTag>();
 	    	if (tt) {
 	    		BasicCustomPlant plantType = BasicCustomPlant.getPlant(tt.type);
+	    		//SNUtil.writeToChat("Grew "+tt+" > "+plantType);
 	    		if (plantType != null) {
 	    			ObjectUtil.convertTemplateObject(plant, plantType);
 	    		}

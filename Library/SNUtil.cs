@@ -23,8 +23,17 @@ namespace ReikaKalseki.DIAlterra
 	    
 	    private static FMODAsset unlockSound;
 	    
-	    public static readonly Assembly diAsembly = Assembly.GetExecutingAssembly();
-	    public static readonly Assembly smlAssembly = Assembly.GetAssembly(typeof(ModPrefab));
+	    public static readonly Assembly diDLL = Assembly.GetExecutingAssembly();
+	    public static readonly Assembly smlDLL = Assembly.GetAssembly(typeof(ModPrefab));
+	    public static readonly Assembly gameDLL = Assembly.GetAssembly(typeof(BoneShark));
+	    public static readonly Assembly gameDLL2 = Assembly.GetAssembly(typeof(FMODAsset));
+	    
+	    private static readonly HashSet<Assembly> assembliesToSkip = new HashSet<Assembly>(){
+            diDLL,
+            smlDLL,
+            gameDLL,
+            gameDLL2
+        };
 		
 		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
 		
@@ -35,7 +44,7 @@ namespace ReikaKalseki.DIAlterra
 	        	return Assembly.GetCallingAssembly();
 	        foreach (StackFrame f in sf) {
 	        	Assembly a = f.GetMethod().DeclaringType.Assembly;
-	            if (a != di && a != smlAssembly)
+	            if (a != di && a != smlDLL && a != gameDLL && a != gameDLL2)
 	                return a;
 	        }
 	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), 0, diAsembly);
