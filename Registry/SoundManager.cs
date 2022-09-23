@@ -38,7 +38,7 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Sound ID '"+id+"' is already taken!");
 			string[] args = path.Split('/');
 			List<string> li = new List<string>();
-			li.Add(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+			li.Add(Path.GetDirectoryName(SNUtil.getModDLL().Location));
 			foreach (string s in args) {
 				li.Add(s);
 			}

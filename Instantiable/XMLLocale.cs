@@ -28,6 +28,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		public void load() {
 			xmlFile = loadXML();
+			if (xmlFile.DocumentElement == null)
+				throw new Exception("No XML file at "+relativePath);
 			foreach (XmlElement e in xmlFile.DocumentElement.ChildNodes) {
 				LocaleEntry lc = constructEntry(e);
 				entries[lc.key] = lc;
@@ -39,7 +41,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private XmlDocument loadXML() {
-			string loc = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			string loc = Path.GetDirectoryName(SNUtil.getModDLL().Location);
 			string path = Path.Combine(loc, relativePath);
 			XmlDocument doc = new XmlDocument();
 			if (File.Exists(path)) {

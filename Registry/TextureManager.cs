@@ -14,8 +14,8 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class TextureManager {
 		
-		private static readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
-		private static readonly Dictionary<string, Atlas.Sprite> sprites = new Dictionary<string, Atlas.Sprite>();
+		private static readonly Dictionary<Assembly, Dictionary<string, Texture2D>> textures = new Dictionary<Assembly, Dictionary<string, Texture2D>>();
+		private static readonly Dictionary<Assembly, Dictionary<string, Atlas.Sprite>> sprites = new Dictionary<Assembly, Dictionary<string, Atlas.Sprite>>();
 		//private static readonly Texture2D NOT_FOUND = ImageUtils.LoadTextureFromFile(path); 
 		
 		static TextureManager() {
@@ -23,14 +23,17 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static Texture2D getTexture(string path) {
-			if (!textures.ContainsKey(path)) {
-				textures[path] = loadTexture(path);
+			Assembly a = SNUtil.getModDLL();
+			if (!textures.ContainsKey(a))
+				textures[a] = new Dictionary<string, Texture2D>();
+			if (!textures[a].ContainsKey(path)) {
+				textures[a][path] = loadTexture(a, path);
 			}
-			return textures[path];
+			return textures[a][path];
 		}
 		
-		private static Texture2D loadTexture(string relative) {
-			string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		private static Texture2D loadTexture(Assembly a, string relative) {
+			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
 			Texture2D newTex = ImageUtils.LoadTextureFromFile(path);
 			if (newTex == null) {
@@ -41,14 +44,17 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static Atlas.Sprite getSprite(string path) {
-			if (!sprites.ContainsKey(path)) {
-				sprites[path] = loadSprite(path);
+			Assembly a = SNUtil.getModDLL();
+			if (!sprites.ContainsKey(a))
+				sprites[a] = new Dictionary<string, Atlas.Sprite>();
+			if (!sprites[a].ContainsKey(path)) {
+				sprites[a][path] = loadSprite(a, path);
 			}
-			return sprites[path];
+			return sprites[a][path];
 		}
 		
-		private static Atlas.Sprite loadSprite(string relative) {
-			string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		private static Atlas.Sprite loadSprite(Assembly a, string relative) {
+			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
 			Atlas.Sprite newTex = ImageUtils.LoadSpriteFromFile(path);
 			if (newTex == null) {

@@ -19,6 +19,7 @@ namespace ReikaKalseki.DIAlterra {
 		private readonly TechType template;
 		
 		private string eggTexture;
+		public string creatureHeldDesc = null;
 		
 		private static readonly Dictionary<TechType, CustomEgg> eggs = new Dictionary<TechType, CustomEgg>();
 		
@@ -56,6 +57,9 @@ namespace ReikaKalseki.DIAlterra {
 				Language.main.strings[e.TechType.AsString()] = cname+" Egg";
 				Language.main.strings["Tooltip_"+e.TechType.AsString()] = "Hatches a "+cname;
 				SNUtil.log("Relocalized "+e+" > "+Language.main.strings[e.TechType.AsString()]);
+				if (!string.IsNullOrEmpty(e.creatureHeldDesc)) {
+					Language.main.strings["Tooltip_"+e.creatureToSpawn.AsString()] = e.creatureHeldDesc;
+				}
 			}
 		}
 		

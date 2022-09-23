@@ -183,7 +183,7 @@ namespace ReikaKalseki.DIAlterra
 		public static void dumpTexture(string fn, Texture2D img, string pathOverride = null) {
 			if (img != null) {
 				byte[] raw = duplicateTexture(img).EncodeToPNG();
-				string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+				string folder = Path.GetDirectoryName(SNUtil.getModDLL().Location);
 				string path = Path.Combine(folder, "TextureDump", fn+".png");
 				if (!string.IsNullOrEmpty(pathOverride))
 					path = Path.Combine(pathOverride, fn+".png");

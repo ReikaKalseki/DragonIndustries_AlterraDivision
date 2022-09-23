@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Reflection;
+using System.Linq;
+using System.Threading;
+using System.Diagnostics;
+using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 
@@ -13,20 +17,29 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class SNUtil {
 		
-		private static Assembly modDLL;
-		
 		private static readonly Int3 batchOffset = new Int3(13, 19, 13);
 		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
 		private static readonly int batchSize = 160;
 	    
 	    private static FMODAsset unlockSound;
+	    
+	    public static readonly Assembly diAsembly = Assembly.GetExecutingAssembly();
+	    public static readonly Assembly smlAssembly = Assembly.GetAssembly(typeof(ModPrefab));
 		
 		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
 		
 		public static Assembly getModDLL() {
-			if (modDLL == null)
-				modDLL = Assembly.GetExecutingAssembly();
-			return modDLL;
+			Assembly di = Assembly.GetExecutingAssembly();
+			StackFrame[] sf = new StackTrace().GetFrames();
+	        if (sf == null || sf.Length == 0)
+	        	return Assembly.GetCallingAssembly();
+	        foreach (StackFrame f in sf) {
+	        	Assembly a = f.GetMethod().DeclaringType.Assembly;
+	            if (a != di && a != smlAssembly)
+	                return a;
+	        }
+	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), 0, diAsembly);
+	        return Assembly.GetCallingAssembly();
 		}
 		
 		public static int getInstallSeed() {
@@ -68,17 +81,17 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
-		public static void log(string s, int indent = 0) {
+		public static void log(string s, int indent = 0, Assembly a = null) {
 			while (s.Length > 4096) {
 				string part = s.Substring(0, 4096);
 				log(part);
 				s = s.Substring(4096);
 			}
-			string id = getModDLL().GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
+			string id = (a != null ? a : getModDLL()).GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
 			if (indent > 0) {
 				s = s.PadLeft(s.Length+indent, ' ');
 			}
-			Debug.Log(id+": "+s);
+			UnityEngine.Debug.Log(id+": "+s);
 		}
 		
 		public static void writeToChat(string s) {

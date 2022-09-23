@@ -32,7 +32,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private static AssetBundle loadBundle(string relative) {
-			string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets", relative);
+			string path = Path.Combine(Path.GetDirectoryName(SNUtil.getModDLL().Location), "Assets", relative);
 			return AssetBundle.LoadFromFile(path);
 		}
 		
