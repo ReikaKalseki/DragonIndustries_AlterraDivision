@@ -11,7 +11,7 @@ using SMLHelper.V2.Utility;
 
 using ReikaKalseki.DIAlterra;
 
-namespace ReikaKalseki.SeaToSea {
+namespace ReikaKalseki.DIAlterra {
 	
 	public class CustomEgg : Spawnable {
 		

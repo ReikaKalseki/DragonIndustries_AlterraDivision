@@ -23,6 +23,8 @@ namespace ReikaKalseki.DIAlterra
 		public HarvestType collectionMethod = HarvestType.DamageAlive;
 		public int finalCutBonus = 2;
 		
+		private static readonly Dictionary<TechType, BasicCustomPlant> plants = new Dictionary<TechType, BasicCustomPlant>();
+		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
 			
 		}
@@ -31,6 +33,7 @@ namespace ReikaKalseki.DIAlterra
 			baseTemplate = template;
 			seed = new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
+				plants[TechType] = this;
 				if (collectionMethod != HarvestType.None) {
 					seed.Patch();
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
@@ -113,6 +116,10 @@ namespace ReikaKalseki.DIAlterra
 		public virtual void prepareGrowingPlant(GrowingPlant g) {
 			
 		}*/
+		
+		public static BasicCustomPlant getPlant(TechType tt) {
+			return plants.ContainsKey(tt) ? plants[tt] : null;
+		}
 		
 	}
 	
