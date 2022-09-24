@@ -76,7 +76,7 @@ namespace ReikaKalseki.DIAlterra
 				string sid = VanillaSounds.getID(path);
 				if (sid == null) {
 					SNUtil.log("Sound path "+path+" did not find an ID. Registering as custom.");
-					pageData.audio = SoundManager.registerSound("pda_vo_"+id, path, SoundSystem.voiceBus);
+					pageData.audio = SoundManager.registerSound(SNUtil.tryGetModDLL(), "pda_vo_"+id, path, SoundSystem.voiceBus);
 				}
 				else {
 					pageData.audio = SNUtil.getSound(path, sid);
@@ -153,6 +153,10 @@ namespace ReikaKalseki.DIAlterra
 				tgt.goal.key = page.id;
 				return go;
 	        }
+		
+			public Assembly getOwnerMod() {
+				return SNUtil.diDLL;
+			}
 			
 			public bool isResource() {
 				return false;

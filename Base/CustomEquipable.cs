@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Assets;
@@ -14,6 +15,8 @@ namespace ReikaKalseki.DIAlterra
 		private readonly List<PlannedIngredient> recipe = new List<PlannedIngredient>();
 		public readonly string id;
 		
+		private readonly Assembly ownerMod;
+		
 		public float glowIntensity {get; set;}		
 		public bool isArmor {get; set;}	
 		public StringPrefabContainer baseTemplate {get; set;}
@@ -25,6 +28,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected CustomEquipable(string id, string name, string desc, string template) : base(id, name, desc) {
+			ownerMod = SNUtil.tryGetModDLL();
 			this.id = id;
 			
 			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);
@@ -100,7 +104,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
+			return TextureManager.getSprite(ownerMod, "Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 			
 		public sealed override GameObject GetGameObject() {
@@ -109,6 +113,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public virtual void prepareGameObject(GameObject go, Renderer r) {
 			
+		}
+		
+		public Assembly getOwnerMod() {
+			return ownerMod;
 		}
 		
 		public bool isResource() {

@@ -188,9 +188,13 @@ namespace ReikaKalseki.DIAlterra
 			
 			public float glowIntensity {get; set;}		
 			public StringPrefabContainer baseTemplate {get; set;}
+			
+			private readonly Assembly ownerMod;
 	        
 	        public CustomPrefabImpl(string name, string template, string display = "") : base(name, display, "") {
 				baseTemplate = new StringPrefabContainer(template);
+				
+				ownerMod = SNUtil.tryGetModDLL();
 	        }
 			
 	        public override sealed GameObject GetGameObject() {
@@ -207,6 +211,10 @@ namespace ReikaKalseki.DIAlterra
 		
 			public Atlas.Sprite getIcon() {
 				return null;
+			}
+		
+			public Assembly getOwnerMod() {
+				return ownerMod;
 			}
 			
 			public abstract void prepareGameObject(GameObject go, Renderer r);

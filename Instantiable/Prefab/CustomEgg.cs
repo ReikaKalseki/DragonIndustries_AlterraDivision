@@ -18,8 +18,12 @@ namespace ReikaKalseki.DIAlterra {
 		public readonly TechType creatureToSpawn;
 		private readonly TechType template;
 		
+		public float eggScale = 1;
+		
 		private string eggTexture;
 		public string creatureHeldDesc = null;
+		
+		private readonly Assembly ownerMod;
 		
 		private static readonly Dictionary<TechType, CustomEgg> eggs = new Dictionary<TechType, CustomEgg>();
 		
@@ -29,14 +33,27 @@ namespace ReikaKalseki.DIAlterra {
 			
 			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[TechType.BoneShark];
 			WaterParkCreature.waterParkCreatureParameters[creatureToSpawn] = new WaterParkCreatureParameters(wpp.initialSize, wpp.maxSize, wpp.outsideSize, wpp.growingPeriod, wpp.isPickupableOutside);
+			
 			CraftDataHandler.SetItemSize(creatureToSpawn, new Vector2int(3, 3));
 			
+			ownerMod = SNUtil.tryGetModDLL();
+			
 			eggs[creatureToSpawn] = this;
+		}
+
+		public override Vector2int SizeInInventory {
+			get {
+				return new Vector2int(2, 2);
+			}
 		}
 		
 		public void setTexture(string tex) {
 			eggTexture = tex;
-			SpriteHandler.RegisterSprite(creatureToSpawn, TextureManager.getSprite(eggTexture+creatureToSpawn+"_Hatched"));
+			SpriteHandler.RegisterSprite(creatureToSpawn, TextureManager.getSprite(ownerMod, eggTexture+creatureToSpawn+"_Hatched"));
+		}
+		
+		protected sealed override Atlas.Sprite GetItemSprite() {
+			return TextureManager.getSprite(ownerMod, "Textures/Items/Egg_"+creatureToSpawn);
 		}
 		
 		public override GameObject GetGameObject() {
@@ -47,7 +64,8 @@ namespace ReikaKalseki.DIAlterra {
 			egg.eggType = TechType;
 			egg.overrideEggType = TechType;
 			egg.hatchingCreature = creatureToSpawn;
-			RenderUtil.swapTextures(pfb.GetComponentInChildren<Renderer>(), eggTexture);
+			pfb.transform.localScale = Vector3.one*eggScale;
+			RenderUtil.swapTextures(ownerMod, pfb.GetComponentInChildren<Renderer>(), eggTexture+creatureToSpawn);
 			return pfb;
 		}
 		

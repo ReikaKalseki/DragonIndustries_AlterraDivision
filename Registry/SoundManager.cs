@@ -33,12 +33,14 @@ namespace ReikaKalseki.DIAlterra
 			return sounds.ContainsKey(id) ? sounds[id] : null;
 		}
 		
-		public static FMODAsset registerSound(string id, string path, Bus? b = null) {
+		public static FMODAsset registerSound(Assembly a, string id, string path, Bus? b = null) {
+			if (a == null)
+				throw new Exception("You must specify a mod to load the sound for!");
 			if (sounds.ContainsKey(id))
 				throw new Exception("Sound ID '"+id+"' is already taken!");
 			string[] args = path.Split('/');
 			List<string> li = new List<string>();
-			li.Add(Path.GetDirectoryName(SNUtil.getModDLL().Location));
+			li.Add(Path.GetDirectoryName(a.Location));
 			foreach (string s in args) {
 				li.Add(s);
 			}

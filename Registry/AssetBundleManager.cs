@@ -20,9 +20,9 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		public static AssetBundle getBundle(string path) {
+		public static AssetBundle getBundle(Assembly a, string path) {
 			if (!bundles.ContainsKey(path)) {
-				bundles[path] = loadBundle(path);
+				bundles[path] = loadBundle(a, path);
 				SNUtil.log("Loaded AssetBundle '"+path+"': ");
 			 	foreach (System.Object obj in bundles[path].LoadAllAssets()) {
 			 		SNUtil.log(" > "+obj);
@@ -31,8 +31,8 @@ namespace ReikaKalseki.DIAlterra
 			return bundles[path];
 		}
 		
-		private static AssetBundle loadBundle(string relative) {
-			string path = Path.Combine(Path.GetDirectoryName(SNUtil.getModDLL().Location), "Assets", relative);
+		private static AssetBundle loadBundle(Assembly a, string relative) {
+			string path = Path.Combine(Path.GetDirectoryName(a.Location), "Assets", relative);
 			return AssetBundle.LoadFromFile(path);
 		}
 		

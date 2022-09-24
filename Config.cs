@@ -22,7 +22,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Config()
 		{
-			owner = SNUtil.getModDLL();
+			owner = SNUtil.tryGetModDLL();
 			filename = /*Environment.UserName+"_"+*/owner.GetName().Name+"_Config.xml";
 			populateDefaults();
 		}

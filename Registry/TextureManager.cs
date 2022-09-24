@@ -22,8 +22,9 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		public static Texture2D getTexture(string path) {
-			Assembly a = SNUtil.getModDLL();
+		public static Texture2D getTexture(Assembly a, string path) {
+			if (a == null)
+				throw new Exception("You must specify a mod to load the texture for!");
 			if (!textures.ContainsKey(a))
 				textures[a] = new Dictionary<string, Texture2D>();
 			if (!textures[a].ContainsKey(path)) {
@@ -43,8 +44,9 @@ namespace ReikaKalseki.DIAlterra
 			return newTex;
 		}
 		
-		public static Atlas.Sprite getSprite(string path) {
-			Assembly a = SNUtil.getModDLL();
+		public static Atlas.Sprite getSprite(Assembly a, string path) {
+			if (a == null)
+				throw new Exception("You must specify a mod to load the texture for!");
 			if (!sprites.ContainsKey(a))
 				sprites[a] = new Dictionary<string, Atlas.Sprite>();
 			if (!sprites[a].ContainsKey(path)) {

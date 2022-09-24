@@ -13,6 +13,8 @@ namespace ReikaKalseki.DIAlterra
   public class DIMod
   {
     public const string MOD_KEY = "ReikaKalseki.DIAlterra";
+    
+    //public static readonly ModLogger logger = new ModLogger();
 
     [QModPatch]
     public static void Load()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Assets;
@@ -26,11 +27,14 @@ namespace ReikaKalseki.DIAlterra
 		public float glowIntensity {get; set;}			
 		public StringPrefabContainer baseTemplate {get; set;}
 		
+		protected readonly Assembly ownerMod;
+		
 		public BasicCraftingItem(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
 			
 		}
 		
 		public BasicCraftingItem(string id, string name, string desc, string template) : base(id, name, desc) {
+			ownerMod = SNUtil.tryGetModDLL();
 			this.id = id;
 			
 			if (!addedTab) {
@@ -105,6 +109,10 @@ namespace ReikaKalseki.DIAlterra
 			
 		public sealed override GameObject GetGameObject() {
 			return ObjectUtil.getModPrefabBaseObject(this);
+		}
+		
+		public Assembly getOwnerMod() {
+			return ownerMod;
 		}
 		
 		public bool isResource() {

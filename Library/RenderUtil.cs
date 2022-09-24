@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
-		public static bool swapTextures(Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
+		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
 			if (r == null)
 				throw new Exception("Tried to retexture a null renderer!");
 			bool flag = false;
@@ -67,7 +67,7 @@ namespace ReikaKalseki.DIAlterra
 						if (path.EndsWith("/", StringComparison.InvariantCultureIgnoreCase) && suffix.StartsWith("_", StringComparison.InvariantCultureIgnoreCase)) {
 							suffix = suffix.Substring(1);
 						}
-						Texture2D newTex = TextureManager.getTexture(path+suffix+type);
+						Texture2D newTex = TextureManager.getTexture(a, path+suffix+type);
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
@@ -87,7 +87,7 @@ namespace ReikaKalseki.DIAlterra
 			Dictionary<int,string> dict = null;
 			if (pfb is MultiTexturePrefab<T>)
 				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers();
-			if (!swapTextures(r, path, dict))
+			if (!swapTextures(pfb.getOwnerMod(), r, path, dict))
 				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb);
 			
 			if (pfb.glowIntensity > 0) {
@@ -166,24 +166,24 @@ namespace ReikaKalseki.DIAlterra
 		    return copy;
 		}
 		
-		public static void dumpTextures(Renderer r) {
+		public static void dumpTextures(Assembly a, Renderer r) {
 			foreach (Material m in r.materials) {
-				dumpTextures(m, r.gameObject.name+"_$_");
+				dumpTextures(a, m, r.gameObject.name+"_$_");
 			}
 		}
 		
-		public static void dumpTextures(Material m, string prefix = "") {
+		public static void dumpTextures(Assembly a, Material m, string prefix = "") {
 			foreach (string tex in m.GetTexturePropertyNames()) {
 				string fn = prefix+m.name+"_-_"+tex;
 				Texture2D img = (Texture2D)m.GetTexture(tex);
-				dumpTexture(fn, img);
+				dumpTexture(a, fn, img);
 			}
 		}
 		
-		public static void dumpTexture(string fn, Texture2D img, string pathOverride = null) {
+		public static void dumpTexture(Assembly a, string fn, Texture2D img, string pathOverride = null) {
 			if (img != null) {
 				byte[] raw = duplicateTexture(img).EncodeToPNG();
-				string folder = Path.GetDirectoryName(SNUtil.getModDLL().Location);
+				string folder = Path.GetDirectoryName(a.Location);
 				string path = Path.Combine(folder, "TextureDump", fn+".png");
 				if (!string.IsNullOrEmpty(pathOverride))
 					path = Path.Combine(pathOverride, fn+".png");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Assets;
@@ -17,10 +18,13 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly string id;
 		
+		private readonly Assembly ownerMod;
+		
 		public float glowIntensity {get; set;}		
 		public StringPrefabContainer baseTemplate {get; set;}
 		
 		protected CustomMachine(string id, string name, string desc, string template) : base(id, name, desc) {
+			ownerMod = SNUtil.tryGetModDLL();
 			this.id = id;
 			baseTemplate = new StringPrefabContainer(template);
 		}
@@ -63,7 +67,7 @@ namespace ReikaKalseki.DIAlterra
 			foreach (TechnologyFragment m in fragments) {
 				m.target = TechType;
 				m.fragmentPrefab = GenUtil.getOrCreateFragment(this, m.template, m.objectModify);
-				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID);
+				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID, 0, ownerMod);
 			}
 			SNUtil.addPDAEntry(fragments[0].fragmentPrefab, scanTime, null, null, null, e => {
 				e.blueprint = TechType;
@@ -110,6 +114,10 @@ namespace ReikaKalseki.DIAlterra
 			return GetItemSprite();
 		}
 		
+		public Assembly getOwnerMod() {
+			return ownerMod;
+		}
+		
 		public void prepareGameObject(GameObject go, Renderer r) {
 			
 		}
@@ -131,7 +139,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
+			return TextureManager.getSprite(ownerMod, "Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 	}
 		

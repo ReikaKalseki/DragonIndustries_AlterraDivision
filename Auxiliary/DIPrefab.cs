@@ -38,6 +38,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		Atlas.Sprite getIcon();
 		
+		Assembly getOwnerMod();
+		
 	}
 	
 	public interface MultiTexturePrefab<T> : DIPrefab<T> where T : PrefabReference {

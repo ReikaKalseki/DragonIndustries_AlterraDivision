@@ -16,10 +16,6 @@ using UnityEngine;
 namespace ReikaKalseki.DIAlterra
 {
 	public static class SNUtil {
-		
-		private static readonly Int3 batchOffset = new Int3(13, 19, 13);
-		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
-		private static readonly int batchSize = 160;
 	    
 	    private static FMODAsset unlockSound;
 	    
@@ -37,22 +33,35 @@ namespace ReikaKalseki.DIAlterra
 		
 		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
 		
-		public static Assembly getModDLL() {
+		internal static Assembly tryGetModDLL() {
 			Assembly di = Assembly.GetExecutingAssembly();
 			StackFrame[] sf = new StackTrace().GetFrames();
 	        if (sf == null || sf.Length == 0)
 	        	return Assembly.GetCallingAssembly();
 	        foreach (StackFrame f in sf) {
 	        	Assembly a = f.GetMethod().DeclaringType.Assembly;
-	            if (a != di && a != smlDLL && a != gameDLL && a != gameDLL2)
+	        	if (a != di && a != smlDLL && a != gameDLL && a != gameDLL2 && a.Location.Contains("QMods"))
 	                return a;
 	        }
-	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), 0, diAsembly);
+	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), 0, diDLL);
 	        return Assembly.GetCallingAssembly();
 		}
 		
+		public static void log(string s, int indent = 0, Assembly a = null) {
+			while (s.Length > 4096) {
+				string part = s.Substring(0, 4096);
+				log(part);
+				s = s.Substring(4096);
+			}
+			string id = (a != null ? a : tryGetModDLL()).GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
+			if (indent > 0) {
+				s = s.PadLeft(s.Length+indent, ' ');
+			}
+			UnityEngine.Debug.Log(id+": "+s);
+		}
+		
 		public static int getInstallSeed() {
-			int seed = getModDLL().Location.GetHashCode();
+			int seed = diDLL.Location.GetHashCode();
 			seed &= (~(1 << Environment.ProcessorCount));
 			string n = Environment.MachineName;
 			if (string.IsNullOrEmpty(n))
@@ -71,7 +80,7 @@ namespace ReikaKalseki.DIAlterra
 			string path = SaveUtils.GetCurrentSaveDataDir();
 			long seed = SaveLoadManager._main.firstStart;
 			seed ^= path.GetHashCode();
-			seed ^= unchecked(((long)getModDLL().Location.GetHashCode()) << 32);
+			seed ^= unchecked(((long)diDLL.Location.GetHashCode()) << 32);
 			return seed;
 		}
 		
@@ -88,19 +97,6 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			return ret;
-		}
-		
-		public static void log(string s, int indent = 0, Assembly a = null) {
-			while (s.Length > 4096) {
-				string part = s.Substring(0, 4096);
-				log(part);
-				s = s.Substring(4096);
-			}
-			string id = (a != null ? a : getModDLL()).GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");
-			if (indent > 0) {
-				s = s.PadLeft(s.Length+indent, ' ');
-			}
-			UnityEngine.Debug.Log(id+": "+s);
 		}
 		
 		public static void writeToChat(string s) {
@@ -167,7 +163,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static Story.StoryGoal addRadioMessage(string key, string text, string soundPath) {
-			return addRadioMessage(key, text, SoundManager.registerSound("radio_"+key, soundPath, SoundSystem.voiceBus));
+			return addRadioMessage(key, text, SoundManager.registerSound(SNUtil.tryGetModDLL(), "radio_"+key, soundPath, SoundSystem.voiceBus));
 		}
 		
 		public static Story.StoryGoal addRadioMessage(string key, string text, FMODAsset sound) {
@@ -193,7 +189,7 @@ namespace ReikaKalseki.DIAlterra
 			if (pageCategory != null && !string.IsNullOrEmpty(pageText)) {
 				page = PDAManager.createPage(""+pfb.TechType, pfb.FriendlyName, pageText, pageCategory);
 				if (pageHeader != null)
-					page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+pageHeader));
+					page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/"+pageHeader));
 				page.register();
 			}
 			addPDAEntry(pfb, scanTime, page, modify);

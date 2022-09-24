@@ -23,7 +23,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public CustomBattery(string id, string name, string desc, int cap) : base(id, name, desc, "d4bfebc0-a5e6-47d3-b4a7-d5e47f614ed6") {
 			capacity = cap;
-			sprite = TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
+			sprite = TextureManager.getSprite(ownerMod, "Textures/Items/"+ObjectUtil.formatFileName(this));
 			OnFinishedPatching += () => {/*CraftDataHandler.SetEquipmentType(TechType, EquipmentType.BatteryCharger);*/CraftData.equipmentTypes[TechType] = EquipmentType.BatteryCharger;};
 		}
 

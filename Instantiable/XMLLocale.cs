@@ -17,12 +17,14 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly LocaleEntry NOT_FOUND = new LocaleEntry(null, "NOTFOUND", "#NULL", "#NULL", "#NULL");
 		
 		public readonly string relativePath;
+		private readonly Assembly ownerMod;
 		
 		private readonly Dictionary<string, LocaleEntry> entries = new Dictionary<string, LocaleEntry>();
 		
 		private XmlDocument xmlFile;
 		
 		public XMLLocale(string path) {
+			ownerMod = SNUtil.tryGetModDLL();
 			relativePath = path;
 		}
 		
@@ -41,7 +43,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private XmlDocument loadXML() {
-			string loc = Path.GetDirectoryName(SNUtil.getModDLL().Location);
+			string loc = Path.GetDirectoryName(ownerMod.Location);
 			string path = Path.Combine(loc, relativePath);
 			XmlDocument doc = new XmlDocument();
 			if (File.Exists(path)) {

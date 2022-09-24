@@ -23,6 +23,8 @@ namespace ReikaKalseki.DIAlterra
 		public HarvestType collectionMethod = HarvestType.DamageAlive;
 		public int finalCutBonus = 2;
 		
+		private readonly Assembly ownerMod;
+		
 		private static readonly Dictionary<TechType, BasicCustomPlant> plants = new Dictionary<TechType, BasicCustomPlant>();
 		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
@@ -31,6 +33,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedPfb, string seedName = "Seed") : base(id, name, desc) {
 			baseTemplate = template;
+			ownerMod = SNUtil.tryGetModDLL();
 			seed = new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
@@ -40,7 +43,7 @@ namespace ReikaKalseki.DIAlterra
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
 	        		CraftData.harvestOutputList[TechType] = seed.TechType;
 	        		CraftData.harvestFinalCutBonusList[TechType] = finalCutBonus;
-	        		SNUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType));
+	        		SNUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType), 0, ownerMod);
 				}
 			};
 		}
@@ -53,14 +56,14 @@ namespace ReikaKalseki.DIAlterra
 			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms");
 			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None ? "Sea" : "Exploitable");
 			if (header != null)
-				page.setHeaderImage(TextureManager.getTexture("Textures/PDA/"+header));
+				page.setHeaderImage(TextureManager.getTexture(ownerMod, "Textures/PDA/"+header));
 			page.register();
 			e.encyclopedia = page.id;
 			PDAHandler.AddCustomScannerEntry(e);
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {
-			return TextureManager.getSprite("Textures/Items/"+ObjectUtil.formatFileName(this));
+			return TextureManager.getSprite(ownerMod, "Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 		
 		public Atlas.Sprite getSprite() {
@@ -80,6 +83,10 @@ namespace ReikaKalseki.DIAlterra
 			Pickupable p = go.EnsureComponent<Pickupable>();
 			p.isPickupable = false;
 			return go;
+		}
+		
+		public Assembly getOwnerMod() {
+			return ownerMod;
 		}
 		
 		public bool isResource() {
@@ -153,6 +160,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Atlas.Sprite getIcon() {
 			return plant.getIcon();
+		}
+		
+		public Assembly getOwnerMod() {
+			return plant.getOwnerMod();
 		}
 			
 		public sealed override GameObject GetGameObject() {

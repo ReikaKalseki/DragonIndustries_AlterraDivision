@@ -122,7 +122,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 		
-		public void readFromFile(string folder) {
+		public void readFromFile(Assembly a, string folder) {
 			string defs = Path.Combine(folder, "defs.xml");
 			XmlDocument doc = new XmlDocument();
 			doc.Load(defs);
@@ -133,7 +133,7 @@ namespace ReikaKalseki.DIAlterra {
 				TextureDefinition tex = new TextureDefinition();
 				tex.readFromFile(e);
 				textures[tex.name] = tex;
-				tex.texture = TextureManager.getTexture(Path.Combine(folder, tex.name));
+				tex.texture = TextureManager.getTexture(a, Path.Combine(folder, tex.name));
 			}
 			foreach (XmlElement e in props.getDirectElementsByTagName("entry")) {
 				ShaderProperty shd = new ShaderProperty(shaderPropTypes[e.getProperty("name")]);
@@ -161,7 +161,7 @@ namespace ReikaKalseki.DIAlterra {
 				XmlElement e = doc.CreateElement("entry");
 				tex.writeToFile(e);
 				texs.AppendChild(e);
-				RenderUtil.dumpTexture(tex.name, (Texture2D)tex.texture, folder);
+				RenderUtil.dumpTexture(SNUtil.diDLL, tex.name, (Texture2D)tex.texture, folder);
 			}
 			foreach (string s in shaderFlags) {
 				flags.addProperty("entry", s);
