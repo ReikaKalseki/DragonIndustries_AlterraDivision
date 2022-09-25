@@ -34,6 +34,8 @@ namespace ReikaKalseki.DIAlterra
 						
 			if (collectSound != null)
 				OnFinishedPatching += () => {CraftData.pickupSoundList[TechType] = collectSound;};
+			
+			OnFinishedPatching += () => {ItemRegistry.instance.addItem(this);};
 		}
 		
 		public void registerWorldgen(BiomeType biome, int amt, float chance) {

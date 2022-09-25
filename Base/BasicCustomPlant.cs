@@ -38,7 +38,8 @@ namespace ReikaKalseki.DIAlterra
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
 				if (collectionMethod != HarvestType.None) {
-					seed.Patch();
+					seed.Patch();			
+					ItemRegistry.instance.addItem(seed);
 					plants[seed.TechType] = this;
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
 	        		CraftData.harvestOutputList[TechType] = seed.TechType;

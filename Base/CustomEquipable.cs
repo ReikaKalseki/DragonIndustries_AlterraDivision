@@ -32,6 +32,8 @@ namespace ReikaKalseki.DIAlterra
 			this.id = id;
 			
 			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);
+			
+			OnFinishedPatching += () => {ItemRegistry.instance.addItem(this);};
 		}
 		/*
 		public TechType getTechType() {
