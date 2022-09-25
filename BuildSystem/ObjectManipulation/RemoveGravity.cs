@@ -23,19 +23,19 @@ namespace ReikaKalseki.DIAlterra
 {		
 	internal sealed class RemoveGravity : ManipulationBase {
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			go.GetComponentInChildren<Rigidbody>().isKinematic = true;
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			
 		}
 		

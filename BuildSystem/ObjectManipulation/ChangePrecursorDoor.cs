@@ -29,7 +29,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			PrecursorKeyTerminal pk = go.GetComponentInChildren<PrecursorKeyTerminal>();
 			if (pk == null) {
 				foreach (Component c in go.GetComponentsInChildren<Component>()) {
@@ -39,15 +39,15 @@ namespace ReikaKalseki.DIAlterra
 			pk.acceptKeyType = targetType;
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			targetType = (PrecursorKeyTerminal.PrecursorKeyType)Enum.Parse(typeof(PrecursorKeyTerminal.PrecursorKeyType), e.InnerText);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.InnerText = Enum.GetName(typeof(PrecursorKeyTerminal.PrecursorKeyType), targetType);
 		}
 		

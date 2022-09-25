@@ -21,19 +21,19 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal sealed class DamageScalar : ModifyComponent<MeleeAttack> {
+	public sealed class DamageScalar : ModifyComponent<MeleeAttack> {
 		
 		private double scale = 1;
 		
-		internal override void modifyComponent(MeleeAttack c) {
+		public override void modifyComponent(MeleeAttack c) {
 			c.biteDamage *= (float)scale;
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			scale = double.Parse(e.InnerText);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.InnerText = scale.ToString();
 		}
 		

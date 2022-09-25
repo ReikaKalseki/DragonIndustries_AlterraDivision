@@ -23,21 +23,21 @@ namespace ReikaKalseki.DIAlterra
 {		
 	internal class LocalizeGlobalRotationScale : ManipulationBase {
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			//NOOP
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 			go.setRotation(go.obj.transform.rotation);
 			go.scale = go.obj.transform.localScale;
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			
 		}
 		

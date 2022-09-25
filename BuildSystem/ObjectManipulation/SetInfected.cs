@@ -25,21 +25,21 @@ namespace ReikaKalseki.DIAlterra
 		
 		private bool infect;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			InfectedMixin inf = go.EnsureComponent<InfectedMixin>();
 			inf.enabled = true;
 			inf.infectedAmount = infect ? 0.8F : 0;
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			infect = bool.Parse(e.InnerText);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.InnerText = infect.ToString();
 		}
 		

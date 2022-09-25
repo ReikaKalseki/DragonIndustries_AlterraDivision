@@ -41,14 +41,14 @@ namespace ReikaKalseki.DIAlterra
 			applyToObject(go);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			base.loadFromXML(e);
 			translate.x = (float)e.getFloat("x", double.NaN);
 			translate.y = (float)e.getFloat("y", double.NaN);
 			translate.z = (float)e.getFloat("z", double.NaN);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			base.saveToXML(e);
 			e.addProperty("x", translate.x);
 			e.addProperty("y", translate.y);

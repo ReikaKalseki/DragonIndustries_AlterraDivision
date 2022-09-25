@@ -21,15 +21,15 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal sealed class AddLockerContents : ManipulationBase {
+	public sealed class AddLockerContents : ManipulationBase {
 		
 		private readonly List<Item> items = new List<Item>();
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			//SBUtil.log("adding items to "+go.transform.position+" from trace "+System.Environment.StackTrace);
 			StorageContainer con = go.GetComponentInChildren<StorageContainer>();
 			con.ResetContainer();
@@ -46,7 +46,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			items.Clear();
 			foreach (XmlElement e2 in e.ChildNodes) {
 				Item i = null;
@@ -78,7 +78,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			foreach (Item s in items) {
 				XmlElement e2 = e.OwnerDocument.CreateElement("item");
 				e2.addProperty("type", "prefab");

@@ -21,19 +21,19 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal abstract class ModifyComponent<T> : ManipulationBase where T : Component {
+	public abstract class ModifyComponent<T> : ManipulationBase where T : Component {
 				
-		internal override sealed void applyToObject(PlacedObject go) {
+		public override sealed void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 				
-		internal override sealed void applyToObject(GameObject go) {
+		public override sealed void applyToObject(GameObject go) {
 			T component = go.GetComponentInChildren<T>();
 			if (component != null)
 				modifyComponent(component);
 		}
 		
-		internal abstract void modifyComponent(T component);
+		public abstract void modifyComponent(T component);
 		
 	}
 }

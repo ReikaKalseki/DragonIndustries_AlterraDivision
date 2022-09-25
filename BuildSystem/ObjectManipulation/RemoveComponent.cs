@@ -21,23 +21,23 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal sealed class RemoveComponent : ManipulationBase {
+	public sealed class RemoveComponent : ManipulationBase {
 		
 		private Type type;
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			ObjectUtil.removeComponent(go, type);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			type = InstructionHandlers.getTypeBySimpleName(e.InnerText);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.InnerText = type.Name;
 		}
 		

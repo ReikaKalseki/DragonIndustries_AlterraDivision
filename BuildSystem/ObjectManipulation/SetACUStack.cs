@@ -27,7 +27,7 @@ namespace ReikaKalseki.DIAlterra
 		private bool isTopOfStack;
 		private bool glassTop;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			GameObject floor = ObjectUtil.getChildObject(go, "BaseWaterParkFloorBottom");
 			GameObject middleBottom = ObjectUtil.getChildObject(go, "BaseWaterParkFloorMiddle");
 			GameObject middleTop = ObjectUtil.getChildObject(go, "BaseWaterParkCeilingMiddle");
@@ -40,17 +40,17 @@ namespace ReikaKalseki.DIAlterra
 			gt.SetActive(isTopOfStack && glassTop);
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			isBottomOfStack = e.getBoolean("Bottom");
 			isTopOfStack = e.getBoolean("Top");
 			glassTop = e.getBoolean("GlassTop");
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("Bottom", isBottomOfStack);
 			e.addProperty("Top", isTopOfStack);
 			e.addProperty("GlassTop", glassTop);

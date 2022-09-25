@@ -22,7 +22,7 @@ using SMLHelper.V2.Utility;
 namespace ReikaKalseki.DIAlterra
 {		
 		[Serializable]
-		internal sealed class PlacedObject : CustomPrefab {
+		public sealed class PlacedObject : CustomPrefab {
 		
 			public static readonly new string TAGNAME = "object";
 			
@@ -35,7 +35,7 @@ namespace ReikaKalseki.DIAlterra
 			[SerializeField]
 			internal int referenceID;
 			[SerializeField]
-			internal GameObject obj;
+			public GameObject obj;
 			[SerializeField]
 			internal GameObject fx;
 			
@@ -126,7 +126,7 @@ namespace ReikaKalseki.DIAlterra
 					ids.Remove(xmlID.Value.ToString());
 			}
 			
-			internal void setSelected(bool sel) {
+			public void setSelected(bool sel) {
 				isSelected = sel;
 				if (fx == null) {
 					SNUtil.writeToChat("Could not set enabled visual of "+this+" due to null FX GO");
@@ -141,18 +141,18 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			
-			internal void setPosition(Vector3 pos) {
+			public void setPosition(Vector3 pos) {
 				position = pos;
 				obj.transform.position = position;
 				if (fx != null && fx.transform != null)
 					fx.transform.position = position;
 			}
 		
-			internal void move(Vector3 mov) {
+			public void move(Vector3 mov) {
 				move(mov.x, mov.y, mov.z);
 			}
 		
-			internal void move(double x, double y, double z) {
+			public void move(double x, double y, double z) {
 				Vector3 vec = obj.transform.position;
 				vec.x += (float)x;
 				vec.y += (float)y;
@@ -161,11 +161,11 @@ namespace ReikaKalseki.DIAlterra
 				//SNUtil.writeToChat(go.obj.transform.position.ToString());
 			}
 			
-			internal void rotateYaw(double ang, Vector3? relTo) {
+			public void rotateYaw(double ang, Vector3? relTo) {
 				rotate(0, ang, 0, relTo);
 			}
 			
-			internal void rotate(double roll, double yaw, double pitch, Vector3? relTo) {
+			public void rotate(double roll, double yaw, double pitch, Vector3? relTo) {
 				Vector3 ctr = position;
 				Vector3 up = obj.transform.up;
 				Vector3 forward = obj.transform.forward;
@@ -190,7 +190,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			
-			internal void setRotation(Quaternion rot) {
+			public void setRotation(Quaternion rot) {
 				obj.transform.rotation = rot;
 				if (fx != null && fx.transform != null)
 					fx.transform.rotation = rot;

@@ -26,7 +26,7 @@ namespace ReikaKalseki.DIAlterra
 		private int timeToUse;
 		private string text;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			BulkheadDoor bk = go.GetComponentInChildren<BulkheadDoor>(true);
 			if (bk != null)
 				go = bk.gameObject;
@@ -38,16 +38,16 @@ namespace ReikaKalseki.DIAlterra
 			s.maxOpenedAmount = timeToUse;
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			timeToUse = e.getInt("timeToUse", 100); //100 is the default
 			text = e.getProperty("mouseover", true);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("mouseover", text);
 			e.addProperty("timeToUse", timeToUse);
 		}

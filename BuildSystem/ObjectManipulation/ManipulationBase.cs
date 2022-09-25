@@ -24,11 +24,11 @@ namespace ReikaKalseki.DIAlterra
 {		
 	public abstract class ManipulationBase {
 		
-		internal abstract void applyToObject(PlacedObject go);
-		internal abstract void applyToObject(GameObject go);
+		public abstract void applyToObject(PlacedObject go);
+		public abstract void applyToObject(GameObject go);
 		
-		internal abstract void loadFromXML(XmlElement e);
-		internal abstract void saveToXML(XmlElement e);
+		public abstract void loadFromXML(XmlElement e);
+		public abstract void saveToXML(XmlElement e);
 		
 		public override string ToString() {
 			XmlDocument doc = new XmlDocument();

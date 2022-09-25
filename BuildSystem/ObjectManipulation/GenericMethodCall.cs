@@ -26,15 +26,15 @@ namespace ReikaKalseki.DIAlterra
 		
 		private MethodInfo call;
 				
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			call.Invoke(null, new object[]{go});
 		}
 				
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			string tn = e.getProperty("typeName");
 			string name = e.getProperty("name");
 			Type t = InstructionHandlers.getTypeBySimpleName(tn);
@@ -42,7 +42,7 @@ namespace ReikaKalseki.DIAlterra
 			call = t.GetMethod(name, new Type[]{typeof(GameObject)});
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("typeName", call.DeclaringType.Name);
 			e.addProperty("name", call.Name);
 		}

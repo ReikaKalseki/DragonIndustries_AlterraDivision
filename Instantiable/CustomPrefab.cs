@@ -26,14 +26,14 @@ using ReikaKalseki.DIAlterra;
 namespace ReikaKalseki.DIAlterra
 {		
 		[Serializable]
-		internal class CustomPrefab : PositionedPrefab {
+		public class CustomPrefab : PositionedPrefab {
 		
 			public static readonly string TAGNAME = "customprefab";
 			
 			private static readonly Dictionary<string, ModifiedObjectPrefab> prefabCache = new Dictionary<string, ModifiedObjectPrefab>();
 			
 			[SerializeField]
-			internal TechType tech = TechType.None;
+			public TechType tech = TechType.None;
 			[SerializeField]
 			internal readonly List<ManipulationBase> manipulations = new List<ManipulationBase>();
 			
@@ -47,11 +47,11 @@ namespace ReikaKalseki.DIAlterra
 			
 			public ModifiedObjectPrefab customPrefab {get; private set;}
 			
-			internal CustomPrefab(string pfb) : base(pfb) {				
+			public CustomPrefab(string pfb) : base(pfb) {				
 				
 			}
 			
-			internal CustomPrefab(PositionedPrefab pfb) : base(pfb) {				
+			public CustomPrefab(PositionedPrefab pfb) : base(pfb) {				
 				
 			}
 			
@@ -294,7 +294,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		class ModifiedObjectPrefab : GenUtil.CustomPrefabImpl {
+		public class ModifiedObjectPrefab : GenUtil.CustomPrefabImpl {
 		
 			private readonly List<ManipulationBase> mods = new List<ManipulationBase>();
 	        

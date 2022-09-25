@@ -29,7 +29,7 @@ namespace ReikaKalseki.DIAlterra
 			init();
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			base.applyToObject(go);
 			
 			ObjectUtil.removeChildObject(go, "BaseCell/Coral");
@@ -45,7 +45,7 @@ namespace ReikaKalseki.DIAlterra
 			addSwap("Base_abandoned_Foundation_Platform_01_illum", "Base_Foundation_Platform_01_illum");
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			base.loadFromXML(e);
 			
 			bool.TryParse(e.InnerText, out removeLight);

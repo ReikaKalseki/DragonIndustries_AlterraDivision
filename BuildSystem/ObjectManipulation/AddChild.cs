@@ -26,7 +26,7 @@ namespace ReikaKalseki.DIAlterra
 		private CustomPrefab prefab;
 		private string objName;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			if (!string.IsNullOrEmpty(objName)) {
 				if (ObjectUtil.getChildObject(go, objName) != null)
 					return;
@@ -43,17 +43,17 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			objName = e.getProperty("name", true);
 			prefab = new CustomPrefab(e.getProperty("prefab"));
 			prefab.loadFromXML(e);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("prefab", prefab.prefabName);
 			prefab.saveToXML(e);
 			if (!string.IsNullOrEmpty(objName))

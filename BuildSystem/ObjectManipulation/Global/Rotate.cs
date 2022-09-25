@@ -45,7 +45,7 @@ namespace ReikaKalseki.DIAlterra
 			go.transform.RotateAround(go.transform.position, Vector3.forward, rot.z);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			base.loadFromXML(e);
 			min = e.getVector("min").Value;
 			max = e.getVector("max").Value;
@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra
 				origin = or.Value;
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			base.saveToXML(e);
 			e.addProperty("min", min);
 			e.addProperty("max", max);

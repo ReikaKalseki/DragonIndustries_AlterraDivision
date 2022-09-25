@@ -30,23 +30,23 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			GameObject find = findObject(go);
 			if (find != null) {
 				go.transform.parent = find.transform;
 			}
 		}
 		
-		internal sealed override void applyToObject(PlacedObject go) {
+		public sealed override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			type = (SeekType)Enum.Parse(typeof(SeekType), e.getProperty("type"));
 			seekID = e.getProperty("key");
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("type", Enum.GetName(typeof(SeekType), type));
 			e.addProperty("key", seekID);
 		}

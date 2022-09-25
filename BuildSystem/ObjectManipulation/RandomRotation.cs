@@ -21,13 +21,13 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal class RandomRotation : ManipulationBase {
+	public class RandomRotation : ManipulationBase {
 		
 		private bool randomX;
 		private bool randomY;
 		private bool randomZ;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			if (randomX && randomY && randomZ) {
 				go.transform.rotation = UnityEngine.Random.rotationUniform;
 			}
@@ -43,7 +43,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			if (randomX && randomY && randomZ) {
 				go.setRotation(UnityEngine.Random.rotationUniform);
 			}
@@ -59,13 +59,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			randomX = e.getBoolean("x");
 			randomY = e.getBoolean("y");
 			randomZ = e.getBoolean("z");
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("x", randomX);
 			e.addProperty("y", randomY);
 			e.addProperty("z", randomZ);

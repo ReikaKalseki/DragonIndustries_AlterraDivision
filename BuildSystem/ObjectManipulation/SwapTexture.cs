@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 			swaps[from] = to;
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 		 	foreach (Renderer r in go.GetComponentsInChildren<Renderer>()) {
 			 	foreach (Material m in r.materials) {
 					if (m.mainTexture != null) {
@@ -70,11 +70,11 @@ namespace ReikaKalseki.DIAlterra
 		 	}
 		}
 		
-		internal sealed override void applyToObject(PlacedObject go) {
+		public sealed override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			swaps.Clear();
 			foreach (XmlNode n2 in e.ChildNodes) {
 				if (n2 is XmlElement) {
@@ -84,7 +84,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			foreach (KeyValuePair<string, string> kvp in swaps) {
 				XmlElement e2 = e.OwnerDocument.CreateElement("swap");
 				e2.addProperty("from", kvp.Key);

@@ -21,29 +21,29 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal class Scatter : ManipulationBase {
+	public class Scatter : ManipulationBase {
 		
 		private Vector3 range = Vector3.zero;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			float dx = UnityEngine.Random.Range(-range.x, range.x);
 			float dy = UnityEngine.Random.Range(-range.y, range.y);
 			float dz = UnityEngine.Random.Range(-range.z, range.z);
 			go.transform.position = (go.transform.position+new Vector3(dx, dy, dz));
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			double dx = UnityEngine.Random.Range(-range.x, range.x);
 			double dy = UnityEngine.Random.Range(-range.y, range.y);
 			double dz = UnityEngine.Random.Range(-range.z, range.z);
 			go.move(dx, dy, dz);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			range = ((XmlElement)e.ParentNode).getVector("Scatter").Value;
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("x", range.x);
 			e.addProperty("y", range.y);
 			e.addProperty("z", range.z);

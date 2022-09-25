@@ -25,7 +25,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		private List<DoorSwap> swaps = new List<DoorSwap>();
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			foreach (DoorSwap d in swaps) {
 				bool found = false;
 				foreach (Transform t in ObjectUtil.getChildObject(go, "Doors").transform) {
@@ -44,11 +44,11 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			swaps.Clear();
 			foreach (XmlElement e2 in e.getDirectElementsByTagName("door")) {
 				DoorSwap d = new DoorSwap(e2.getVector("position").Value, e2.getProperty("type"));
@@ -56,7 +56,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			foreach (DoorSwap d in swaps) {
 				XmlElement e2 = e.OwnerDocument.CreateElement("door");
 				e2.addProperty("position", d.position);
@@ -65,7 +65,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		class DoorSwap {
+		public class DoorSwap {
 			
 			internal readonly Vector3 position;
 			internal readonly string doorType;

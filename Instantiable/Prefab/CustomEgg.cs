@@ -13,7 +13,7 @@ using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra {
 	
-	public class CustomEgg : Spawnable {
+	public sealed class CustomEgg : Spawnable {
 		
 		public readonly TechType creatureToSpawn;
 		private readonly TechType template;
@@ -23,27 +23,31 @@ namespace ReikaKalseki.DIAlterra {
 		private string eggTexture;
 		public string creatureHeldDesc = null;
 		
+		public int eggSize = 2;
+		public int creatureSize = 3;
+		
 		private readonly Assembly ownerMod;
 		
 		private static readonly Dictionary<TechType, CustomEgg> eggs = new Dictionary<TechType, CustomEgg>();
 		
 		public CustomEgg(TechType c, TechType t) : base(c+"_Egg", c.AsString()+" Egg", "Hatches a "+c.AsString()) {
+			
+			ownerMod = SNUtil.tryGetModDLL();
+			
 			creatureToSpawn = c;
 			template = t;
 			
 			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[TechType.BoneShark];
 			WaterParkCreature.waterParkCreatureParameters[creatureToSpawn] = new WaterParkCreatureParameters(wpp.initialSize, wpp.maxSize, wpp.outsideSize, wpp.growingPeriod, wpp.isPickupableOutside);
 			
-			CraftDataHandler.SetItemSize(creatureToSpawn, new Vector2int(3, 3));
-			
-			ownerMod = SNUtil.tryGetModDLL();
+			OnFinishedPatching += () => {CraftDataHandler.SetItemSize(creatureToSpawn, new Vector2int(creatureSize, creatureSize));};
 			
 			eggs[creatureToSpawn] = this;
 		}
 
 		public override Vector2int SizeInInventory {
 			get {
-				return new Vector2int(2, 2);
+				return new Vector2int(eggSize, eggSize);
 			}
 		}
 		

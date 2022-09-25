@@ -21,26 +21,26 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal sealed class ModifyLight : ModifyComponent<Light> {
+	public sealed class ModifyLight : ModifyComponent<Light> {
 		
 		private double range = 1;
 		private double intensity = 1;
 		private Color? color = Color.white;
 		
-		internal override void modifyComponent(Light c) {
+		public override void modifyComponent(Light c) {
 			c.range = (float)range;
 			c.intensity = (float)intensity;
 			if (color != null && color.HasValue)
 				c.color = color.Value;
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			range = e.getFloat("range", double.NaN);
 			intensity = e.getFloat("intensity", double.NaN);
 			color = e.getColor("color", true);
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("intensity", intensity);
 			e.addProperty("range", range);
 			if (color != null && color.HasValue)

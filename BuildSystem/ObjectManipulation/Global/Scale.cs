@@ -50,13 +50,13 @@ namespace ReikaKalseki.DIAlterra
 			go.transform.localScale = rot;
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			base.loadFromXML(e);
 			min = e.getVector("min").Value;
 			max = e.getVector("max").Value;
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			base.saveToXML(e);
 			e.addProperty("min", min);
 			e.addProperty("max", max);

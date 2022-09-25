@@ -25,13 +25,13 @@ namespace ReikaKalseki.DIAlterra
 		
 		private LocalCheck localApply;
 		
-		internal sealed override void applyToObject(PlacedObject go) {
+		public sealed override void applyToObject(PlacedObject go) {
 			applyToGlobalObject(go);
 			if (localApply != null && localApply.apply(go.obj))
 				applyToSpecificObject(go);
 		}
 		
-		internal sealed override void applyToObject(GameObject go) {
+		public sealed override void applyToObject(GameObject go) {
 			applyToGlobalObject(go);
 			if (localApply != null && localApply.apply(go))
 				applyToSpecificObject(go);
@@ -42,7 +42,7 @@ namespace ReikaKalseki.DIAlterra
 		internal abstract void applyToGlobalObject(PlacedObject go);
 		internal abstract void applyToGlobalObject(GameObject go);
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			List<XmlElement> li = e.getDirectElementsByTagName("local");
 			if (li.Count == 1) {
 				string typeName = "ReikaKalseki.SeaToSea."+li[0].getProperty("type");
@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			if (localApply != null) {
 				XmlElement e2 = e.OwnerDocument.CreateElement("local");
 				localApply.saveToXML(e2);

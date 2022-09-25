@@ -23,7 +23,14 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public Spawnable getItem(string id) {
-			return registry.ContainsKey(id) ? registry[id] : null;
+			if (registry.ContainsKey(id)) {
+				SNUtil.log("Fetching item '"+id+"'", 0, SNUtil.tryGetModDLL());
+				return registry[id];
+			}
+			else {
+				SNUtil.log("Could not find item '"+id+"'", 0, SNUtil.tryGetModDLL());
+				return null;
+			}
 		}
 		
 		public void addItem(Spawnable di) {

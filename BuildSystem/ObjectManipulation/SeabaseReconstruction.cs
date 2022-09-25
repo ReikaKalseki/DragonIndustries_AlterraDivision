@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra
 			dataCache[id] = data;
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			SNUtil.log("Reconstructing seabase with "+data.ChildNodes.Count+" parts");/*
 			BaseRoot b = go.GetComponent<BaseRoot>();
 			b.noPowerNotification = null;
@@ -389,15 +389,15 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			
 		}
 		

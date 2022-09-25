@@ -25,20 +25,20 @@ namespace ReikaKalseki.DIAlterra
 		
 		private string goalKey;
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			StoryHandTarget sh = go.EnsureComponent<StoryHandTarget>();
 			sh.goal = new Story.StoryGoal(goalKey, Story.GoalType.Encyclopedia, 0);
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			goalKey = e.InnerText;
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.InnerText = goalKey;
 		}
 		

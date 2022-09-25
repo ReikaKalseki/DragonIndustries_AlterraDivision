@@ -29,7 +29,7 @@ namespace ReikaKalseki.DIAlterra
 			data = e;
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			BaseFoundationPiece bf = go.GetComponent<BaseFoundationPiece>();
 			if (bf) {
 				if (data == null) {
@@ -74,15 +74,15 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			
 		}
 		

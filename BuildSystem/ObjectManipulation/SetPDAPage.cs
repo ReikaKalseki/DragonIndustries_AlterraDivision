@@ -34,19 +34,19 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		internal override void applyToObject(GameObject go) {
+		public override void applyToObject(GameObject go) {
 			ObjectUtil.setPDAPage(go.EnsureComponent<StoryHandTarget>(), PDAManager.getPage(pageID));
 		}
 		
-		internal override void applyToObject(PlacedObject go) {
+		public override void applyToObject(PlacedObject go) {
 			applyToObject(go.obj);
 		}
 		
-		internal override void loadFromXML(XmlElement e) {
+		public override void loadFromXML(XmlElement e) {
 			pageID = e.getProperty("page");
 		}
 		
-		internal override void saveToXML(XmlElement e) {
+		public override void saveToXML(XmlElement e) {
 			e.addProperty("page", pageID);
 		}
 		
