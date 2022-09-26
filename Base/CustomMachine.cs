@@ -63,11 +63,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void addFragments(int needed, float scanTime = 5, params TechnologyFragment[] fragments) {
-			SNUtil.log("Creating "+fragments.Length+" fragments for "+this);
+			SNUtil.log("Creating "+fragments.Length+" fragments for "+this, ownerMod);
 			foreach (TechnologyFragment m in fragments) {
 				m.target = TechType;
 				m.fragmentPrefab = GenUtil.getOrCreateFragment(this, m.template, m.objectModify);
-				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID, 0, ownerMod);
+				SNUtil.log("Registered fragment "+m.fragmentPrefab.ClassID, ownerMod);
 			}
 			SNUtil.addPDAEntry(fragments[0].fragmentPrefab, scanTime, null, null, null, e => {
 				e.blueprint = TechType;

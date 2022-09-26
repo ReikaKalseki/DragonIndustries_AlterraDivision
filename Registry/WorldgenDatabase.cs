@@ -23,7 +23,7 @@ namespace ReikaKalseki.DIAlterra
 			string xml = Path.Combine(root, "XML/worldgen.xml");
 			if (Directory.Exists(folder)) {
 				string[] files = Directory.GetFiles(folder, "*.xml", SearchOption.AllDirectories);
-				SNUtil.log("Loading worldgen maps from folder '"+folder+"': "+string.Join(", ", files), 0, ownerMod);
+				SNUtil.log("Loading worldgen maps from folder '"+folder+"': "+string.Join(", ", files), ownerMod);
 				foreach (string file in files) {
 					loadXML(file);
 				}
@@ -32,12 +32,12 @@ namespace ReikaKalseki.DIAlterra
 				loadXML(xml);
 			}
 			else {
-				SNUtil.log("Worldgen XML not found!", 0, ownerMod);
+				SNUtil.log("Worldgen XML not found!", ownerMod);
 			}
 		}
 		
 		private void loadXML(string xml) {
-			SNUtil.log("Loading worldgen map from XML @ "+xml, 0, ownerMod);
+			SNUtil.log("Loading worldgen map from XML @ "+xml, ownerMod);
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xml);
 			foreach (XmlElement e in doc.DocumentElement.ChildNodes) {
@@ -74,7 +74,7 @@ namespace ReikaKalseki.DIAlterra
 							else if (ot is WorldGenerator) {
 								WorldGenerator gen = (WorldGenerator)ot;
 								GenUtil.registerWorldgen(gen);
-								SNUtil.log("Loaded worldgenator "+gen+" for "+e.format(), 0, ownerMod);
+								SNUtil.log("Loaded worldgenator "+gen+" for "+e.format(), ownerMod);
 							}
 							else {
 								throw new Exception("No worldgen loadable for '"+e.Name+"' "+e.format());
@@ -83,8 +83,8 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 				catch (Exception ex) {
-					SNUtil.log("Could not load element "+e.format(), 0, ownerMod);
-					SNUtil.log(ex.ToString(), 0, ownerMod);
+					SNUtil.log("Could not load element "+e.format(), ownerMod);
+					SNUtil.log(ex.ToString(), ownerMod);
 				}
 			}
 		}

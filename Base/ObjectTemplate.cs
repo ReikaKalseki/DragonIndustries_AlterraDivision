@@ -31,6 +31,7 @@ namespace ReikaKalseki.DIAlterra
 		public static void registerType(string tagname, Func<XmlElement, ObjectTemplate> ctr) {
 			if (types.ContainsKey(tagname))
 				throw new Exception("Tag name '"+tagname+"' already in use!");
+			SNUtil.log("Registered XML object ref type "+ctr.Method.DeclaringType.Name+"::"+ctr.Method.Name+" as "+tagname, SNUtil.diDLL);
 			types[tagname] = ctr;
 			//typeIDs[t] = tagname;
 		}

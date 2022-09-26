@@ -39,7 +39,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void registerWorldgen(BiomeType biome, int amt, float chance) {
-			SNUtil.log("Adding worldgen "+biome+" x"+amt+" @ "+chance+"% to "+this, 0, ownerMod);
+			SNUtil.log("Adding worldgen "+biome+" x"+amt+" @ "+chance+"% to "+this, ownerMod);
 			GenUtil.registerOreWorldgen(this, biome, amt, chance);
 		}
 		

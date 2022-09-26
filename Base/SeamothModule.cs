@@ -38,13 +38,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 
-		public override sealed TechGroup GroupForPDA {
+		public override TechGroup GroupForPDA {
 			get {
 				return TechGroup.VehicleUpgrades;
 			}
 		}
 
-		public override sealed TechCategory CategoryForPDA {
+		public override TechCategory CategoryForPDA {
 			get {
 				return TechCategory.VehicleUpgrades;
 			}

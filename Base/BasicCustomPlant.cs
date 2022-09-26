@@ -44,7 +44,7 @@ namespace ReikaKalseki.DIAlterra
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
 	        		CraftData.harvestOutputList[TechType] = seed.TechType;
 	        		CraftData.harvestFinalCutBonusList[TechType] = finalCutBonus;
-	        		SNUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType), 0, ownerMod);
+	        		SNUtil.log("Finished patching "+this+" > "+CraftData.GetHarvestOutputData(TechType), ownerMod);
 				}
 			};
 		}

@@ -32,5 +32,17 @@ namespace ReikaKalseki.DIAlterra
 				return QuickSlotType.Passive;
 			}
 		}
+
+		public override TechGroup GroupForPDA {
+			get {
+				return TechGroup.Workbench;
+			}
+		}
+
+		public override TechCategory CategoryForPDA {
+			get {
+				return TechCategory.Workbench;
+			}
+		}
 	}
 }

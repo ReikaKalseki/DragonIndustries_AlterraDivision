@@ -17,6 +17,14 @@ namespace ReikaKalseki.DIAlterra
     
     //public static readonly ModLogger logger = new ModLogger();
 
+    [QModPrePatch]
+    public static void PreLoad()
+    {
+    	System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(PlacedObject).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(CustomPrefab).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(WorldGenerator).TypeHandle);
+    }
+
     [QModPatch]
     public static void Load()
     {        
@@ -24,7 +32,7 @@ namespace ReikaKalseki.DIAlterra
         Harmony.DEBUG = true;
         FileLog.logPath = Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "harmony-log.txt");
         FileLog.Log("Ran mod register, started harmony (harmony log)");
-        SNUtil.log("Ran mod register, started harmony");
+        SNUtil.log("Ran mod register, started harmony", SNUtil.diDLL);
         try {
         	harmony.PatchAll(SNUtil.diDLL);
         }
@@ -36,8 +44,6 @@ namespace ReikaKalseki.DIAlterra
         }
         
         addCommands();
-		
-        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(WorldGenerator).TypeHandle);
 	    
 	    SpriteHandler.RegisterSprite(TechType.PDA, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/PDA"));
 	    SpriteHandler.RegisterSprite(TechType.Databox, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Databox"));

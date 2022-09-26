@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Assets;
@@ -20,6 +21,7 @@ namespace ReikaKalseki.DIAlterra
 		public CraftTree.Type craftingType = CraftTree.Type.None;
 		public float craftTime = 1F;
 		public string[] craftingMenuTree = new string[0];
+		public Assembly ownerMod;
 		
 		public string suffixName = "";
 		
@@ -33,6 +35,8 @@ namespace ReikaKalseki.DIAlterra
 			craftingMenuTree = s.StepsToFabricatorTab;
 			if (s is BasicCraftingItem)
 				sprite = ((BasicCraftingItem)s).sprite;
+			if (s is DIPrefab<PrefabReference>)
+				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
 			FriendlyName = FriendlyName+suffixName;
 			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += () => {SNUtil.log("Constructed uncrafting of "+s.ClassID+": "+TechType+" @ "+string.Join("/", craftingMenuTree));};
@@ -114,6 +118,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public TechType getBasis() {
 			return basis;
+		}
+		
+		public Assembly getOwnerMod() {
+			return ownerMod;
 		}
 		
 		public string getTooltip() {

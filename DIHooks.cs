@@ -74,7 +74,7 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static void onWorldLoaded() {
 	    	worldLoaded = true;
-	    	SNUtil.log("Intercepted world load");
+	    	SNUtil.log("Intercepted world load", SNUtil.diDLL);
 	        
 	    	DuplicateRecipeDelegate.updateLocale();
 	    	CustomEgg.updateLocale();

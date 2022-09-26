@@ -43,14 +43,14 @@ namespace ReikaKalseki.DIAlterra
 	        	if (a != di && a != smlDLL && a != gameDLL && a != gameDLL2 && a.Location.Contains("QMods"))
 	                return a;
 	        }
-	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), 0, diDLL);
+	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), diDLL);
 	        return Assembly.GetCallingAssembly();
 		}
 		
-		public static void log(string s, int indent = 0, Assembly a = null) {
+		public static void log(string s, Assembly a = null, int indent = 0) {
 			while (s.Length > 4096) {
 				string part = s.Substring(0, 4096);
-				log(part);
+				log(part, a);
 				s = s.Substring(4096);
 			}
 			string id = (a != null ? a : tryGetModDLL()).GetName().Name.ToUpperInvariant().Replace("PLUGIN_", "");

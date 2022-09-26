@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Assets;
@@ -19,6 +20,7 @@ namespace ReikaKalseki.DIAlterra
 		public TechType unlock = TechType.None;
 		public TechCategory category = TechCategory.Misc;
 		public TechGroup group = TechGroup.Uncategorized;
+		public Assembly ownerMod;
 		
 		private static readonly Dictionary<TechType, List<DuplicateItemDelegate>> delegates = new Dictionary<TechType, List<DuplicateItemDelegate>>();
 		
@@ -29,6 +31,8 @@ namespace ReikaKalseki.DIAlterra
 			group = s.GroupForPDA;
 			category = s.CategoryForPDA;
 			nameSuffix = suff;
+			if (s is DIPrefab<PrefabReference>)
+				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
 			addDelegate(this);
 		}
 		
@@ -60,7 +64,7 @@ namespace ReikaKalseki.DIAlterra
 						TechType dt = ((ModPrefab)d).TechType;
 						Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
 						Language.main.strings["Tooltip_"+dt.AsString()] = d.getTooltip();
-						SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()]);
+						SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()], d.getOwnerMod());
 					}
 				}
 			}
@@ -115,6 +119,10 @@ namespace ReikaKalseki.DIAlterra
 		protected override TechData GetBlueprintRecipe() {
 			return null;
 		}
+		
+		public Assembly getOwnerMod() {
+			return ownerMod;
+		}
 	}
 	
 	public interface DuplicateItemDelegate {
@@ -126,6 +134,8 @@ namespace ReikaKalseki.DIAlterra
 		TechType getBasis();
 		
 		string getTooltip();
+		
+		Assembly getOwnerMod();
 		
 	}
 }

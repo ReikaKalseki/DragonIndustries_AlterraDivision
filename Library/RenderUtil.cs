@@ -71,10 +71,10 @@ namespace ReikaKalseki.DIAlterra
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
-							//SNUtil.writeToChat("Found "+type+" texture @ "+path);
+							//SNUtil.writeToChat("Found "+type+" texture @ "+path, a);
 						}
 						else {
-							//SNUtil.writeToChat("No texture found at "+path);
+							//SNUtil.writeToChat("No texture found at "+path, a);
 						}
 					}
 				}
@@ -88,7 +88,7 @@ namespace ReikaKalseki.DIAlterra
 			if (pfb is MultiTexturePrefab<T>)
 				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers();
 			if (!swapTextures(pfb.getOwnerMod(), r, path, dict))
-				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb);
+				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb, pfb.getOwnerMod());
 			
 			if (pfb.glowIntensity > 0) {
 				setEmissivity(r, pfb.glowIntensity, "GlowStrength");

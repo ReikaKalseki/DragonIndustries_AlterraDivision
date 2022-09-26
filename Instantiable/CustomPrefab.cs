@@ -32,6 +32,8 @@ namespace ReikaKalseki.DIAlterra
 			
 			private static readonly Dictionary<string, ModifiedObjectPrefab> prefabCache = new Dictionary<string, ModifiedObjectPrefab>();
 			
+			private static HashSet<string> prefabNamespaces = new HashSet<string>(){"ReikaKalseki.DIAlterra"};
+			
 			[SerializeField]
 			public TechType tech = TechType.None;
 			[SerializeField]
@@ -57,6 +59,10 @@ namespace ReikaKalseki.DIAlterra
 			
 			static CustomPrefab() {
 				registerType(TAGNAME, e => new CustomPrefab(e.getProperty("prefab")));
+			}
+			
+			public static void addPrefabNamespace(string s) {
+				prefabNamespaces.Add(s);
 			}
 			
 			public override string ToString() {
@@ -269,9 +275,14 @@ namespace ReikaKalseki.DIAlterra
 				try {
 					if (e2 == null)
 						throw new Exception("Null XML elem");
-					Type t = InstructionHandlers.getTypeBySimpleName("ReikaKalseki.SeaToSea."+e2.Name);
+					Type t = null;
+					foreach (string s in prefabNamespaces) {
+						t = InstructionHandlers.getTypeBySimpleName(s+"."+e2.Name);
+						if (t != null)
+							break;
+					}
 					if (t == null)
-						throw new Exception("Type '"+e2.Name+"' not found");
+						throw new Exception("Type '"+e2.Name+"' not found; is a namespace missing from "+string.Join(", ", prefabNamespaces));
 					System.Reflection.ConstructorInfo ct = t.GetConstructor(new Type[0]);
 					if (ct == null)
 						throw new Exception("Constructor not found");
