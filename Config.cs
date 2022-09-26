@@ -59,36 +59,36 @@ namespace ReikaKalseki.DIAlterra
 							float raw = entry.parse(val.InnerText);
 							float get = raw;
 							if (!entry.validate(ref get)) {
-								SNUtil.log("Chosen "+name+" value ("+raw+") was out of bounds, clamed to "+get);
+								SNUtil.log("Chosen "+name+" value ("+raw+") was out of bounds, clamped to "+get, owner);
 							}
 							data[name] = get;
 							dataString[name] = val.InnerText;
 							missing.Remove(name);
 						}
 						catch (Exception ex) {
-							SNUtil.log("Config entry "+name+" failed to load: "+ex.ToString());
+							SNUtil.log("Config entry "+name+" failed to load: "+ex.ToString(), owner);
 						}
 					}
 					string vals = string.Join(";", data.Select(x => x.Key + "=" + x.Value).ToArray());
 					SNUtil.log("Config successfully loaded: "+vals);
 					if (missing.Count > 0) {
 						string keys = string.Join(";", missing.ToArray());
-						SNUtil.log("Note: "+missing.Count+" entries were missing from the config and so stayed the default values.");
-						SNUtil.log("Missing keys: "+keys);
+						SNUtil.log("Note: "+missing.Count+" entries were missing from the config and so stayed the default values.", owner);
+						SNUtil.log("Missing keys: "+keys, owner);
 						//SNUtil.log("It is recommended that you regenerate your config by renaming your current config file, letting a new one generate," +
 						         // "then copying your changes into the new one.");
-						SNUtil.log("Your config will be regenerated (keeping your changes) to add them to the file.");
+						SNUtil.log("Your config will be regenerated (keeping your changes) to add them to the file.", owner);
 						File.Delete(path);
 						generateFile(path, e => getFloat(getEnum(e)));
 					}
 				}
 				catch (Exception ex)
 				{
-					SNUtil.log("Config failed to load: "+ex.ToString());
+					SNUtil.log("Config failed to load: "+ex.ToString(), owner);
 				}
 			}
 			else {
-				SNUtil.log("Config file does not exist at "+path+"; generating.");
+				SNUtil.log("Config file does not exist at "+path+"; generating.", owner);
 				generateFile(path, e => e.defaultValue);
 			}
 		}
@@ -103,14 +103,14 @@ namespace ReikaKalseki.DIAlterra
 						createNode(doc, root, key, valGetter);
 					}
 					catch (Exception e) {
-						SNUtil.log("Could not generate XML node for "+key+": "+e.ToString());
+						SNUtil.log("Could not generate XML node for "+key+": "+e.ToString(), owner);
 					}
 				}
 				doc.Save(path);
-				SNUtil.log("Config successfully generated at "+path);
+				SNUtil.log("Config successfully generated at "+path, owner);
 			}
 			catch (Exception ex) {
-				SNUtil.log("Config failed to generate: "+ex.ToString());
+				SNUtil.log("Config failed to generate: "+ex.ToString(), owner);
 			}
 		}
 			
@@ -178,6 +178,7 @@ namespace ReikaKalseki.DIAlterra
 		private ConfigEntry getEntry(E key) {
 			if (!entryCache.ContainsKey(key)) {
 				entryCache[key] = lookupEntry(key);
+				SMLHelper.V2.Options.
 			}
 			return entryCache[key];
 		}
