@@ -62,6 +62,17 @@ namespace ReikaKalseki.DIAlterra
 			return false;
 		}
 		
+		protected void initializeStorageContainer(StorageContainer con, int w, int h, string label = null) {
+			con.storageRoot.ClassId = ClassID.ToLowerInvariant()+"container";
+			if (string.IsNullOrEmpty(label))
+				label = FriendlyName;
+			con.hoverText = "Use "+label;
+			con.storageLabel = label.ToUpperInvariant();
+			con.container.containerType = ItemsContainerType.Default;
+			con.enabled = true;
+			con.Resize(w, h);
+		}
+		
 		public void addFragments(int needed, float scanTime = 5, params TechnologyFragment[] fragments) {
 			SNUtil.log("Creating "+fragments.Length+" fragments for "+this, ownerMod);
 			foreach (TechnologyFragment m in fragments) {

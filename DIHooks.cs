@@ -26,6 +26,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<Pickupable> onItemPickedUpEvent;
 	    public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
 	    public static event Action<SkyApplier> onSkyApplierSpawnEvent;
+	    public static event Action<TechType, Constructable> onConstructedEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -262,5 +263,14 @@ namespace ReikaKalseki.DIAlterra {
 	   			return wb.isPlayerInside();
 	   		return Player.main.IsInsideWalkable() && Player.main.currentWaterPark == null;
 	   	}
-	  }
+	    
+	    public static void onConstructionComplete(TechType tt, Constructable c) {
+	    	Story.ItemGoalTracker.OnConstruct(tt);
+	    	
+	    	TechnologyUnlockSystem.instance.triggerDirectUnlock(tt);
+	    	
+	    	if (onConstructedEvent != null)
+	    		onConstructedEvent.Invoke(tt, c);
+	    }
+	}
 }

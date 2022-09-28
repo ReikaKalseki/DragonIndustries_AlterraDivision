@@ -178,7 +178,6 @@ namespace ReikaKalseki.DIAlterra
 		private ConfigEntry getEntry(E key) {
 			if (!entryCache.ContainsKey(key)) {
 				entryCache[key] = lookupEntry(key);
-				SMLHelper.V2.Options.
 			}
 			return entryCache[key];
 		}

@@ -38,6 +38,10 @@ namespace ReikaKalseki.DIAlterra {
 	    		}
 	    	}
 		}
+	    
+	    public void onBuilt(TechType tt) {
+	    	
+	    }
 	   
 		public void triggerDirectUnlock(TechType tt) {
 	   		if (!directUnlocks.ContainsKey(tt))
