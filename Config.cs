@@ -20,6 +20,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private readonly Assembly owner;
 		
+		private bool loaded = false;
+		
 		public Config()
 		{
 			owner = SNUtil.tryGetModDLL();
@@ -37,7 +39,9 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public void load() {
+		public void load(bool force = false) {
+			if (loaded && !force)
+				return;
 			string folder = Path.GetDirectoryName(owner.Location);
 			Directory.CreateDirectory(folder);
 			string path = Path.Combine(folder, filename);
@@ -91,6 +95,7 @@ namespace ReikaKalseki.DIAlterra
 				SNUtil.log("Config file does not exist at "+path+"; generating.", owner);
 				generateFile(path, e => e.defaultValue);
 			}
+			loaded = true;
 		}
 		
 		private void generateFile(string path, Func<ConfigEntry, float> valGetter) {
@@ -168,11 +173,27 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public float getFloat(E key) {
-			return getValue(Enum.GetName(typeof(E), key));
+			return getValue(getKey(key));
 		}
 		
 		public string getString(E key) {
-			return getStringValue(Enum.GetName(typeof(E), key));
+			return getStringValue(getKey(key));
+		}
+		
+		private string getKey(E key) {
+			return Enum.GetName(typeof(E), key);
+		}
+		
+		public void setValue(E key, float val) {
+			data[getKey(key)] = val;
+		}
+		
+		public void setValue(E key, bool val) {
+			setValue(key, 0);
+		}
+		
+		public void setValue(E key, string val) {
+			dataString[getKey(key)] = val;
 		}
 		
 		private ConfigEntry getEntry(E key) {

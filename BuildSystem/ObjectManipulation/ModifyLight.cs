@@ -37,7 +37,7 @@ namespace ReikaKalseki.DIAlterra
 		public override void loadFromXML(XmlElement e) {
 			range = e.getFloat("range", double.NaN);
 			intensity = e.getFloat("intensity", double.NaN);
-			color = e.getColor("color", true);
+			color = e.getColor("color", true, true);
 		}
 		
 		public override void saveToXML(XmlElement e) {

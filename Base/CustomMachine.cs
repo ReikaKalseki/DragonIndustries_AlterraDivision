@@ -160,12 +160,17 @@ namespace ReikaKalseki.DIAlterra
 		private SubRoot sub;		
 		private StorageContainer storage;
 		
-		private float lastDayTime;
+		private float lastUpdateTime = -1;
+		private float lastDayTime = -1;
 		
 		private float lastReceived;
 		
 		void Start() {
 			setupSky();
+		}
+		
+		protected virtual float getTickRate() {
+			return 0;
 		}
 		
 		private void setupSky() {
@@ -185,7 +190,11 @@ namespace ReikaKalseki.DIAlterra
 		
 		void Update() {
 			float time = DayNightCycle.main.timePassedAsFloat;
-			updateEntity(time-lastDayTime);
+			float delta = time-lastUpdateTime;
+			if (delta > 0 && delta >= getTickRate()) {
+				updateEntity(delta);
+				lastUpdateTime = time;
+			}
 			if (time-lastDayTime >= 5)
 				setupSky();
 			lastDayTime = time;
