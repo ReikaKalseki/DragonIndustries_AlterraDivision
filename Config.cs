@@ -22,11 +22,26 @@ namespace ReikaKalseki.DIAlterra
 		
 		private bool loaded = false;
 		
+		private readonly Dictionary<string, List<Func<V, V>>> overrides = new Dictionary<string, List<Func<V, V>>>();
+		
 		public Config()
 		{
 			owner = SNUtil.tryGetModDLL();
 			filename = /*Environment.UserName+"_"+*/owner.GetName().Name+"_Config.xml";
 			populateDefaults();
+		}
+		
+		public void attachOverride<V>(E key, Func<V, V> a) {
+			string k = getKey(key);
+			if (!overrides.ContainsKey(k))
+				overrides[k] = new List<Func<V, V>>();
+			overrides[k].Add(a);
+		}
+		
+		public void applyOverrides() {
+			foreach (Action<Config<E>> a in overrides) {
+				a(this);
+			}
 		}
 		
 		private void populateDefaults() {

@@ -14,7 +14,13 @@ namespace ReikaKalseki.DIAlterra
   public class DIMod
   {
     public const string MOD_KEY = "ReikaKalseki.DIAlterra";
+    /*
+    private static readonly List<SNMod> mods = new List<SNMod>();
     
+    public static void addMod(SNMod mod) {
+    	mods.Add(mod);
+    }
+    */
     //public static readonly ModLogger logger = new ModLogger();
 
     [QModPrePatch]
@@ -23,11 +29,14 @@ namespace ReikaKalseki.DIAlterra
     	System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(PlacedObject).TypeHandle);
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(CustomPrefab).TypeHandle);
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(WorldGenerator).TypeHandle);
+        //mods.Insert(0, new SNMod(MOD_KEY));
     }
 
     [QModPatch]
     public static void Load()
-    {        
+    {   
+    	SNUtil.log("Start DI Main Init", SNUtil.diDLL);
+    	
         Harmony harmony = new Harmony(MOD_KEY);
         Harmony.DEBUG = true;
         FileLog.logPath = Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "harmony-log.txt");
@@ -43,10 +52,33 @@ namespace ReikaKalseki.DIAlterra
 			FileLog.Log(ex.ToString());
         }
         
+        /*
+        dispatchLoadPhase("loadConfig");
+        dispatchLoadPhase("afterConfig");
+        dispatchLoadPhase("doPatches");
+        dispatchLoadPhase("addItems");
+        dispatchLoadPhase("loadMain");
+        dispatchLoadPhase("loadConfig");
+        */
         addCommands();
 	    
 	    SpriteHandler.RegisterSprite(TechType.PDA, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/PDA"));
 	    SpriteHandler.RegisterSprite(TechType.Databox, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Databox"));
+	    
+    	SNUtil.log("Finish DI Main Init", SNUtil.diDLL);
+    }
+    
+    [QModPostPatch]
+    public static void PostLoad()
+    { 
+        //dispatchLoadPhase("loadModInteract");
+        //dispatchLoadPhase("loadFinal");
+    }
+    
+    private static void dispatchLoadPhase(string phase) {/*
+        foreach (SNMod mod in mods) {
+    		
+        }*/
     }
     
     private static void addCommands() {
