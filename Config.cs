@@ -22,7 +22,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private bool loaded = false;
 		
-		private readonly Dictionary<string, List<Func<V, V>>> overrides = new Dictionary<string, List<Func<V, V>>>();
+		private readonly Dictionary<string, Func<float, float>> overrides = new Dictionary<string, Func<float, float>>();
+		private readonly Dictionary<string, Func<string, string>> overridesString = new Dictionary<string, Func<string, string>>();
 		
 		public Config()
 		{
@@ -31,19 +32,37 @@ namespace ReikaKalseki.DIAlterra
 			populateDefaults();
 		}
 		
-		public void attachOverride<V>(E key, Func<V, V> a) {
-			string k = getKey(key);
-			if (!overrides.ContainsKey(k))
-				overrides[k] = new List<Func<V, V>>();
-			overrides[k].Add(a);
+		public void attachOverride(E key, bool val) {
+			attachOverride(key, val ? 1 : 0);
 		}
 		
-		public void applyOverrides() {
-			foreach (Action<Config<E>> a in overrides) {
-				a(this);
+		public void attachOverride(E key, float val) {
+			attachOverride(key, f => val);
+		}
+		
+		public void attachOverride(E key, Func<bool, bool> val) {
+			attachOverride(key, f => val(f > 0.001) ? 1 : 0);
+		}
+		
+		public void attachOverride(E key, Func<float, float> val) {
+			string k = getKey(key);
+			overrides[k] = val;
+		}
+		
+		public void attachOverride(E key, Func<string, string> val) {
+			string k = getKey(key);
+			overridesString[k] = val;
+		}
+		/*
+		private void applyOverrides() {
+			foreach (KeyValuePair<string, Func<float>> kvp in overrides) {
+				data[kvp.Key] = kvp.Value(data[kvp.Key]);
+			}
+			foreach (KeyValuePair<string, Func<string>> kvp in overridesString) {
+				dataString[kvp.Key] = kvp.Value(dataString[kvp.Key]);
 			}
 		}
-		
+		*/
 		private void populateDefaults() {
 			foreach (E key in Enum.GetValues(typeof(E))) {
 				string name = Enum.GetName(typeof(E), key);
@@ -110,6 +129,7 @@ namespace ReikaKalseki.DIAlterra
 				SNUtil.log("Config file does not exist at "+path+"; generating.", owner);
 				generateFile(path, e => e.defaultValue);
 			}
+			//applyOverrides();
 			loaded = true;
 		}
 		
@@ -170,11 +190,17 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private float getValue(string key) {
-			return data.ContainsKey(key) ? data[key] : 0;
+			float ret = data.ContainsKey(key) ? data[key] : 0;
+			if (overrides.ContainsKey(key))
+				ret = overrides[key](ret);
+			return ret;
 		}
 		
 		private string getStringValue(string key) {
-			return dataString.ContainsKey(key) ? dataString[key] : null;
+			string ret = dataString.ContainsKey(key) ? dataString[key] : null;
+			if (overridesString.ContainsKey(key))
+				ret = overridesString[key](ret);
+			return ret;
 		}
 		
 		public bool getBoolean(E key) {
@@ -198,7 +224,7 @@ namespace ReikaKalseki.DIAlterra
 		private string getKey(E key) {
 			return Enum.GetName(typeof(E), key);
 		}
-		
+		/*
 		public void setValue(E key, float val) {
 			data[getKey(key)] = val;
 		}
@@ -210,7 +236,7 @@ namespace ReikaKalseki.DIAlterra
 		public void setValue(E key, string val) {
 			dataString[getKey(key)] = val;
 		}
-		
+		*/
 		private ConfigEntry getEntry(E key) {
 			if (!entryCache.ContainsKey(key)) {
 				entryCache[key] = lookupEntry(key);

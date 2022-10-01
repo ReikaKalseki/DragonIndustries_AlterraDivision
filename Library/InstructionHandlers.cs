@@ -269,5 +269,31 @@ namespace ReikaKalseki.DIAlterra
 			codes.RemoveRange(from, to-from+1);
 			return li;
 		}
+		
+		public static void replaceConstantWithMethodCall(List<CodeInstruction> codes, int val, List<CodeInstruction> put) {
+			replaceConstantWithMethodCall(codes, val, c => c.opcode == OpCodes.Ldc_I4 && c.LoadsConstant(Convert.ToInt32(val)), put);
+		}
+		
+		public static void replaceConstantWithMethodCall(List<CodeInstruction> codes, long val, List<CodeInstruction> put) {
+			replaceConstantWithMethodCall(codes, val, c => c.opcode == OpCodes.Ldc_I8 && c.LoadsConstant(Convert.ToInt64(val)), put);
+		}
+		
+		public static void replaceConstantWithMethodCall(List<CodeInstruction> codes, float val, List<CodeInstruction> put) {
+			replaceConstantWithMethodCall(codes, val, c => c.opcode == OpCodes.Ldc_R4 && c.LoadsConstant(Convert.ToSingle(val)), put);
+		}
+		
+		public static void replaceConstantWithMethodCall(List<CodeInstruction> codes, double val, List<CodeInstruction> put) {
+			replaceConstantWithMethodCall(codes, val, c => c.opcode == OpCodes.Ldc_R8 && c.LoadsConstant(Convert.ToDouble(val)), put);
+		}
+	
+		private static void replaceConstantWithMethodCall(List<CodeInstruction> codes, double val, Func<CodeInstruction, bool> f, List<CodeInstruction> put) {
+			for (int i = codes.Count-1; i >= 0; i--) {
+				CodeInstruction c = codes[i];
+				if (f(c)) {
+					codes.RemoveAt(i);
+					codes.InsertRange(i, put);
+				}
+			}
+		}
 	}
 }
