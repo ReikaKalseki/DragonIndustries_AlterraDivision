@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
@@ -109,6 +110,33 @@ batch_id = (19, 17, 16)
 		
 		public static string getBiomeFriendlyName(string biome) {
 			return biomeNames.ContainsKey(biome) ? biomeNames[biome] : biome;
+		}
+		
+		public static bool lineOfSight(GameObject o1, GameObject o2) {
+			return lineOfSight(o1, o2, o1.transform.position, o2.transform.position);
+		}
+		
+		public static bool lineOfSight(GameObject o1, GameObject o2, Vector3 pos1, Vector3 pos2) {/*
+			RaycastHit hit;
+			Physics.Linecast(o1.transform.position, o2.transform.position, out hit);
+			if (hit) {
+				
+			}*/
+			Vector3 dd = pos2-pos1;
+			RaycastHit[] hits = Physics.RaycastAll(pos1, dd.normalized, dd.magnitude);
+			foreach (RaycastHit hit in hits) {
+				if (!hit.collider || hit.collider.isTrigger)
+					continue;
+				if (hit.transform == o1.transform || hit.transform == o2.transform)
+					continue;
+				if (Array.IndexOf(o1.GetComponentsInChildren<Collider>(), hit.collider) >= 0)
+					continue;
+				if (Array.IndexOf(o2.GetComponentsInChildren<Collider>(), hit.collider) >= 0)
+					continue;
+				SNUtil.writeToChat("Raytrace from "+o1+" to "+o2+" hit "+hit.transform+" @ "+hit.point+" (D="+hit.distance+")");
+				return false;
+			}
+			return true;
 		}
 		
 	}
