@@ -34,6 +34,7 @@ namespace ReikaKalseki.DIAlterra
 			if (s is DIPrefab<PrefabReference>)
 				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
 			addDelegate(this);
+			OnFinishedPatching += () => {if (ownerMod == null) throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");};
 		}
 		
 		public DuplicateRecipeDelegate(TechType from, string suff = "") : base(from.AsString()+"_delegate"+getIndexSuffix(from), "", "") {
@@ -42,6 +43,7 @@ namespace ReikaKalseki.DIAlterra
 			sprite = SpriteManager.Get(from);
 			nameSuffix = suff;
 			addDelegate(this);
+			OnFinishedPatching += () => {if (ownerMod == null) throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");};
 		}
 		
 		private static string getIndexSuffix(TechType tt) {

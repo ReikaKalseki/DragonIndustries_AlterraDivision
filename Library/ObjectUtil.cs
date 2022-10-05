@@ -21,7 +21,7 @@ namespace ReikaKalseki.DIAlterra
 			res.pickupable = go.GetComponentInChildren<Pickupable>();
 			res.rb = go.GetComponentInChildren<Rigidbody>();
 			if (moving)
-				res.StartUpdatePosition();
+				res.gameObject.EnsureComponent<ResourceTrackerUpdater>().tracker = res;
 		}
 		
 		public static void removeItem(StorageContainer sc, InventoryItem ii) {

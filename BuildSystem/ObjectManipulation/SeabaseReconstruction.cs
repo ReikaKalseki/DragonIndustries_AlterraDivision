@@ -35,7 +35,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public override void applyToObject(GameObject go) {
-			SNUtil.log("Reconstructing seabase with "+data.ChildNodes.Count+" parts");/*
+			SNUtil.log("Reconstructing seabase with "+data.ChildNodes.Count+" parts", SNUtil.diDLL);/*
 			BaseRoot b = go.GetComponent<BaseRoot>();
 			b.noPowerNotification = null;
 			b.welcomeNotification = null;
@@ -67,7 +67,7 @@ namespace ReikaKalseki.DIAlterra
 			go.transform.position = pos;
 			go.transform.localPosition = Vector3.zero;
 			go.transform.localRotation = Quaternion.identity;
-			SNUtil.log("Finished deserializing seabase @ "+pos);
+			SNUtil.log("Finished deserializing seabase @ "+pos, SNUtil.diDLL);
 		}
 		
 		class SeabaseIDHolder : MonoBehaviour {
@@ -90,7 +90,7 @@ namespace ReikaKalseki.DIAlterra
 			private Charger[] chargers = null;
 			
 			void rebuild() {
-				SNUtil.log("Seabase '"+seabaseID+"' undergoing reconstruction");
+				SNUtil.log("Seabase '"+seabaseID+"' undergoing reconstruction", SNUtil.diDLL);
 				if (reconstructionData == null) {
 					SNUtil.writeToChat("Cannot rebuild worldgen seabase @ "+baseCenter+" - no data");
 					return;
@@ -99,10 +99,10 @@ namespace ReikaKalseki.DIAlterra
 					CustomPrefab pfb = new CustomPrefab("9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5"); //BaseCell
 					pfb.loadFromXML(e2);
 					if (baseHasPart(gameObject, pfb) && pfb.prefabName != "9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5") { //ie is loose
-						SNUtil.log("Skipped recreate of loose piece: "+pfb);
+						SNUtil.log("Skipped recreate of loose piece: "+pfb, SNUtil.diDLL);
 						continue;
 					}
-					SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb);
+					SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb, SNUtil.diDLL);
 					GameObject go2 = pfb.createWorldObject();
 					go2.transform.parent = gameObject.transform;
 					baseCenter += go2.transform.position;
@@ -115,7 +115,7 @@ namespace ReikaKalseki.DIAlterra
 							pfb2.loadFromXML(e3);
 							if (pfb2.prefabName == PlacedObject.BUBBLE_PREFAB)
 								continue;
-							SNUtil.log("Reconstructed base component: "+pfb2);
+							SNUtil.log("Reconstructed base component: "+pfb2, SNUtil.diDLL);
 							GameObject go3 = pfb2.createWorldObject();
 							if (pfb2.prefabName == "RoomWaterParkBottom")
 								ObjectUtil.removeChildObject(go3, "BaseWaterParkFloorBottom/Bubbles");
@@ -149,7 +149,7 @@ namespace ReikaKalseki.DIAlterra
 					}
 					li1 = e2.getDirectElementsByTagName("inventory");
 					if (li1.Count == 1) {
-						//SNUtil.log("Recreating inventory contents: "+li1[0].OuterXml);
+						//SNUtil.log("Recreating inventory contents: "+li1[0].OuterXml, SNUtil.diDLL);
 						StorageContainer sc = go2.GetComponent<StorageContainer>();
 						Charger cg = go2.GetComponent<Charger>();
 						Planter p = go2.GetComponent<Planter>();
@@ -164,12 +164,12 @@ namespace ReikaKalseki.DIAlterra
 						foreach (XmlElement e3 in li1[0].getDirectElementsByTagName("item")) {
 							TechType tt = SNUtil.getTechType(e3.getProperty("type"));
 							if (tt == TechType.None) {
-								SNUtil.log("Could not deserialize item - null TechType: "+e3.OuterXml);
+								SNUtil.log("Could not deserialize item - null TechType: "+e3.OuterXml, SNUtil.diDLL);
 							}
 							else {
 								GameObject igo = CraftData.GetPrefabForTechType(tt);
 								if (igo == null) {
-									SNUtil.log("Could not deserialize item - resulted in null: "+e3.OuterXml);
+									SNUtil.log("Could not deserialize item - resulted in null: "+e3.OuterXml, SNUtil.diDLL);
 									continue;
 								}
 								int amt = e3.getInt("amount", 1);
@@ -180,9 +180,9 @@ namespace ReikaKalseki.DIAlterra
 									Pickupable pp = igo2.GetComponent<Pickupable>();
 									InventoryItem item = null;
 									if (pp == null) {
-										SNUtil.log("Could not deserialize item - no pickupable: "+e3.OuterXml);
+										SNUtil.log("Could not deserialize item - no pickupable: "+e3.OuterXml, SNUtil.diDLL);
 									} 
-									//SNUtil.log("Added "+pp);
+									//SNUtil.log("Added "+pp, SNUtil.diDLL);
 									if (cg != null) {
 										cg.equipment.AddItem(slot, new InventoryItem(pp), true);
 									}
@@ -193,9 +193,9 @@ namespace ReikaKalseki.DIAlterra
 							}
 						}/*
 						if (sc != null)
-							SNUtil.log("Recreated inventory contents: "+sc.container._items.toDebugString());
+							SNUtil.log("Recreated inventory contents: "+sc.container._items.toDebugString(), SNUtil.diDLL);
 						if (cg != null)
-							SNUtil.log("Recreated charger contents: "+cg.equipment.equipment.toDebugString());
+							SNUtil.log("Recreated charger contents: "+cg.equipment.equipment.toDebugString(), SNUtil.diDLL);
 							*/
 					}
 				}
@@ -237,7 +237,7 @@ namespace ReikaKalseki.DIAlterra
 				foreach (MapRoomCamera c in gameObject.GetComponentsInChildren<MapRoomCamera>(true)) {
 					UnityEngine.Object.DestroyImmediate(c.gameObject);
 				}
-				SNUtil.log("Finished reconstructing seabase '"+seabaseID+"' @ "+baseCenter);
+				SNUtil.log("Finished reconstructing seabase '"+seabaseID+"' @ "+baseCenter, SNUtil.diDLL);
 				//ObjectUtil.dumpObjectData(gameObject);
 			}
 
@@ -309,7 +309,7 @@ namespace ReikaKalseki.DIAlterra
 							}
 						}
 						catch (Exception e) {
-							SNUtil.log("Exception initializing worldgen seabase inventory @ "+p.transform.position+": "+e);
+							SNUtil.log("Exception initializing worldgen seabase inventory @ "+p.transform.position+": "+e, SNUtil.diDLL);
 						}
 					}
 				}
@@ -323,7 +323,7 @@ namespace ReikaKalseki.DIAlterra
 							}
 						}
 						catch (Exception e) {
-							SNUtil.log("Exception initializing worldgen seabase planter @ "+p.transform.position+": "+e);
+							SNUtil.log("Exception initializing worldgen seabase planter @ "+p.transform.position+": "+e, SNUtil.diDLL);
 						}
 					}
 				}*/
@@ -345,7 +345,7 @@ namespace ReikaKalseki.DIAlterra
 							p.ToggleUI(true);
 						}
 						catch (Exception e) {
-							SNUtil.log("Exception initializing worldgen seabase charger @ "+p.transform.position+": "+e);
+							SNUtil.log("Exception initializing worldgen seabase charger @ "+p.transform.position+": "+e, SNUtil.diDLL);
 						}
 					}
 				}

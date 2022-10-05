@@ -23,6 +23,7 @@ namespace ReikaKalseki.DIAlterra
 				Material m = mr[i];
 				m.SetFloat("_"+type, amt);
 				m.SetFloat("_"+type+"Night", amt);
+				m.EnableKeyword("MARMO_EMISSION");
 			}
 		}
 		
@@ -92,9 +93,6 @@ namespace ReikaKalseki.DIAlterra
 			
 			if (pfb.glowIntensity > 0) {
 				setEmissivity(r, pfb.glowIntensity, "GlowStrength");
-				
-				foreach (Material m in r.materials)
-					m.EnableKeyword("MARMO_EMISSION");
 			}
 		}
 		

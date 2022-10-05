@@ -27,6 +27,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
 	    public static event Action<SkyApplier> onSkyApplierSpawnEvent;
 	    public static event Action<TechType, Constructable> onConstructedEvent;
+	    public static event Func<string, Vector3, string> getBiomeEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -103,7 +104,13 @@ namespace ReikaKalseki.DIAlterra {
 	    	else {
 	    		return damage;
 	    	}
-		}	
+		}
+	    
+	    public static string getBiomeAt(string orig, Vector3 pos) {
+	    	if (getBiomeEvent != null)
+	    		orig = getBiomeEvent.Invoke(orig, pos);
+	    	return orig;
+	    }	
     
 	    public static void onItemPickedUp(Pickupable p) {
 	    	TechType tt = TechType.None;
@@ -205,7 +212,7 @@ namespace ReikaKalseki.DIAlterra {
 					if (component)
 						tt = component.GetTechType();
 				}
-				SNUtil.log("Player used item "+tt);
+				SNUtil.log("Player used item "+tt, SNUtil.diDLL);
 				flag = UsableItemRegistry.instance.use(tt, s, useObj);
 				if (flag)
 					FMODUWE.PlayOneShot(CraftData.GetUseEatSound(tt), Player.main.transform.position, 1f);
