@@ -29,10 +29,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void registerOreWorldgen(Spawnable sp, bool large, BiomeType biome, int amt, float chance) {
-			registerSlotWorldgen(sp.ClassID, sp.PrefabFileName, sp.TechType, large, biome, amt, chance);
+			registerSlotWorldgen(sp.ClassID, sp.PrefabFileName, sp.TechType, large ? EntitySlot.Type.Medium : EntitySlot.Type.Small, large ? LargeWorldEntity.CellLevel.Medium : LargeWorldEntity.CellLevel.Near, biome, amt, chance);
 		}
 		
-		public static void registerSlotWorldgen(string id, string file, TechType tech, bool large, BiomeType biome, int amt, float chance) {
+		public static void registerSlotWorldgen(string id, string file, TechType tech, EntitySlot.Type type, LargeWorldEntity.CellLevel size, BiomeType biome, int amt, float chance) {
 			if (alreadyRegisteredGen.Contains(id)) {
 		        LootDistributionHandler.EditLootDistributionData(id, biome, chance, amt); //will add if not present
 			}
@@ -40,10 +40,10 @@ namespace ReikaKalseki.DIAlterra
 				LootDistributionData.BiomeData b = new LootDistributionData.BiomeData{biome = biome, count = amt, probability = chance};
 		        List<LootDistributionData.BiomeData> li = new List<LootDistributionData.BiomeData>{b};
 		        UWE.WorldEntityInfo info = new UWE.WorldEntityInfo();
-		        info.cellLevel = large ? LargeWorldEntity.CellLevel.Medium : LargeWorldEntity.CellLevel.Near;
+		        info.cellLevel = size;
 		        info.classId = id;
 		        info.localScale = Vector3.one;
-		        info.slotType = large ? EntitySlot.Type.Medium : EntitySlot.Type.Small;
+		        info.slotType = type;
 		        info.techType = tech;
 		       	WorldEntityDatabaseHandler.AddCustomInfo(id, info);
 		        LootDistributionHandler.AddLootDistributionData(id, file, li, info);

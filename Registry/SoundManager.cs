@@ -33,7 +33,11 @@ namespace ReikaKalseki.DIAlterra
 			return sounds.ContainsKey(id) ? sounds[id] : null;
 		}
 		
-		public static FMODAsset registerSound(Assembly a, string id, string path, Bus? b = null) {
+		public static FMODAsset registerPDASound(Assembly a, string id, string path) {
+			return registerSound(a, id, path, soundModeStreaming, null, SoundSystem.voiceBus);
+		}
+		
+		public static FMODAsset registerSound(Assembly a, string id, string path, MODE m, Action<Sound> processing = null, Bus? b = null) {
 			if (a == null)
 				throw new Exception("You must specify a mod to load the sound for!");
 			if (sounds.ContainsKey(id))
@@ -49,10 +53,22 @@ namespace ReikaKalseki.DIAlterra
 			string bp = null;
 			bb.getPath(out bp);
 			SNUtil.log("Registered custom sound '"+id+"' @ "+path+" on bus "+bp);
-			Sound snd = AudioUtils.CreateSound(path, soundModeStreaming);
+			Sound snd = AudioUtils.CreateSound(path, m);
+			if (processing != null)
+				processing(snd);
 			CustomSoundHandler.RegisterCustomSound(id, snd, bb);
 			sounds[id] = SNUtil.getSound(id, id, false);
 			return sounds[id];
+		}
+		
+		public static void setup3D(Sound s, float maxDist, float minDist = 0) {
+			s.set3DMinMaxDistance(minDist, maxDist);
+		}
+		
+		public static void setLooping(Sound s) {
+			uint len;
+			s.getLength(out len, TIMEUNIT.MS);
+			s.setLoopPoints(0, TIMEUNIT.MS, len, TIMEUNIT.MS);
 		}
 		
 	}

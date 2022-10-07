@@ -29,7 +29,7 @@ namespace ReikaKalseki.DIAlterra
 			mapBiomeName("Deep Grand Reef", "deepgrand");
 			mapBiomeName("Bulb Zone", "koosh");
 			mapBiomeName("Jellyshroom Caves", "jellyshroom");
-			mapBiomeName("Underwater Islands", "Underwaterislands");
+			mapBiomeName("Underwater Islands", "Underwaterislands", "Underwaterislands_ValleyFloor", "Underwaterislands_Geyser");
 			mapBiomeName("Mountains", "mountains");
 			mapBiomeName("Northern Blood Kelp", "bloodkelptwo");
 			mapBiomeName("Blood Kelp Trench", "bloodkelp");

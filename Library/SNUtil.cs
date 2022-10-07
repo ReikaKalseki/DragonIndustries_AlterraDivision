@@ -112,14 +112,14 @@ namespace ReikaKalseki.DIAlterra
 			playSoundAt(getSound(path), Player.main.transform.position, queue);
 		}
 		
-		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
+		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float vol = 1) {/*
 			if (distanceFalloff > 0) {
 				float dist = Vector3.Distance(position, Player.main.transform.position);
 				if (dist >= distanceFalloff)
 					return;
 				else
 					vol *= 1-(dist/distanceFalloff);
-			}
+			}*/
 			//SBUtil.writeToChat("playing sound "+snd.id);
 			if (queue)
 				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
@@ -163,7 +163,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static Story.StoryGoal addRadioMessage(string key, string text, string soundPath) {
-			return addRadioMessage(key, text, SoundManager.registerSound(SNUtil.tryGetModDLL(), "radio_"+key, soundPath, SoundSystem.voiceBus));
+			return addRadioMessage(key, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "radio_"+key, soundPath));
 		}
 		
 		public static Story.StoryGoal addRadioMessage(string key, string text, FMODAsset sound) {

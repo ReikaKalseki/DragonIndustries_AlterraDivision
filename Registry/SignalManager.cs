@@ -72,7 +72,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void addRadioTrigger(string soundPath) {
-				addRadioTrigger(SoundManager.registerSound(SNUtil.tryGetModDLL(), "radio_"+id, soundPath, SoundSystem.voiceBus));
+				addRadioTrigger(SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "radio_"+id, soundPath));
 			}
 			
 			public void addRadioTrigger(FMODAsset sound) {

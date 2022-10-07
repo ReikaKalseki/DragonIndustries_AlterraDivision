@@ -137,7 +137,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	egg.Patch();
 	    	foreach (BiomeType b in spawn)
-	    		GenUtil.registerSlotWorldgen(egg.ClassID, egg.PrefabFileName, egg.TechType, false, b, 1, 0.2F*eggSpawnRate);
+	    		GenUtil.registerSlotWorldgen(egg.ClassID, egg.PrefabFileName, egg.TechType, EntitySlot.Type.Small, LargeWorldEntity.CellLevel.Medium, b, 1, 0.2F*eggSpawnRate);
 	    }
 		
 	}

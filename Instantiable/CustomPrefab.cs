@@ -140,7 +140,7 @@ namespace ReikaKalseki.DIAlterra
 					isO2Pipe = true;
 					prefabName = "08078333-1a00-42f8-8492-e2640c17a961";
 					manipulations.Add(new PipeReconnection(e.getVector("connection").Value));
-					SNUtil.log("Redirected customprefab to pipe "+prefabName);
+					SNUtil.log("Redirected customprefab to pipe "+prefabName, SNUtil.diDLL);
 				}
 				else if (prefabName == "crate") {
 					isCrate = true;
@@ -149,14 +149,14 @@ namespace ReikaKalseki.DIAlterra
 					if (tech == TechType.None)
 						throw new Exception("Cannot put nonexistent item '"+techn+"' in crate @ "+position+"!");
 					prefabName = GenUtil.getOrCreateCrate(tech, e.getBoolean("sealed")).ClassID;
-					SNUtil.log("Redirected customprefab to crate "+prefabName);
+					SNUtil.log("Redirected customprefab to crate "+prefabName, SNUtil.diDLL);
 				}
 				else if (prefabName == "databox") {
 					isDatabox = true;
 					string techn = e.getProperty("tech");
 					tech = SNUtil.getTechType(techn);
 					prefabName = GenUtil.getOrCreateDatabox(tech).ClassID;
-					SNUtil.log("Redirected customprefab to databox "+prefabName);
+					SNUtil.log("Redirected customprefab to databox "+prefabName, SNUtil.diDLL);
 				}
 				else if (prefabName == "fragment") {
 					isFragment = true;
@@ -166,14 +166,14 @@ namespace ReikaKalseki.DIAlterra
 					if (g == null)
 						throw new Exception("No such fragment!");
 					prefabName = g.ClassID;
-					SNUtil.log("Redirected customprefab to fragment "+prefabName);
+					SNUtil.log("Redirected customprefab to fragment "+prefabName, SNUtil.diDLL);
 				}
 				else if (prefabName == "pda") {
 					isPDA = true;
 					string pagen = e.getProperty("page");
 					PDAManager.PDAPage page = PDAManager.getPage(pagen);
 					prefabName = page.getPDAClassID();
-					SNUtil.log("Redirected customprefab to pda "+prefabName);
+					SNUtil.log("Redirected customprefab to pda "+prefabName, SNUtil.diDLL);
 				}
 				else if (prefabName == "basePart") {
 					isBasePiece = true;
@@ -181,7 +181,7 @@ namespace ReikaKalseki.DIAlterra
 					List<XmlElement> li0 = e.getDirectElementsByTagName("supportData");
 					if (li0.Count == 1)
 						manipulations.Add(new SeabaseLegLengthPreservation(li0[0]));
-					SNUtil.log("Redirected customprefab to base piece "+prefabName+" >> "+li0.Count+"::"+string.Join(", ", li0.Select<XmlElement, string>(el => el.OuterXml)));
+					SNUtil.log("Redirected customprefab to base piece "+prefabName+" >> "+li0.Count+"::"+string.Join(", ", li0.Select<XmlElement, string>(el => el.OuterXml)), SNUtil.diDLL);
 				}
 				else if (prefabName == "seabase") {
 					prefabName = "e9b75112-f920-45a9-97cc-838ee9b389bb"; //base GO
@@ -189,7 +189,7 @@ namespace ReikaKalseki.DIAlterra
 					manipulations.Add(new SeabaseReconstruction(e));
 					ModifiedObjectPrefab mod = getOrCreateModPrefab(this, "seabase##C2C##"+e.getProperty("identifier"));
 					prefabName = mod.ClassID;
-					SNUtil.log("Redirected customprefab to seabase");
+					SNUtil.log("Redirected customprefab to seabase", SNUtil.diDLL);
 				}
 				//else if (prefabName == "fragment") {
 				//	prefabName = ?;
@@ -249,10 +249,10 @@ namespace ReikaKalseki.DIAlterra
 						e.scanTime = 5;
 						PDAHandler.AddCustomScannerEntry(e);
 					}
-					SNUtil.log("Created customprefab GO template: "+key+" ["+from+"] > "+pfb);
+					SNUtil.log("Created customprefab GO template: "+key+" ["+from+"] > "+pfb, SNUtil.diDLL);
 				}
 				else {
-					SNUtil.log("Using already-generated prefab for GO template: "+key+" > "+pfb);
+					SNUtil.log("Using already-generated prefab for GO template: "+key+" > "+pfb, SNUtil.diDLL);
 				}
 				return pfb;
 			}
@@ -297,7 +297,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 				catch (Exception ex) {
 					string err = "Could not rebuild manipulation from XML "+e2.Name+"/"+e2.InnerText+": "+ex;
-					SNUtil.log(err);
+					SNUtil.log(err, SNUtil.diDLL);
 					SNUtil.writeToChat(err);
 					return null;
 				}

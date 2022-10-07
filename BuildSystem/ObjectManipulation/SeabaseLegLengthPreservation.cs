@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra
 								if (Vector3.Distance(pos, l.position) <= 0.25) {
 									l.rotation = e3.getQuaternion("rotation").Value;
 									l.localScale = e3.getVector("scale").Value;
-									SNUtil.log("Applied pillar match "+e3.OuterXml);
+									SNUtil.log("Applied pillar match "+e3.OuterXml, SNUtil.diDLL);
 									matched = true;
 								}
 							}
