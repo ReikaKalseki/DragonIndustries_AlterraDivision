@@ -96,10 +96,10 @@ namespace ReikaKalseki.DIAlterra
 			world.EnsureComponent<M>().prefab = this;
 			Constructable ctr = world.EnsureComponent<Constructable>();
 			ctr.techType = TechType;
-			ctr.allowedInBase = true;
-			ctr.allowedInSub = true;
+			ctr.allowedInBase = !isOutdoors();
+			ctr.allowedInSub = !isOutdoors();
 			ctr.allowedOnGround = true;
-			ctr.allowedOutside = false;
+			ctr.allowedOutside = isOutdoors();
 			ctr.allowedOnCeiling = false;
 			ctr.allowedOnWall = false;
 			ctr.rotationEnabled = true;
@@ -129,7 +129,7 @@ namespace ReikaKalseki.DIAlterra
 			return ownerMod;
 		}
 		
-		public void prepareGameObject(GameObject go, Renderer r) {
+		public void prepareGameObject(GameObject go, Renderer[] r) {
 			
 		}
 		

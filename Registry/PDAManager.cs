@@ -79,7 +79,7 @@ namespace ReikaKalseki.DIAlterra
 					pageData.audio = SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "pda_vo_"+id, path);
 				}
 				else {
-					pageData.audio = SNUtil.getSound(path, sid);
+					pageData.audio = SoundManager.buildSound(path, sid);
 				}
 				SNUtil.log("Setting "+this+" sound to "+pageData.audio.id+"="+pageData.audio.path);
 				return this;
@@ -106,7 +106,7 @@ namespace ReikaKalseki.DIAlterra
 					PDAEncyclopedia.Add(pageData.key, true);
 					
 					if (doSound)
-						SNUtil.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
+						SoundManager.playSound("event:/tools/scanner/new_PDA_data"); //music + "integrating PDA data"
 					
 					return true;
 				}
@@ -166,7 +166,7 @@ namespace ReikaKalseki.DIAlterra
 				return null;
 			}
 			
-			public void prepareGameObject(GameObject go, Renderer r) {
+			public void prepareGameObject(GameObject go, Renderer[] r) {
 				
 			}
 		

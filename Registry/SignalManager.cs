@@ -171,7 +171,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			internal void triggerFX() {
 				SNUtil.log("Firing signal unlock FX: "+signal.id);
-				SNUtil.playSound("event:/player/signal_upload"); //"signal location uploaded to PDA"
+				SoundManager.playSound("event:/player/signal_upload"); //"signal location uploaded to PDA"
 				Subtitles.main.AddRawLong("Signal location uploaded to PDA.", 0, 6);
 				//SNUtil.playSound("event:/tools/scanner/new_encyclopediea"); //triple-click	
 			}
@@ -188,7 +188,7 @@ namespace ReikaKalseki.DIAlterra
 				signal = s;
 		    }
 	
-			public override void prepareGameObject(GameObject go, Renderer r) {
+			public override void prepareGameObject(GameObject go, Renderer[] r) {
 				LargeWorldEntity lw = go.EnsureComponent<LargeWorldEntity>();
 				lw.cellLevel = LargeWorldEntity.CellLevel.Global;
 				

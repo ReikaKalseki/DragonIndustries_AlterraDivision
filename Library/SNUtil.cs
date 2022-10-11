@@ -108,43 +108,11 @@ namespace ReikaKalseki.DIAlterra
 			ErrorMessage.AddMessage(s);
 		}
 		
-		public static void playSound(string path, bool queue = false) {
-			playSoundAt(getSound(path), Player.main.transform.position, queue);
-		}
-		
-		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float vol = 1) {/*
-			if (distanceFalloff > 0) {
-				float dist = Vector3.Distance(position, Player.main.transform.position);
-				if (dist >= distanceFalloff)
-					return;
-				else
-					vol *= 1-(dist/distanceFalloff);
-			}*/
-			//SBUtil.writeToChat("playing sound "+snd.id);
-			if (queue)
-				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
-			else
-				FMODUWE.PlayOneShot(snd, position, vol);
-		}
-		
-		public static FMODAsset getSound(string path, string id = null, bool addBrackets = true) {
-			FMODAsset ass = ScriptableObject.CreateInstance<FMODAsset>();
-			ass.path = path;
-			ass.id = id;
-			if (ass.id == null)
-				ass.id = VanillaSounds.getID(path);
-			if (string.IsNullOrEmpty(ass.id))
-				ass.id = path;
-			if (addBrackets && ass.id[0] != '{')
-				ass.id = "{"+ass.id+"}";
-			return ass;
-		}
-		
 		public static void showPDANotification(string text, string soundPath) {
 			PDANotification pda = Player.main.gameObject.AddComponent<PDANotification>();
 			pda.enabled = true;
 			pda.text = text;
-			pda.sound = getSound(soundPath);
+			pda.sound = SoundManager.getSound(soundPath);
 			pda.Play();
 			UnityEngine.Object.Destroy(pda, 15);
 		}

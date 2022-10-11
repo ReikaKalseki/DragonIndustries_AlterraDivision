@@ -127,7 +127,7 @@ namespace ReikaKalseki.DIAlterra
 			return "Items/World";
 		}
 		
-		public virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer[] r) {
 			
 		}
 		

@@ -217,7 +217,7 @@ namespace ReikaKalseki.DIAlterra
 				return ownerMod;
 			}
 			
-			public abstract void prepareGameObject(GameObject go, Renderer r);
+			public abstract void prepareGameObject(GameObject go, Renderer[] r);
 			
 		}
 		
@@ -247,7 +247,7 @@ namespace ReikaKalseki.DIAlterra
 				
 	        }
 			
-			public override void prepareGameObject(GameObject go, Renderer r) {
+			public override void prepareGameObject(GameObject go, Renderer[] r) {
 				Story.StoryGoalManager.main.AddListener(this);
 	            BlueprintHandTarget bpt = go.EnsureComponent<BlueprintHandTarget>();
 	            bpt.unlockTechType = containedTech;
@@ -275,7 +275,7 @@ namespace ReikaKalseki.DIAlterra
 				
 			}
 			
-			public override void prepareGameObject(GameObject go, Renderer r) {/*
+			public override void prepareGameObject(GameObject go, Renderer[] r) {/*
 	            TechFragment bpt = go.EnsureComponent<TechFragment>();
 	            bpt.defaultTechType = containedTech;
 	            bpt.techList.Clear();
@@ -331,7 +331,7 @@ namespace ReikaKalseki.DIAlterra
 				needsCutter = c;
 	        }
 			
-			public override void prepareGameObject(GameObject go, Renderer r) {
+			public override void prepareGameObject(GameObject go, Renderer[] r) {
 				PrefabPlaceholdersGroup pre = go.EnsureComponent<PrefabPlaceholdersGroup>();
 				if (pre.prefabPlaceholders.Length != 1) {
 					GameObject pp = null;

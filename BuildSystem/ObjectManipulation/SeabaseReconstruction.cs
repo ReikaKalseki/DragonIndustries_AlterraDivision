@@ -16,58 +16,24 @@ using UnityEngine.Scripting;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using ReikaKalseki.DIAlterra;
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal class SeabaseReconstruction : ManipulationBase {
+	internal static class SeabaseReconstruction {
 		
-		private static readonly Dictionary<string, XmlElement> dataCache = new Dictionary<string, XmlElement>();
+		private static readonly Dictionary<string, SeabasePrefab> dataCache = new Dictionary<string, SeabasePrefab>();
 		
-		private readonly XmlElement data;
-		private readonly string id;
-		
-		internal SeabaseReconstruction(XmlElement e) {
-			data = e;
-			id = e.getProperty("identifier");
-			dataCache[id] = data;
-		}
-		
-		public override void applyToObject(GameObject go) {
-			SNUtil.log("Reconstructing seabase with "+data.ChildNodes.Count+" parts", SNUtil.diDLL);/*
-			BaseRoot b = go.GetComponent<BaseRoot>();
-			b.noPowerNotification = null;
-			b.welcomeNotification = null;
-			b.welcomeNotificationEmergency = null;
-			b.welcomeNotificationIssue = null;
-			b.hullBreachNotification = null;
-			b.hullRestoredNotification = null;
-			b.hullDamageNotification = null;
-			b.fireNotification = null;*/
-			go.SetActive(true);/*
-			foreach (Planter p in go.GetComponentsInChildren<Planter>(true)) {
-				try {
-					p.InitPlantsDelayed();
-				}
-				catch (Exception e) {
-				
-				}
-			}*/
-			WorldgenSeabaseController ws = go.EnsureComponent<WorldgenSeabaseController>();
-			ws.reconstructionData = data;
-			ws.seabaseID = id;
-			GameObject holder = new GameObject();
-			holder.name = id;
-			holder.EnsureComponent<SeabaseIDHolder>();
-			holder.transform.parent = go.transform;
-			go.GetComponent<LightingController>().state = LightingController.LightingState.Damaged;
-			//go.EnsureComponent<BaseHider>();
-			Vector3 pos = data.getVector("position").Value;
-			go.transform.position = pos;
-			go.transform.localPosition = Vector3.zero;
-			go.transform.localRotation = Quaternion.identity;
-			SNUtil.log("Finished deserializing seabase @ "+pos, SNUtil.diDLL);
+		internal static SeabasePrefab getOrCreatePrefab(XmlElement e) {
+			string id = e.getProperty("identifier");
+			if (!dataCache.ContainsKey(id)) {
+				dataCache[id] = new SeabasePrefab(id, e);
+				dataCache[id].Patch();
+				SNUtil.log("Created worldgen seabase "+id);
+			}
+			return dataCache[id];
 		}
 		
 		class SeabaseIDHolder : MonoBehaviour {
@@ -246,7 +212,7 @@ namespace ReikaKalseki.DIAlterra
 				if (seabaseID == null)
 					seabaseID = gameObject.GetComponentInChildren<SeabaseIDHolder>().name;
 				if (reconstructionData == null) {
-					reconstructionData = dataCache[seabaseID];
+					reconstructionData = dataCache[seabaseID].data;
 				}
 				foreach (Transform t in transform) {
 					if (t.gameObject.name.Contains("BaseCell") && t.childCount == 0) {
@@ -290,7 +256,7 @@ namespace ReikaKalseki.DIAlterra
 					//SNUtil.writeToChat("Set skies: "+skyAt+" @ "+baseCenter);
 					lastSkyTime = time;
 					ObjectUtil.setActive<Animator>(gameObject, false);
-					GetComponent<LightingController>().state = LightingController.LightingState.Damaged;
+					//GetComponent<LightingController>().state = LightingController.LightingState.Damaged;
 				}/*
 				if (planters == null) {
 					planters = gameObject.GetComponentsInChildren<Planter>();
@@ -389,22 +355,6 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public override void applyToObject(PlacedObject go) {
-			applyToObject(go.obj);
-		}
-		
-		public override void loadFromXML(XmlElement e) {
-			
-		}
-		
-		public override void saveToXML(XmlElement e) {
-			
-		}
-		
-		public override bool needsReapplication() {
-			return true;
-		}
-		
 		public class WorldgenBaseWaterparkHatch : MonoBehaviour {
 			
 			private UseableDiveHatch hatch;
@@ -457,8 +407,44 @@ namespace ReikaKalseki.DIAlterra
 			return WaterBiomeManager.main.biomeSkies;
 		}
 		
-		public int getBiomeIndex(string s) {
+		public static int getBiomeIndex(string s) {
 			return WaterBiomeManager.main.GetBiomeIndex(s);
+		}
+		
+		internal class SeabasePrefab : Spawnable {
+		
+			internal readonly XmlElement data;
+			internal readonly string id;
+			
+			internal SeabasePrefab(string id, XmlElement e) : base("seabase##C2C##"+id, "Seabase: "+id, "") {
+				data = e;
+				this.id = id;
+			}
+			
+			public override GameObject GetGameObject() {
+				SNUtil.log("Reconstructing seabase with "+data.ChildNodes.Count+" parts", SNUtil.diDLL);
+				GameObject go = new GameObject(ClassID);
+				go.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
+				go.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
+				go.EnsureComponent<TechTag>().type = TechType;
+				
+				WorldgenSeabaseController ws = go.EnsureComponent<WorldgenSeabaseController>();
+				ws.reconstructionData = data;
+				ws.seabaseID = id;
+				GameObject holder = new GameObject();
+				holder.name = id;
+				holder.EnsureComponent<SeabaseIDHolder>();
+				holder.transform.parent = go.transform;
+				//go.GetComponent<LightingController>().state = LightingController.LightingState.Damaged;
+				//go.EnsureComponent<BaseHider>();
+				Vector3 pos = data.getVector("position").Value;
+				go.transform.position = pos;
+				go.transform.localPosition = Vector3.zero;
+				go.transform.localRotation = Quaternion.identity;
+				SNUtil.log("Finished deserializing seabase @ "+pos, SNUtil.diDLL);
+				return go;
+			}
+			
 		}
 		
 	}

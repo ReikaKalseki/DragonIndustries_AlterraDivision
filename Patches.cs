@@ -421,4 +421,26 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
+	
+	[HarmonyPatch(typeof(Knife))]
+	[HarmonyPatch("OnToolUseAnim")]
+	public static class KnifeHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "Utils", "PlayFMODAsset", false, new Type[]{typeof(FMODAsset), typeof(Transform), typeof(float)});
+				codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onKnifed", false, typeof(GameObject)));
+				codes.Insert(idx+1, new CodeInstruction(OpCodes.Ldloc_1));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
 }

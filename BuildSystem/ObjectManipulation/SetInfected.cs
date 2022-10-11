@@ -43,5 +43,9 @@ namespace ReikaKalseki.DIAlterra
 			e.InnerText = infect.ToString();
 		}
 		
+		public override bool needsReapplication() {
+			return false;
+		}
+		
 	}
 }

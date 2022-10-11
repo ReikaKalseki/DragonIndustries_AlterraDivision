@@ -8,6 +8,9 @@ using System.Collections;
 using System.Collections.Generic;
 using SMLHelper.V2.Handlers;
 
+using FMOD;
+using FMOD.Studio;
+
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -17,6 +20,14 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static Sprite setTexture(this Sprite s, Texture2D tex) {
 			return Sprite.Create(tex, s.textureRect, s.pivot, s.pixelsPerUnit, 0, SpriteMeshType.FullRect, s.border);
+		}
+		
+		public static VECTOR toFMODVector(this Vector3 vec) {
+			VECTOR ret = new VECTOR();
+			ret.x = vec.x;
+			ret.y = vec.y;
+			ret.z = vec.z;
+			return ret;
 		}
 		
 		public static Vector3 setLength(this Vector3 vec, double amt) {

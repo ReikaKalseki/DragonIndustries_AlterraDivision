@@ -579,8 +579,8 @@ namespace ReikaKalseki.DIAlterra
 			}
 			if (basicPropertiesOnly)
 				return;
-			Renderer r = go.GetComponentInChildren<Renderer>(true);
-			if (r != null && pfb.getTextureFolder() != null)
+			Renderer[] r = go.GetComponentsInChildren<Renderer>(true);
+			if (r != null && r.Length > 0 && pfb.getTextureFolder() != null)
 				RenderUtil.swapToModdedTextures(r, pfb);
 			pfb.prepareGameObject(go, r);
 			//writeToChat("Applying custom texes to "+world+" @ "+world.transform.position);

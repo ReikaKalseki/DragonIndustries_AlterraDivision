@@ -71,7 +71,7 @@ namespace ReikaKalseki.DIAlterra
 			return GetItemSprite();
 		}
 		
-		public virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer[] r) {
 
 		}
 		
@@ -219,7 +219,7 @@ namespace ReikaKalseki.DIAlterra
 			return go;
 		}
 		
-		public virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer[] r) {
 			
 		}
 		

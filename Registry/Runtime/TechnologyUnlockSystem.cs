@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra {
 		    	}
 		   	}
 	   		if (any) {
-		   		SNUtil.log("Triggering direct unlock via "+tt+" of "+directUnlocks[tt].Count+":["+string.Join(", ", directUnlocks[tt].Select<TechType, string>(tc => ""+tc))+"]");
+		   		SNUtil.log("Triggering direct unlock via "+tt+" of "+directUnlocks[tt].Count+":["+string.Join(", ", directUnlocks[tt].Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
 		   		SNUtil.triggerTechPopup(tt);
 	   		}
 		}

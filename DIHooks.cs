@@ -28,6 +28,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SkyApplier> onSkyApplierSpawnEvent;
 	    public static event Action<TechType, Constructable> onConstructedEvent;
 	    public static event Func<string, Vector3, string> getBiomeEvent;
+	    public static event Action<GameObject> onKnifedEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -278,6 +279,11 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	if (onConstructedEvent != null)
 	    		onConstructedEvent.Invoke(tt, c);
+	    }
+	    
+	    public static void onKnifed(GameObject go) {
+	    	if (go && onKnifedEvent != null)
+	    		onKnifedEvent.Invoke(go);
 	    }
 	}
 }

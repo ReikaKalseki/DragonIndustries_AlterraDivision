@@ -39,7 +39,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public override void prepareGameObject(GameObject go, Renderer r) {
+		public override void prepareGameObject(GameObject go, Renderer[] r) {
 			base.prepareGameObject(go, r);
 			go.EnsureComponent<Battery>()._capacity = capacity;
 			go.EnsureComponent<Battery>().charge = capacity;

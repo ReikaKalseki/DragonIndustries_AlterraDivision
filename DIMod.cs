@@ -92,8 +92,15 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand<string>("bdld", BuildingHandler.instance.loadFile);
         BuildingHandler.instance.addCommand("bdinfo", BuildingHandler.instance.selectedInfo);
         BuildingHandler.instance.addCommand("bdtex", BuildingHandler.instance.dumpTextures);
-        ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SNUtil.playSound);
+        ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
+        ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
+    }
+    
+    private static void printBiomeData() {
+    	string biome = WaterBiomeManager.main.GetBiome(Player.main.transform.position, false);
+    	SNUtil.writeToChat("Current biome: "+biome);
+    	SNUtil.writeToChat("Localized name: "+WorldUtil.getBiomeFriendlyName(biome));
     }
   }
 }

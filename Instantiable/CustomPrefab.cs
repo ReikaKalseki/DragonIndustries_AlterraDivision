@@ -184,11 +184,8 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.log("Redirected customprefab to base piece "+prefabName+" >> "+li0.Count+"::"+string.Join(", ", li0.Select<XmlElement, string>(el => el.OuterXml)), SNUtil.diDLL);
 				}
 				else if (prefabName == "seabase") {
-					prefabName = "e9b75112-f920-45a9-97cc-838ee9b389bb"; //base GO
+					prefabName = SeabaseReconstruction.getOrCreatePrefab(e).ClassID;
 					isSeabase = true;
-					manipulations.Add(new SeabaseReconstruction(e));
-					ModifiedObjectPrefab mod = getOrCreateModPrefab(this, "seabase##C2C##"+e.getProperty("identifier"));
-					prefabName = mod.ClassID;
 					SNUtil.log("Redirected customprefab to seabase", SNUtil.diDLL);
 				}
 				//else if (prefabName == "fragment") {
@@ -313,7 +310,7 @@ namespace ReikaKalseki.DIAlterra
 				mods = li;
 	        }
 			
-			public override sealed void prepareGameObject(GameObject go, Renderer r) {
+			public override sealed void prepareGameObject(GameObject go, Renderer[] r) {
 				foreach (ManipulationBase mb in mods) {
 					mb.applyToObject(go);
 				}

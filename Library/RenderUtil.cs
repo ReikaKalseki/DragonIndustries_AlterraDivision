@@ -83,6 +83,12 @@ namespace ReikaKalseki.DIAlterra
 			return flag;
 		}
 		
+		public static void swapToModdedTextures<T>(Renderer[] r, DIPrefab<T> pfb) where T : PrefabReference {
+			foreach (Renderer rr in r) {
+				swapToModdedTextures(rr, pfb);
+			}
+		}
+		
 		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
 			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
 			Dictionary<int,string> dict = null;

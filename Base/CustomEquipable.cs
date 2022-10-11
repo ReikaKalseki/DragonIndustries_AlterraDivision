@@ -113,7 +113,7 @@ namespace ReikaKalseki.DIAlterra
 			return ObjectUtil.getModPrefabBaseObject(this);
 		}
 		
-		public virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer[] r) {
 			
 		}
 		

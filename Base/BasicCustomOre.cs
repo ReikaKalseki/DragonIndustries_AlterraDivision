@@ -51,7 +51,7 @@ namespace ReikaKalseki.DIAlterra
 			return TextureManager.getSprite(ownerMod, "Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 		
-		public virtual void prepareGameObject(GameObject go, Renderer r) {
+		public virtual void prepareGameObject(GameObject go, Renderer[] r) {
 			
 		}
 		

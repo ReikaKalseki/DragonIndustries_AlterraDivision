@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		string getTextureFolder();
 		
-		void prepareGameObject(GameObject go, Renderer r);
+		void prepareGameObject(GameObject go, Renderer[] r);
 		
 		Atlas.Sprite getIcon();
 		
