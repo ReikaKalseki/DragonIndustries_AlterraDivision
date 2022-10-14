@@ -226,6 +226,17 @@ namespace ReikaKalseki.DIAlterra {
 	   			TechnologyUnlockSystem.instance.triggerDirectUnlock(data.key);
 		}
 	    
+	    public static void tickLaserCutting(Sealed s, float amt) {
+			if (s._sealed && s.maxOpenedAmount >= 0) {
+				s.openedAmount = Mathf.Min(s.openedAmount + amt, s.maxOpenedAmount);
+				if (Mathf.Approximately(s.openedAmount, s.maxOpenedAmount)) {
+					s._sealed = false;
+					s.openedEvent.Trigger(s);
+					Debug.Log("Trigger opened event");
+				}
+			}
+	    }
+	    
 	    public static void getBulkheadMouseoverText(BulkheadDoor bk) {
 			if (bk.enabled && bk.state == BulkheadDoor.State.Zero) {
 	    		Sealed s = bk.GetComponent<Sealed>();

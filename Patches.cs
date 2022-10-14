@@ -283,16 +283,15 @@ namespace ReikaKalseki.DIAlterra {
 	
 	[HarmonyPatch(typeof(Sealed))]
 	[HarmonyPatch("Weld")]
-	public static class SealedEventTimingFix {
+	public static class SealedOverhaul {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			List<CodeInstruction> codes = new List<CodeInstruction>();
 			try {
-				int idx2 = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Stfld, "Sealed", "_sealed");
-				int idx1 = idx2-2;
-				int idx0 = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldstr, "Trigger opened event");
-				List<CodeInstruction> li = InstructionHandlers.extract(codes, idx1, idx2);
-				codes.InsertRange(idx0, li);
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "tickLaserCutting", false, typeof(Sealed), typeof(float)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {

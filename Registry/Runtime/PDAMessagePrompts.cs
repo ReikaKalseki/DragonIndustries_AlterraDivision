@@ -23,7 +23,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public void addPDAMessage(string key, string text, string soundFile) {
 			SNUtil.log("Constructing PDA message "+key);
-			StoryGoal item = SNUtil.addVOLine(key, Story.GoalType.PDA, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "prompt_"+key, soundFile));
+			StoryGoal item = SNUtil.addVOLine(key, Story.GoalType.PDA, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "prompt_"+key, soundFile).asset);
 			mappings[key] = item;
 		}
 		

@@ -131,7 +131,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static Story.StoryGoal addRadioMessage(string key, string text, string soundPath) {
-			return addRadioMessage(key, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "radio_"+key, soundPath));
+			return addRadioMessage(key, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "radio_"+key, soundPath).asset);
 		}
 		
 		public static Story.StoryGoal addRadioMessage(string key, string text, FMODAsset sound) {

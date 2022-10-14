@@ -76,7 +76,7 @@ namespace ReikaKalseki.DIAlterra
 				string sid = VanillaSounds.getID(path);
 				if (sid == null) {
 					SNUtil.log("Sound path "+path+" did not find an ID. Registering as custom.");
-					pageData.audio = SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "pda_vo_"+id, path);
+					pageData.audio = SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "pda_vo_"+id, path).asset;
 				}
 				else {
 					pageData.audio = SoundManager.buildSound(path, sid);

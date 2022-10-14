@@ -18,7 +18,7 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class SoundManager {
 		
-		private static readonly Dictionary<string, FMODAsset> sounds = new Dictionary<string, FMODAsset>();
+		private static readonly Dictionary<string, SoundData> sounds = new Dictionary<string, SoundData>();
 
 		public static readonly MODE soundMode3D = MODE.DEFAULT | MODE._3D | MODE.ACCURATETIME | MODE._3D_LINEARSQUAREROLLOFF;
 		public static readonly MODE soundMode2D = MODE.DEFAULT | MODE._2D | MODE.ACCURATETIME;
@@ -30,14 +30,14 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static FMODAsset getSound(string id) {
-			return sounds.ContainsKey(id) ? sounds[id] : buildSound(id);
+			return sounds.ContainsKey(id) ? sounds[id].asset : buildSound(id);
 		}
 		
-		public static FMODAsset registerPDASound(Assembly a, string id, string path) {
+		public static SoundData registerPDASound(Assembly a, string id, string path) {
 			return registerSound(a, id, path, soundModeStreaming, null, SoundSystem.voiceBus);
 		}
 		
-		public static FMODAsset registerSound(Assembly a, string id, string path, MODE m, Action<Sound> processing = null, Bus? b = null) {
+		public static SoundData registerSound(Assembly a, string id, string path, MODE m, Action<Sound> processing = null, Bus? b = null) {
 			if (a == null)
 				throw new Exception("You must specify a mod to load the sound for!");
 			if (sounds.ContainsKey(id))
@@ -57,7 +57,8 @@ namespace ReikaKalseki.DIAlterra
 			if (processing != null)
 				processing(snd);
 			CustomSoundHandler.RegisterCustomSound(id, snd, bb);
-			sounds[id] = SoundManager.buildSound(id, id, false);
+			FMODAsset ass = buildSound(id, id, false);
+			sounds[id] = new SoundData(id, ass, snd, getLength(snd));
 			return sounds[id];
 		}
 		
@@ -65,14 +66,27 @@ namespace ReikaKalseki.DIAlterra
 			s.set3DMinMaxDistance(minDist, maxDist);
 		}
 		
-		public static void setLooping(Sound s) {
+		private static float getLength(Sound s) {
 			uint len;
 			s.getLength(out len, TIMEUNIT.MS);
-			s.setLoopPoints(0, TIMEUNIT.MS, len, TIMEUNIT.MS);
+			return len/1000F;
+		}
+		
+		public static void setLooping(Sound s) {
+			s.setLoopPoints(0, TIMEUNIT.MS, (uint)(getLength(s)*1000), TIMEUNIT.MS);
+		}
+		
+		public static void stopSound(string id, bool allowFade = true) {
+			if (sounds.ContainsKey(id))
+				EventInstance.FMOD_Studio_EventInstance_Stop(sounds[id].internalObject.handle, allowFade ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
 		}
 		
 		public static void playSound(string path, bool queue = false) {
 			playSoundAt(getSound(path), Player.main.transform.position, queue);
+		}
+		
+		public static void playSoundAt(SoundData snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
+			playSoundAt(snd.asset, position, queue, distanceFalloff, vol);
 		}
 		
 		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
@@ -107,6 +121,22 @@ namespace ReikaKalseki.DIAlterra
 			if (addBrackets && ass.id[0] != '{')
 				ass.id = "{"+ass.id+"}";
 			return ass;
+		}
+		
+		public struct SoundData {
+			
+			public readonly string id;
+			public readonly FMODAsset asset;
+			public readonly Sound internalObject;
+			public readonly float length;
+			
+			internal SoundData(string i, FMODAsset a, Sound s, float len) {
+				id = i;
+				asset = a;
+				internalObject = s;
+				length = len;
+			}
+			
 		}
 		
 	}
