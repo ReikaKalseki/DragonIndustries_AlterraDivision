@@ -80,8 +80,28 @@ namespace ReikaKalseki.DIAlterra {
 		public static void addIngredient(TechType recipe, TechType add, int amt) {
 			TechData rec = getRecipe(recipe);
 			cacheOriginalRecipe(recipe, rec);
-			rec.Ingredients.Add(new Ingredient(add, amt));
 			SNUtil.log("Adding "+add+"x"+amt+" to recipe "+recipe);
+			foreach (Ingredient i in rec.Ingredients) {
+				if (i.techType == add) {
+					i.amount += amt;
+					return;
+				}
+			}
+			rec.Ingredients.Add(new Ingredient(add, amt));
+		}
+		
+		public static void ensureIngredient(TechType recipe, TechType item, int amt) {
+			TechData rec = getRecipe(recipe);
+			cacheOriginalRecipe(recipe, rec);
+			SNUtil.log("Ensuring "+item+"x"+amt+" in recipe "+recipe);
+			int has = 0;
+			foreach (Ingredient i in rec.Ingredients) {
+				if (i.techType == item) {
+					has += i.amount;
+				}
+			}
+			if (has < amt)
+				addIngredient(recipe, item, amt-has);
 		}
 		
 		public static Ingredient removeIngredient(TechType recipe, TechType item) {

@@ -22,6 +22,9 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<DayNightCycle> onDayNightTickEvent;
 	    public static event Action onWorldLoadedEvent;
 	    public static event Action<Player> onPlayerTickEvent;
+	    public static event Action<SeaMoth> onSeamothTickEvent;
+	    public static event Action<Exosuit> onPrawnTickEvent;
+	    public static event Action<SubRoot> onCyclopsTickEvent;
 	    public static event Action<DamageToDeal> onDamageEvent;
 	    public static event Action<Pickupable> onItemPickedUpEvent;
 	    public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
@@ -94,6 +97,30 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	if (onPlayerTickEvent != null)
 	    		onPlayerTickEvent.Invoke(ep);
+	    }
+	    
+	    public static void tickSeamoth(SeaMoth sm) {
+	    	if (Time.timeScale <= 0)
+	    		return;
+	    	
+	    	if (onSeamothTickEvent != null)
+	    		onSeamothTickEvent.Invoke(sm);
+	    }
+	    
+	    public static void tickPrawn(Exosuit sm) {
+	    	if (Time.timeScale <= 0)
+	    		return;
+	    	
+	    	if (onPrawnTickEvent != null)
+	    		onPrawnTickEvent.Invoke(sm);
+	    }
+	    
+	    public static void tickSub(SubRoot sub) {
+	    	if (Time.timeScale <= 0)
+	    		return;
+	    	
+	    	if (sub.isCyclops && onCyclopsTickEvent != null)
+	    		onCyclopsTickEvent.Invoke(sub);
 	    }
    
 		public static float recalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer) {

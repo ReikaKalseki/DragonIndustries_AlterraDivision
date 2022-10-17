@@ -138,6 +138,21 @@ batch_id = (19, 17, 16)
 			}
 			return true;
 		}
+		/*
+		public static float getLightAtPosition(Vector3 pos, GameLightType types) {
+			
+		}*/
 		
 	}
+	/*
+	enum GameLightType {
+		FLASHLIGHT,
+		SEAGLIDE,
+		SEAMOTH,
+		EXOSUIT,
+		CYCLOPS,
+		FLARE,
+		SKY,
+		OTHER,
+	}*/
 }
