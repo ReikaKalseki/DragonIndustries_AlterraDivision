@@ -121,11 +121,11 @@ namespace ReikaKalseki.DIAlterra
 			return ownerMod;
 		}
 		
-		public bool isResource() {
+		public virtual bool isResource() {
 			return false;
 		}
 		
-		public string getTextureFolder() {
+		public virtual string getTextureFolder() {
 			return "Items/Tools";
 		}
 		

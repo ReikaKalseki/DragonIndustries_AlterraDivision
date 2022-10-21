@@ -63,7 +63,7 @@ namespace ReikaKalseki.DIAlterra
 			return ObjectUtil.getModPrefabBaseObject(this);
 		}
 		
-		public bool isResource() {
+		public virtual bool isResource() {
 			return true;
 		}
 		
@@ -71,7 +71,7 @@ namespace ReikaKalseki.DIAlterra
 			return ownerMod;
 		}
 		
-		public string getTextureFolder() {
+		public virtual string getTextureFolder() {
 			return "Resources";
 		}
 		

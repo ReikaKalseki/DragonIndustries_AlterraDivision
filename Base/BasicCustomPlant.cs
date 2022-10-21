@@ -55,7 +55,7 @@ namespace ReikaKalseki.DIAlterra
 			e.scanTime = scanTime;
 			e.locked = true;
 			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms");
-			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None ? "Sea" : "Exploitable");
+			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None || !isResource() ? "Sea" : "Exploitable");
 			if (header != null)
 				page.setHeaderImage(TextureManager.getTexture(ownerMod, "Textures/PDA/"+header));
 			page.register();
@@ -90,11 +90,11 @@ namespace ReikaKalseki.DIAlterra
 			return ownerMod;
 		}
 		
-		public bool isResource() {
+		public virtual bool isResource() {
 			return true;
 		}
 		
-		public string getTextureFolder() {
+		public virtual string getTextureFolder() {
 			return "Plants";
 		}
 		

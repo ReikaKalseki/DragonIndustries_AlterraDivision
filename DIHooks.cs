@@ -30,21 +30,24 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
 	    public static event Action<SkyApplier> onSkyApplierSpawnEvent;
 	    public static event Action<TechType, Constructable> onConstructedEvent;
-	    public static event Func<string, Vector3, string> getBiomeEvent;
+	    public static event Action<BiomeCheck> getBiomeEvent;
+	    public static event Action<WaterTemperatureCalculation> getTemperatureEvent;
 	    public static event Action<GameObject> onKnifedEvent;
 	    
 	    static DIHooks() {
 	    	
 	    }
 	    
-	    public class DamageToDeal {
+	    public struct DamageToDeal {
 	    	
 	    	public readonly float originalAmount;
 	    	public readonly DamageType type;
 	    	public readonly GameObject target;
 	    	public readonly GameObject dealer;
 	    	
-	    	public float amount;
+	    	private bool disallowFurtherChanges;
+	    	
+	    	internal float amount;
 	    	
 	    	internal DamageToDeal(float amt, DamageType tt, GameObject tgt, GameObject dl) {
 	    		originalAmount = amt;
@@ -52,6 +55,86 @@ namespace ReikaKalseki.DIAlterra {
 	    		type = tt;
 	    		target = tgt;
 	    		dealer = dl;
+	    		disallowFurtherChanges = false;
+	    	}
+	    	
+	    	public void lockValue() {
+	    		disallowFurtherChanges = true;
+	    	}
+	    	
+	    	public void setValue(float amt) {
+	    		if (disallowFurtherChanges)
+	    			return;
+	    		amount = amt;
+	    		if (amount < 0)
+	    			amount = 0;
+	    	}
+	    	
+	    	public float getAmount() {
+	    		return amount;
+	    	}
+	    	
+	    	
+	    }
+	    
+	    public struct BiomeCheck {
+	    	
+	    	public readonly string originalValue;
+	    	public readonly Vector3 position;
+	    	
+	    	private bool disallowFurtherChanges;
+	    	
+	    	internal string biome;
+	    	
+	    	internal BiomeCheck(string amt, Vector3 pos) {
+	    		originalValue = amt;
+	    		biome = originalValue;
+	    		position = pos;
+	    		disallowFurtherChanges = false;
+	    	}
+	    	
+	    	public void lockValue() {
+	    		disallowFurtherChanges = true;
+	    	}
+	    	
+	    	public void setValue(string b) {
+	    		if (disallowFurtherChanges)
+	    			return;
+	    		biome = b;
+	    	}
+	    	
+	    }
+	    
+	    public struct WaterTemperatureCalculation {
+	    	
+	    	public readonly float originalValue;
+	    	public readonly Vector3 position;
+	    	public readonly WaterTemperatureSimulation manager;
+	    	
+	    	private bool disallowFurtherChanges;
+	    	
+	    	internal float temperature;
+	    	
+	    	internal WaterTemperatureCalculation(float amt, WaterTemperatureSimulation sim, Vector3 pos) {
+	    		originalValue = amt;
+	    		temperature = originalValue;
+	    		position = pos;
+	    		manager = sim;
+	    		disallowFurtherChanges = false;
+	    	}
+	    	
+	    	public void lockValue() {
+	    		disallowFurtherChanges = true;
+	    	}
+	    	
+	    	public float getTemperature() {
+	    		return temperature;
+	    	}
+	    	
+	    	public void setValue(float amt) {
+	    		if (disallowFurtherChanges)
+	    			return;
+	    		temperature = amt;
 	    	}
 	    	
 	    }
@@ -122,6 +205,17 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (sub.isCyclops && onCyclopsTickEvent != null)
 	    		onCyclopsTickEvent.Invoke(sub);
 	    }
+	    
+	    public static float getWaterTemperature(float ret, WaterTemperatureSimulation sim, Vector3 pos) {
+	    	if (getTemperatureEvent != null) {
+	    		WaterTemperatureCalculation calc = new WaterTemperatureCalculation(ret, sim, pos);
+	    		getTemperatureEvent.Invoke(calc);
+	   			return calc.temperature;
+	    	}
+	    	else {
+	    		return ret;
+	    	}
+	    }
    
 		public static float recalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer) {
 	    	if (onDamageEvent != null) {
@@ -135,9 +229,14 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	    
 	    public static string getBiomeAt(string orig, Vector3 pos) {
-	    	if (getBiomeEvent != null)
-	    		orig = getBiomeEvent.Invoke(orig, pos);
-	    	return orig;
+	    	if (getBiomeEvent != null) {
+	    		BiomeCheck deal = new BiomeCheck(orig, pos);
+	    		getBiomeEvent.Invoke(deal);
+	   			return deal.biome;
+	    	}
+	    	else {
+	    		return orig;
+	    	}
 	    }	
     
 	    public static void onItemPickedUp(Pickupable p) {

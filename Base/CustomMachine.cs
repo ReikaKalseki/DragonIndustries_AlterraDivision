@@ -113,11 +113,11 @@ namespace ReikaKalseki.DIAlterra
 			return world;
 		}
 		
-		public bool isResource() {
+		public virtual bool isResource() {
 			return false;
 		}
 		
-		public string getTextureFolder() {
+		public virtual string getTextureFolder() {
 			return "Machines";
 		}
 		

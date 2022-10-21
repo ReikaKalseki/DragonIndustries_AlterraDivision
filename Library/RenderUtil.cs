@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
@@ -20,11 +21,14 @@ namespace ReikaKalseki.DIAlterra
 			for (int i = 0; i < mr.Length; i++) {
 				if (matIndices != null && !matIndices.Contains(i))
 					continue;
-				Material m = mr[i];
-				m.SetFloat("_"+type, amt);
-				m.SetFloat("_"+type+"Night", amt);
-				m.EnableKeyword("MARMO_EMISSION");
+				setEmissivity(mr[i], amt, type);
 			}
+		}
+		
+		public static void setEmissivity(Material m, float amt, string type) {
+			m.SetFloat("_"+type, amt);
+			m.SetFloat("_"+type+"Night", amt);
+			m.EnableKeyword("MARMO_EMISSION");
 		}
 		
 		public static void makeTransparent(Renderer r, HashSet<int> matIndices = null) {
@@ -32,23 +36,27 @@ namespace ReikaKalseki.DIAlterra
 			for (int i = 0; i < mr.Length; i++) {
 				if (matIndices != null && !matIndices.Contains(i))
 					continue;
-				Material m = mr[i];
-				m.EnableKeyword("_ZWRITE_ON");
-	  			m.EnableKeyword("WBOIT");
-				m.SetInt("_ZWrite", 0);
-				m.SetInt("_Cutoff", 0);
-				m.SetFloat("_SrcBlend", 1f);
-				m.SetFloat("_DstBlend", 1f);
-				m.SetFloat("_SrcBlend2", 0f);
-				m.SetFloat("_DstBlend2", 10f);
-				m.SetFloat("_AddSrcBlend", 1f);
-				m.SetFloat("_AddDstBlend", 1f);
-				m.SetFloat("_AddSrcBlend2", 0f);
-				m.SetFloat("_AddDstBlend2", 10f);
-				m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack | MaterialGlobalIlluminationFlags.RealtimeEmissive;
-				m.renderQueue = 3101;
-				m.enableInstancing = true;
+				makeTransparent(mr[i]);
 			}
+		}
+		
+		public static void makeTransparent(Material m, int queue = 3101) {
+			//m.EnableKeyword("_ZWRITE_ON");
+	  		m.EnableKeyword("WBOIT");
+			m.SetInt("_ZWrite", 0);
+			m.SetInt("_Cutoff", 0);
+			m.SetInt("_Mode", 3);
+			m.SetFloat("_SrcBlend", 1f);
+			m.SetFloat("_DstBlend", 1f);
+			m.SetFloat("_SrcBlend2", 0f);
+			m.SetFloat("_DstBlend2", 10f);
+			m.SetFloat("_AddSrcBlend", 1f);
+			m.SetFloat("_AddDstBlend", 1f);
+			m.SetFloat("_AddSrcBlend2", 0f);
+			m.SetFloat("_AddDstBlend2", 10f);
+			m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack | MaterialGlobalIlluminationFlags.RealtimeEmissive;
+			m.renderQueue = queue;
+			//m.enableInstancing = true;
 		}
 		
 		public static Texture extractTexture(GameObject go, string texType) {
@@ -93,7 +101,7 @@ namespace ReikaKalseki.DIAlterra
 			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
 			Dictionary<int,string> dict = null;
 			if (pfb is MultiTexturePrefab<T>)
-				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers();
+				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers(r);
 			if (!swapTextures(pfb.getOwnerMod(), r, path, dict))
 				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb, pfb.getOwnerMod());
 			
@@ -115,11 +123,13 @@ namespace ReikaKalseki.DIAlterra
 			return modelObj;
 		}
 		
-		public static void convertToModel(GameObject modelObj) {
+		public static void convertToModel(GameObject modelObj, params Type[] except) {
+			HashSet<Type> li = except.ToSet();
 			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
-				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier) {
+				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier)
 					continue;
-				}
+				if (li.Contains(c.GetType()))
+				    continue;
 				UnityEngine.Object.DestroyImmediate(c);
 			}
 		}

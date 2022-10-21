@@ -152,12 +152,29 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
-	static class PatchLib {
+	[HarmonyPatch(typeof(WaterTemperatureSimulation), "GetTemperature", new Type[]{typeof(Vector3)})]
+	public static class WaterTempOverride {
 		
-		internal static void injectTickHook(List<CodeInstruction> codes, string name, Type arg) {
-			InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", name, false, arg));	
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, injectHook);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
 		}
-		
+	
+		private static void injectHook(List<CodeInstruction> codes, int idx) {
+			codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getWaterTemperature", false, typeof(float), typeof(WaterTemperatureSimulation), typeof(Vector3)));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_1));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+		}
 	}
 	
 	[HarmonyPatch(typeof(Pickupable))]
@@ -509,5 +526,13 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			return codes.AsEnumerable();
 		}
+	}
+	
+	static class PatchLib {
+		
+		internal static void injectTickHook(List<CodeInstruction> codes, string name, Type arg) {
+			InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", name, false, arg));	
+		}
+		
 	}
 }
