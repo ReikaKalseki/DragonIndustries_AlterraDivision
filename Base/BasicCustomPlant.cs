@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra
 			e.key = TechType;
 			e.scanTime = scanTime;
 			e.locked = true;
-			PDAManager.PDAPage page = PDAManager.createPage(""+TechType, FriendlyName, text, "Lifeforms");
+			PDAManager.PDAPage page = PDAManager.createPage(""+ClassID, FriendlyName, text, "Lifeforms");
 			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None || !isResource() ? "Sea" : "Exploitable");
 			if (header != null)
 				page.setHeaderImage(TextureManager.getTexture(ownerMod, "Textures/PDA/"+header));

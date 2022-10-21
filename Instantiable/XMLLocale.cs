@@ -60,7 +60,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public LocaleEntry getEntry(string id) {
-			return entries.ContainsKey(id) ? entries[id] : NOT_FOUND;
+			if (entries.ContainsKey(id))
+				return entries[id];
+			SNUtil.log("Could not find locale entry '"+id+"'", ownerMod);
+			return NOT_FOUND;
 		}
 		
 		public IEnumerable<LocaleEntry> getEntries() {

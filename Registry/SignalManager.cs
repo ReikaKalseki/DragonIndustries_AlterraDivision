@@ -52,6 +52,8 @@ namespace ReikaKalseki.DIAlterra
 			
 			private StoryGoal radioMessage;
 			
+			public readonly Assembly ownerMod;
+			
 			public string storyGate {get; private set;}
 			
 			public Atlas.Sprite icon {get; private set;}
@@ -69,6 +71,8 @@ namespace ReikaKalseki.DIAlterra
 				radioText = prompt;
 
 				pdaEntry = string.IsNullOrEmpty(pda) ? null : PDAManager.createPage("signal_"+id, longName, pda, "DownloadedData");
+				
+				ownerMod = SNUtil.tryGetModDLL();
 			}
 			
 			public void addRadioTrigger(string soundPath) {
@@ -138,7 +142,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			public override string ToString()
 			{
-				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}, Icon={5}]", id, name, longName, radioText, pdaEntry, icon);
+				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}, Icon={5}, Mod={6}]", id, name, longName, radioText, pdaEntry, icon, ownerMod);
 			}			
 		}
 		

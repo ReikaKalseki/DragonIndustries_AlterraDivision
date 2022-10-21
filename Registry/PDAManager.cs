@@ -31,7 +31,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static PDAPage createPage(string id, string name, string text, string cat) {
 			if (pages.ContainsKey(id))
-				throw new Exception("Signal ID '"+id+"' already in use!");
+				throw new Exception("PDA page ID '"+id+"' already in use! "+pages[id]);
 			PDAPage sig = new PDAPage(id, name, text, cat);
 			pages[sig.id] = sig;
 			SNUtil.log("Registered PDA page "+sig);
@@ -46,6 +46,8 @@ namespace ReikaKalseki.DIAlterra
 			public readonly string category;
 		
 			private readonly PDAEncyclopedia.EntryData pageData = new PDAEncyclopedia.EntryData();
+			
+			public readonly Assembly ownerMod;
 			
 			private List<string> tree = new List<string>();
 			
@@ -64,7 +66,9 @@ namespace ReikaKalseki.DIAlterra
 				pageData.timeCapsule = false;
 				pageData.unlocked = false;		
 				
-				prefabID = new PDAPrefab(this);	
+				prefabID = new PDAPrefab(this);
+				
+				ownerMod = SNUtil.tryGetModDLL();
 			}
 			
 			public PDAPage addSubcategory(string s) {
@@ -118,7 +122,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public override string ToString() {
-				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}, Header={4}]", id, name, text.Replace("\n", ""), category, pageData.image);
+				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}, Header={4}, Mod={5}]", id, name, text.Replace("\n", ""), category, pageData.image, ownerMod);
 			}
 			
 			public string getPDAClassID() {
