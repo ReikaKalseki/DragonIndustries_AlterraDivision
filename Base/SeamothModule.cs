@@ -12,12 +12,12 @@ namespace ReikaKalseki.DIAlterra
 {
 	public abstract class SeamothModule : CustomEquipable {
 		
-		protected SeamothModule(XMLLocale.LocaleEntry e) : this(e.key, e.name, e.desc) {
+		protected SeamothModule(XMLLocale.LocaleEntry e, string template = "92b6424f-7635-4e61-990e-3c40bfad6e9a") : this(e.key, e.name, e.desc, template) {
 			
 		}
 		
-		protected SeamothModule(string id, string name, string desc) : base(id, name, desc, "92b6424f-7635-4e61-990e-3c40bfad6e9a") { //SeamothElectricalDefense
-			dependency = TechType.BaseMoonpool;
+		protected SeamothModule(string id, string name, string desc, string template = "92b6424f-7635-4e61-990e-3c40bfad6e9a") : base(id, name, desc, template) { //SeamothElectricalDefense
+			dependency = TechType.BaseUpgradeConsole;
 		}
 
 		public override CraftTree.Type FabricatorType {

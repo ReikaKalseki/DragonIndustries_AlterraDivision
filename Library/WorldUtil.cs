@@ -94,12 +94,16 @@ batch_id = (19, 17, 16)
 		}
 		
 		public static C getClosest<C>(GameObject go) where C : Component {
+			return getClosest<C>(go.transform.position);
+		}
+		
+		public static C getClosest<C>(Vector3 pos) where C : Component {
 			double dist = -1;
 			C ret = null;
 			foreach (C obj in UnityEngine.Object.FindObjectsOfType<C>()) {
 				if (!obj)
 					continue;
-				double dd = Vector3.Distance(go.transform.position, obj.transform.position);
+				double dd = Vector3.Distance(pos, obj.transform.position);
 				if (dd < dist || ret == null) {
 					ret = obj;
 					dist = dd;
@@ -142,6 +146,25 @@ batch_id = (19, 17, 16)
 		public static float getLightAtPosition(Vector3 pos, GameLightType types) {
 			
 		}*/
+		
+		public static void spawnParticlesAt(Vector3 pos, string pfb, float dur) {
+			if (Vector3.Distance(pos, Player.main.transform.position) >= 200)
+				return;
+			GameObject particle = ObjectUtil.createWorldObject(pfb);
+			particle.transform.position = pos;
+			ParticleSystem p = particle.GetComponentInChildren<ParticleSystem>();
+			p.Play(true);
+			particle.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);
+			UnityEngine.Object.Destroy(particle, dur+5);
+		}
+		
+		class TransientParticleTag : MonoBehaviour {
+			
+			void stop() {
+				GetComponentInChildren<ParticleSystem>().Stop(true, ParticleSystemStopBehavior.StopEmitting);
+			}
+			
+		}
 		
 	}
 	/*

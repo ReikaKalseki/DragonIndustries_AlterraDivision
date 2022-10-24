@@ -38,7 +38,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    }
 	    
-	    public struct DamageToDeal {
+	    public class DamageToDeal {
 	    	
 	    	public readonly float originalAmount;
 	    	public readonly DamageType type;
@@ -77,7 +77,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    }
 	    
-	    public struct BiomeCheck {
+	    public class BiomeCheck {
 	    	
 	    	public readonly string originalValue;
 	    	public readonly Vector3 position;
@@ -105,7 +105,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    }
 	    
-	    public struct WaterTemperatureCalculation {
+	    public class WaterTemperatureCalculation {
 	    	
 	    	public readonly float originalValue;
 	    	public readonly Vector3 position;
@@ -132,6 +132,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	
 	    	public void setValue(float amt) {
+	    		//SNUtil.writeToChat("Setting water temp to "+amt);
 	    		if (disallowFurtherChanges)
 	    			return;
 	    		temperature = amt;
