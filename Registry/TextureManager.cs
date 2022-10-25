@@ -36,6 +36,7 @@ namespace ReikaKalseki.DIAlterra
 		private static Texture2D loadTexture(Assembly a, string relative) {
 			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
+			SNUtil.log("Loading texture from '"+path+"'");
 			Texture2D newTex = ImageUtils.LoadTextureFromFile(path);
 			if (newTex == null) {
 				//newTex = NOT_FOUND;
@@ -58,9 +59,11 @@ namespace ReikaKalseki.DIAlterra
 		private static Atlas.Sprite loadSprite(Assembly a, string relative) {
 			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
+			SNUtil.log("Loading sprite from '"+path+"'");
 			Atlas.Sprite newTex = ImageUtils.LoadSpriteFromFile(path);
 			if (newTex == null) {
 				//newTex = NOT_FOUND;
+				SNUtil.log("Sprite not found @ "+path, a);
 			}
 			return newTex;
 		}

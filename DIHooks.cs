@@ -172,6 +172,7 @@ namespace ReikaKalseki.DIAlterra {
 	        
 	    	DuplicateRecipeDelegate.updateLocale();
 	    	CustomEgg.updateLocale();
+	    	SeamothModule.updateLocale();
 	    	
 	    	if (onWorldLoadedEvent != null)
 	    		onWorldLoadedEvent.Invoke();
@@ -240,7 +241,10 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void useSeamothModule(SeaMoth sm, TechType techType, int slotID) {
 			Spawnable sp = ItemRegistry.instance.getItem(techType);
 			if (sp is SeamothModule) {
-				((SeamothModule)sp).onFired(sm, slotID, sm.GetSlotCharge(slotID));
+				SeamothModule smm = (SeamothModule)sp;
+				smm.onFired(sm, slotID, sm.GetSlotCharge(slotID));
+				sm.quickSlotTimeUsed[slotID] = Time.time;
+				sm.quickSlotCooldown[slotID] = smm.getUsageCooldown();
 			}
 	    	if (onSeamothModuleUsedEvent != null)
 	    		onSeamothModuleUsedEvent.Invoke(sm, techType, slotID);
@@ -462,5 +466,48 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (go && onKnifedEvent != null)
 	    		onKnifedEvent.Invoke(go);
 	    }
+
+		public static void hoverSeamothTorpedoStorage(SeaMoth sm, HandTargetEventData data) {
+			for (int i = 0; i < sm.slotIDs.Length; i++) {
+	    		InventoryItem ii = sm.GetSlotItem(i);
+	    		if (ii != null && ii.item) {
+	    			SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(ii.item.GetTechType());
+	    			if (storage != null) {
+	    				SeamothStorageContainer component = ii.item.GetComponent<SeamothStorageContainer>();
+	    				SNUtil.writeToChat("Found "+component+" ["+storage.title+"] for "+ii.item.GetTechType());
+	    				if (component) {
+	    					HandReticle.main.SetInteractText(storage.localeKey);
+							HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
+	    				}
+	    			}
+	    		}
+			}
+		}
+	
+		public static void openSeamothTorpedoStorage(SeaMoth sm, Transform transf) {
+	    	TechType foundMatch = TechType.None;
+			Inventory.main.ClearUsedStorage();
+			for (int i = 0; i < sm.slotIDs.Length; i++) {
+	    		InventoryItem ii = sm.GetSlotItem(i);
+	    		if (ii != null && ii.item) {
+	    			TechType tt = ii.item.GetTechType();
+	    			if (foundMatch == tt || foundMatch == TechType.None) {
+		    			SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(tt);
+		    			if (storage != null) {
+		    				SeamothStorageContainer component = ii.item.GetComponent<SeamothStorageContainer>();
+		    				if (component) {
+	    						foundMatch = tt;
+		    					storage.apply(component);
+								Inventory.main.SetUsedStorage(component.container, true);
+		    				}
+		    			}
+	    			}
+	    		}
+			}
+			if (foundMatch != TechType.None) {
+	    		SNUtil.writeToChat("Opening "+SeamothModule.getStorageHandler(foundMatch).title+" for "+foundMatch);
+				Player.main.GetPDA().Open(PDATab.Inventory, transf, null, -1f);
+			}
+		}
 	}
 }

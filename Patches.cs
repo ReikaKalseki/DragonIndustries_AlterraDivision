@@ -552,6 +552,52 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(SeaMoth))]
+	[HarmonyPatch("OnHoverTorpedoStorage")]
+	public static class SeamothTorpedoHoverHooks {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "hoverSeamothTorpedoStorage", false, typeof(SeaMoth), typeof(HandTargetEventData)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(SeaMoth))]
+	[HarmonyPatch("OpenTorpedoStorage")]
+	public static class SeamothTorpedoClickHooks {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "openSeamothTorpedoStorage", false, typeof(SeaMoth), typeof(Transform)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	[HarmonyPatch(typeof(UseableDiveHatch))]
 	[HarmonyPatch("IsInside")]
 	public static class HatchInsideHook {
