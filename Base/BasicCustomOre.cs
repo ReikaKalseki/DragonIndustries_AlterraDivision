@@ -31,11 +31,12 @@ namespace ReikaKalseki.DIAlterra
 		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
 			baseTemplate = template;
-						
-			if (collectSound != null)
-				OnFinishedPatching += () => {CraftData.pickupSoundList[TechType] = collectSound;};
 			
-			OnFinishedPatching += () => {ItemRegistry.instance.addItem(this);};
+			OnFinishedPatching += () => {
+				ItemRegistry.instance.addItem(this);
+				if (collectSound != null)
+					CraftData.pickupSoundList[TechType] = collectSound;
+			};
 		}
 		
 		public void registerWorldgen(BiomeType biome, int amt, float chance) {

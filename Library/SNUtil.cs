@@ -155,7 +155,7 @@ namespace ReikaKalseki.DIAlterra
 		public static void addPDAEntry(Spawnable pfb, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
 			PDAManager.PDAPage page = null;
 			if (pageCategory != null && !string.IsNullOrEmpty(pageText)) {
-				page = PDAManager.createPage(""+pfb.ClassID, pfb.FriendlyName, pageText, pageCategory);
+				page = PDAManager.createPage("ency_"+pfb.ClassID, pfb.FriendlyName, pageText, pageCategory);
 				if (pageHeader != null)
 					page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/"+pageHeader));
 				page.register();
