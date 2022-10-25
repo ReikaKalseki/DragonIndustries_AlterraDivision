@@ -18,6 +18,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected SeamothModule(string id, string name, string desc, string template = "92b6424f-7635-4e61-990e-3c40bfad6e9a") : base(id, name, desc, template) { //SeamothElectricalDefense
 			dependency = TechType.BaseUpgradeConsole;
+			
+			OnFinishedPatching += () => {CraftData.maxCharges[TechType] = getMaxCharge();};
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -48,6 +50,14 @@ namespace ReikaKalseki.DIAlterra
 			get {
 				return TechCategory.VehicleUpgrades;
 			}
+		}
+		
+		protected virtual float getMaxCharge() {
+			return CraftData.GetQuickSlotMaxCharge(TechType.SeamothElectricalDefense);
+		}
+		
+		public virtual void onFired(SeaMoth sm, int slotID, float charge) { //charge is 0-1
+			
 		}
 	}
 }

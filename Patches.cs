@@ -52,6 +52,120 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(SeaMoth))]
+	[HarmonyPatch("OnUpgradeModuleChange")]
+	public static class SeamothModuleHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, injectSMModuleHook);				
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	
+		private static void injectSMModuleHook(List<CodeInstruction> codes, int idx) {
+			codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "updateSeamothModules", false, typeof(SeaMoth), typeof(int), typeof(TechType), typeof(bool)));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_3));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_2));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_1));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+		}
+	}
+	
+	[HarmonyPatch(typeof(SubRoot))]
+	[HarmonyPatch("UpdateSubModules")]
+	public static class CyclopsModuleHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, injectModuleHook);				
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	
+		private static void injectModuleHook(List<CodeInstruction> codes, int idx) {
+			codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "updateCyclopsModules", false, typeof(SubRoot)));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+		}
+	}
+	
+	[HarmonyPatch(typeof(Exosuit))]
+	[HarmonyPatch("OnUpgradeModuleChange")]
+	public static class PrawnModuleHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, injectModuleHook);				
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	
+		private static void injectModuleHook(List<CodeInstruction> codes, int idx) {
+			codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "updatePrawnModules", false, typeof(Exosuit), typeof(int), typeof(TechType), typeof(bool)));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_3));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_2));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_1));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+		}
+	}
+	
+	[HarmonyPatch(typeof(SeaMoth))]
+	[HarmonyPatch("OnUpgradeModuleUse")]
+	public static class SeamothModuleUseHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, injectModuleHook());
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	
+		private static CodeInstruction[] injectModuleHook() {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+			codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+			codes.Add(new CodeInstruction(OpCodes.Ldarg_2));
+			codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "useSeamothModule", false, typeof(SeaMoth), typeof(TechType), typeof(int)));
+			return codes.ToArray();
+		}
+	}
+	
 	[HarmonyPatch(typeof(CellManager))]
 	[HarmonyPatch("RegisterEntity", typeof(LargeWorldEntity))]
 	public static class EntityRegisterBypass {

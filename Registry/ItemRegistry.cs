@@ -17,6 +17,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly ItemRegistry instance = new ItemRegistry();
 		
 		private readonly Dictionary<string, Spawnable> registry = new Dictionary<string, Spawnable>();
+		private readonly Dictionary<TechType, Spawnable> registryTech = new Dictionary<TechType, Spawnable>();
 		
 		private ItemRegistry() {
 			
@@ -33,8 +34,20 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public Spawnable getItem(TechType tt) {
+			if (registryTech.ContainsKey(tt)) {
+				SNUtil.log("Fetching item '"+tt+"'", SNUtil.tryGetModDLL());
+				return registryTech[tt];
+			}
+			else {
+				SNUtil.log("Could not find item '"+tt+"'", SNUtil.tryGetModDLL());
+				return null;
+			}
+		}
+		
 		public void addItem(Spawnable di) {
 			registry[di.ClassID] = di;
+			registryTech[di.TechType] = di;
 		}
 		
 	}

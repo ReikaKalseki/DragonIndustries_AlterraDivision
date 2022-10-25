@@ -33,6 +33,10 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<BiomeCheck> getBiomeEvent;
 	    public static event Action<WaterTemperatureCalculation> getTemperatureEvent;
 	    public static event Action<GameObject> onKnifedEvent;
+	    public static event Action<SeaMoth, int, TechType, bool> onSeamothModulesChangedEvent;
+	    public static event Action<SubRoot> onCyclopsModulesChangedEvent;
+	    public static event Action<Exosuit, int, TechType, bool> onPrawnModulesChangedEvent;
+	    public static event Action<SeaMoth, TechType, int> onSeamothModuleUsedEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -205,6 +209,41 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	if (sub.isCyclops && onCyclopsTickEvent != null)
 	    		onCyclopsTickEvent.Invoke(sub);
+	    }
+	    
+	    public static void updateSeamothModules(SeaMoth sm, int slotID, TechType techType, bool added) {
+			for (int i = 0; i < sm.slotIDs.Length; i++) {
+				string slot = sm.slotIDs[i];
+				TechType techTypeInSlot = sm.modules.GetTechTypeInSlot(slot);
+				if (techTypeInSlot != TechType.None) {
+					Spawnable sp = ItemRegistry.instance.getItem(techTypeInSlot);
+					if (sp is SeamothDepthModule) {
+						sm.crushDamage.SetExtraCrushDepth(Mathf.Max(((SeamothDepthModule)sp).depthBonus, sm.crushDamage.extraCrushDepth));
+					}
+				}
+			}
+	    	
+	    	if (onSeamothModulesChangedEvent != null)
+	    		onSeamothModulesChangedEvent.Invoke(sm, slotID, techType, added);
+	    }
+	    
+	    public static void updateCyclopsModules(SubRoot sm) {	    	
+	    	if (onCyclopsModulesChangedEvent != null)
+	    		onCyclopsModulesChangedEvent.Invoke(sm);
+	    }
+	    
+	    public static void updatePrawnModules(Exosuit sm, int slotID, TechType techType, bool added) {
+	    	if (onPrawnModulesChangedEvent != null)
+	    		onPrawnModulesChangedEvent.Invoke(sm, slotID, techType, added);
+	    }
+	    
+	    public static void useSeamothModule(SeaMoth sm, TechType techType, int slotID) {
+			Spawnable sp = ItemRegistry.instance.getItem(techType);
+			if (sp is SeamothModule) {
+				((SeamothModule)sp).onFired(sm, slotID, sm.GetSlotCharge(slotID));
+			}
+	    	if (onSeamothModuleUsedEvent != null)
+	    		onSeamothModuleUsedEvent.Invoke(sm, techType, slotID);
 	    }
 	    
 	    public static float getWaterTemperature(float ret, WaterTemperatureSimulation sim, Vector3 pos) {
