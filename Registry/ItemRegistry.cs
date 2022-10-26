@@ -34,13 +34,15 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public Spawnable getItem(TechType tt) {
+		public Spawnable getItem(TechType tt, bool doLog = true) {
 			if (registryTech.ContainsKey(tt)) {
-				SNUtil.log("Fetching item '"+tt+"'", SNUtil.tryGetModDLL());
+				if (doLog)
+					SNUtil.log("Fetching item '"+tt+"'", SNUtil.tryGetModDLL());
 				return registryTech[tt];
 			}
 			else {
-				SNUtil.log("Could not find item '"+tt+"'", SNUtil.tryGetModDLL());
+				if (doLog)
+					SNUtil.log("Could not find item '"+tt+"'", SNUtil.tryGetModDLL());
 				return null;
 			}
 		}

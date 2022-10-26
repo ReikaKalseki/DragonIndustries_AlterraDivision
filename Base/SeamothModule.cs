@@ -38,8 +38,10 @@ namespace ReikaKalseki.DIAlterra
 			dependency = TechType.BaseUpgradeConsole;
 			
 			OnFinishedPatching += () => {
-				if (QuickSlotType == QuickSlotType.Chargeable || QuickSlotType == QuickSlotType.SelectableChargeable)
+				if (QuickSlotType == QuickSlotType.Chargeable || QuickSlotType == QuickSlotType.SelectableChargeable) {
 					CraftData.maxCharges[TechType] = getMaxCharge();
+					CraftData.energyCost[TechType] = getChargingPowerCost();
+				}
 				SeamothModuleStorage s = getStorage();
 				if (s != null) {
 					storageHandlers[TechType] = s;
@@ -93,6 +95,10 @@ namespace ReikaKalseki.DIAlterra
 			return CraftData.GetQuickSlotMaxCharge(TechType.SeamothElectricalDefense);
 		}
 		
+		protected virtual float getChargingPowerCost() {
+			return 1;
+		}
+		
 		public virtual float getUsageCooldown() {
 			return 0;
 		}
@@ -132,12 +138,14 @@ namespace ReikaKalseki.DIAlterra
 					storage.storageLabel = title.ToUpperInvariant();
 				if (width > 0) {
 					storage.width = width;
-					storage.container.sizeX = storage.width;
+					//storage.container.sizeX = storage.width;
 				}
 				if (height > 0) {
 					storage.height = height;
-					storage.container.sizeY = storage.height;
+					//storage.container.sizeY = storage.height;
 				}
+				if (height > 0 || width > 0)
+					storage.container.Resize(width > 0 ? width : storage.container.sizeX, height > 0 ? height : storage.container.sizeY);
 				if (allowedAmmo.Count > 0) {
 					storage.allowedTech = allowedAmmo.ToArray();
 					storage.container.SetAllowedTechTypes(storage.allowedTech);

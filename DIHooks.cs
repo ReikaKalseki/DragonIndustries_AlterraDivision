@@ -239,7 +239,7 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void useSeamothModule(SeaMoth sm, TechType techType, int slotID) {
-			Spawnable sp = ItemRegistry.instance.getItem(techType);
+			Spawnable sp = ItemRegistry.instance.getItem(techType, false);
 			if (sp is SeamothModule) {
 				SeamothModule smm = (SeamothModule)sp;
 				smm.onFired(sm, slotID, sm.GetSlotCharge(slotID));
@@ -474,7 +474,7 @@ namespace ReikaKalseki.DIAlterra {
 	    			SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(ii.item.GetTechType());
 	    			if (storage != null) {
 	    				SeamothStorageContainer component = ii.item.GetComponent<SeamothStorageContainer>();
-	    				SNUtil.writeToChat("Found "+component+" ["+storage.title+"] for "+ii.item.GetTechType());
+	    				//SNUtil.writeToChat("Found "+component+" ["+storage.title+"] for "+ii.item.GetTechType());
 	    				if (component) {
 	    					HandReticle.main.SetInteractText(storage.localeKey);
 							HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
@@ -505,9 +505,16 @@ namespace ReikaKalseki.DIAlterra {
 	    		}
 			}
 			if (foundMatch != TechType.None) {
-	    		SNUtil.writeToChat("Opening "+SeamothModule.getStorageHandler(foundMatch).title+" for "+foundMatch);
+	    		//SNUtil.writeToChat("Opening "+SeamothModule.getStorageHandler(foundMatch).title+" for "+foundMatch);
 				Player.main.GetPDA().Open(PDATab.Inventory, transf, null, -1f);
 			}
 		}
+	    
+	    public static float getTemperatureForDamage(TemperatureDamage dmg) {
+	    	Vehicle v = dmg.GetComponent<Vehicle>();
+	    	if (v)
+	    		return v.GetTemperature();
+	    	return WaterTemperatureSimulation.main.GetTemperature(dmg.transform.position);
+	    }
 	}
 }
