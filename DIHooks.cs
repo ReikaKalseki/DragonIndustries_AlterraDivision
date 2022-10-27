@@ -217,7 +217,7 @@ namespace ReikaKalseki.DIAlterra {
 				string slot = sm.slotIDs[i];
 				TechType techTypeInSlot = sm.modules.GetTechTypeInSlot(slot);
 				if (techTypeInSlot != TechType.None) {
-					Spawnable sp = ItemRegistry.instance.getItem(techTypeInSlot);
+					Spawnable sp = ItemRegistry.instance.getItem(techTypeInSlot, false);
 					if (sp is SeamothDepthModule) {
 						sm.crushDamage.SetExtraCrushDepth(Mathf.Max(((SeamothDepthModule)sp).depthBonus, sm.crushDamage.extraCrushDepth));
 					}

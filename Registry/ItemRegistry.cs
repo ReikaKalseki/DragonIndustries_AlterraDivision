@@ -50,6 +50,7 @@ namespace ReikaKalseki.DIAlterra
 		public void addItem(Spawnable di) {
 			registry[di.ClassID] = di;
 			registryTech[di.TechType] = di;
+			SNUtil.log("Registering item '"+di+"'", SNUtil.tryGetModDLL());
 		}
 		
 	}
