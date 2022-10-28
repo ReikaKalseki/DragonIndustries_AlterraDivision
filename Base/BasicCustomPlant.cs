@@ -38,9 +38,9 @@ namespace ReikaKalseki.DIAlterra
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
 				if (collectionMethod != HarvestType.None) {
-					seed.Patch();			
+					seed.Patch();
 					ItemRegistry.instance.addItem(seed);
-					plants[seed.TechType] = this;
+					setPlantSeed(seed.TechType, this);
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
 	        		CraftData.harvestOutputList[TechType] = seed.TechType;
 	        		CraftData.harvestFinalCutBonusList[TechType] = finalCutBonus;
@@ -49,13 +49,17 @@ namespace ReikaKalseki.DIAlterra
 			};
 		}
 		
+		public static void setPlantSeed(TechType seed, BasicCustomPlant plant) {
+			plants[seed] = plant;
+		}
+		
 		public void addPDAEntry(string text, float scanTime = 2, string header = null) {
 			PDAScanner.EntryData e = new PDAScanner.EntryData();
 			e.key = TechType;
 			e.scanTime = scanTime;
 			e.locked = true;
 			PDAManager.PDAPage page = PDAManager.createPage("ency_"+ClassID, FriendlyName, text, "Lifeforms");
-			page.addSubcategory("Flora").addSubcategory(collectionMethod == HarvestType.None || !isResource() ? "Sea" : "Exploitable");
+			page.addSubcategory("Flora").addSubcategory(isExploitable() ? "Exploitable" : "Sea");
 			if (header != null)
 				page.setHeaderImage(TextureManager.getTexture(ownerMod, "Textures/PDA/"+header));
 			page.register();
@@ -88,6 +92,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Assembly getOwnerMod() {
 			return ownerMod;
+		}
+		
+		protected virtual bool isExploitable() {
+			return collectionMethod != HarvestType.None || isResource();
 		}
 		
 		public virtual bool isResource() {

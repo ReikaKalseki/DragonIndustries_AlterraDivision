@@ -513,7 +513,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static float getTemperatureForDamage(TemperatureDamage dmg) {
 	    	Vehicle v = dmg.GetComponent<Vehicle>();
 	    	if (v)
-	    		return v.GetTemperature();
+	    		return v.precursorOutOfWater ? 25 : v.GetTemperature();
 	    	return WaterTemperatureSimulation.main.GetTemperature(dmg.transform.position);
 	    }
 	}
