@@ -37,6 +37,9 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SubRoot> onCyclopsModulesChangedEvent;
 	    public static event Action<Exosuit, int, TechType, bool> onPrawnModulesChangedEvent;
 	    public static event Action<SeaMoth, TechType, int> onSeamothModuleUsedEvent;
+	    public static event Action<SNCameraRoot> onSonarUsedEvent;
+	    public static event Action<SeaMoth> onSeamothSonarUsedEvent;
+	    public static event Action<SubRoot> onCyclopsSonarUsedEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -515,6 +518,24 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (v)
 	    		return v.precursorOutOfWater ? 25 : v.GetTemperature();
 	    	return WaterTemperatureSimulation.main.GetTemperature(dmg.transform.position);
+	    }
+	    
+	    public static void pingSonar(SNCameraRoot cam) {
+	    	if (cam && onSonarUsedEvent != null)
+	    		onSonarUsedEvent.Invoke(cam);
+	    }
+	    
+	    public static void pingSeamothSonar(SeaMoth cam) {
+	    	if (cam && onSeamothSonarUsedEvent != null)
+	    		onSeamothSonarUsedEvent.Invoke(cam);
+	    }
+	    
+	    public static void pingCyclopsSonar(CyclopsSonarButton cam) {
+	    	if (cam && onCyclopsSonarUsedEvent != null) {
+	    		SubRoot sb = cam.gameObject.FindAncestor<SubRoot>();
+	    		if (sb)
+	    			onCyclopsSonarUsedEvent.Invoke(sb);
+	    	}
 	    }
 	}
 }
