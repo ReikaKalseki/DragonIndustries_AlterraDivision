@@ -76,11 +76,12 @@ namespace ReikaKalseki.DIAlterra
 						if (path.EndsWith("/", StringComparison.InvariantCultureIgnoreCase) && suffix.StartsWith("_", StringComparison.InvariantCultureIgnoreCase)) {
 							suffix = suffix.Substring(1);
 						}
-						Texture2D newTex = TextureManager.getTexture(a, path+suffix+type);
+						string name = path+suffix+type;
+						Texture2D newTex = TextureManager.getTexture(a, name);
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
-							//SNUtil.writeToChat("Found "+type+" texture @ "+path, a);
+							SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
 						}
 						else {
 							//SNUtil.writeToChat("No texture found at "+path, a);

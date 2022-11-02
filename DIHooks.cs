@@ -349,8 +349,10 @@ namespace ReikaKalseki.DIAlterra {
 	    		BasicCustomPlant plantType = BasicCustomPlant.getPlant(tt.type);
 	    		//SNUtil.writeToChat("Planted "+tt+" > "+plantType);
 	    		if (plantType != null) {
+	    			//SNUtil.writeToChat(plant.GetComponentsInChildren<Renderer>(true).Length+" Renderers");
 		    		RenderUtil.swapToModdedTextures(plant.GetComponentInChildren<Renderer>(true), plantType);
-		    		plant.gameObject.EnsureComponent<TechTag>().type = tt.type;
+		    		plant.gameObject.EnsureComponent<TechTag>().type = plantType.TechType;
+		    		plant.gameObject.EnsureComponent<PrefabIdentifier>().ClassId = plantType.ClassID;
 	    		}
 	    	}
 	    }

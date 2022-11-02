@@ -65,35 +65,41 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private static void dumpObjectData(GameObject go, int indent) {
-			if (go == null) {
+			if (!go) {
 				SNUtil.log("null object");
 				return;
 			}
-			SNUtil.log("object "+go.ToString(), SNUtil.diDLL, indent);
+			SNUtil.log("object "+go, SNUtil.diDLL, indent);
 			SNUtil.log("chain "+go.GetFullHierarchyPath(), SNUtil.diDLL, indent);
 			SNUtil.log("components: "+string.Join(", ", (object[])go.GetComponents<Component>()), SNUtil.diDLL, indent);
 			Pickupable p = go.GetComponent<Pickupable>();
-			if (p != null) {
+			if (p) {
 				SNUtil.log("pickup: "+p.GetTechType()+" = "+p.isPickupable, SNUtil.diDLL, indent);
 			}
 			TechTag tag = go.GetComponent<TechTag>();
-			if (tag != null) {
+			if (tag) {
 				SNUtil.log("techtag: "+tag.type, SNUtil.diDLL, indent);
 			}
 			ResourceTracker res = go.GetComponent<ResourceTracker>();
-			if (res != null) {
+			if (res) {
 				SNUtil.log("resource: "+res.name+" = "+res.techType, SNUtil.diDLL, indent);
 			}
 			EntityTag e = go.GetComponent<EntityTag>();
-			if (e != null) {
+			if (e) {
 				SNUtil.log("entity: "+e.name+" = "+e.tag, SNUtil.diDLL, indent);
 			}
+			Plantable pp = go.GetComponent<Plantable>();
+			if (pp) {
+				SNUtil.log("plantable: "+pp.name+" = "+pp.plantTechType, SNUtil.diDLL, indent);
+				SNUtil.log("plant: ", SNUtil.diDLL, indent);
+				dumpObjectData(pp.growingPlant, indent+1);
+			}
 			LiveMixin live = go.GetComponent<LiveMixin>();
-			if (live != null) {
+			if (live) {
 				SNUtil.log("live: "+live.name+" = "+live.health+"/"+live.maxHealth+" = "+live.IsAlive(), SNUtil.diDLL, indent);
 			}
 			InfectedMixin infect = go.GetComponent<InfectedMixin>();
-			if (infect != null) {
+			if (infect) {
 				SNUtil.log("infected: "+infect.name+" = "+infect.infectedAmount, SNUtil.diDLL, indent);
 			}
 			SNUtil.log("transform: "+go.transform, SNUtil.diDLL, indent);
@@ -112,69 +118,12 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private static void dumpObjectData(Component go, int indent) {
-			if (go == null) {
+			if (!go) {
 				SNUtil.log("null component");
 				return;
 			}
-			SNUtil.log("component "+go.ToString(), SNUtil.diDLL, indent);
-			SNUtil.log("object "+go.gameObject, SNUtil.diDLL, indent);
-			SNUtil.log("chain "+go.gameObject.GetFullHierarchyPath(), SNUtil.diDLL, indent);
-			SNUtil.log("active "+go.gameObject.activeSelf+"/"+go.gameObject.activeInHierarchy);
-			SNUtil.log("components: "+string.Join(", ", (object[])go.GetComponents<Component>()), SNUtil.diDLL, indent);
-			Pickupable p = go.GetComponent<Pickupable>();
-			if (p != null) {
-				SNUtil.log("pickup: "+p.GetTechType()+" = "+p.isPickupable, SNUtil.diDLL, indent);
-			}
-			TechTag tag = go.GetComponent<TechTag>();
-			if (tag != null) {
-				SNUtil.log("techtag: "+tag.type, SNUtil.diDLL, indent);
-			}
-			ResourceTracker res = go.GetComponent<ResourceTracker>();
-			if (res != null) {
-				SNUtil.log("resource: "+res.name+" = "+res.techType, SNUtil.diDLL, indent);
-			}
-			EntityTag e = go.GetComponent<EntityTag>();
-			if (e != null) {
-				SNUtil.log("entity: "+e.name+" = "+e.tag, SNUtil.diDLL, indent);
-			}
-			LiveMixin live = go.GetComponent<LiveMixin>();
-			if (live != null) {
-				SNUtil.log("live: "+live.name+" = "+live.health+"/"+live.maxHealth+" = "+live.IsAlive(), SNUtil.diDLL, indent);
-			}
-			InfectedMixin infect = go.GetComponent<InfectedMixin>();
-			if (infect != null) {
-				SNUtil.log("infected: "+infect.name+" = "+infect.infectedAmount, SNUtil.diDLL, indent);
-			}
-			Renderer ren = go is Renderer ? (Renderer)go : go.GetComponent<Renderer>();
-			if (ren != null) {
-				SNUtil.log("renderer: "+ren.name, SNUtil.diDLL, indent);
-				foreach (Material m in ren.materials) {
-					SNUtil.log("material: "+m.name, SNUtil.diDLL, indent);
-					SNUtil.log("color: "+m.color, SNUtil.diDLL, indent);
-					SNUtil.log("tex: "+m.mainTexture, SNUtil.diDLL, indent);
-					SNUtil.log("tex name: "+m.mainTexture.name, SNUtil.diDLL, indent);
-					SNUtil.log("tex pos: "+m.mainTextureOffset, SNUtil.diDLL, indent);
-					SNUtil.log("tex scale: "+m.mainTextureScale, SNUtil.diDLL, indent);
-					foreach (string tex in m.GetTexturePropertyNames()) {
-						SNUtil.log("tex ID '"+tex+"': "+m.GetTexture(tex), SNUtil.diDLL, indent);
-						SNUtil.log("tex ID '"+tex+"': "+m.GetTextureOffset(tex), SNUtil.diDLL, indent);
-						SNUtil.log("tex ID '"+tex+"': "+m.GetTextureScale(tex), SNUtil.diDLL, indent);
-					}
-				}
-			}
-			SNUtil.log("transform: "+go.transform, SNUtil.diDLL, indent);
-			if (go.transform != null) {
-				SNUtil.log("position: "+go.transform.position, SNUtil.diDLL, indent);
-				SNUtil.log("transform object: "+go.transform.gameObject, SNUtil.diDLL, indent);
-				SNUtil.log("transform parent: "+go.transform.parent, SNUtil.diDLL, indent);
-				if (go.transform.parent != null) {
-					SNUtil.log("transform parent object: ", SNUtil.diDLL, indent);
-					dumpObjectData(go.transform.parent.gameObject, indent+3);
-				}
-				else {
-					SNUtil.log("transform parent object: null", SNUtil.diDLL, indent);
-				}
-			}
+			SNUtil.log("component "+go, SNUtil.diDLL, indent);
+			dumpObjectData(go.gameObject);
 		}
 		
 		public static void dumpObjectData(Mesh m) {
