@@ -16,6 +16,8 @@ using ReikaKalseki.DIAlterra;
 namespace ReikaKalseki.DIAlterra {
 	
 	public static class DIHooks {
+		
+		internal static readonly float NEAR_LAVA_RADIUS = 16;
 	    
 	    private static bool worldLoaded = false;
 	    
@@ -365,8 +367,156 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void onSkyApplierSpawn(SkyApplier pk) {
+	    	if (pk.GetComponent<Vehicle>()) {
+	    		GameObject go = ObjectUtil.getChildObject(pk.gameObject, "LavaWarningTrigger");
+	    		if (!go) {
+	    			go = new GameObject("LavaWarningTrigger");
+	    			go.transform.localPosition = Vector3.zero;
+	    			go.transform.localRotation = Quaternion.identity;
+	    			go.transform.SetParent(pk.transform);
+	    		}
+	    		SphereCollider sp = go.EnsureComponent<SphereCollider>();
+	    		sp.center = Vector3.zero;
+	    		sp.radius = NEAR_LAVA_RADIUS;
+	    		sp.isTrigger = true;
+	    		go.EnsureComponent<LavaWarningTriggerDetector>();
+	    	}
 	    	if (onSkyApplierSpawnEvent != null)
 	    		onSkyApplierSpawnEvent.Invoke(pk);
+	    }
+	    
+	    //private static bool needsLavaDump = true;
+	    
+	    class LavaWarningTriggerDetector : MonoBehaviour {
+	    	
+	    	private TemperatureDamage damage;
+	    	private Vehicle vehicle;
+	    	private Collider sphere;
+	    	
+	    	private float lastLavaTime = -1;
+	    	
+	    	private float lastCheckTime = -1;
+	    	
+	    	private static readonly List<Vector3> spherePoints = new List<Vector3>();
+	    	private static readonly int RAYS_PER_TICK = 10;
+	    	private static int spherePointIndex = 0;
+	    	
+	    	private float ambientTemperatureMinusLava;
+	    	
+	    	static LavaWarningTriggerDetector() {
+	    		computePoints();
+	    	}
+	    	
+	    	private static void computePoints() {
+	    		float phi = Mathf.PI * (3F - Mathf.Sqrt(5F));  // golden angle in radians
+			    for (int i = 0; i < 100; i++) {
+	    			float y = 1 - (i / (100 - 1F)) * 2;  // y goes from 1 to -1
+			        float radius = Mathf.Sqrt(1 - y * y);  // radius at y
+			
+			        float theta = phi * i;  // golden angle increment
+			
+			        float x = Mathf.Cos(theta) * radius;
+			        float z = Mathf.Sin(theta) * radius;
+			
+			        spherePoints.Add(new Vector3(x, y, z));
+			    }
+	    		for (int i = 0; i < 150; i++) {
+	    			float ang = UnityEngine.Random.Range(0F, 360F);
+			        float x = Mathf.Cos(Mathf.Deg2Rad*ang) * NEAR_LAVA_RADIUS;
+			        float z = Mathf.Sin(Mathf.Deg2Rad*ang) * NEAR_LAVA_RADIUS;
+			        spherePoints.Add(new Vector3(x, -UnityEngine.Random.Range(0F, 1F), z));
+	    		}
+	    		spherePoints.Shuffle();
+	    	}
+	    	
+	    	void Update() {
+	    		if (!damage)
+	    			damage = gameObject.FindAncestor<TemperatureDamage>();
+	    		if (!vehicle)
+	    			vehicle = gameObject.FindAncestor<Vehicle>();
+	    		if (!sphere)
+	    			sphere = gameObject.GetComponent<Collider>();
+	    		gameObject.transform.localPosition = Vector3.zero;
+	    		
+	    		float time = DayNightCycle.main.timePassedAsFloat;
+	    		float dT = time-lastCheckTime;
+	    		if (dT >= 0.5) {
+	    			lastCheckTime = time;
+	    			ambientTemperatureMinusLava = WaterTemperatureSimulation.main.GetTemperature(transform.position);
+	    		}
+	    		if (damage && ambientTemperatureMinusLava >= 90)
+	    			checkNearbyLava();
+	    	}
+	    	
+	    	private void checkNearbyLava() {
+	    		for (int i = spherePointIndex; i < Math.Min(spherePointIndex+RAYS_PER_TICK, spherePoints.Count); i++) {
+	    			Vector3 vec = spherePoints[i];
+	    			RaycastHit[] hits = Physics.RaycastAll(transform.position, vec.normalized, NEAR_LAVA_RADIUS, Voxeland.GetTerrainLayerMask());
+	    			//SNUtil.writeToChat(vec+" > "+hits.Length);
+					foreach (RaycastHit hit in hits) {
+	    				if (hit.transform && checkLava(hit.point, Vector3.zero)) {
+	    					spherePointIndex = i;
+	    					return;
+	    				}
+					}
+	    		}
+	    		spherePointIndex += RAYS_PER_TICK;
+	    		if (spherePointIndex >= spherePoints.Count)
+	    			spherePointIndex = 0;
+	    	}
+	    	
+			private void OnTriggerStay(Collider other) {
+	    		if (damage && ambientTemperatureMinusLava >= 90) {
+		    		Vector3 norm;
+		    		checkLava(getCollisionPoint(other, out norm), norm);
+	    		}
+			}
+	    	
+			private Vector3 getCollisionPoint(Collider other, out Vector3 norm) {
+			    float depth = 0;
+			
+			    Vector3 ctr = transform.position;
+			    if (Physics.ComputePenetration(other, other.transform.position, other.transform.rotation, sphere, ctr, Quaternion.identity, out norm, out depth))
+			        return ctr + (norm * (NEAR_LAVA_RADIUS-depth));
+			    
+			    return Vector3.zero;
+			}
+	    	
+	    	private bool checkLava(Vector3 pt, Vector3 norm) {
+	    		//SNUtil.log("Checking lava: "+pt+" @ "+lastLavaTime, SNUtil.diDLL);
+	    		if (norm.magnitude < 0.01F)
+	    			norm = transform.position - pt;
+				if (damage.lavaDatabase.IsLava(pt, norm)) {
+					lastLavaTime = DayNightCycle.main.timePassedAsFloat;
+	    			//SNUtil.writeToChat("Wide lava: "+pt+" @ "+lastLavaTime);
+	    			//SNUtil.log("Is lava", SNUtil.diDLL);
+	    			return true;
+	    		}
+	    		return false;
+	    	}
+	    	
+	    	internal bool isInLava() {/*
+	    		if (needsLavaDump) {
+	    			dmg.lavaDatabase.LazyInitialize();
+	    			needsLavaDump = false;
+	    			List<string> li = new List<string>();
+	    			Dictionary<byte, List<BlockTypeClassification>> db = dmg.lavaDatabase.lavaBlocks;
+	    			foreach (KeyValuePair<byte, List<BlockTypeClassification>> kvp in db) {
+	    				List<BlockTypeClassification> li0 = kvp.Value;
+	    				li.Add("==========================");
+	    				li.Add("Byte "+kvp.Key+": "+li0.Count+" entries: ");
+	    				foreach (BlockTypeClassification bb in li0) {
+	    					li.Add("Type "+bb.blockType+", inclination ["+bb.minInclination+"-"+bb.maxInclination+"], mat='"+bb.material+"'");
+	    				}
+	    				li.Add("==========================");
+	    				li.Add("");
+	    			}
+	    			string path = "E:/INet/SNlavadump.txt";
+	    			File.WriteAllLines(path, li);
+	    		}*/
+	    		return Mathf.Abs(DayNightCycle.main.timePassedAsFloat-lastLavaTime) <= 2;
+	    	}
+	    	
 	    }
 	    
 	    public static void onStoryGoalCompleted(string key) {
@@ -514,6 +664,13 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	    
 	    public static float getTemperatureForDamage(TemperatureDamage dmg) {
+	    	if (Mathf.Abs(Time.time-dmg.timeDamageStarted) <= 2.5F) { //active lava dmg
+	    		//SNUtil.writeToChat(dmg+" Touch lava: "+dmg.timeDamageStarted+" > "+Mathf.Abs(Time.time-dmg.timeDamageStarted));
+	    		return 1200;
+	    	}
+	    	LavaWarningTriggerDetector warn = dmg.GetComponentInChildren<LavaWarningTriggerDetector>();
+	    	if (warn && warn.isInLava())
+	    		return 600;
 	    	Vehicle v = dmg.GetComponent<Vehicle>();
 	    	if (v)
 	    		return v.precursorOutOfWater ? 25 : v.GetTemperature();

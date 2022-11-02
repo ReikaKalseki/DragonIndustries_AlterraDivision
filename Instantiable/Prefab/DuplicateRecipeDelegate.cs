@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
@@ -56,6 +57,10 @@ namespace ReikaKalseki.DIAlterra
 			List<DuplicateItemDelegate> li = delegates.ContainsKey(tt) ? delegates[tt] : new List<DuplicateItemDelegate>();
 			li.Add(d);
 			delegates[tt] = li;
+		}
+		
+		public static IEnumerable<DuplicateItemDelegate> getDelegates(TechType of) {
+			return delegates.ContainsKey(of) ? (IEnumerable<DuplicateItemDelegate>)delegates[of].AsReadOnly() : new List<DuplicateItemDelegate>();
 		}
 		
 		public static void updateLocale() {

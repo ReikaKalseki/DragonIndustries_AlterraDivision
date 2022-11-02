@@ -23,8 +23,6 @@ namespace ReikaKalseki.DIAlterra
 		public string[] craftingMenuTree = new string[0];
 		public Assembly ownerMod;
 		
-		public string suffixName = "";
-		
 		public UncraftingRecipeItem(Craftable s) : base(s.ClassID+"_uncrafting", s.FriendlyName, s.Description) {
 			basis = s.TechType;
 			prefab = s;
@@ -37,7 +35,6 @@ namespace ReikaKalseki.DIAlterra
 				sprite = ((BasicCraftingItem)s).sprite;
 			if (s is DIPrefab<PrefabReference>)
 				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
-			FriendlyName = FriendlyName+suffixName;
 			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += onPatched;
 		}
