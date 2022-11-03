@@ -177,6 +177,7 @@ namespace ReikaKalseki.DIAlterra {
 	        
 	    	DuplicateRecipeDelegate.updateLocale();
 	    	CustomEgg.updateLocale();
+	    	PickedUpAsOtherItem.updateLocale();
 	    	SeamothModule.updateLocale();
 	    	
 	    	if (onWorldLoadedEvent != null)
@@ -289,10 +290,24 @@ namespace ReikaKalseki.DIAlterra {
 	    }	
     
 	    public static void onItemPickedUp(Pickupable p) {
-	    	TechType tt = TechType.None;
-	    	TechTag tag = p.gameObject.GetComponent<TechTag>();
-	    	if (tag)
-	    		tt = tag.type;
+	    	TechType tt = p.GetTechType();
+	    	TechType mapTo = PickedUpAsOtherItem.getPickedUpAsOther(tt);
+	    	if (mapTo != TechType.None) {
+	    		GameObject go = UnityEngine.Object.Instantiate(CraftData.GetPrefabForTechType(mapTo));
+	    		SNUtil.log("Converting pickup '"+p+"' to '"+go+"'");
+	    		Inventory.main.container.DestroyItem(tt);
+	    		UnityEngine.Object.DestroyImmediate(p.gameObject);
+	    		go.SetActive(true);
+	    		p = go.GetComponent<Pickupable>();
+	    		tt = mapTo;
+	    		Inventory.main.Pickup(p, false);
+	    	}
+	    	
+	    	if (tt == TechType.None) {
+		    	TechTag tag = p.gameObject.GetComponent<TechTag>();
+		    	if (tag)
+		    		tt = tag.type;
+	    	}
 	    	if (tt == TechType.None) {
 	    		PrefabIdentifier pi = p.gameObject.GetComponent<PrefabIdentifier>();
 	    		if (pi)
