@@ -50,8 +50,16 @@ namespace ReikaKalseki.DIAlterra {
 			
 		}
 		
-		public static TechType getPickedUpAsOther(TechType tt) {
-			return techMap.ContainsKey(tt) ? techMap[tt].template : TechType.None;
+		public TechType getTemplate() {
+			return template;
+		}
+		
+		public virtual int getNumberCollectedAs() {
+			return 1;
+		}
+		
+		public static PickedUpAsOtherItem getPickedUpAsOther(TechType tt) {
+			return techMap.ContainsKey(tt) ? techMap[tt] : null;
 		}
 		
 		public static void updateLocale() {

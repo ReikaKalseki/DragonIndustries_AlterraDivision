@@ -81,7 +81,7 @@ namespace ReikaKalseki.DIAlterra
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
-							SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
+							//SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
 						}
 						else {
 							//SNUtil.writeToChat("No texture found at "+path, a);

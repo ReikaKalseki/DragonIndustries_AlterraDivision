@@ -291,16 +291,21 @@ namespace ReikaKalseki.DIAlterra {
     
 	    public static void onItemPickedUp(Pickupable p) {
 	    	TechType tt = p.GetTechType();
-	    	TechType mapTo = PickedUpAsOtherItem.getPickedUpAsOther(tt);
-	    	if (mapTo != TechType.None) {
-	    		GameObject go = UnityEngine.Object.Instantiate(CraftData.GetPrefabForTechType(mapTo));
-	    		SNUtil.log("Converting pickup '"+p+"' to '"+go+"'");
-	    		Inventory.main.container.DestroyItem(tt);
-	    		UnityEngine.Object.DestroyImmediate(p.gameObject);
-	    		go.SetActive(true);
-	    		p = go.GetComponent<Pickupable>();
-	    		tt = mapTo;
-	    		Inventory.main.Pickup(p, false);
+	    	PickedUpAsOtherItem mapTo = PickedUpAsOtherItem.getPickedUpAsOther(tt);
+	    	if (mapTo != null) {
+		    	Inventory.main.container.DestroyItem(tt);
+		    	UnityEngine.Object.DestroyImmediate(p.gameObject);
+	    		TechType tt2 = mapTo.getTemplate();
+	    		int n = mapTo.getNumberCollectedAs();
+		    	SNUtil.log("Converting pickup '"+p+"' to '"+tt2+"' x"+n, SNUtil.diDLL);
+	    		for (int i = 0; i < n; i++) {
+		    		GameObject go = UnityEngine.Object.Instantiate(CraftData.GetPrefabForTechType(tt2));
+		    		go.SetActive(true);
+		    		p = go.GetComponent<Pickupable>();
+		    		Inventory.main.Pickup(p, false);
+	    		}
+		    	SNUtil.log("Conversion complete", SNUtil.diDLL);
+	    		tt = tt2;
 	    	}
 	    	
 	    	if (tt == TechType.None) {
