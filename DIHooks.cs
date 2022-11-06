@@ -19,7 +19,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		internal static readonly float NEAR_LAVA_RADIUS = 16;
 	    
-	    private static bool worldLoaded = false;
+	    private static float worldLoadTime = -1;
 	    
 	    public static event Action<DayNightCycle> onDayNightTickEvent;
 	    public static event Action onWorldLoadedEvent;
@@ -172,7 +172,7 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void onWorldLoaded() {
-	    	worldLoaded = true;
+	    	worldLoadTime = Time.time;
 	    	SNUtil.log("Intercepted world load", SNUtil.diDLL);
 	        
 	    	DuplicateRecipeDelegate.updateLocale();
@@ -182,6 +182,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	if (onWorldLoadedEvent != null)
 	    		onWorldLoadedEvent.Invoke();
+	    }
+	    
+	    public static float getWorldAge() {
+	    	return worldLoadTime < 0 ? -1 : Time.time-worldLoadTime;
 	    }
 	    
 	    public static void tickPlayer(Player ep) {
@@ -332,7 +336,7 @@ namespace ReikaKalseki.DIAlterra {
 	    }
     
 	    public static void onEntityRegister(CellManager cm, LargeWorldEntity lw) {
-	    	if (!worldLoaded) {
+	    	if (worldLoadTime < 0) {
 	    		onWorldLoaded();
 	    	}/*
 	    	if (lw.cellLevel != LargeWorldEntity.CellLevel.Global) {
@@ -361,6 +365,12 @@ namespace ReikaKalseki.DIAlterra {
 	    	}*/
 	    	if (onEntityRegisterEvent != null)
 	    		onEntityRegisterEvent.Invoke(cm, lw);
+	    }
+	    
+	    public static void onPopup(uGUI_PopupNotification gui) {/*
+	    	System.Diagnostics.StackTrace t = new System.Diagnostics.StackTrace();
+	    	t.ToString();*/
+			SNUtil.log("TRIGGER POPUP UNLOCK "+System.Environment.StackTrace, SNUtil.diDLL);
 	    }
 	    
 	    public static void onFarmedPlantGrowingSpawn(Plantable p, GameObject plant) {

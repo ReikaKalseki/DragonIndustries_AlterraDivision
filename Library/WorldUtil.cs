@@ -156,12 +156,22 @@ batch_id = (19, 17, 16)
 			p.Play(true);
 			particle.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);
 			UnityEngine.Object.Destroy(particle, dur+5);
+			ObjectUtil.removeComponent<PrefabIdentifier>(particle); //this will absolutely prevent it from being saved to disk
 		}
 		
 		class TransientParticleTag : MonoBehaviour {
 			
 			void stop() {
 				GetComponentInChildren<ParticleSystem>().Stop(true, ParticleSystemStopBehavior.StopEmitting);
+			}
+		
+			void OnDestroy() {
+				if (gameObject)
+					UnityEngine.Object.DestroyImmediate(gameObject);
+			}
+			
+			void OnDisable() {
+				UnityEngine.Object.DestroyImmediate(gameObject);
 			}
 			
 		}

@@ -44,7 +44,7 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	   
 		public void triggerDirectUnlock(TechType tt) {
-	   		if (!directUnlocks.ContainsKey(tt))
+	    	if (DIHooks.getWorldAge() <= 0.25F || !directUnlocks.ContainsKey(tt))
 	   			return;
 	   		bool any = false;
 		   	foreach (TechType unlock in directUnlocks[tt]) {
