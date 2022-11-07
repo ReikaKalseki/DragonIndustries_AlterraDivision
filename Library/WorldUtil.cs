@@ -147,16 +147,18 @@ batch_id = (19, 17, 16)
 			
 		}*/
 		
-		public static void spawnParticlesAt(Vector3 pos, string pfb, float dur) {
+		public static ParticleSystem spawnParticlesAt(Vector3 pos, string pfb, float dur) {
 			if (Vector3.Distance(pos, Player.main.transform.position) >= 200)
-				return;
+				return null;
 			GameObject particle = ObjectUtil.createWorldObject(pfb);
+			particle.SetActive(true);
 			particle.transform.position = pos;
 			ParticleSystem p = particle.GetComponentInChildren<ParticleSystem>();
 			p.Play(true);
 			particle.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);
 			UnityEngine.Object.Destroy(particle, dur+5);
 			ObjectUtil.removeComponent<PrefabIdentifier>(particle); //this will absolutely prevent it from being saved to disk
+			return p;
 		}
 		
 		class TransientParticleTag : MonoBehaviour {
@@ -167,11 +169,12 @@ batch_id = (19, 17, 16)
 		
 			void OnDestroy() {
 				if (gameObject)
-					UnityEngine.Object.DestroyImmediate(gameObject);
+					UnityEngine.Object.Destroy(gameObject);
 			}
 			
 			void OnDisable() {
-				UnityEngine.Object.DestroyImmediate(gameObject);
+				if (gameObject)
+					UnityEngine.Object.Destroy(gameObject);
 			}
 			
 		}

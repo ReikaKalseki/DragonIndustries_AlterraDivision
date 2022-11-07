@@ -51,7 +51,7 @@ namespace ReikaKalseki.DIAlterra
 			//SNUtil.writeToChat("Story '"+key+"'");
 			foreach (IStoryGoalListener ig in listeners) {
 				ig.NotifyGoalComplete(key);
-			}
+			}	
 		}
 	}
 		
