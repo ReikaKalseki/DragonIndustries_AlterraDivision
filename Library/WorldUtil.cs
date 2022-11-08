@@ -112,6 +112,60 @@ batch_id = (19, 17, 16)
 			return ret;
 		}
 		
+		public static HashSet<GameObject> getObjectsNear(Vector3 pos, float r) {
+			HashSet<GameObject> set = new HashSet<GameObject>();
+			/*
+			Collider[] hit = Physics.OverlapSphere(pos, r);			
+			foreach (Collider rh in hit) {
+				if (rh) {
+					GameObject go = UWE.Utils.GetEntityRoot(rh.gameObject);
+					if (!go)
+						go = rh.gameObject;
+					set.Add(go);
+				}
+			}
+			*/
+			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F)) {
+				if (hit.transform) {
+					GameObject go = UWE.Utils.GetEntityRoot(hit.transform.gameObject);
+					if (!go)
+						go = hit.transform.gameObject;
+					set.Add(go);
+				}
+			}
+			return set;
+		}
+		
+		public static HashSet<C> getObjectsNearWithComponent<C>(Vector3 pos, float r) where C : MonoBehaviour {
+			HashSet<C> set = new HashSet<C>();
+			/*
+			Collider[] hit = Physics.OverlapSphere(pos, r);
+			if (hit == null || hit.Length == 0)
+				return set;
+			foreach (Collider rh in hit) {
+				if (rh && rh.gameObject) {
+					GameObject go = UWE.Utils.GetEntityRoot(rh.gameObject);
+					if (!go)
+						go = rh.gameObject;
+					C com = go ? go.GetComponentInChildren<C>() : null;
+					if (com)
+						set.Add(com);
+				}
+			}
+			*/
+			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F)) {
+				if (hit.transform) {
+					GameObject go = UWE.Utils.GetEntityRoot(hit.transform.gameObject);
+					if (!go)
+						go = hit.transform.gameObject;
+					C com = go ? go.GetComponentInChildren<C>() : null;
+					if (com)
+						set.Add(com);
+				}
+			}
+			return set;
+		}
+		
 		public static string getBiomeFriendlyName(string biome) {
 			return biomeNames.ContainsKey(biome) ? biomeNames[biome] : biome;
 		}
