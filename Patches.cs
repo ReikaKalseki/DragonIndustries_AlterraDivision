@@ -797,7 +797,65 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	*/
+	
+	[HarmonyPatch(typeof(WaterParkCreature))]
+	[HarmonyPatch("Born")]
+	public static class WaterParkFix {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "UnityEngine.GameObject", "SetActive", true, new Type[]{typeof(bool)});
+				codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onEggHatched", false, typeof(GameObject)));
+				codes.Insert(idx+1, new CodeInstruction(OpCodes.Ldloc_0));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(EMPBlast))]
+	[HarmonyPatch("OnTouch")]
+	public static class EMPBlastHooks {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				for (int i = codes.Count-1; i >= 0; i--) {
+					if (codes[i].opcode == OpCodes.Callvirt) {
+						MethodInfo mi = (MethodInfo)codes[i].operand;
+						if (mi.Name == "DisableElectronicsForTime") {
+							PatchLib.injectEMPHook(codes, i);
+						}
+					}
+				}
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
+		
+		internal static void injectEMPHook(List<CodeInstruction> codes, int idx) {
+			CodeInstruction arg = codes[idx-3]; //-1 is getfield time, -2 is loadarg0 to get that field
+			idx -= 4;
+			codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onEMPHit", false, typeof(EMPBlast), typeof(MonoBehaviour)));
+			codes.Insert(idx+1, new CodeInstruction(arg.opcode, arg.operand));
+			codes.Insert(idx+1, new CodeInstruction(OpCodes.Ldarg_0));
+		}
 		
 		internal static void injectTickHook(List<CodeInstruction> codes, string name, Type arg) {
 			InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", name, false, arg));	

@@ -48,7 +48,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void NotifyGoalComplete(string key) {
-			//SNUtil.writeToChat("Story '"+key+"'");
+			SNUtil.log("Completed Story Goal '"+key+"' @ "+DayNightCycle.main.timePassedAsFloat, SNUtil.diDLL);
 			foreach (IStoryGoalListener ig in listeners) {
 				ig.NotifyGoalComplete(key);
 			}	

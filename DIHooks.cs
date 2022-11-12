@@ -42,6 +42,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SNCameraRoot> onSonarUsedEvent;
 	    public static event Action<SeaMoth> onSeamothSonarUsedEvent;
 	    public static event Action<SubRoot> onCyclopsSonarUsedEvent;
+	    public static event Action<GameObject> onEggHatchedEvent;
+	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -370,7 +372,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void onPopup(uGUI_PopupNotification gui) {/*
 	    	System.Diagnostics.StackTrace t = new System.Diagnostics.StackTrace();
 	    	t.ToString();*/
-			SNUtil.log("TRIGGER POPUP UNLOCK "+System.Environment.StackTrace, SNUtil.diDLL);
+			//SNUtil.log("TRIGGER POPUP UNLOCK "+System.Environment.StackTrace, SNUtil.diDLL);
 	    }
 	    
 	    public static void onFarmedPlantGrowingSpawn(Plantable p, GameObject plant) {
@@ -724,6 +726,22 @@ namespace ReikaKalseki.DIAlterra {
 	    		SubRoot sb = cam.gameObject.FindAncestor<SubRoot>();
 	    		if (sb)
 	    			onCyclopsSonarUsedEvent.Invoke(sb);
+	    	}
+	    }
+	    
+	    public static void onEggHatched(GameObject hatched) {
+	    	if (hatched) {
+	    		hatched.EnsureComponent<LargeWorldEntity>().enabled = true;
+	    		hatched.EnsureComponent<WorldForces>().enabled = true;
+	    		hatched.GetComponent<Creature>().enabled = true;
+		    	if (onEggHatchedEvent != null)
+		    		onEggHatchedEvent.Invoke(hatched);
+	    	}
+	    }
+	    
+	    public static void onEMPHit(EMPBlast e, MonoBehaviour com) {
+	    	if (com && onEMPHitEvent != null) {
+	    		onEMPHitEvent.Invoke(e, com.gameObject);
 	    	}
 	    }
 	}
