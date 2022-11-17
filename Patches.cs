@@ -820,6 +820,29 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(TooltipFactory))]
+	[HarmonyPatch("ItemCommons")]
+	public static class CustomTooltipHooks {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), new CodeInstruction(OpCodes.Ldarg_2), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "appendItemTooltip", false, typeof(System.Text.StringBuilder), typeof(TechType), typeof(GameObject)));
+				int idx = codes.Count-1;
+				codes[idx].MoveLabelsTo(codes[idx-4]);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	[HarmonyPatch(typeof(EMPBlast))]
 	[HarmonyPatch("OnTouch")]
 	public static class EMPBlastHooks {

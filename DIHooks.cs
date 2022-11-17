@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml;
 using System.Reflection;
+using System.Text;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SubRoot> onCyclopsSonarUsedEvent;
 	    public static event Action<GameObject> onEggHatchedEvent;
 	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
+	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -742,6 +744,38 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void onEMPHit(EMPBlast e, MonoBehaviour com) {
 	    	if (com && onEMPHitEvent != null) {
 	    		onEMPHitEvent.Invoke(e, com.gameObject);
+	    	}
+	    }
+	    
+	    public static void appendItemTooltip(StringBuilder sb, TechType tt, GameObject obj) {
+	    	InfectedMixin mix = obj.GetComponent<InfectedMixin>();
+	    	if (mix) {
+	    		TooltipFactory.WriteDescription(sb, getInfectionTooltip(mix));//TooltipFactory.WriteDescription(sb, "Infected: "+((int)(mix.infectedAmount*100))+"%");
+	    	}
+	    	if (itemTooltipEvent != null) {
+	    		itemTooltipEvent.Invoke(sb, tt, obj);
+	    	}
+	    }
+	    
+	    private static string getInfectionTooltip(InfectedMixin mix) {
+	    	if (mix.IsInfected()) {
+	    		float amt = mix.infectedAmount;
+	    		//return "Infected: "+((int)(amt*100))+"%";
+	    		if (amt >= 0.75) {
+	    			return "This creature is severely infected.";
+	    		}
+	    		else if (amt >= 0.5) {
+	    			return "Exhibiting symptoms of significant systemic infection.";
+	    		}
+	    		else if (amt >= 0.25) {
+	    			return "Showing signs of infection.";
+	    		}
+	    		else {
+	    			return "Elevated bacterial levels detected.";
+	    		}
+	    	}
+	    	else {
+		   		return "Status: Healthy.";
 	    	}
 	    }
 	}
