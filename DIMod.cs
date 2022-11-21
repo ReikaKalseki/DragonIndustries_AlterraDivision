@@ -7,6 +7,7 @@ using HarmonyLib;
 using QModManager.API.ModLoading;
 using ReikaKalseki.DIAlterra;
 using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Assets;
 
 namespace ReikaKalseki.DIAlterra
 {
@@ -22,6 +23,8 @@ namespace ReikaKalseki.DIAlterra
     }
     */
     //public static readonly ModLogger logger = new ModLogger();
+		
+	internal static readonly Dictionary<TechType, Buildable> machineList = new Dictionary<TechType, Buildable>();
 
     [QModPrePatch]
     public static void PreLoad()

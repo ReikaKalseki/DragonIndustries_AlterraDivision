@@ -46,6 +46,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<GameObject> onEggHatchedEvent;
 	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
+	    public static event Action<AtmosphereDirector> fogCalculateEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -423,7 +424,7 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    //private static bool needsLavaDump = true;
 	    
-	    class LavaWarningTriggerDetector : MonoBehaviour {
+	    public class LavaWarningTriggerDetector : MonoBehaviour {
 	    	
 	    	private TemperatureDamage damage;
 	    	private Vehicle vehicle;
@@ -523,7 +524,7 @@ namespace ReikaKalseki.DIAlterra {
 	    		if (norm.magnitude < 0.01F)
 	    			norm = transform.position - pt;
 				if (damage.lavaDatabase.IsLava(pt, norm)) {
-					lastLavaTime = DayNightCycle.main.timePassedAsFloat;
+	    			markLavaDetected();
 	    			//SNUtil.writeToChat("Wide lava: "+pt+" @ "+lastLavaTime);
 	    			//SNUtil.log("Is lava", SNUtil.diDLL);
 	    			return true;
@@ -531,7 +532,11 @@ namespace ReikaKalseki.DIAlterra {
 	    		return false;
 	    	}
 	    	
-	    	internal bool isInLava() {/*
+	    	public void markLavaDetected() {
+	    		lastLavaTime = DayNightCycle.main.timePassedAsFloat;
+	    	}
+	    	
+	    	public bool isInLava() {/*
 	    		if (needsLavaDump) {
 	    			dmg.lavaDatabase.LazyInitialize();
 	    			needsLavaDump = false;
@@ -733,9 +738,7 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static void onEggHatched(GameObject hatched) {
 	    	if (hatched) {
-	    		hatched.EnsureComponent<LargeWorldEntity>().enabled = true;
-	    		hatched.EnsureComponent<WorldForces>().enabled = true;
-	    		hatched.GetComponent<Creature>().enabled = true;
+	    		ObjectUtil.fullyEnable(hatched);
 		    	if (onEggHatchedEvent != null)
 		    		onEggHatchedEvent.Invoke(hatched);
 	    	}
@@ -777,6 +780,11 @@ namespace ReikaKalseki.DIAlterra {
 	    	else {
 		   		return "Status: Healthy.";
 	    	}
+	    }
+	    
+	    public static void interceptChosenFog(AtmosphereDirector atmo) {
+	    	if (atmo && fogCalculateEvent != null)
+	    		fogCalculateEvent(atmo);
 	    }
 	}
 }

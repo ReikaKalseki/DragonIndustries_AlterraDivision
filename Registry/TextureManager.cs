@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 		private static Texture2D loadTexture(Assembly a, string relative) {
 			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
-			SNUtil.log("Loading texture from '"+path+"'");
+			SNUtil.log("Loading texture from '"+path+"'", a);
 			Texture2D newTex = ImageUtils.LoadTextureFromFile(path);
 			if (newTex == null) {
 				//newTex = NOT_FOUND;

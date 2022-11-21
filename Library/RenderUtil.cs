@@ -69,7 +69,7 @@ namespace ReikaKalseki.DIAlterra
 			bool flag = false;
 			foreach (String type in texTypes) {
 				for (int i = 0; i < r.materials.Length; i++) {
-					if (r.materials[i] == null)
+					if (!r.materials[i])
 						continue;
 					if ((textureLayers == null && i == 0) || (textureLayers != null && textureLayers.ContainsKey(i))) {
 						string suffix = textureLayers != null ? (string.IsNullOrEmpty(textureLayers[i]) ? "" : "_"+textureLayers[i]) : "";
@@ -81,7 +81,7 @@ namespace ReikaKalseki.DIAlterra
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
-							//SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
+							SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
 						}
 						else {
 							//SNUtil.writeToChat("No texture found at "+path, a);
@@ -100,6 +100,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
 			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
+			SNUtil.log("Applying custom textures in '"+path+"' to mod prefab "+pfb+" renderer "+r, pfb.getOwnerMod());
 			Dictionary<int,string> dict = null;
 			if (pfb is MultiTexturePrefab<T>)
 				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers(r);

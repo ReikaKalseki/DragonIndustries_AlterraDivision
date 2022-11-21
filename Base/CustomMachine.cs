@@ -27,6 +27,8 @@ namespace ReikaKalseki.DIAlterra
 			ownerMod = SNUtil.tryGetModDLL();
 			this.id = id;
 			baseTemplate = new StringPrefabContainer(template);
+			
+			OnFinishedPatching += () => {DIMod.machineList[TechType] = this;};
 		}
 		
 		public CustomMachine<M> addIngredient(ItemDef item, int amt) {
@@ -165,6 +167,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private float lastReceived;
 		
+		private float spawnTime = -1;
+		
 		void Start() {
 			setupSky();
 		}
@@ -190,6 +194,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		void Update() {
 			float time = DayNightCycle.main.timePassedAsFloat;
+			if (prefab == null)
+				tryGetPrefab();
+			if (spawnTime <= 0)
+				spawnTime = time;
 			float delta = time-lastUpdateTime;
 			if (delta > 0 && delta >= getTickRate()) {
 				updateEntity(delta);
@@ -210,6 +218,17 @@ namespace ReikaKalseki.DIAlterra
 					findClosestSub();
 				}
 			}
+		}
+		
+		private void tryGetPrefab() {
+			TechType tt = CraftData.GetTechType(gameObject);
+			if (tt != TechType.None && DIMod.machineList.ContainsKey(tt)) {
+				prefab = DIMod.machineList[tt];
+			}
+		}
+		
+		protected float getAge() {
+			return DayNightCycle.main.timePassedAsFloat-spawnTime;
 		}
 		
 		protected SubRoot getSub() {

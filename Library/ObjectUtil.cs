@@ -592,5 +592,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void fullyEnable(GameObject go) {
+			go.SetActive(true);
+			foreach (Behaviour mb in go.GetComponentsInChildren<Behaviour>(true)) {
+				mb.enabled = true;
+				mb.gameObject.SetActive(true);
+			}
+		}
+		
 	}
 }

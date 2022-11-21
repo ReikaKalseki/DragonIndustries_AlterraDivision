@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra {
 			
 			creatureID = id;
 			
-			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[TechType.BoneShark];
+			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[eggSize >= 2 ? TechType.BoneShark : TechType.RabbitRay];
 			eggProperties = new WaterParkCreatureParameters(wpp.initialSize, wpp.maxSize, wpp.outsideSize, wpp.growingPeriod, wpp.isPickupableOutside);
 			
 			OnFinishedPatching += onPatched;
@@ -94,6 +94,8 @@ namespace ReikaKalseki.DIAlterra {
 			egg.eggType = TechType;
 			egg.overrideEggType = TechType;
 			egg.hatchingCreature = creatureToSpawn;
+			egg.explodeOnHatch = false;
+			ObjectUtil.fullyEnable(pfb);
 			pfb.transform.localScale = Vector3.one*eggScale;
 			RenderUtil.swapTextures(ownerMod, pfb.GetComponentInChildren<Renderer>(), eggTexture+creatureID);
 			return pfb;
@@ -115,25 +117,28 @@ namespace ReikaKalseki.DIAlterra {
 			return eggs.ContainsKey(creature) ? eggs[creature] : null;
 		}
 		
-		public static CustomEgg createAndRegisterEgg(Spawnable creature, TechType basis, float scale, string grownHeldDesc, bool isBig, float eggSpawnRate = 1, params BiomeType[] spawn) {
+		public static CustomEgg createAndRegisterEgg(Spawnable creature, TechType basis, float scale, string grownHeldDesc, bool isBig, Action<CustomEgg> modify, float eggSpawnRate = 1, params BiomeType[] spawn) {
 	    	CustomEgg egg = new CustomEgg(creature,  basis);
-	    	registerEgg(egg, scale, grownHeldDesc, isBig, eggSpawnRate, spawn);
+	    	registerEgg(egg, scale, grownHeldDesc, isBig, modify, eggSpawnRate, spawn);
 	    	return egg;
 		}
     
-	    public static CustomEgg createAndRegisterEgg(TechType creature, TechType basis, float scale, string grownHeldDesc, bool isBig, float eggSpawnRate = 1, params BiomeType[] spawn) {
-	    	CustomEgg egg = new CustomEgg(creature,  basis);
-	    	registerEgg(egg, scale, grownHeldDesc, isBig, eggSpawnRate, spawn);
+	    public static CustomEgg createAndRegisterEgg(TechType creature, TechType basis, float scale, string grownHeldDesc, bool isBig, Action<CustomEgg> modify, float eggSpawnRate = 1, params BiomeType[] spawn) {
+	    	CustomEgg egg = new CustomEgg(creature, basis);
+	    	registerEgg(egg, scale, grownHeldDesc, isBig, modify, eggSpawnRate, spawn);
 	    	return egg;
 	    }
     
-	    private static void registerEgg(CustomEgg egg, float scale, string grownHeldDesc, bool isBig, float eggSpawnRate, params BiomeType[] spawn) {
+	    private static void registerEgg(CustomEgg egg, float scale, string grownHeldDesc, bool isBig, Action<CustomEgg> modify, float eggSpawnRate, params BiomeType[] spawn) {
 	    	egg.setTexture("Textures/Eggs/");
 	    	egg.creatureHeldDesc = grownHeldDesc;
 	    	egg.eggScale = scale;
 	    	if (!isBig) {
 	    		egg.creatureSize = 2;
 	    		egg.eggSize = 1;
+	    	}
+	    	if (modify != null) {
+	    		modify(egg);
 	    	}
 	    	egg.Patch();
 	    	foreach (BiomeType b in spawn)
