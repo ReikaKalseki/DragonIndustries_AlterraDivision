@@ -47,6 +47,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
 	    public static event Action<AtmosphereDirector> fogCalculateEvent;
+	    public static event Action<BuildabilityCheck> constructabilityEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -150,6 +151,22 @@ namespace ReikaKalseki.DIAlterra {
 	    		if (disallowFurtherChanges)
 	    			return;
 	    		temperature = amt;
+	    	}
+	    	
+	    }
+	    
+	    public class BuildabilityCheck {
+	    	
+	    	public readonly bool originalValue;
+	    	public readonly Collider placeOn;
+	    	
+	    	public bool placeable;
+	    	public bool ignoreSpaceRequirements = false;
+	    	
+	    	internal BuildabilityCheck(bool orig, Collider pos) {
+	    		originalValue = orig;
+	    		placeable = orig;
+	    		placeOn = pos;
 	    	}
 	    	
 	    }
@@ -431,6 +448,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	private Collider sphere;
 	    	
 	    	private float lastLavaTime = -1;
+	    	private float lastGeyserTime = -1;
 	    	
 	    	private float lastCheckTime = -1;
 	    	
@@ -534,6 +552,14 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	public void markLavaDetected() {
 	    		lastLavaTime = DayNightCycle.main.timePassedAsFloat;
+	    	}
+	    	
+	    	public void markGeyserDetected() {
+	    		lastGeyserTime = DayNightCycle.main.timePassedAsFloat;
+	    	}
+	    	
+	    	public bool isInGeyser() {
+	    		return Mathf.Abs(DayNightCycle.main.timePassedAsFloat-lastGeyserTime) <= 0.5F;
 	    	}
 	    	
 	    	public bool isInLava() {/*
@@ -712,6 +738,8 @@ namespace ReikaKalseki.DIAlterra {
 	    	LavaWarningTriggerDetector warn = dmg.GetComponentInChildren<LavaWarningTriggerDetector>();
 	    	if (warn && warn.isInLava())
 	    		return 600;
+	    	if (warn && warn.isInGeyser())
+	    		return 250;
 	    	Vehicle v = dmg.GetComponent<Vehicle>();
 	    	if (v)
 	    		return v.precursorOutOfWater ? 25 : v.GetTemperature();
@@ -785,6 +813,23 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void interceptChosenFog(AtmosphereDirector atmo) {
 	    	if (atmo && fogCalculateEvent != null)
 	    		fogCalculateEvent(atmo);
+	    }
+	    
+	    public static bool interceptConstructability(/*Collider c*/) {
+	    	bool orig = Builder.UpdateAllowed();
+	    	if (constructabilityEvent != null) {
+	    		Transform aimTransform = Builder.GetAimTransform();
+				RaycastHit hit;
+				Collider target = null;
+				if (Physics.Raycast(aimTransform.position, aimTransform.forward, out hit, Builder.placeMaxDistance, Builder.placeLayerMask.value, QueryTriggerInteraction.Ignore))
+					target = hit.collider;
+				else
+					target = null;
+	    		BuildabilityCheck deal = new BuildabilityCheck(orig, target);
+	    		constructabilityEvent.Invoke(deal);
+	    		return deal.placeable && (target == null || deal.ignoreSpaceRequirements || Builder.CheckSpace(Builder.placePosition, Builder.placeRotation, Builder.bounds, Builder.placeLayerMask.value, target));
+	    	}
+	    	return orig;
 	    }
 	}
 }

@@ -59,6 +59,11 @@ namespace ReikaKalseki.DIAlterra
 			//m.enableInstancing = true;
 		}
 		
+		public static void enableAlpha(Material m) {
+			m.EnableKeyword("MARMO_ALPHA_CLIP");
+			m.SetInt("_Cutoff", 1);
+		}
+		
 		public static Texture extractTexture(GameObject go, string texType) {
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}

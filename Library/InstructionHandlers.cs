@@ -219,7 +219,31 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static string toString(CodeInstruction ci) {
-			return ci.opcode.Name+" "+(ci.operand != null ? ci.operand+" ["+ci.operand.GetType()+"]" : "<null>");
+			return ci.opcode.Name+" "+toOperandString(ci.opcode, ci.operand);
+		}
+			
+		private static string toOperandString(OpCode code, object operand) {
+			if (operand is MethodInfo) {
+				MethodInfo m = (MethodInfo)operand;
+				return m.DeclaringType+"."+m.Name+" (static="+m.IsStatic+")";
+			}
+			if (operand is FieldInfo) {
+				FieldInfo m = (FieldInfo)operand;
+				return m.DeclaringType+"."+m.Name+" (static="+m.IsStatic+")";
+			}
+			if (code == OpCodes.Ldloc_S) {
+				return "localvar "+((LocalBuilder)operand).LocalIndex;
+			}
+			if (code == OpCodes.Ldloc_S || code == OpCodes.Stloc_S) {
+				return "localvar "+((LocalBuilder)operand).LocalIndex;
+			}
+			if (code == OpCodes.Ldarg_S || code == OpCodes.Ldarg) {
+				return "arg "+operand;
+			}
+			if (code == OpCodes.Isinst || code == OpCodes.Newobj) {
+				return "type "+((Type)operand).Name;
+			}
+			return operand != null ? operand+" ["+operand.GetType()+"]" : "<null>";
 		}
 		
 	    public static Type getTypeBySimpleName(string name) {

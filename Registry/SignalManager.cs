@@ -162,7 +162,7 @@ namespace ReikaKalseki.DIAlterra
 					//SNUtil.log("Signal was null, refetch");
 					signal = SignalManager.getSignal(SignalManager.types[ping.pingType]);
 				}
-				SNUtil.log("Starting signal init of "+signal+" / "+ping);
+				SNUtil.log("Starting signal init of "+signal+" / "+ping, SNUtil.diDLL);
 				signal.signalHolder.signalInstance = ping;
 				signal.signalHolder.initializer = this;
 		    	ping.SetLabel(signal.longName);
@@ -218,7 +218,7 @@ namespace ReikaKalseki.DIAlterra
 				initializer.ping = signalInstance;
 				initializer.signal = signal;
 				
-				SNUtil.log("Initialized GO holder for signal "+signal.id+" ["+flag+"]: "+go+" @ "+go.transform.position);
+				SNUtil.log("Initialized GO holder for signal "+signal.id+" ["+flag+"]: "+go+" @ "+go.transform.position, SNUtil.diDLL);
 				
 				go.SetActive(true);
 			}
