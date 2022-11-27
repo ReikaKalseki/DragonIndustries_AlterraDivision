@@ -46,7 +46,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<GameObject> onEggHatchedEvent;
 	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
-	    public static event Action<AtmosphereDirector> fogCalculateEvent;
+	    public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
 	    
 	    static DIHooks() {
@@ -151,6 +151,23 @@ namespace ReikaKalseki.DIAlterra {
 	    		if (disallowFurtherChanges)
 	    			return;
 	    		temperature = amt;
+	    	}
+	    	
+	    }
+	    
+	    public class WaterFogValues {
+	    	
+	    	public readonly Vector4 originalColor;
+	    	public readonly float originalDensity;
+	    	
+	    	public Vector4 color;
+	    	public float density;
+	    	
+	    	internal WaterFogValues(Vector4 c, float d) {
+	    		originalColor = c;
+	    		originalDensity = d;
+	    		density = d;
+	    		color = c;
 	    	}
 	    	
 	    }
@@ -810,9 +827,30 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    }
 	    
-	    public static void interceptChosenFog(AtmosphereDirector atmo) {
-	    	if (atmo && fogCalculateEvent != null)
-	    		fogCalculateEvent(atmo);
+	    public static void interceptChosenFog(WaterscapeVolume vol, Camera cam) {
+	    	
+			float t = (cam.transform.position.y - vol.aboveWaterMinHeight) / (vol.aboveWaterMaxHeight - vol.aboveWaterMinHeight);
+			float fogDensity = Mathf.Lerp(1f, vol.aboveWaterDensityScale, t);
+			
+	    	Vector4 fogColor = default(Vector4);   	
+			if (vol.sky != null)
+			{
+				Vector3 lightDirection = vol.sky.GetLightDirection();
+				lightDirection.y = Mathf.Min(lightDirection.y, -0.01f);
+				Vector3 v = -cam.worldToCameraMatrix.MultiplyVector(lightDirection);
+				Color lightColor = vol.sky.GetLightColor();
+				fogColor = lightColor;
+				fogColor.w = vol.sunLightAmount * vol.GetTransmission();
+				float value3 = lightColor.r * 0.3f + lightColor.g * 0.59f + lightColor.b * 0.11f;
+				Shader.SetGlobalVector(ShaderPropertyID._UweFogVsLightDirection, v);
+				Shader.SetGlobalVector(ShaderPropertyID._UweFogWsLightDirection, lightDirection);
+				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, value3);
+			}
+			WaterFogValues wf = new WaterFogValues(fogColor, fogDensity);
+	    	if (fogCalculateEvent != null)
+	    		fogCalculateEvent.Invoke(wf);
+			Shader.SetGlobalVector(ShaderPropertyID._UweFogLightColor, wf.color);
+			Shader.SetGlobalFloat(ShaderPropertyID._UweExtinctionAndScatteringScale, wf.density);
 	    }
 	    
 	    public static bool interceptConstructability(/*Collider c*/) {

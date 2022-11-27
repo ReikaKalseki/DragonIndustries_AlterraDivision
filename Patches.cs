@@ -869,28 +869,6 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
-	
-	[HarmonyPatch(typeof(AtmosphereDirector))]
-	[HarmonyPatch("RequestSettingsInternal")]
-	public static class FogSelectionHook {
-		
-		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-			try {
-				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldfld, "AtmosphereDirector", "targetLightController");
-				codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptChosenFog", false, typeof(AtmosphereDirector)));
-				codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
-				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
-			}
-			catch (Exception e) {
-				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
-				FileLog.Log(e.Message);
-				FileLog.Log(e.StackTrace);
-				FileLog.Log(e.ToString());
-			}
-			return codes.AsEnumerable();
-		}
-	}
 	/*
 	[HarmonyPatch(typeof(Builder))]
 	[HarmonyPatch("CheckAsSubModule")]
@@ -921,6 +899,26 @@ namespace ReikaKalseki.DIAlterra {
 			try {
 				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "Builder", "UpdateAllowed", false, new Type[0]);
 				codes[idx].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.DIAlterra.DIHooks", "interceptConstructability", false, new Type[0]);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(WaterscapeVolume))]
+	[HarmonyPatch("PreRender")]
+	public static class WaterFogShaderHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptChosenFog", false, typeof(WaterscapeVolume), typeof(Camera)));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
