@@ -177,6 +177,10 @@ namespace ReikaKalseki.DIAlterra
 			return 0;
 		}
 		
+		public virtual float getBaseEnergyStorageCapacityBonus() {
+			return 0;
+		}
+		
 		private void setupSky() {
 			if (prefab == null || !WaterBiomeManager.main || !MarmoSkies.main)
 				return;

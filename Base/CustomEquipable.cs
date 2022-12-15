@@ -67,7 +67,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override sealed bool UnlockedAtStart {
 			get {
-				return dependency != TechType.Unobtanium && RequiredForUnlock == null && CompoundTechsForUnlock == null;
+				return dependency != TechType.Unobtanium && RequiredForUnlock == TechType.None && CompoundTechsForUnlock == null;
 			}
 		}
 		

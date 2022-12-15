@@ -33,7 +33,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static AssetBundle loadBundle(Assembly a, string relative) {
 			string path = Path.Combine(Path.GetDirectoryName(a.Location), "Assets", relative);
-			return AssetBundle.LoadFromFile(path);
+			AssetBundle ret = AssetBundle.LoadFromFile(path);
+			if (!ret)
+				throw new Exception("Asset bundle not found at path '"+path+"'");
+			return ret;
 		}
 		
 	}

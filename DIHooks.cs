@@ -828,7 +828,8 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void interceptChosenFog(WaterscapeVolume vol, Camera cam) {
-	    	
+	    	if (!vol || !cam)
+	    		return;
 			float t = (cam.transform.position.y - vol.aboveWaterMinHeight) / (vol.aboveWaterMaxHeight - vol.aboveWaterMinHeight);
 			float fogDensity = Mathf.Lerp(1f, vol.aboveWaterDensityScale, t);
 			
@@ -866,6 +867,16 @@ namespace ReikaKalseki.DIAlterra {
 	    		BuildabilityCheck deal = new BuildabilityCheck(orig, target);
 	    		constructabilityEvent.Invoke(deal);
 	    		return deal.placeable && (target == null || deal.ignoreSpaceRequirements || Builder.CheckSpace(Builder.placePosition, Builder.placeRotation, Builder.bounds, Builder.placeLayerMask.value, target));
+	    	}
+	    	return orig;
+	    }
+	    
+	    public static float getPowerRelayCapacity(float orig, PowerRelay relay) {
+	    	SubRoot sub = relay.gameObject.FindAncestor<SubRoot>();
+	    	if (sub) {
+	    		foreach (CustomMachineLogic lgc in sub.GetComponentsInChildren<CustomMachineLogic>()) {
+	    			orig += lgc.getBaseEnergyStorageCapacityBonus();
+	    		}
 	    	}
 	    	return orig;
 	    }
