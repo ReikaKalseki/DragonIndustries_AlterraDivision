@@ -870,7 +870,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	return orig;
 	    }
-	    
+	    /*
 	    public static float getPowerRelayCapacity(float orig, PowerRelay relay) {
 	    	SubRoot sub = relay.gameObject.FindAncestor<SubRoot>();
 	    	if (sub) {
@@ -879,6 +879,40 @@ namespace ReikaKalseki.DIAlterra {
 	    		}
 	    	}
 	    	return orig;
+	    }*//*
+	    
+	    public static void addPowerToSeabaseDelegateViaPowerSourceSet(PowerSource src, float amt, MonoBehaviour component) {
+	    	SubRoot sub = component.gameObject.FindAncestor<SubRoot>();
+	    	if (sub) {
+	    		sub.powerRelay.AddEnergy(amount, out stored);
+	    	}
+	    	else {
+	    		src.power = amt;
+	    	}
+	    }*/
+	    	
+	    public static void updateSolarPanel(SolarPanel p) {
+			if (p.gameObject.GetComponent<Constructable>().constructed) {
+	    		float gen = p.GetRechargeScalar() * DayNightCycle.main.deltaTime * 0.25f * 5f;
+	    		SubRoot sub = p.gameObject.FindAncestor<SubRoot>();
+	    		if (sub) {
+	    			float trash;
+	    			sub.powerRelay.AddEnergy(gen, out trash);
+	    		}
+	    		else {
+	    			p.powerSource.power = Mathf.Clamp(p.powerSource.power + gen, 0f, p.powerSource.maxPower);	
+	    		}
+			}
+	    }
+	    
+	    public static bool addPowerToSeabaseDelegate(IPowerInterface pi, float amount, out float stored, MonoBehaviour component) {
+	    	SubRoot sub = component.gameObject.FindAncestor<SubRoot>();
+	    	if (sub) {
+	    		return sub.powerRelay.AddEnergy(amount, out stored);
+	    	}
+	    	else {
+	    		return pi.AddEnergy(amount, out stored);
+	    	}
 	    }
 	}
 }

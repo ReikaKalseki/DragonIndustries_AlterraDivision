@@ -120,7 +120,7 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
-			return -1;
+			throw new Exception("Instruction not found: "+opcode+" #"+string.Join(",", args)+"\nInstruction list:\n"+toString(li));
 		}
 		
 		public static int getFirstOpcode(List<CodeInstruction> li, int after, OpCode opcode) {

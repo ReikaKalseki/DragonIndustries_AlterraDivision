@@ -95,7 +95,15 @@ namespace ReikaKalseki.DIAlterra
 			
 		public sealed override GameObject GetGameObject() {
 			GameObject world = ObjectUtil.getModPrefabBaseObject(this);
-			world.EnsureComponent<M>().prefab = this;
+			M lgc = world.EnsureComponent<M>();
+			lgc.prefab = this;
+			float capacity = lgc.getBaseEnergyStorageCapacityBonus();
+			if (capacity > 0) {
+				PowerSource src = world.EnsureComponent<PowerSource>();
+				src.power = 0;
+				src.maxPower = capacity;
+			}
+			
 			Constructable ctr = world.EnsureComponent<Constructable>();
 			ctr.techType = TechType;
 			ctr.allowedInBase = !isOutdoors();
@@ -268,8 +276,9 @@ namespace ReikaKalseki.DIAlterra
 					sub = s;
 				}
 			}
-			if (sub)
+			if (sub) {
 				gameObject.transform.parent = sub.gameObject.transform;
+			}
 			
 			foreach (SkyApplier sky in gameObject.GetComponents<SkyApplier>()) {
 				sky.renderers = gameObject.GetComponentsInChildren<Renderer>();
