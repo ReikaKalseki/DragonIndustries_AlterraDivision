@@ -42,8 +42,10 @@ namespace ReikaKalseki.DIAlterra
 			
 			public readonly string id;
 			public readonly string name;
-			public readonly string text;
+			//public readonly string text;
 			public readonly string category;
+			
+			private string text;
 		
 			private readonly PDAEncyclopedia.EntryData pageData = new PDAEncyclopedia.EntryData();
 			
@@ -99,9 +101,25 @@ namespace ReikaKalseki.DIAlterra
 				pageData.path = string.Join("/", tree);
 				PDAEncyclopediaHandler.AddCustomEntry(pageData);
 				LanguageHandler.SetLanguageLine("Ency_"+pageData.key, name);
-				LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
+				injectString();
 				
 				prefabID.Patch();
+			}
+			
+			public string getText() {
+				return text;
+			}
+			
+			public void append(string s) {
+				text = text+s;
+				injectString();
+			}
+			
+			private void injectString() {
+				if (DIHooks.isWorldLoaded())
+					Language.main.strings["EncyDesc_"+pageData.key] = text;
+				else
+					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
 			}
 		
 			public bool unlock(bool doSound = true) {

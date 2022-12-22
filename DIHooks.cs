@@ -227,6 +227,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	return worldLoadTime < 0 ? -1 : Time.time-worldLoadTime;
 	    }
 	    
+	    public static bool isWorldLoaded() {
+	    	return worldLoadTime > 0;
+	    }
+	    
 	    public static void tickPlayer(Player ep) {
 	    	if (Time.timeScale <= 0)
 	    		return;
@@ -754,9 +758,9 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	LavaWarningTriggerDetector warn = dmg.GetComponentInChildren<LavaWarningTriggerDetector>();
 	    	if (warn && warn.isInLava())
-	    		return 600;
+	    		return dmg.gameObject.FindAncestor<Exosuit>() ? 300 : 400;
 	    	if (warn && warn.isInGeyser())
-	    		return 250;
+	    		return 180;
 	    	Vehicle v = dmg.GetComponent<Vehicle>();
 	    	if (v)
 	    		return v.precursorOutOfWater ? 25 : v.GetTemperature();
