@@ -48,6 +48,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
 	    public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
+	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -119,6 +120,34 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	
 	    }
+	    /*
+	    public class MusicSelectionCheck {
+	    	
+	    	public readonly string originalBiome;
+	    	public readonly MusicManager manager;
+	    	
+	    	private bool disallowFurtherChanges;
+	    	
+	    	internal string biomeToDelegateTo;
+	    	
+	    	internal MusicSelectionCheck(string biome, MusicManager mgr) {
+	    		originalBiome = biome;
+	    		biomeToDelegateTo = originalBiome;
+	    		manager = mgr;
+	    		disallowFurtherChanges = false;
+	    	}
+	    	
+	    	public void lockValue() {
+	    		disallowFurtherChanges = true;
+	    	}
+	    	
+	    	public void setValue(string b) {
+	    		if (disallowFurtherChanges)
+	    			return;
+	    		biomeToDelegateTo = b;
+	    	}
+	    	
+	    }*/
 	    
 	    public class WaterTemperatureCalculation {
 	    	
@@ -804,6 +833,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (mix) {
 	    		TooltipFactory.WriteDescription(sb, getInfectionTooltip(mix));//TooltipFactory.WriteDescription(sb, "Infected: "+((int)(mix.infectedAmount*100))+"%");
 	    	}
+	    	Peeper peep = obj.GetComponent<Peeper>();
+	    	if (peep && peep.isHero) {
+	    		TooltipFactory.WriteDescription(sb, "Contains unusual enzymes.");
+	    	}
 	    	if (itemTooltipEvent != null) {
 	    		itemTooltipEvent.Invoke(sb, tt, obj);
 	    	}
@@ -918,5 +951,12 @@ namespace ReikaKalseki.DIAlterra {
 	    		return pi.AddEnergy(amount, out stored);
 	    	}
 	    }
+	    /*
+	    public static string getBiomeToUseForMusic(string biome, MusicManager mgr) {
+	    	if (musicBiomeChoiceEvent != null) {
+	    		MusicSelectionCheck mus = new MusicSelectionCheck(biome);
+	    	}
+	    	return biome;
+	    }*/
 	}
 }
