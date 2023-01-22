@@ -30,6 +30,24 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
+		public static void setXYZ(this Vector4 vec, Vector3 xyz) {
+			vec.x = xyz.x;
+			vec.y = xyz.y;
+			vec.z = xyz.z;
+		}
+		
+		public static Vector3 toVector(this Color c) {
+			return new Vector3(c.r, c.g, c.b);
+		}
+		
+		public static Vector4 toVectorA(this Color c) {
+			return new Vector4(c.r, c.g, c.b, c.a);
+		}
+		
+		public static Vector3 getXYZ(this Vector4 vec) {
+			return new Vector3(vec.x, vec.y, vec.z);
+		}
+		
 		public static Vector3 setLength(this Vector3 vec, double amt) {
 			return vec.normalized*((float)(amt));
 		}

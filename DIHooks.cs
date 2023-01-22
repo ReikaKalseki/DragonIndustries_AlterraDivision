@@ -235,6 +235,8 @@ namespace ReikaKalseki.DIAlterra {
 		    	}
 	    	}
 	    	
+	    	Biome.tickMusic(cyc);
+	    	
 	    	if (onDayNightTickEvent != null)
 	    		onDayNightTickEvent.Invoke(cyc);
 	    }
@@ -883,6 +885,12 @@ namespace ReikaKalseki.DIAlterra {
 				Shader.SetGlobalVector(ShaderPropertyID._UweFogVsLightDirection, v);
 				Shader.SetGlobalVector(ShaderPropertyID._UweFogWsLightDirection, lightDirection);
 				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, value3);
+			}
+			Biome b = Biome.getBiome(WaterBiomeManager.main.GetBiome(cam.transform.position));
+			if (b != null) {
+				fogColor.setXYZ(b.getFogColor(fogColor.getXYZ()));
+				fogColor.w = b.getSunIntensity(fogColor.w);
+				fogDensity = b.getFogDensity(fogDensity);
 			}
 			WaterFogValues wf = new WaterFogValues(fogColor, fogDensity);
 	    	if (fogCalculateEvent != null)

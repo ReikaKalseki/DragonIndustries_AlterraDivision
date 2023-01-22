@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using SMLHelper.V2.Handlers;
 
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class VanillaMusic {	
 		
-		//private static readonly Dictionary<string, VanillaMusic> biomeTable = new Dictionary<string, VanillaMusic>();
+		private static readonly Dictionary<string, VanillaMusic> table = new Dictionary<string, VanillaMusic>();
 		
 		//Where does Crush Depth play?
 		public static readonly VanillaMusic KOOSH = new VanillaMusic("kooshAmbience"); //Islands Beneath The Sea
@@ -44,19 +45,55 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaMusic GENERATOR = new VanillaMusic("generatorRoomAmbience"); //Bring a Medpack
 		public static readonly VanillaMusic SCANNER = new VanillaMusic("mapRoomAmbience"); //Scanner Room Ambient
 		
-		public readonly string objectName;
+		private readonly string objectName;
+		
+		private string activationBiome;
 				
 		private VanillaMusic(string id) {
 			objectName = id;
+			table[objectName] = this;
 		}
 		
 		public override string ToString() {
 			return objectName;
 		}
 		
-		public GameObject getObject() {
+		private GameObject getObject() {
 			return ObjectUtil.getChildObject(Player.main.gameObject, "SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music/"+objectName);
 		}
+		
+		public void reset() {
+			GameObject go = getObject();
+			go.SetActive(true);
+			if (!string.IsNullOrEmpty(activationBiome))
+				go.GetComponent<FMODGameParams>().onlyInBiome = activationBiome;
+		}
+		
+		public void enable() {
+			getObject().SetActive(true);
+		}
+		
+		public void disable() {
+			getObject().SetActive(false);
+		}
+		
+		public void setToBiome(string biome) {
+			FMODGameParams par = getObject().GetComponent<FMODGameParams>();
+			activationBiome = par.onlyInBiome;
+			par.onlyInBiome = biome;
+			par.gameObject.SetActive(true);
+		}
+		
+		public static IEnumerable<VanillaMusic> getAll() {
+			return new ReadOnlyCollection<VanillaMusic>(new List<VanillaMusic>(table.Values));
+		}
+		/*
+		public static void disableAllMusic() {
+			GameObject go = ObjectUtil.getChildObject(Player.main.gameObject, "SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music");
+			foreach (FMODGameParams par in go.GetComponentsInChildren<FMODGameParams>(true)) {
+				par.gameObject.SetActive(false);
+			}
+		}*/
 		
 	}
 }
