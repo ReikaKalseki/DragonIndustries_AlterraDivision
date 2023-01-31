@@ -48,6 +48,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
 	    public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
+	    public static event Action<StoryHandCheck> storyHandEvent;
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    
 	    static DIHooks() {
@@ -213,6 +214,22 @@ namespace ReikaKalseki.DIAlterra {
 	    		originalValue = orig;
 	    		placeable = orig;
 	    		placeOn = pos;
+	    	}
+	    	
+	    }
+	    
+	    public class StoryHandCheck {
+	    	
+	    	public readonly Story.StoryGoal originalValue;
+	    	public readonly StoryHandTarget component;
+	    	
+	    	public bool usable = true;
+	    	public Story.StoryGoal goal;
+	    	
+	    	internal StoryHandCheck(Story.StoryGoal orig, StoryHandTarget tgt) {
+	    		originalValue = orig;
+	    		goal = orig;
+	    		component = tgt;
 	    	}
 	    	
 	    }
@@ -966,5 +983,22 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	return biome;
 	    }*/
+	    
+	    public static void clickStoryHandTarget(StoryHandTarget tgt) {
+	    	if (!tgt.enabled || !tgt.isValidHandTarget)
+	    		return;
+	    	Story.StoryGoal goal = tgt.goal;
+	    	if (storyHandEvent != null) {
+	    		StoryHandCheck deal = new StoryHandCheck(goal, tgt);
+	    		storyHandEvent.Invoke(deal);
+	    		if (!deal.usable)
+	    			return;
+	    		goal = deal.goal;
+	    	}
+			goal.Trigger();
+			if (tgt.informGameObject)
+				tgt.informGameObject.SendMessage("OnStoryHandTarget", SendMessageOptions.DontRequireReceiver);
+			UnityEngine.Object.Destroy(tgt.destroyGameObject);
+	    }
 	}
 }

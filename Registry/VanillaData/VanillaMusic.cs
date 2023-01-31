@@ -41,9 +41,9 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaMusic COVETREE = new VanillaMusic("LostRiverGhostTree", 0, 0); //silent?
 		public static readonly VanillaMusic SPARSE = new VanillaMusic("SparseReefAmbience", 2, 48); //Islands Beneath The Sea
 		public static readonly VanillaMusic CRASH = new VanillaMusic("crashZoneAmbience", 0, 0); //?
-		public static readonly VanillaMusic WRECK = new VanillaMusic("WreckAmbience", 0, 0); //not a music track, just the wreckage near pod 6
+		public static readonly VanillaMusic WRECK = new VanillaMusic("WreckAmbience", 1, 0); //not a music track, just the wreckage near pod 6
 		public static readonly VanillaMusic GENERATOR = new VanillaMusic("generatorRoomAmbience", 1, 57); //Bring a Medpack
-		public static readonly VanillaMusic SCANNER = new VanillaMusic("mapRoomAmbience", 0, 0); //Scanner Room Ambient
+		public static readonly VanillaMusic SCANNER = new VanillaMusic("mapRoomAmbience", 0, 5); //Scanner Room Ambient
 		
 		private readonly string objectName;
 		

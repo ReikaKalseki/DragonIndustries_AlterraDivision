@@ -23,6 +23,10 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
+		public void addListener(Action<string> call) {
+			listeners.Add(new DelegateGoalListener(call));
+		}
+		
 		public void addListener(IStoryGoalListener ig) {
 			listeners.Add(ig);
 		}
@@ -52,6 +56,20 @@ namespace ReikaKalseki.DIAlterra
 			foreach (IStoryGoalListener ig in listeners) {
 				ig.NotifyGoalComplete(key);
 			}	
+		}
+		
+		private class DelegateGoalListener : IStoryGoalListener {
+			
+			private readonly Action<string> callback;
+			
+			internal DelegateGoalListener(Action<string> a) {
+				callback = a;
+			}
+			
+			public void NotifyGoalComplete(string key) {
+				callback(key);
+			}
+			
 		}
 	}
 		
