@@ -52,17 +52,17 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static SpawnInfo registerWorldgen(PositionedPrefab pfb) {
-			return registerWorldgen(pfb.prefabName, pfb.position, pfb.rotation);
+		public static SpawnInfo registerWorldgen(PositionedPrefab pfb, Action<GameObject> call = null) {
+			return registerWorldgen(pfb.prefabName, pfb.position, pfb.rotation, call);
 		}
 		
-		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Vector3? rot = null) {
-			return registerWorldgen(prefab, pos, Quaternion.Euler(getOrZero(rot)));
+		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Vector3? rot = null, Action<GameObject> call = null) {
+			return registerWorldgen(prefab, pos, Quaternion.Euler(getOrZero(rot)), call);
 		}
 		
-		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Quaternion? rot = null) {
+		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Quaternion? rot = null, Action<GameObject> call = null) {
 			validateCoords(pos);
-			SpawnInfo info = new SpawnInfo(prefab, pos, getOrIdentity(rot));
+			SpawnInfo info = new SpawnInfo(prefab, pos, getOrIdentity(rot), call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
 			//SNUtil.log("Registering prefab "+prefab+" @ "+pos);
 			return info;
@@ -77,7 +77,7 @@ namespace ReikaKalseki.DIAlterra
 				SNUtil.log("Running world generator "+gen);
 				gen.generate(new List<GameObject>());
 			};
-			SpawnInfo info = new SpawnInfo(?, gen.position);
+			SpawnInfo info = new SpawnInfo(VanillaResources.LIMESTONE.prefab, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
 			SNUtil.log("Queuing world generator "+gen);
 			return info;

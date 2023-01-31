@@ -98,7 +98,7 @@ namespace ReikaKalseki.DIAlterra
 					e.AppendChild(e1);
 				}
 			}
-			/*
+			
 			public Action<GameObject> getManipulationsCallable() {
 				return go => {
 					foreach (ManipulationBase mb in manipulations) {
@@ -106,7 +106,7 @@ namespace ReikaKalseki.DIAlterra
 					}
 				};
 			}
-			*/
+			
 			public override GameObject createWorldObject() {
 				if (isBasePiece) {
 					GameObject go = ObjectUtil.getBasePiece(prefabName);
@@ -214,8 +214,17 @@ namespace ReikaKalseki.DIAlterra
 			public static ModifiedObjectPrefab getManipulatedObject(XmlElement e, CustomPrefab pfb) {
 				loadManipulations(e, pfb.manipulations);
 				if (pfb.manipulations.Count > 0) {
-					string xmlKey = pfb.prefabName+"##"+System.Security.SecurityElement.Escape(e.InnerXml);
-					return getOrCreateModPrefab(pfb, xmlKey);
+					bool needReapply = false;
+					foreach (ManipulationBase mb in pfb.manipulations) {
+						if (mb.needsReapplication()) {
+							needReapply = true;
+							break;
+						}
+					}
+					if (needReapply) {
+						string xmlKey = pfb.prefabName+"##"+System.Security.SecurityElement.Escape(e.InnerXml);
+						return getOrCreateModPrefab(pfb, xmlKey);
+					}
 				}
 				return null;
 			}

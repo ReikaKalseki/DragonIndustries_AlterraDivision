@@ -67,7 +67,7 @@ namespace ReikaKalseki.DIAlterra
 							    //	FragmentTypingMap.instance.addValue(gen.position, gen.tech);
 								//}
 								else {
-									GenUtil.registerWorldgen(pfb);
+									GenUtil.registerWorldgen(pfb, pfb.getManipulationsCallable());
 								}
 								//SNUtil.log("Loaded worldgen prefab "+pfb+" for "+e.format(), 0, ownerMod);
 							}
