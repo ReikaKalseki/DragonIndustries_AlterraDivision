@@ -19,7 +19,7 @@ using HarmonyLib;
 
 using UnityEngine;
 
-/** Adapted from the Open Simplex Noise Generator by Kurt Spencer, stripped to only the 2D system and reworked for MC worldgen application.
+/** Adapted from the Open Simplex Noise Generator by Kurt Spencer, stripped to only the 2D system and reworked for MC worldgen application, then ported to C# for Subnautica.
  * All '//' comments are his. */
 public class SimplexNoiseGenerator : NoiseGeneratorBase {
 
