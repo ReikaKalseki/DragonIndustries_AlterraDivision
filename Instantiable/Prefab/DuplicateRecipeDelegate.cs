@@ -69,16 +69,16 @@ namespace ReikaKalseki.DIAlterra
 					if (d.getPrefab() == null || !string.IsNullOrEmpty(d.getNameSuffix())) {
 						TechType tt = d.getBasis();
 						TechType dt = ((ModPrefab)d).TechType;
-						Language.main.strings[dt.AsString()] = Language.main.strings[tt.AsString()]+d.getNameSuffix();
-						Language.main.strings["Tooltip_"+dt.AsString()] = d.getTooltip();
-						SNUtil.log("Relocalized "+d+" > "+Language.main.strings[dt.AsString()], d.getOwnerMod());
+						LanguageHandler.SetLanguageLine(dt.AsString(), Language.main.Get(tt)+d.getNameSuffix());
+						LanguageHandler.SetLanguageLine("Tooltip_"+dt.AsString(), d.getTooltip());
+						SNUtil.log("Relocalized "+d+" > "+dt.AsString()+" > "+Language.main.Get(dt), d.getOwnerMod());
 					}
 				}
 			}
 		}
 		
 		public string getTooltip() {
-			return Language.main.strings["Tooltip_"+basis.AsString()];
+			return Language.main.Get("Tooltip_"+basis.AsString());
 		}
 
 		public override TechGroup GroupForPDA {

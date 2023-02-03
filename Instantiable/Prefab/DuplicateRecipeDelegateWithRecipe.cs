@@ -145,7 +145,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public string getTooltip() {
-			return Language.main.strings["Tooltip_"+basis.AsString()];
+			return Language.main.Get("Tooltip_"+basis.AsString());
 		}
 	}
 }

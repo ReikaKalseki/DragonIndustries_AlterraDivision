@@ -261,7 +261,6 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void onWorldLoaded() {
 	    	worldLoadTime = Time.time;
 	    	SNUtil.log("Intercepted world load", SNUtil.diDLL);
-	        
 	    	DuplicateRecipeDelegate.updateLocale();
 	    	CustomEgg.updateLocale();
 	    	PickedUpAsOtherItem.updateLocale();

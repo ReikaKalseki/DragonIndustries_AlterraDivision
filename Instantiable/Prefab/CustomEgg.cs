@@ -103,12 +103,12 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public static void updateLocale() {
 			foreach (CustomEgg e in eggs.Values) {
-				string cname = Language.main.strings[e.creatureToSpawn.AsString()];
-				Language.main.strings[e.TechType.AsString()] = cname+" Egg";
-				Language.main.strings["Tooltip_"+e.TechType.AsString()] = "Hatches a "+cname;
-				SNUtil.log("Relocalized "+e+" > "+Language.main.strings[e.TechType.AsString()], e.ownerMod);
+				string cname = Language.main.Get(e.creatureToSpawn);
+				LanguageHandler.SetLanguageLine(e.TechType.AsString(), cname+" Egg");
+				LanguageHandler.SetLanguageLine("Tooltip_"+e.TechType.AsString(), "Hatches a "+cname);
+				SNUtil.log("Relocalized "+e+" > "+Language.main.Get(e.TechType), e.ownerMod);
 				if (!string.IsNullOrEmpty(e.creatureHeldDesc)) {
-					Language.main.strings["Tooltip_"+e.creatureToSpawn.AsString()] = e.creatureHeldDesc+"\nRaised in containment.";
+					LanguageHandler.SetLanguageLine("Tooltip_"+e.creatureToSpawn.AsString(), e.creatureHeldDesc+"\nRaised in containment.");
 				}
 			}
 		}

@@ -65,8 +65,9 @@ namespace ReikaKalseki.DIAlterra {
 		public static void updateLocale() {
 			foreach (List<PickedUpAsOtherItem> li in items.Values) {
 				foreach (PickedUpAsOtherItem d in li) {
-					Language.main.strings[d.TechType.AsString()] = Language.main.strings[d.template.AsString()];
-					Language.main.strings["Tooltip_"+d.TechType.AsString()] = Language.main.strings["Tooltip_"+d.template.AsString()];
+					LanguageHandler.SetLanguageLine(d.TechType.AsString(), Language.main.Get(d.template));
+					LanguageHandler.SetLanguageLine("Tooltip_"+d.TechType.AsString(), Language.main.Get("Tooltip_"+d.template.AsString()));
+					SNUtil.log("Relocalized otherpickup "+d+" > "+d.TechType.AsString()+" > "+Language.main.Get(d.TechType), SNUtil.diDLL);
 				}
 			}
 		}

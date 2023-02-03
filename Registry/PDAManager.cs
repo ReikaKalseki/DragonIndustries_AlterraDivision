@@ -115,10 +115,10 @@ namespace ReikaKalseki.DIAlterra
 				injectString();
 			}
 			
-			private void injectString() {
+			private void injectString() {/*
 				if (DIHooks.isWorldLoaded())
 					Language.main.strings["EncyDesc_"+pageData.key] = text;
-				else
+				else*/
 					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
 			}
 		
