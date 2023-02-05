@@ -917,7 +917,9 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static bool interceptConstructability(/*Collider c*/) {
 	    	bool orig = Builder.UpdateAllowed();
+	    	//SNUtil.writeToChat("Testing constructability of "+Builder.constructableTechType+", default value = "+orig);
 	    	if (constructabilityEvent != null) {
+	    		//SNUtil.writeToChat("Event has listeners");
 	    		Transform aimTransform = Builder.GetAimTransform();
 				RaycastHit hit;
 				Collider target = null;
@@ -925,9 +927,12 @@ namespace ReikaKalseki.DIAlterra {
 					target = hit.collider;
 				else
 					target = null;
+				//SNUtil.writeToChat("Placement target: "+target+" "+(target == null ? "" : target.gameObject.GetFullHierarchyPath()));
+				//SNUtil.writeToChat("Space check: "+Builder.CheckSpace(Builder.placePosition, Builder.placeRotation, Builder.bounds, Builder.placeLayerMask.value, target));
 	    		BuildabilityCheck deal = new BuildabilityCheck(orig, target);
 	    		constructabilityEvent.Invoke(deal);
-	    		return deal.placeable && (target == null || deal.ignoreSpaceRequirements || Builder.CheckSpace(Builder.placePosition, Builder.placeRotation, Builder.bounds, Builder.placeLayerMask.value, target));
+	    		//SNUtil.writeToChat("Event state: "+deal.placeable+" / "+deal.ignoreSpaceRequirements);
+	    		return deal.placeable;// && (target == null || deal.ignoreSpaceRequirements || Builder.CheckSpace(Builder.placePosition, Builder.placeRotation, Builder.bounds, Builder.placeLayerMask.value, target));
 	    	}
 	    	return orig;
 	    }
