@@ -36,11 +36,11 @@ namespace ReikaKalseki.DIAlterra
 					if (Vector3.Distance(d.position, pos) <= 0.5) {
 						found = true;
 						d.applyTo(t.gameObject);
-						//SNUtil.log("Matched to door "+pos+", converted to "+d.doorType);
+						//SNUtil.log("Matched to door "+pos+", converted to "+d.doorType, SNUtil.diDLL);
 					}
 				}
 				if (!found)
-					SNUtil.writeToChat("Door swap @ "+d.position+" found no match!!");
+					SNUtil.log("Door swap @ "+d.position+" found no match!!", SNUtil.diDLL);
 			}
 		}
 		

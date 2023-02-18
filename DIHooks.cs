@@ -49,6 +49,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
 	    public static event Action<StoryHandCheck> storyHandEvent;
+	    public static event Action<RadiationCheck> radiationCheckEvent;
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    
 	    static DIHooks() {
@@ -230,6 +231,21 @@ namespace ReikaKalseki.DIAlterra {
 	    		originalValue = orig;
 	    		goal = orig;
 	    		component = tgt;
+	    	}
+	    	
+	    }
+	    
+	    public class RadiationCheck {
+	    	
+	    	public readonly Vector3 position;
+	    	public readonly float originalValue;
+	    	
+	    	public float value;
+	    	
+	    	internal RadiationCheck(Vector3 pos, float orig) {
+	    		originalValue = orig;
+	    		value = orig;
+	    		position = pos;
 	    	}
 	    	
 	    }
@@ -1003,6 +1019,16 @@ namespace ReikaKalseki.DIAlterra {
 			if (tgt.informGameObject)
 				tgt.informGameObject.SendMessage("OnStoryHandTarget", SendMessageOptions.DontRequireReceiver);
 			UnityEngine.Object.Destroy(tgt.destroyGameObject);
+	    }
+	    
+	    public static float getRadiationLevel(Player p, float orig) {
+	    	float ret = orig;
+	    	if (radiationCheckEvent != null) {
+	    		RadiationCheck ch = new RadiationCheck(p.transform.position, orig);
+	    		radiationCheckEvent.Invoke(ch);
+	    		ret = ch.value;
+	    	}
+	    	return ret;
 	    }
 	}
 }

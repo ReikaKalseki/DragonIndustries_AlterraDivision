@@ -78,7 +78,18 @@ namespace ReikaKalseki.DIAlterra
 	    SpriteHandler.RegisterSprite(TechType.PDA, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/PDA"));
 	    SpriteHandler.RegisterSprite(TechType.Databox, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Databox"));
 	    
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
+	    
     	SNUtil.log("Finish DI Main Init", SNUtil.diDLL);
+    }
+    
+    private static void killSelf() {
+    	Vehicle v = Player.main.GetVehicle();
+    	if (v)
+    		v.GetComponent<LiveMixin>().TakeDamage(99999);
+    	if (Player.main.currentSub && Player.main.currentSub.isCyclops)
+    		Player.main.currentSub.GetComponent<LiveMixin>().TakeDamage(99999);
+    	Player.main.GetComponent<LiveMixin>().TakeDamage(99999);
     }
     
     private static void createEgg(TechType creature, TechType basis, float scale, string locKey, bool isBig, float grownScale, float daysToGrow, float rate, params BiomeType[] spawn) {

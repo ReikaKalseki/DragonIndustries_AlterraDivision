@@ -35,6 +35,28 @@ namespace ReikaKalseki.DIAlterra
 			return pp && pp.prefabPlaceholders != null && pp.prefabPlaceholders.Length > 0 && pp.prefabPlaceholders[0] && pp.prefabPlaceholders[0].prefabClassId == "4e8d9640-dd23-46ca-99f2-6924fcf250a4";
 		}
 		
+		public static bool isBaseModule(TechType tt, bool includeFoundations) {
+			switch(tt) {
+				case TechType.BaseRoom:
+				case TechType.BaseCorridorGlass:
+				case TechType.BaseCorridor:
+				case TechType.BaseCorridorI:
+				case TechType.BaseCorridorL:
+				case TechType.BaseCorridorT:
+				case TechType.BaseCorridorX:
+				case TechType.BaseCorridorGlassI:
+				case TechType.BaseCorridorGlassL:
+				case TechType.BaseMoonpool:
+				case TechType.BaseObservatory:
+				case TechType.BaseMapRoom:
+					return true;
+				case TechType.BaseFoundation:
+					return includeFoundations;
+				default:
+					return false;
+			}
+		}
+		
 		public static void removeComponent(GameObject go, Type tt) {
 			foreach (Component c in go.GetComponentsInChildren(tt)) {
 				if (c is MonoBehaviour)
