@@ -12,6 +12,15 @@ using UnityEngine;
 namespace ReikaKalseki.DIAlterra
 {
 	public static class ObjectUtil {
+	    
+	    public static GameObject createSeamothSparkSphere(SeaMoth sm, bool active = true) {
+			ElectricalDefense def = sm.seamothElectricalDefensePrefab.GetComponent<ElectricalDefense>();
+			GameObject sphere = def.fxElecSpheres[0];
+	    	GameObject go = Utils.SpawnZeroedAt(sphere, sm.transform, false);
+	    	if (active)
+	    		go.SetActive(true);
+	    	return go;
+	    }
 		
 		public static void makeMapRoomScannable(GameObject go, TechType tt, bool moving = false) {
 			ResourceTracker res = go.EnsureComponent<ResourceTracker>();

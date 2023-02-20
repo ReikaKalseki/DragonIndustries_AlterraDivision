@@ -1023,6 +1023,7 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static float getRadiationLevel(Player p, float orig) {
 	    	float ret = orig;
+	    	//SNUtil.writeToChat((radiationCheckEvent != null)+" # "+orig);
 	    	if (radiationCheckEvent != null) {
 	    		RadiationCheck ch = new RadiationCheck(p.transform.position, orig);
 	    		radiationCheckEvent.Invoke(ch);
