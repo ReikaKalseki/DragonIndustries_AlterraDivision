@@ -140,5 +140,11 @@ namespace ReikaKalseki.DIAlterra
 			return b;
 		}
 		
+		//starts at 1 for the first digit after '.'
+		public static int getNthDecimalPlace(double value, int place) {
+			value = Math.Abs(value)*Math.Pow(10, place);
+			return ((int)(value))%10;
+		}
+		
 	}
 }

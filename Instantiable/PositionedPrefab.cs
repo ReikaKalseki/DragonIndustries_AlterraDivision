@@ -94,7 +94,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public override string ToString() {
-			return prefabName+" @ "+position+" / "+rotation.eulerAngles;
+			return prefabName+" @ "+position+" / "+rotation.eulerAngles+" / "+scale;
 		}
 		
 		public override void loadFromXML(XmlElement e) {
