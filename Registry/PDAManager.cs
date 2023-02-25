@@ -53,7 +53,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			private List<string> tree = new List<string>();
 			
-			private PDAPrefab prefabID;
+			private readonly PDAPrefab prefabID;
 			
 			internal PDAPage(string id, string n, string text, string cat) {
 				this.id = id;

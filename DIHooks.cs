@@ -50,6 +50,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
 	    public static event Action<StoryHandCheck> storyHandEvent;
 	    public static event Action<RadiationCheck> radiationCheckEvent;
+	    public static event Action<BulkheadLaserCutterHoverCheck> bulkheadLaserHoverEvent;
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    
 	    static DIHooks() {
@@ -249,6 +250,18 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	
 	    }
+	    
+	    public class BulkheadLaserCutterHoverCheck {
+	    	
+	    	public readonly Sealed obj;
+	    	
+	    	public string refusalLocaleKey = null;
+	    	
+	    	internal BulkheadLaserCutterHoverCheck(Sealed s) {
+	    		obj = s;
+	    	}
+	    	
+	    }
     
 	    public static void onTick(DayNightCycle cyc) {
 	    	if (BuildingHandler.instance.isEnabled) {
@@ -281,6 +294,8 @@ namespace ReikaKalseki.DIAlterra {
 	    	CustomEgg.updateLocale();
 	    	PickedUpAsOtherItem.updateLocale();
 	    	SeamothModule.updateLocale();
+	    	
+	    	LanguageHandler.SetLanguageLine("BulkheadInoperable", "Bulkhead is inoperable");
 	    	
 	    	if (onWorldLoadedEvent != null)
 	    		onWorldLoadedEvent.Invoke();
@@ -702,27 +717,47 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static void tickLaserCutting(Sealed s, float amt) {
 			if (s._sealed && s.maxOpenedAmount >= 0) {
-				s.openedAmount = Mathf.Min(s.openedAmount + amt, s.maxOpenedAmount);
-				if (Mathf.Approximately(s.openedAmount, s.maxOpenedAmount)) {
-					s._sealed = false;
-					s.openedEvent.Trigger(s);
-					Debug.Log("Trigger opened event");
-				}
+	    		string key = null;
+	    		if (bulkheadLaserHoverEvent != null) {
+	    			BulkheadLaserCutterHoverCheck ch = new BulkheadLaserCutterHoverCheck(s);
+				   	bulkheadLaserHoverEvent.Invoke(ch);
+				   	key = ch.refusalLocaleKey;
+	    		}
+	    		if (string.IsNullOrEmpty(key)) {
+					s.openedAmount = Mathf.Min(s.openedAmount + amt, s.maxOpenedAmount);
+					if (Mathf.Approximately(s.openedAmount, s.maxOpenedAmount)) {
+						s._sealed = false;
+						s.openedEvent.Trigger(s);
+						//Debug.Log("Trigger opened event");
+					}
+	    		}
 			}
 	    }
 	    
 	    public static void getBulkheadMouseoverText(BulkheadDoor bk) {
 			if (bk.enabled && bk.state == BulkheadDoor.State.Zero) {
 	    		Sealed s = bk.GetComponent<Sealed>();
-	    		if (s != null && s.IsSealed()) {
+	    		if (s && s.IsSealed()) {
 	    			if (s.maxOpenedAmount < 0) {
 	    				HandReticle.main.SetInteractText("BulkheadInoperable");
 						HandReticle.main.SetIcon(HandReticle.IconType.None, 1f);
 	    			}
 	    			else {
-						HandReticle.main.SetInteractText("SealedInstructions"); //is a locale key
-						HandReticle.main.SetProgress(s.GetSealedPercentNormalized());
-						HandReticle.main.SetIcon(HandReticle.IconType.Progress, 1f);
+	    				string key = null;
+	    				if (bulkheadLaserHoverEvent != null) {
+	    					BulkheadLaserCutterHoverCheck ch = new BulkheadLaserCutterHoverCheck(s);
+				    		bulkheadLaserHoverEvent.Invoke(ch);
+				    		key = ch.refusalLocaleKey;
+	    				}
+	    				if (string.IsNullOrEmpty(key)) {
+							HandReticle.main.SetInteractText("SealedInstructions"); //is a locale key
+							HandReticle.main.SetProgress(s.GetSealedPercentNormalized());
+							HandReticle.main.SetIcon(HandReticle.IconType.Progress, 1f);
+	    				}
+	    				else {
+	    					HandReticle.main.SetInteractText(key);
+							HandReticle.main.SetIcon(HandReticle.IconType.None, 1f);
+	    				}
 	    			}
 	    		}
 	    		else {
