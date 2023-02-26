@@ -200,6 +200,43 @@ namespace ReikaKalseki.DIAlterra
 	    	}
 	    	return unlockSound;
 	    }
+	    
+	    public static Sprite getTechPopupSprite(TechType tt) {
+	    	foreach (KnownTech.AnalysisTech kt in KnownTech.analysisTech) {
+	    		if (kt.techType == tt) {
+					return kt.unlockPopup;
+	    		}
+	    	}
+			return null;
+	    }
+		
+		public static void triggerUnlockPopup(PopupData data) {
+			uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, data.title, data.text, data.controlText, data.graphic != null ? data.graphic() : null);
+			SNUtil.log("Showing progression popup "+data);
+		   	if (!string.IsNullOrEmpty(data.sound))
+				SoundManager.playSound(data.sound);
+		}
+		
+		public class PopupData {
+			
+			public readonly string title;
+			public readonly string text;
+			
+			public string controlText = null;
+			public Func<Sprite> graphic = null;
+			public string sound = "event:/tools/scanner/scan_complete";
+			
+			public PopupData(string t, string d) {
+				title = t;
+				text = d;
+			}
+			
+			public override string ToString()
+			{
+				return string.Format("[PopupData Title='{0}', Text='{1}', ControlText='{2}', Graphic={3}, Sound={4}]", title, text, controlText, graphic, sound);
+			}
+			
+		}
 		
 	}
 }

@@ -19,21 +19,27 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public readonly StoryGoal goal;
 		
-		public Color renderColor = Color.white;
+		public Color renderColor = new Color(229/255F, 133/255F, 0); //avali aerogel color
 		
 		private readonly System.Reflection.Assembly ownerMod;
 		
-		private static readonly Dictionary<string, string> descriptions = new Dictionary<string, string>();
+		private static readonly Dictionary<string, SNUtil.PopupData> popupData = new Dictionary<string, SNUtil.PopupData>();
 		
-		public DataChit(string goalKey, string desc) : this(new StoryGoal(goalKey, Story.GoalType.Encyclopedia, 0), desc) {
+		public DataChit(string goalKey, string name, string desc, Action<SNUtil.PopupData> a = null) : this(new StoryGoal(goalKey, Story.GoalType.Story, 0), name, desc, a) {
 			
 		}
 	        
-		public DataChit(StoryGoal g, string desc) : base("DataChit_"+g.key, "Data Chit - "+desc, "Unlocks "+g.key) {
+		public DataChit(StoryGoal g, string name, string desc, Action<SNUtil.PopupData> a = null) : base("DataChit_"+g.key, "Data Card - "+name, "Unlocks "+g.key) {
 			goal = g;
 			ownerMod = SNUtil.tryGetModDLL();
 			
-			OnFinishedPatching += () => {descriptions[ClassID] = desc;};
+			OnFinishedPatching += () => {
+				SNUtil.PopupData data = new SNUtil.PopupData("Digital Data Downloaded", desc);
+				data.sound = "event:/tools/scanner/scan_complete";
+				if (a != null)
+					a(data);
+				popupData[ClassID] = data;
+			};
 	    }
 			
 	    public override GameObject GetGameObject() {
@@ -58,8 +64,7 @@ namespace ReikaKalseki.DIAlterra {
 		class DataChitTag : MonoBehaviour {
 			
 			void OnStoryHandTarget() {
-				uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, "Digital Data Downloaded", descriptions[GetComponent<PrefabIdentifier>().ClassId], null, null);
-				SoundManager.playSound("event:/tools/scanner/scan_complete");
+				SNUtil.triggerUnlockPopup(popupData[GetComponent<PrefabIdentifier>().ClassId]);
 			}
 			
 		}

@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra
 		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedPfb, string seedName = "Seed") : base(id, name, desc) {
 			baseTemplate = template;
 			ownerMod = SNUtil.tryGetModDLL();
-			seed = new BasicCustomPlantSeed(this, seedPfb, seedName);
+			seed = seedPfb == null ? null : new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
 				if (collectionMethod != HarvestType.None) {

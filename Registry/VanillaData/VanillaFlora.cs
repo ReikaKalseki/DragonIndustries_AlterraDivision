@@ -35,7 +35,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora PAPYRUS = new VanillaFlora("4601400c-5e12-4e4a-9e45-4cab5f06a598", 6).markHarvestable();
 		public static readonly VanillaFlora TIGER = new VanillaFlora("84794dd0-2c70-4239-9536-230d56811ad4", 5.9).markHarvestable();
 		public static readonly VanillaFlora REDWORT = new VanillaFlora("b707aa52-1a27-43c4-9500-f346befb8251", 6).markHarvestable();
-		//public static readonly VanillaFlora PINECONE = new VanillaFlora("", -999).markResources();
+		public static readonly VanillaFlora PINECONE = new VanillaFlora("d8838f12-2e24-40c9-a7c5-24fb9c08e934", -999).markResources();
 		public static readonly VanillaFlora PYGMY_FAN = new VanillaFlora("ae0a831e-0f90-43bd-8183-c2002c528e9e", 6.5, 0.3).markHarvestable();
 		public static readonly VanillaFlora PYGMY_FAN_HUGE = new VanillaFlora("e65b36c8-3b85-463c-8f30-95859401b2cb", 6, 1.8);
 		public static readonly VanillaFlora ROUGE_CRADLE = new VanillaFlora(6.1, "4525e0f3-9c9a-449f-8d6c-48088711ac99", "99bbd145-d50e-4afb-bff0-27b33243642b").markHarvestable();
