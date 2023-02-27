@@ -19,7 +19,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public static readonly TechnologyUnlockSystem instance = new TechnologyUnlockSystem();
 	    
-	    private readonly Dictionary<TechType, List<TechUnlock>> directUnlocks = new Dictionary<TechType, List<TechType>>();
+	    private readonly Dictionary<TechType, List<TechType>> directUnlocks = new Dictionary<TechType, List<TechType>>();
 		
 		private TechnologyUnlockSystem() {
 	    	
@@ -46,30 +46,21 @@ namespace ReikaKalseki.DIAlterra {
 		public void triggerDirectUnlock(TechType tt) {
 	    	if (DIHooks.getWorldAge() <= 0.25F || !directUnlocks.ContainsKey(tt))
 	   			return;
-	    	int count = 0;
-	    	TechType item = tt;
-		   	foreach (TechType unlock in directUnlocks[tt]) {
+	    	List<TechType> li = directUnlocks[tt];
+	    	if (li.Count == 0)
+	    		return;
+		   	foreach (TechType unlock in li) {
 		   		if (!KnownTech.Contains(unlock)) {
 		        	KnownTech.Add(unlock);
-		        	count++;
-		        	item = unlock;
 		    	}
 		   	}
-	   		if (count > 0) {
-	    		if (count > 1)
-	    			item = tt;
-		   		SNUtil.log("Triggering direct unlock via "+tt+" of "+directUnlocks[tt].Count+":["+string.Join(", ", directUnlocks[tt].Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
-		   		SNUtil.triggerTechPopup(item);
-	   		}
+	    	skip delegate items
+	    	SNUtil.log("Triggering direct unlock via "+tt+" of "+li.Count+":["+string.Join(", ", li.Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
+	    	if (li.Count > 1)
+	    		SNUtil.triggerMultiTechPopup(li);
+	    	else
+	    		SNUtil.triggerTechPopup(li[0]);
 		}
-	    
-	    class TechUnlock {
-	    	
-	    	public readonly TechType recipe;
-	    	public string popupTitle;
-	    	public Sprite popupSprite;
-	    	
-	    }
 	}
 	
 }

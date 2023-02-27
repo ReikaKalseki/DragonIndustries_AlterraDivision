@@ -192,6 +192,12 @@ namespace ReikaKalseki.DIAlterra
 		   		at.unlockPopup = spr;
 		   	uGUI_PopupNotification.main.OnAnalyze(at, true);
 		}
+		
+		public static void triggerMultiTechPopup(IEnumerable<TechType> tt) {
+			PopupData pd = new PopupData("New Blueprints Unlocked", "<color=#74C8F8FF>"+string.Join("\n", tt.Select<TechType, string>(tc => "\u2022"+Language.main.Get(tc.AsString())))+"</color>");
+			pd.sound = getUnlockSound().path;
+			triggerUnlockPopup(pd);
+		}
 	    
 	    public static FMODAsset getUnlockSound() {
 	    	if (unlockSound == null) {
@@ -215,7 +221,7 @@ namespace ReikaKalseki.DIAlterra
 	    }
 		
 		public static void triggerUnlockPopup(PopupData data) {
-			uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, data.title.Replace("\\n", "\n"), data.text.Replace("\\n", "\n"), data.controlText.Replace("\\n", "\n"), data.graphic != null ? data.graphic() : null);
+			uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, data.title.Replace("\\n", "\n"), data.text.Replace("\\n", "\n"), data.controlText == null ? null : data.controlText.Replace("\\n", "\n"), data.graphic != null ? data.graphic() : null);
 			SNUtil.log("Showing progression popup "+data);
 		   	if (!string.IsNullOrEmpty(data.sound))
 				SoundManager.playSound(data.sound);
