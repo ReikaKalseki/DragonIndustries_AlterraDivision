@@ -146,5 +146,9 @@ namespace ReikaKalseki.DIAlterra
 			return ((int)(value))%10;
 		}
 		
+		public static Quaternion unitVecToRotation(Vector3 unit) {
+			return Quaternion.FromToRotation(Vector3.up, unit);//.Euler();
+		}
+		
 	}
 }

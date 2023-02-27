@@ -123,7 +123,8 @@ namespace ReikaKalseki.DIAlterra
 							if (p.isSelected) {
 								PlacedObject b = PlacedObject.createNewObject(p);
 								items[b.referenceID] = b;
-								b.obj.transform.SetPositionAndRotation(hit.point, hit.transform.rotation);
+								b.setRotation(MathUtil.unitVecToRotation(hit.normal));
+								b.setPosition(hit.point);
 								lastPlaced = b;
 								added.Add(b);
 							}
@@ -135,6 +136,7 @@ namespace ReikaKalseki.DIAlterra
 					else if (KeyCodeUtils.GetKeyHeld(KeyCode.LeftAlt)) {
 						foreach (PlacedObject go in items.Values) {
 							if (go.isSelected) {
+								go.setRotation(MathUtil.unitVecToRotation(hit.normal));
 								go.setPosition(hit.point);
 							}
 						}

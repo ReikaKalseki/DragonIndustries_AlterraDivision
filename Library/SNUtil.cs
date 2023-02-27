@@ -181,11 +181,15 @@ namespace ReikaKalseki.DIAlterra
 			PDAHandler.AddCustomScannerEntry(e);
 		}
 		
-		public static void triggerTechPopup(TechType tt) {
+		public static void triggerTechPopup(TechType tt, Sprite spr = null) {
 		   	KnownTech.AnalysisTech at = new KnownTech.AnalysisTech();
 		   	at.techType = tt;
 		   	at.unlockMessage = "NotificationBlueprintUnlocked";
 		   	at.unlockSound = getUnlockSound();
+		   	if (spr == null)
+		   		spr = SNUtil.getTechPopupSprite(tt);
+		   	if (spr != null)
+		   		at.unlockPopup = spr;
 		   	uGUI_PopupNotification.main.OnAnalyze(at, true);
 		}
 	    
@@ -211,7 +215,7 @@ namespace ReikaKalseki.DIAlterra
 	    }
 		
 		public static void triggerUnlockPopup(PopupData data) {
-			uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, data.title, data.text, data.controlText, data.graphic != null ? data.graphic() : null);
+			uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, data.title.Replace("\\n", "\n"), data.text.Replace("\\n", "\n"), data.controlText.Replace("\\n", "\n"), data.graphic != null ? data.graphic() : null);
 			SNUtil.log("Showing progression popup "+data);
 		   	if (!string.IsNullOrEmpty(data.sound))
 				SoundManager.playSound(data.sound);

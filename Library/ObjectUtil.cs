@@ -586,6 +586,7 @@ namespace ReikaKalseki.DIAlterra
 		public static Light addLight(GameObject go) {
 			GameObject child = new GameObject();
 			child.transform.parent = go.transform;
+			child.transform.localPosition = Vector3.zero;
 			child.name = "Light Entity";
 			return child.AddComponent<Light>();
 		}

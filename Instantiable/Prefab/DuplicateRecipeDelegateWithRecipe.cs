@@ -69,7 +69,7 @@ namespace ReikaKalseki.DIAlterra
 			recipe.craftAmount = 0;
 			suffixName = amt > 1 ? " (x"+amt+")" : "";
 		}
-
+		
 		public override TechGroup GroupForPDA {
 			get {
 				return group;

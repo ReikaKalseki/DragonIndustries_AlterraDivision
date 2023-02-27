@@ -13,6 +13,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private readonly Assembly ownerMod;
 		
+		private readonly List<PositionedPrefab> objects = new List<PositionedPrefab>();
+		
 		public WorldgenDatabase() {
 			ownerMod = SNUtil.tryGetModDLL();
 		}
@@ -21,6 +23,7 @@ namespace ReikaKalseki.DIAlterra
 			string root = Path.GetDirectoryName(ownerMod.Location);
 			string folder = Path.Combine(root, "XML/WorldgenSets");
 			string xml = Path.Combine(root, "XML/worldgen.xml");
+			objects.Clear();
 			if (Directory.Exists(folder)) {
 				string[] files = Directory.GetFiles(folder, "*.xml", SearchOption.AllDirectories);
 				SNUtil.log("Loading worldgen maps from folder '"+folder+"': "+string.Join(", ", files), ownerMod);
@@ -40,6 +43,7 @@ namespace ReikaKalseki.DIAlterra
 			SNUtil.log("Loading worldgen map from XML @ "+xml, ownerMod);
 			XmlDocument doc = new XmlDocument();
 			doc.Load(xml);
+			int loaded = 0;
 			foreach (XmlElement e in doc.DocumentElement.ChildNodes) {
 				try {
 					string count = e.GetAttribute("count");
@@ -69,7 +73,9 @@ namespace ReikaKalseki.DIAlterra
 								else {
 									GenUtil.registerWorldgen(pfb, pfb.getManipulationsCallable());
 								}
-								//SNUtil.log("Loaded worldgen prefab "+pfb+" for "+e.format(), 0, ownerMod);
+								SNUtil.log("Loaded worldgen prefab "+pfb+" for "+e.format(), ownerMod);
+								objects.Add(pfb);
+								loaded++;
 							}
 							else if (ot is WorldGenerator) {
 								WorldGenerator gen = (WorldGenerator)ot;
@@ -87,6 +93,18 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.log(ex.ToString(), ownerMod);
 				}
 			}
+			SNUtil.log("Loaded "+loaded+" worldgen elements from file "+xml);
+		}
+		
+		public int getCount(string classID, Vector3? near = null, float dist = -1) {
+			int ret = 0;
+			foreach (PositionedPrefab pfb in objects) {
+				if (pfb.prefabName == classID) {
+					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
+						ret++;
+				}
+			}
+			return ret;
 		}
 	}
 }

@@ -19,7 +19,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public static readonly TechnologyUnlockSystem instance = new TechnologyUnlockSystem();
 	    
-	    private readonly Dictionary<TechType, List<TechType>> directUnlocks = new Dictionary<TechType, List<TechType>>();
+	    private readonly Dictionary<TechType, List<TechUnlock>> directUnlocks = new Dictionary<TechType, List<TechType>>();
 		
 		private TechnologyUnlockSystem() {
 	    	
@@ -46,18 +46,30 @@ namespace ReikaKalseki.DIAlterra {
 		public void triggerDirectUnlock(TechType tt) {
 	    	if (DIHooks.getWorldAge() <= 0.25F || !directUnlocks.ContainsKey(tt))
 	   			return;
-	   		bool any = false;
+	    	int count = 0;
+	    	TechType item = tt;
 		   	foreach (TechType unlock in directUnlocks[tt]) {
 		   		if (!KnownTech.Contains(unlock)) {
 		        	KnownTech.Add(unlock);
-		        	any = true;
+		        	count++;
+		        	item = unlock;
 		    	}
 		   	}
-	   		if (any) {
+	   		if (count > 0) {
+	    		if (count > 1)
+	    			item = tt;
 		   		SNUtil.log("Triggering direct unlock via "+tt+" of "+directUnlocks[tt].Count+":["+string.Join(", ", directUnlocks[tt].Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
-		   		SNUtil.triggerTechPopup(tt);
+		   		SNUtil.triggerTechPopup(item);
 	   		}
 		}
+	    
+	    class TechUnlock {
+	    	
+	    	public readonly TechType recipe;
+	    	public string popupTitle;
+	    	public Sprite popupSprite;
+	    	
+	    }
 	}
 	
 }
