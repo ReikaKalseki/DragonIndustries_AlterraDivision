@@ -40,6 +40,25 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void disableTransparency(Material m, int queue = 3100) {
+			m.EnableKeyword("_ZWRITE_ON");
+	  		m.DisableKeyword("WBOIT");
+			m.SetInt("_ZWrite", 1);
+			m.SetInt("_Cutoff", 1);
+			m.SetInt("_Mode", 0);
+			m.SetFloat("_SrcBlend", 1f);
+			m.SetFloat("_DstBlend", 0f);
+			m.SetFloat("_SrcBlend2", 0f);
+			m.SetFloat("_DstBlend2", 10f);
+			m.SetFloat("_AddSrcBlend", 1f);
+			m.SetFloat("_AddDstBlend", 1f);
+			m.SetFloat("_AddSrcBlend2", 0f);
+			m.SetFloat("_AddDstBlend2", 10f);
+			m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack | MaterialGlobalIlluminationFlags.RealtimeEmissive;
+			m.renderQueue = queue;
+			//m.enableInstancing = true;
+		}
+		
 		public static void makeTransparent(Material m, int queue = 3101) {
 			//m.EnableKeyword("_ZWRITE_ON");
 	  		m.EnableKeyword("WBOIT");

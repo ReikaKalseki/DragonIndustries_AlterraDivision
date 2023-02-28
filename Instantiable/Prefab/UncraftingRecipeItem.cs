@@ -35,7 +35,6 @@ namespace ReikaKalseki.DIAlterra
 				sprite = ((BasicCraftingItem)s).sprite;
 			if (s is DIPrefab<PrefabReference>)
 				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
-			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += onPatched;
 		}
 		
@@ -43,7 +42,6 @@ namespace ReikaKalseki.DIAlterra
 			basis = from;
 			prefab = null;
 			sprite = SpriteManager.Get(from);
-			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += onPatched;
 		}
 		
@@ -51,6 +49,7 @@ namespace ReikaKalseki.DIAlterra
 			if (ownerMod == null)
 				throw new Exception("Uncrafting item "+basis+"/"+TechType+" has no source mod!");
 			SNUtil.log("Constructed uncrafting of "+basis+": "+TechType+" @ "+string.Join("/", craftingMenuTree), ownerMod);
+			DuplicateRecipeDelegate.addDelegate(this);
 		}
 
 		public override TechGroup GroupForPDA {

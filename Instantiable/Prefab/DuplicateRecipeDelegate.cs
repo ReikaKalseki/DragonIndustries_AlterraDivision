@@ -24,6 +24,7 @@ namespace ReikaKalseki.DIAlterra
 		public Assembly ownerMod;
 		
 		private static readonly Dictionary<TechType, List<DuplicateItemDelegate>> delegates = new Dictionary<TechType, List<DuplicateItemDelegate>>();
+		private static readonly HashSet<TechType> delegateItems = new HashSet<TechType>();
 		
 		public DuplicateRecipeDelegate(PdaItem s, string suff = "") : base(s.ClassID+"_delegate"+getIndexSuffix(s.TechType), s.FriendlyName+suff, s.Description) {
 			basis = s.TechType;
@@ -34,8 +35,7 @@ namespace ReikaKalseki.DIAlterra
 			nameSuffix = suff;
 			if (s is DIPrefab<PrefabReference>)
 				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
-			addDelegate(this);
-			OnFinishedPatching += () => {if (ownerMod == null) throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");};
+			OnFinishedPatching += onPatched;
 		}
 		
 		public DuplicateRecipeDelegate(TechType from, string suff = "") : base(from.AsString()+"_delegate"+getIndexSuffix(from), "", "") {
@@ -43,8 +43,13 @@ namespace ReikaKalseki.DIAlterra
 			prefab = null;
 			sprite = SpriteManager.Get(from);
 			nameSuffix = suff;
+			OnFinishedPatching += onPatched;
+		}
+		
+		private void onPatched() {
 			addDelegate(this);
-			OnFinishedPatching += () => {if (ownerMod == null) throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");};
+			if (ownerMod == null)
+				throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");
 		}
 		
 		private static string getIndexSuffix(TechType tt) {
@@ -57,10 +62,16 @@ namespace ReikaKalseki.DIAlterra
 			List<DuplicateItemDelegate> li = delegates.ContainsKey(tt) ? delegates[tt] : new List<DuplicateItemDelegate>();
 			li.Add(d);
 			delegates[tt] = li;
+			delegateItems.Add(((Spawnable)d).TechType);
+			SNUtil.log("Registering delegate item "+d, d.getOwnerMod());
 		}
 		
 		public static IEnumerable<DuplicateItemDelegate> getDelegates(TechType of) {
 			return delegates.ContainsKey(of) ? (IEnumerable<DuplicateItemDelegate>)delegates[of].AsReadOnly() : new List<DuplicateItemDelegate>();
+		}
+		
+		public static bool isDelegateItem(TechType tt) {
+			return delegateItems.Contains(tt);
 		}
 		
 		public static void updateLocale() {

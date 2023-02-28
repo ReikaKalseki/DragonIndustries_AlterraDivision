@@ -73,14 +73,14 @@ namespace ReikaKalseki.DIAlterra
 								else {
 									GenUtil.registerWorldgen(pfb, pfb.getManipulationsCallable());
 								}
-								SNUtil.log("Loaded worldgen prefab "+pfb+" for "+e.format(), ownerMod);
+								//SNUtil.log("Loaded worldgen prefab "+pfb+" for "+e.format(), ownerMod);
 								objects.Add(pfb);
 								loaded++;
 							}
 							else if (ot is WorldGenerator) {
 								WorldGenerator gen = (WorldGenerator)ot;
 								GenUtil.registerWorldgen(gen);
-								SNUtil.log("Loaded worldgenator "+gen+" for "+e.format(), ownerMod);
+								//SNUtil.log("Loaded worldgenator "+gen+" for "+e.format(), ownerMod);
 							}
 							else {
 								throw new Exception("No worldgen loadable for '"+e.Name+"' "+e.format());

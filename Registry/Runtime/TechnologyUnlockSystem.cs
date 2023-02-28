@@ -38,28 +38,32 @@ namespace ReikaKalseki.DIAlterra {
 	    		}
 	    	}
 		}
-	    
-	    public void onBuilt(TechType tt) {
-	    	
-	    }
 	   
 		public void triggerDirectUnlock(TechType tt) {
 	    	if (DIHooks.getWorldAge() <= 0.25F || !directUnlocks.ContainsKey(tt))
 	   			return;
 	    	List<TechType> li = directUnlocks[tt];
-	    	if (li.Count == 0)
+	    	if (li == null || li.Count == 0)
 	    		return;
+	    	SNUtil.log("Triggering direct unlock via "+tt+" of "+li.Count+":["+string.Join(", ", li.Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
+	    	
+	    	List<TechType> li2 = new List<TechType>();
+	    	foreach (TechType tt2 in li) {
+	    		if (!DuplicateRecipeDelegate.isDelegateItem(tt2) && !KnownTech.Contains(tt2)) {
+	    			SNUtil.log("Raising progression popup for "+tt2, SNUtil.diDLL);
+	    			li2.Add(tt2);
+	    		}
+	    	}
+	    	if (li2.Count > 1)
+	    		SNUtil.triggerMultiTechPopup(li2);
+	    	else if (li2.Count == 1)
+	    		SNUtil.triggerTechPopup(li2[0]);
+	    	
 		   	foreach (TechType unlock in li) {
 		   		if (!KnownTech.Contains(unlock)) {
 		        	KnownTech.Add(unlock);
 		    	}
 		   	}
-	    	skip delegate items
-	    	SNUtil.log("Triggering direct unlock via "+tt+" of "+li.Count+":["+string.Join(", ", li.Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
-	    	if (li.Count > 1)
-	    		SNUtil.triggerMultiTechPopup(li);
-	    	else
-	    		SNUtil.triggerTechPopup(li[0]);
 		}
 	}
 	

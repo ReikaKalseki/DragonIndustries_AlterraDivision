@@ -33,14 +33,14 @@ namespace ReikaKalseki.DIAlterra
 		
 		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
 		
-		internal static Assembly tryGetModDLL() {
+		internal static Assembly tryGetModDLL(bool acceptDI = false) {
 			Assembly di = Assembly.GetExecutingAssembly();
 			StackFrame[] sf = new StackTrace().GetFrames();
 	        if (sf == null || sf.Length == 0)
 	        	return Assembly.GetCallingAssembly();
 	        foreach (StackFrame f in sf) {
 	        	Assembly a = f.GetMethod().DeclaringType.Assembly;
-	        	if (a != di && a != smlDLL && a != gameDLL && a != gameDLL2 && a.Location.Contains("QMods"))
+	        	if ((a != di || acceptDI) && a != smlDLL && a != gameDLL && a != gameDLL2 && a.Location.Contains("QMods"))
 	                return a;
 	        }
 	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), diDLL);
@@ -194,7 +194,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void triggerMultiTechPopup(IEnumerable<TechType> tt) {
-			PopupData pd = new PopupData("New Blueprints Unlocked", "<color=#74C8F8FF>"+string.Join("\n", tt.Select<TechType, string>(tc => "\u2022"+Language.main.Get(tc.AsString())))+"</color>");
+			PopupData pd = new PopupData("New Blueprints Unlocked", "<color=#74C8F8FF>"+string.Join(",\n", tt.Select<TechType, string>(tc => Language.main.Get(tc.AsString())))+"</color>");
 			pd.sound = getUnlockSound().path;
 			triggerUnlockPopup(pd);
 		}
@@ -222,7 +222,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void triggerUnlockPopup(PopupData data) {
 			uGUI_PopupNotification.main.Set(PDATab.None, string.Empty, data.title.Replace("\\n", "\n"), data.text.Replace("\\n", "\n"), data.controlText == null ? null : data.controlText.Replace("\\n", "\n"), data.graphic != null ? data.graphic() : null);
-			SNUtil.log("Showing progression popup "+data);
+			SNUtil.log("Showing progression popup "+data, diDLL);
 		   	if (!string.IsNullOrEmpty(data.sound))
 				SoundManager.playSound(data.sound);
 		}
@@ -243,7 +243,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			public override string ToString()
 			{
-				return string.Format("[PopupData Title='{0}', Text='{1}', ControlText='{2}', Graphic={3}, Sound={4}]", title, text, controlText, graphic, sound);
+				return string.Format("[PopupData Title='{0}'; Text='{1}'; ControlText='{2}'; Graphic={3}; Sound={4}]", title, text, controlText, graphic, sound);
 			}
 			
 		}

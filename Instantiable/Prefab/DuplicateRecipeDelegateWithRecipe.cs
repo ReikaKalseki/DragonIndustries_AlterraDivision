@@ -43,7 +43,6 @@ namespace ReikaKalseki.DIAlterra
 			if (s is DIPrefab<PrefabReference>)
 				ownerMod = ((DIPrefab<PrefabReference>)s).getOwnerMod();
 			FriendlyName = FriendlyName+suffixName;
-			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += onPatched;
 		}
 		
@@ -53,7 +52,6 @@ namespace ReikaKalseki.DIAlterra
 			recipe = r;
 			suffixName = r.craftAmount > 1 ? " (x"+r.craftAmount+")" : "";
 			sprite = SpriteManager.Get(from);
-			DuplicateRecipeDelegate.addDelegate(this);
 			OnFinishedPatching += onPatched;
 		}
 		
@@ -61,6 +59,7 @@ namespace ReikaKalseki.DIAlterra
 			if (ownerMod == null)
 				throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");
 			SNUtil.log("Constructed craftable delegate of "+basis+": "+TechType+" @ "+RecipeUtil.toString(recipe)+" @ "+string.Join("/", craftingMenuTree), ownerMod);
+			DuplicateRecipeDelegate.addDelegate(this);
 		}
 		
 		public void setRecipe(int amt = 1) {

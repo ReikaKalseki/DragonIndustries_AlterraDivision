@@ -25,11 +25,11 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Spawnable getItem(string id) {
 			if (registry.ContainsKey(id)) {
-				SNUtil.log("Fetching item '"+id+"'", SNUtil.tryGetModDLL());
+				SNUtil.log("Fetching item '"+id+"'", SNUtil.tryGetModDLL(true));
 				return registry[id];
 			}
 			else {
-				SNUtil.log("Could not find item '"+id+"'", SNUtil.tryGetModDLL());
+				SNUtil.log("Could not find item '"+id+"'", SNUtil.tryGetModDLL(true));
 				return null;
 			}
 		}
@@ -37,12 +37,12 @@ namespace ReikaKalseki.DIAlterra
 		public Spawnable getItem(TechType tt, bool doLog = true) {
 			if (registryTech.ContainsKey(tt)) {
 				if (doLog)
-					SNUtil.log("Fetching item '"+tt+"'", SNUtil.tryGetModDLL());
+					SNUtil.log("Fetching item '"+tt+"'", SNUtil.tryGetModDLL(true));
 				return registryTech[tt];
 			}
 			else {
 				if (doLog)
-					SNUtil.log("Could not find item '"+tt+"'", SNUtil.tryGetModDLL());
+					SNUtil.log("Could not find item '"+tt+"'", SNUtil.tryGetModDLL(true));
 				return null;
 			}
 		}
@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra
 		public void addItem(Spawnable di) {
 			registry[di.ClassID] = di;
 			registryTech[di.TechType] = di;
-			SNUtil.log("Registering item '"+di+"'", SNUtil.tryGetModDLL());
+			SNUtil.log("Registering item '"+di+"'", SNUtil.tryGetModDLL(true));
 		}
 		
 	}
