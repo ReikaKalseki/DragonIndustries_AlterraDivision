@@ -51,6 +51,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<StoryHandCheck> storyHandEvent;
 	    public static event Action<RadiationCheck> radiationCheckEvent;
 	    public static event Action<BulkheadLaserCutterHoverCheck> bulkheadLaserHoverEvent;
+	    public static event Action<KnifeHarvest> knifeHarvestEvent;
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    
 	    static DIHooks() {
@@ -94,6 +95,37 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	
 	    	
+	    }
+	    
+	    public class KnifeHarvest {
+	    	
+	    	public readonly GameObject hit;
+	    	public readonly TechType objectType;
+	    	public readonly bool isAlive;
+	    	public readonly bool wasAlive;
+	    	
+	    	public readonly HarvestType harvestType;
+	    	public readonly TechType defaultDrop;
+	    	
+	    	public readonly Dictionary<TechType, int> drops = new Dictionary<TechType, int>();
+	    	
+	    	internal KnifeHarvest(GameObject go, TechType tt, bool isa, bool was) {
+	    		hit = go;
+	    		objectType = tt;
+	    		isAlive = isa;
+	    		wasAlive = was;
+				harvestType = CraftData.GetHarvestTypeFromTech(tt);
+				defaultDrop = CraftData.GetHarvestOutputData(tt);
+	    		
+				if ((harvestType == HarvestType.DamageAlive && wasAlive) || (harvestType == HarvestType.DamageDead && !isAlive)) {
+					int num = 1;
+					if (harvestType == HarvestType.DamageAlive && !isAlive)
+						num += CraftData.GetHarvestFinalCutBonus(tt);
+					
+					if (defaultDrop != TechType.None)
+						drops[defaultDrop] = num;
+				}
+	    	}	    	
 	    }
 	    
 	    public class BiomeCheck {
@@ -393,6 +425,8 @@ namespace ReikaKalseki.DIAlterra {
 	    }
    
 		public static float recalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer) {
+	    	if (DIMod.config.getBoolean(DIConfig.ConfigEntries.INFITUBE) && ObjectUtil.isCoralTube(target))
+	    		return Mathf.Min(damage, target.FindAncestor<LiveMixin>().health-1);
 	    	if (onDamageEvent != null) {
 	    		DamageToDeal deal = new DamageToDeal(damage, type, target, dealer);
 	    		onDamageEvent.Invoke(deal);
@@ -412,7 +446,21 @@ namespace ReikaKalseki.DIAlterra {
 	    	else {
 	    		return orig;
 	    	}
-	    }	
+	    }
+	    
+	    public static void doKnifeHarvest(Knife caller, GameObject target, bool isAlive, bool wasAlive) {
+			TechType tt = CraftData.GetTechType(target);
+			if (tt == TechType.Creepvine)
+				GoalManager.main.OnCustomGoalEvent("Cut_Creepvine");
+			if (tt == TechType.BigCoralTubes && DIMod.config.getBoolean(DIConfig.ConfigEntries.INFITUBE) && target.FindAncestor<LiveMixin>().health <= 2)
+				wasAlive = false;
+			KnifeHarvest harv = new KnifeHarvest(target, tt, isAlive, wasAlive);
+			if (knifeHarvestEvent != null) {
+				knifeHarvestEvent.Invoke(harv);
+			}
+			foreach (KeyValuePair<TechType, int> kvp in harv.drops)
+				CraftData.AddToInventory(kvp.Key, kvp.Value, false, false);
+	    }
     
 	    public static void onItemPickedUp(Pickupable p) {
 	    	TechType tt = p.GetTechType();
@@ -953,7 +1001,7 @@ namespace ReikaKalseki.DIAlterra {
 				Shader.SetGlobalVector(ShaderPropertyID._UweFogWsLightDirection, lightDirection);
 				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, value3);
 			}
-			Biome b = Biome.getBiome(WaterBiomeManager.main.GetBiome(cam.transform.position));
+			Biome b = BiomeBase.getBiome(cam.transform.position) as Biome;
 			if (b != null) {
 				fogColor.setXYZ(b.getFogColor(fogColor.getXYZ()));
 				fogColor.w = b.getSunIntensity(fogColor.w);

@@ -18,34 +18,17 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
 		private static readonly int batchSize = 160;
 		
-		private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
+		//private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
 		
 		static WorldUtil() {
-			mapBiomeName("Safe Shallows", "safeShallows");
-			mapBiomeName("Kelp Forest", "kelp");
-			mapBiomeName("Grassy Plateaus", "grassy", "grassyPlateaus");
-			mapBiomeName("Mushroom Forest", "mushroom");
-			mapBiomeName("Grand Reef", "grandReef");
-			mapBiomeName("Deep Grand Reef", "deepgrand");
-			mapBiomeName("Bulb Zone", "koosh");
-			mapBiomeName("Jellyshroom Caves", "jellyshroom");
-			mapBiomeName("Underwater Islands", "Underwaterislands", "Underwaterislands_ValleyFloor", "Underwaterislands_Geyser");
-			mapBiomeName("Mountains", "mountains");
-			mapBiomeName("Northern Blood Kelp", "bloodkelptwo");
-			mapBiomeName("Blood Kelp Trench", "bloodkelp");
-			mapBiomeName("Lost River", "LostRiver_BonesField_Corridor", "LostRiver_BonesField", "LostRiver_Corridor", "LostRiver_Junction", "LostRiver_GhostTree_Lower", "LostRiver_GhostTree", "LostRiver_Canyon", "LostRiver_TreeCove");
-			mapBiomeName("Inactive Lava Zone", "ILZCorridor", "ILZCorridorDeep", "ILZChamber", "ILZChamber_Dragon", "LavaPit", "LavaFalls", "LavaCastle");
-			mapBiomeName("Active Lava Zone", "LavaLakes");
-			mapBiomeName("Dunes", "dunes");
-			mapBiomeName("Crash Zone", "crash");
-			mapBiomeName("Crater Edge", "void", "");
+			
 		}
-		
+		/*
 		private static void mapBiomeName(string name, params string[] keys) {
 			foreach (string s in keys) {
 				biomeNames[s] = name;
 			}
-		}
+		}*/
 		
 		public static Int3 getBatch(Vector3 pos) { //"Therefore e.g. batch (12, 18, 12) covers the voxels from (-128, -160, -128) to (32, 0, 32)."
 			Int3 coord = pos.roundToInt3();
@@ -165,9 +148,33 @@ batch_id = (19, 17, 16)
 			}
 			return set;
 		}
-		
+		/*
 		public static string getBiomeFriendlyName(string biome) {
 			return biomeNames.ContainsKey(biome) ? biomeNames[biome] : biome;
+		}
+	    */
+	    public static bool isPlantInNativeBiome(GameObject go) {
+			if (!go)
+				return false;
+			PrefabIdentifier pi = go.FindAncestor<PrefabIdentifier>();
+			TechType tt = CraftData.GetTechType(go);
+			if (tt == TechType.None) {
+				Plantable p = go.FindAncestor<Plantable>();
+				if (p)
+					tt = p.plantTechType;
+			}
+			VanillaFlora vf = VanillaFlora.getFromID(pi ? pi.ClassId : CraftData.GetClassIdForTechType(tt));
+			if (vf != null && vf.isNativeToBiome(go.transform.position))
+				return true;
+			BasicCustomPlant plant = BasicCustomPlant.getPlant(tt);
+			if (plant != null && plant.isNativeToBiome(go.transform.position))
+				return true;
+			return false;
+		}
+		
+		public static bool isInCave(Vector3 pos) {
+	   		string biome = WaterBiomeManager.main.GetBiome(pos, false);
+	   		return !string.IsNullOrEmpty(biome) && biome.ToLowerInvariant().Contains("_cave");
 		}
 		
 		public static bool lineOfSight(GameObject o1, GameObject o2, bool solidOnly = false) {

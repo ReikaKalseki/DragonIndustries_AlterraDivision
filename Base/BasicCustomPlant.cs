@@ -13,7 +13,7 @@ using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class BasicCustomPlant : Spawnable, DIPrefab<VanillaFlora> {
+	public class BasicCustomPlant : Spawnable, DIPrefab<VanillaFlora>, Flora {
 		
 		public float glowIntensity {get; set;}		
 		public VanillaFlora baseTemplate {get; set;}
@@ -24,6 +24,9 @@ namespace ReikaKalseki.DIAlterra
 		public int finalCutBonus = 2;
 		
 		private readonly Assembly ownerMod;
+		
+		private readonly List<BiomeBase> nativeBiomesCave = new List<BiomeBase>();
+		private readonly List<BiomeBase> nativeBiomesSurface = new List<BiomeBase>();
 		
 		private static readonly Dictionary<TechType, BasicCustomPlant> plants = new Dictionary<TechType, BasicCustomPlant>();
 		
@@ -51,6 +54,25 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void setPlantSeed(TechType seed, BasicCustomPlant plant) {
 			plants[seed] = plant;
+		}
+		
+		public BasicCustomPlant addNativeBiome(BiomeBase b, bool caveOnly = false) {
+			nativeBiomesCave.Add(b);
+			if (!caveOnly)
+				nativeBiomesSurface.Add(b);
+			return this;
+		}
+		
+		public bool isNativeToBiome(Vector3 vec) {
+			return isNativeToBiome(BiomeBase.getBiome(vec), WorldUtil.isInCave(vec));
+		}
+		
+		public bool isNativeToBiome(BiomeBase b, bool cave) {
+			return (cave ? nativeBiomesCave : nativeBiomesSurface).Contains(b);
+		}
+		
+		public string getPrefabID() {
+			return ClassID;
 		}
 		
 		public void addPDAEntry(string text, float scanTime = 2, string header = null) {

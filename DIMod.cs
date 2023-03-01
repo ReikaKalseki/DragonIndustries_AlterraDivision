@@ -25,6 +25,8 @@ namespace ReikaKalseki.DIAlterra
     }
     */
     //public static readonly ModLogger logger = new ModLogger();
+    
+    public static readonly Config<DIConfig.ConfigEntries> config = new Config<DIConfig.ConfigEntries>();
 		
 	internal static readonly Dictionary<TechType, Buildable> machineList = new Dictionary<TechType, Buildable>();
 
@@ -41,6 +43,7 @@ namespace ReikaKalseki.DIAlterra
     public static void Load()
     {   
     	SNUtil.log("Start DI Main Init", SNUtil.diDLL);
+        config.load();
     	
         Harmony harmony = new Harmony(MOD_KEY);
         Harmony.DEBUG = true;
@@ -134,7 +137,7 @@ namespace ReikaKalseki.DIAlterra
     private static void printBiomeData() {
     	string biome = WaterBiomeManager.main.GetBiome(Player.main.transform.position, false);
     	SNUtil.writeToChat("Current biome: "+biome);
-    	SNUtil.writeToChat("Localized name: "+WorldUtil.getBiomeFriendlyName(biome));
+    	SNUtil.writeToChat("Localized name: "+BiomeBase.getBiome(biome).displayName);
     }
   }
 }

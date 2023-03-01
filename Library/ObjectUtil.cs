@@ -13,6 +13,51 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class ObjectUtil {
 	    
+	    private static readonly HashSet<string> anchorPods = new HashSet<string>() {
+			VanillaFlora.ANCHOR_POD_SMALL1.getPrefabID(),
+			VanillaFlora.ANCHOR_POD_SMALL2.getPrefabID(),
+			VanillaFlora.ANCHOR_POD_MED1.getPrefabID(),
+			VanillaFlora.ANCHOR_POD_MED2.getPrefabID(),
+			VanillaFlora.ANCHOR_POD_LARGE.getPrefabID(),
+	    };
+	    
+		private static readonly HashSet<string> containmentDragonRepellents = new HashSet<string>() {
+		   	"c5512e00-9959-4f57-98ae-9a9962976eaa",
+		   	"542aaa41-26df-4dba-b2bc-3fa3aa84b777",
+		   	"5bcaefae-2236-4082-9a44-716b0598d6ed",
+		   	"20ad299d-ca52-48ef-ac29-c5ec5479e070",
+		 	"430b36ae-94f3-4289-91ac-25475ad3bf74"
+		};
+	    
+		private static readonly HashSet<string> coralTubes = new HashSet<string>() {
+		   	"06562999-e575-4b02-b880-71d37616b5b9",
+		   	"691723cf-d5e9-482f-b5af-8491b2a318b1",
+		   	"f0295655-8f4f-4b18-b67d-925982a472d7",
+		};
+		
+		public static bool isAnchorPod(GameObject go) {
+			return isObjectInSet(go, anchorPods);
+		}
+		
+		public static bool isCoralTube(GameObject go) {
+			return isObjectInSet(go, coralTubes);
+		}
+		
+		public static bool isDragonRepellent(GameObject go) {
+			return isObjectInSet(go, containmentDragonRepellents);
+		}
+		
+		public static bool isObjectInSet(GameObject go, HashSet<string> prefabs) {
+			if (!go)
+				return false;
+			PrefabIdentifier pi = go.FindAncestor<PrefabIdentifier>();
+			return pi && prefabs.Contains(pi.ClassId);
+		}
+		
+		public static bool isFarmedPlant(GameObject go) {
+			return go.FindAncestor<Planter>();
+		}
+	    
 	    public static GameObject createSeamothSparkSphere(SeaMoth sm, bool active = true) {
 			ElectricalDefense def = sm.seamothElectricalDefensePrefab.GetComponent<ElectricalDefense>();
 			GameObject sphere = def.fxElecSpheres[0];

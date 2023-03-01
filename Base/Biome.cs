@@ -12,19 +12,14 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public abstract class Biome {
-		
-		private static readonly Dictionary<string, Biome> biomeList = new Dictionary<string, Biome>();
-		
-		public readonly string biomeName;
+	public abstract class Biome : BiomeBase {
 		
 		private static float nextMusicChoiceTime = -1;
 		private static VanillaMusic currentMusic = null;
 		private static Biome currentBiome = null;
 		
-		protected Biome(string name) {
-			biomeName = name;
-			biomeList[name] = this;
+		protected Biome(string name) : base(name, name) {
+			
 		}
 		
 		public abstract bool isInBiome(Vector3 vec);
@@ -43,17 +38,12 @@ namespace ReikaKalseki.DIAlterra
 		public abstract float getSunIntensity(float orig);
 		public abstract float getFogDensity(float orig);
 		
-		public static Biome getBiome(string name) {
-			return !string.IsNullOrEmpty(name) && biomeList.ContainsKey(name) ? biomeList[name] : null;
-		}
-		
 		public static void tickMusic(DayNightCycle cyc) {
 			if (cyc.timePassedAsFloat >= nextMusicChoiceTime) {
 				Player ep = Player.main;
 				if (ep) {
 					Vector3 pos = ep.transform.position;
-					string biome = WaterBiomeManager.main.GetBiome(pos);
-					Biome b = getBiome(biome);
+					Biome b = getBiome(pos) as Biome;
 					bool changed = b != currentBiome;
 					currentBiome = b;
 					if (changed) {
