@@ -62,12 +62,18 @@ namespace ReikaKalseki.DIAlterra
 			string biome = WaterBiomeManager.main.GetBiome(pos, false);
 			return string.IsNullOrEmpty(biome) ? VanillaBiomes.VOID : getBiome(biome);
 		}
+		
+		public abstract bool isCaveBiome();
 	}
 		
 	class UnknownBiome : BiomeBase {
 		
 		internal UnknownBiome() : base("[UNRECOGNIZED BIOME]") {
 			
+		}
+		
+		public override bool isCaveBiome() {
+			return false;
 		}
 		
 	}

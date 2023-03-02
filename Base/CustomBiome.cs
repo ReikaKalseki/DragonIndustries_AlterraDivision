@@ -12,13 +12,13 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public abstract class Biome : BiomeBase {
+	public abstract class CustomBiome : BiomeBase {
 		
 		private static float nextMusicChoiceTime = -1;
 		private static VanillaMusic currentMusic = null;
-		private static Biome currentBiome = null;
+		private static CustomBiome currentBiome = null;
 		
-		protected Biome(string name) : base(name, name) {
+		protected CustomBiome(string name) : base(name, name) {
 			
 		}
 		
@@ -43,7 +43,7 @@ namespace ReikaKalseki.DIAlterra
 				Player ep = Player.main;
 				if (ep) {
 					Vector3 pos = ep.transform.position;
-					Biome b = getBiome(pos) as Biome;
+					CustomBiome b = getBiome(pos) as CustomBiome;
 					bool changed = b != currentBiome;
 					currentBiome = b;
 					if (changed) {

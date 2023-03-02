@@ -27,7 +27,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures SPINEFISH = new VanillaCreatures("539af52c-f4b8-402b-ae88-e641aa031685").addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.LOSTRIVER);
 		
 		public static readonly VanillaCreatures FLOATER = new VanillaCreatures("b409ed8d-9a73-4140-ac06-3aa60b66aa47").addBiome(VanillaBiomes.SHALLOWS).addBiome(VanillaBiomes.REDGRASS); // "bfe8345c-fe3c-4c2b-9a03-51bcc5a2a782" ?
-		public static readonly VanillaCreatures ROCKGRUB = new VanillaCreatures("8e82dc63-5991-4c63-a12c-2aa39373a7cf").addBiome(VanillaBiomes.SPARSE);
+		public static readonly VanillaCreatures ROCKGRUB = new VanillaCreatures("8e82dc63-5991-4c63-a12c-2aa39373a7cf").addBiome(VanillaBiomes.MOUNTAINS).addBiome(VanillaBiomes.SPARSE);
 		public static readonly VanillaCreatures SHUTTLEBUG = new VanillaCreatures("fa7fa15c-5515-497f-872d-d6d579a39f60").addBiome(VanillaBiomes.SHALLOWS).addBiome(VanillaBiomes.KELP);
 		
 		public static readonly VanillaCreatures EYEYE = new VanillaCreatures("79c1aef0-e505-469c-ab36-c22c76aeae44").addBiome(VanillaBiomes.JELLYSHROOM).addBiome(VanillaBiomes.GRANDREEF);
@@ -40,10 +40,10 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures CUDDLEFISH = new VanillaCreatures("d4be3a5d-67c3-4345-af25-7663da2d2898");
 		
 		public static readonly VanillaCreatures CRASHFISH = new VanillaCreatures("7d307502-46b7-4f86-afb0-65fe8867f893").addBiome(VanillaBiomes.SHALLOWS);
-		public static readonly VanillaCreatures BITER = new VanillaCreatures("4064a71a-c464-4db2-942a-56391fe69951").addBiome(VanillaBiomes.REDGRASS).addBiome(VanillaBiomes.JELLYSHROOM);
+		public static readonly VanillaCreatures BITER = new VanillaCreatures("4064a71a-c464-4db2-942a-56391fe69951").addBiome(VanillaBiomes.REDGRASS).addBiome(VanillaBiomes.JELLYSHROOM).addBiome(VanillaBiomes.MOUNTAINS);
 		public static readonly VanillaCreatures BLIGHTER = new VanillaCreatures("eed4ec38-0363-40de-84dc-de6dd9b9e876").addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH);
 		public static readonly VanillaCreatures CAVECRAWLER = new VanillaCreatures("3e0a11f1-e2b2-4c4f-9a8e-0b0a77dcc065"/*, "7ce2ca9d-6154-4988-9b02-38f670e741b8"*/).addBiome(VanillaBiomes.DUNES);
-		public static readonly VanillaCreatures BLOODCRAWLER = new VanillaCreatures("830a8fa0-d92d-4683-a193-7531e6968042").addBiome(VanillaBiomes.LOSTRIVER).addBiome(VanillaBiomes.BLOODKELP);
+		public static readonly VanillaCreatures BLOODCRAWLER = new VanillaCreatures("830a8fa0-d92d-4683-a193-7531e6968042").addBiome(VanillaBiomes.LOSTRIVER).addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH);
 		public static readonly VanillaCreatures MESMER = new VanillaCreatures("ad18b555-9073-445e-808a-d8b39d72f22e").addBiome(VanillaBiomes.CRAG).addBiome(VanillaBiomes.KOOSH).addBiome(VanillaBiomes.LOSTRIVER);
 		public static readonly VanillaCreatures BLEEDER = new VanillaCreatures("3406b655-0390-4ea7-8b75-a5c4705fc568").addBiome(VanillaBiomes.SPARSE);
 		public static readonly VanillaCreatures LAVALARVA = new VanillaCreatures("423a8e49-eabe-473b-9b45-4aa52de1596f").addBiome(VanillaBiomes.ILZ).addBiome(VanillaBiomes.ALZ);

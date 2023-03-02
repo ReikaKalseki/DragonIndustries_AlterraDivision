@@ -313,7 +313,7 @@ namespace ReikaKalseki.DIAlterra {
 		    	}
 	    	}
 	    	
-	    	Biome.tickMusic(cyc);
+	    	CustomBiome.tickMusic(cyc);
 	    	
 	    	if (onDayNightTickEvent != null)
 	    		onDayNightTickEvent.Invoke(cyc);
@@ -1001,7 +1001,7 @@ namespace ReikaKalseki.DIAlterra {
 				Shader.SetGlobalVector(ShaderPropertyID._UweFogWsLightDirection, lightDirection);
 				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, value3);
 			}
-			Biome b = BiomeBase.getBiome(cam.transform.position) as Biome;
+			CustomBiome b = BiomeBase.getBiome(cam.transform.position) as CustomBiome;
 			if (b != null) {
 				fogColor.setXYZ(b.getFogColor(fogColor.getXYZ()));
 				fogColor.w = b.getSunIntensity(fogColor.w);

@@ -174,7 +174,7 @@ batch_id = (19, 17, 16)
 		
 		public static bool isInCave(Vector3 pos) {
 	   		string biome = WaterBiomeManager.main.GetBiome(pos, false);
-	   		return !string.IsNullOrEmpty(biome) && biome.ToLowerInvariant().Contains("_cave");
+	   		return !string.IsNullOrEmpty(biome) && (BiomeBase.getBiome(biome).isCaveBiome() || biome.ToLowerInvariant().Contains("_cave"));
 		}
 		
 		public static bool lineOfSight(GameObject o1, GameObject o2, bool solidOnly = false) {
