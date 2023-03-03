@@ -177,6 +177,11 @@ batch_id = (19, 17, 16)
 	   		return !string.IsNullOrEmpty(biome) && (BiomeBase.getBiome(biome).isCaveBiome() || biome.ToLowerInvariant().Contains("_cave"));
 		}
 		
+		public static bool isInWreck(Vector3 pos) {
+	   		string biome = WaterBiomeManager.main.GetBiome(pos, false);
+	   		return !string.IsNullOrEmpty(biome) && biome.ToLowerInvariant().Contains("wreck");
+		}
+		
 		public static bool lineOfSight(GameObject o1, GameObject o2, bool solidOnly = false) {
 			return lineOfSight(o1, o2, o1.transform.position, o2.transform.position, solidOnly);
 		}
