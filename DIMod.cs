@@ -102,7 +102,9 @@ namespace ReikaKalseki.DIAlterra
     			e.eggProperties.initialSize = Mathf.Max(e.eggProperties.initialSize, 0.2F);
     		e.eggProperties.growingPeriod = daysToGrow*20*60;
     	};
+    	SNUtil.allowDIDLL = true;
     	CustomEgg.createAndRegisterEgg(creature, basis, scale, locale.getEntry(locKey).desc, isBig, a, rate, spawn);
+    	SNUtil.allowDIDLL = false;
     }
     
     [QModPostPatch]
@@ -129,6 +131,7 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand<string>("bdld", BuildingHandler.instance.loadFile);
         BuildingHandler.instance.addCommand("bdinfo", BuildingHandler.instance.selectedInfo);
         BuildingHandler.instance.addCommand("bdtex", BuildingHandler.instance.dumpTextures);
+        BuildingHandler.instance.addCommand("bdact", BuildingHandler.instance.activateObject);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);

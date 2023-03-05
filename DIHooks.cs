@@ -766,7 +766,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void tickLaserCutting(Sealed s, float amt) {
 			if (s._sealed && s.maxOpenedAmount >= 0) {
 	    		string key = null;
-	    		if (bulkheadLaserHoverEvent != null) {
+	    		if (s.GetComponent<BulkheadDoor>() && bulkheadLaserHoverEvent != null) {
 	    			BulkheadLaserCutterHoverCheck ch = new BulkheadLaserCutterHoverCheck(s);
 				   	bulkheadLaserHoverEvent.Invoke(ch);
 				   	key = ch.refusalLocaleKey;
@@ -796,6 +796,7 @@ namespace ReikaKalseki.DIAlterra {
 	    					BulkheadLaserCutterHoverCheck ch = new BulkheadLaserCutterHoverCheck(s);
 				    		bulkheadLaserHoverEvent.Invoke(ch);
 				    		key = ch.refusalLocaleKey;
+							HandReticle.main.SetIcon(HandReticle.IconType.HandDeny, 1f);
 	    				}
 	    				if (string.IsNullOrEmpty(key)) {
 							HandReticle.main.SetInteractText("SealedInstructions"); //is a locale key

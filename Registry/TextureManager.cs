@@ -22,6 +22,10 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
+		public static void refresh() {
+			textures.Clear();
+		}
+		
 		public static Texture2D getTexture(Assembly a, string path) {
 			if (a == null)
 				throw new Exception("You must specify a mod to load the texture for!");

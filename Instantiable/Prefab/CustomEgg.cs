@@ -42,8 +42,8 @@ namespace ReikaKalseki.DIAlterra {
 			
 		}
 		
-		private CustomEgg(TechType c, TechType t, string id) : base(id+"_Egg", id+" Egg", "Hatches a "+id) {
-			ownerMod = SNUtil.tryGetModDLL();
+		private CustomEgg(TechType c, TechType t, string id, Assembly a = null) : base(id+"_Egg", id+" Egg", "Hatches a "+id) {
+			ownerMod = a != null ? a : SNUtil.tryGetModDLL();
 			
 			creatureToSpawn = c;
 			template = t;

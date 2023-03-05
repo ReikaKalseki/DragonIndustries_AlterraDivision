@@ -94,6 +94,14 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public void activateObject() {
+			foreach (PlacedObject go in items.Values) {
+				if (go.isSelected) {
+					ObjectUtil.fullyEnable(go.obj);
+				}
+			}
+		}
+		
 		public void dumpTextures() {
 			foreach (PlacedObject go in items.Values) {
 				if (go.isSelected) {

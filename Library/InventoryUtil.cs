@@ -68,5 +68,9 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
+		public static void addItem(TechType tt) {
+			Inventory.main.ForcePickup(UnityEngine.Object.Instantiate(CraftData.GetPrefabForTechType(tt)).GetComponent<Pickupable>());
+		}
+		
 	}
 }

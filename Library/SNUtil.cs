@@ -24,6 +24,8 @@ namespace ReikaKalseki.DIAlterra
 	    public static readonly Assembly gameDLL = Assembly.GetAssembly(typeof(BoneShark));
 	    public static readonly Assembly gameDLL2 = Assembly.GetAssembly(typeof(FMODAsset));
 	    
+	    internal static bool allowDIDLL = false;
+	    
 	    private static readonly HashSet<Assembly> assembliesToSkip = new HashSet<Assembly>(){
             diDLL,
             smlDLL,
@@ -40,7 +42,7 @@ namespace ReikaKalseki.DIAlterra
 	        	return Assembly.GetCallingAssembly();
 	        foreach (StackFrame f in sf) {
 	        	Assembly a = f.GetMethod().DeclaringType.Assembly;
-	        	if ((a != di || acceptDI) && a != smlDLL && a != gameDLL && a != gameDLL2 && a.Location.Contains("QMods"))
+	        	if ((a != di || acceptDI || allowDIDLL) && a != smlDLL && a != gameDLL && a != gameDLL2 && a.Location.Contains("QMods"))
 	                return a;
 	        }
 	        log("Could not find valid mod assembly: "+string.Join("\n", sf.Select<StackFrame, string>(s => s.GetMethod()+" in "+s.GetMethod().DeclaringType)), diDLL);

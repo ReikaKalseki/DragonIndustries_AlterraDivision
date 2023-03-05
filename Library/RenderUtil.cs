@@ -87,7 +87,7 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
-		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
+		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null, bool skipPrint = false)  {
 			if (r == null)
 				throw new Exception("Tried to retexture a null renderer!");
 			bool flag = false;
@@ -105,7 +105,8 @@ namespace ReikaKalseki.DIAlterra
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
-							SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
+							if (!skipPrint)
+								SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
 						}
 						else {
 							//SNUtil.writeToChat("No texture found at "+path, a);
@@ -113,6 +114,7 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
+			Dictionary<System.Reflection.Assembly, Dictionary<string, Texture2D>> dict = (Dictionary<System.Reflection.Assembly, Dictionary<string, Texture2D>>)typeof(ReikaKalseki.DIAlterra.TextureManager).GetField("textures", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
 			return flag;
 		}
 		
