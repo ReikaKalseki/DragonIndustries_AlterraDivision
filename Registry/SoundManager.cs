@@ -60,7 +60,7 @@ namespace ReikaKalseki.DIAlterra
 				processing(snd);
 			CustomSoundHandler.RegisterCustomSound(id, snd, bb);
 			FMODAsset ass = buildSound(id, id, false);
-			sounds[id] = new SoundData(id, ass, snd, getLength(snd));
+			sounds[id] = new SoundData(id, ass, snd, getLength(snd), bb);
 			return sounds[id];
 		}
 		
@@ -87,29 +87,51 @@ namespace ReikaKalseki.DIAlterra
 			playSoundAt(getSound(path), Player.main.transform.position, queue);
 		}
 		
-		public static void playSoundAt(SoundData snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
-			playSoundAt(snd.asset, position, queue, distanceFalloff, vol);
+		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
+			//playSoundAt(snd.asset, position, queue, distanceFalloff, vol);
+			if (queue) {
+				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
+			}
+			else {
+				if (distanceFalloff > 0) {
+					float dist = Vector3.Distance(position, Player.main.transform.position);
+					if (dist >= distanceFalloff)
+						return;
+					else
+						vol *= 1-(dist/distanceFalloff);
+				}
+				FMODUWE.PlayOneShot(snd, position, vol);
+			}
 		}
 		
-		public static void playSoundAt(FMODAsset snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
-			if (snd == null) {
+		public static Channel? playSoundAt(SoundData snd, Vector3 position, bool queue = false, float distanceFalloff = 16F, float vol = 1) {
+			if (queue) {
+				PDASounds.queue.PlayQueued(snd.asset);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
+				return null;
+			}
+			
+			if (snd.asset == null) {
 				SNUtil.writeToChat("Tried to play null sound @ "+position);
-				return;
+				return null;
 			}
 			if (distanceFalloff > 0) {
 				float dist = Vector3.Distance(position, Player.main.transform.position);
 				if (dist >= distanceFalloff)
-					return;
+					return null;
 				else
 					vol *= 1-(dist/distanceFalloff);
 			}
 			if (vol <= 0)
-				return;
+				return null;
 			//SBUtil.writeToChat("playing sound "+snd.id);
-			if (queue)
-				PDASounds.queue.PlayQueued(snd);//PDASounds.queue.PlayQueued(path, "subtitle");//PDASounds.queue.PlayQueued(ass);
-			else
-				FMODUWE.PlayOneShot(snd, position, vol);
+			Sound s = default(Sound);
+			if (!CustomSoundHandler.TryGetCustomSound(snd.id, out s))
+   				return null;
+			Channel ch = AudioUtils.PlaySound(s, snd.soundBus);//FMODUWE.PlayOneShot(snd, position, vol);
+			ATTRIBUTES_3D attr = position.To3DAttributes();
+			ch.set3DAttributes(ref attr.position, ref attr.velocity, ref attr.forward);
+  			ch.setVolume(vol);
+			return ch;
 		}
 		
 		public static FMODAsset buildSound(string path, string id = null, bool addBrackets = true) {
@@ -131,12 +153,14 @@ namespace ReikaKalseki.DIAlterra
 			public readonly FMODAsset asset;
 			public readonly Sound internalObject;
 			public readonly float length;
+			public readonly Bus soundBus;
 			
-			internal SoundData(string i, FMODAsset a, Sound s, float len) {
+			internal SoundData(string i, FMODAsset a, Sound s, float len, Bus b) {
 				id = i;
 				asset = a;
 				internalObject = s;
 				length = len;
+				soundBus = b;
 			}
 			
 		}
