@@ -110,7 +110,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora STINGERS = new VanillaFlora(9, "46d0473e-d366-4644-8c9c-5fdb65cbacb8", "7935a15e-a9ab-4fc6-90ef-58a65b30a4bd", "8914acde-168e-438f-9b2b-6b9332d8c1a1").addBiome(VanillaBiomes.KELP, true).addBiome(VanillaBiomes.REDGRASS, true).addBiome(VanillaBiomes.JELLYSHROOM);
 		
 		public static readonly VanillaFlora CREEPVINE = new VanillaFlora(6, "1fd4d86f-3b06-4369-945c-ca65f50b4800", "9bfe02bd-60a3-401b-b7a0-627c3bdc4451", "de0e28a2-7a17-4254-b520-5f0e28355059", "ee1baf03-0560-4f4d-ad29-13a337bef0d7").markEdible().addBiome(VanillaBiomes.KELP);
-		public static readonly VanillaFlora CREEPVINE_FERTILE = new VanillaFlora(6, "7329db6b-7385-4e77-8afa-71830ead9350", "a17ef178-6952-4a91-8f66-44e1d8ca0575", "de972f1f-daab-41d6-b274-5173b0dd23d8").markEdible().addBiome(VanillaBiomes.KELP);
+		public static readonly VanillaFlora CREEPVINE_FERTILE = new VanillaFlora(6, "9f9ab512-9ad6-4a84-80ea-6322a432bf80", "7329db6b-7385-4e77-8afa-71830ead9350", "a17ef178-6952-4a91-8f66-44e1d8ca0575", "de972f1f-daab-41d6-b274-5173b0dd23d8").markEdible().addBiome(VanillaBiomes.KELP);
 		//public static readonly VanillaFlora CREEPVINE_SEEDS = new VanillaFlora("2a37dd2f-ee5e-4c3c-a3fe-4f5973055651", -999, -999).markResources();
 		public static readonly VanillaFlora BLOOD_GRASS = new VanillaFlora("ae210dd4-68f0-4c77-9025-ef7d116948b3", 6).addBiome(VanillaBiomes.REDGRASS);
 		public static readonly VanillaFlora JELLYSHROOM_SMALL = new VanillaFlora("3e199d12-2d75-4c58-a819-d78beeb24e2c", 6).addBiome(VanillaBiomes.JELLYSHROOM);

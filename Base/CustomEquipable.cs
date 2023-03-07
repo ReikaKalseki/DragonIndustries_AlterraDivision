@@ -29,6 +29,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected CustomEquipable(string id, string name, string desc, string template) : base(id, name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
+			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
 			this.id = id;
 			
 			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);

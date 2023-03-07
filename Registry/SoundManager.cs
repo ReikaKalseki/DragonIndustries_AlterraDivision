@@ -49,6 +49,8 @@ namespace ReikaKalseki.DIAlterra
 				li.Add(s);
 			}
 			path = Path.Combine(li.ToArray());
+			if (!File.Exists(path))
+				SNUtil.log("Failed to find sound at '"+path+"'!", a);
 			Bus bb = b != null && b.HasValue ? b.Value : SoundSystem.masterBus;
 			string bp = null;
 			bb.getPath(out bp);

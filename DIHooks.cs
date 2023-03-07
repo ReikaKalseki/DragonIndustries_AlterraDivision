@@ -53,6 +53,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<BulkheadLaserCutterHoverCheck> bulkheadLaserHoverEvent;
 	    public static event Action<KnifeHarvest> knifeHarvestEvent;
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
+	    public static event Action<FruitPlantTag> onFruitPlantTickEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -582,11 +583,47 @@ namespace ReikaKalseki.DIAlterra {
 	    		sp.isTrigger = true;
 	    		go.EnsureComponent<LavaWarningTriggerDetector>();
 	    	}
+	    	FruitPlant fp = pk.GetComponent<FruitPlant>();
+	    	if (fp) {
+	    		fp.gameObject.EnsureComponent<FruitPlantTag>().setPlant(fp);
+	    	}
 	    	if (onSkyApplierSpawnEvent != null)
 	    		onSkyApplierSpawnEvent.Invoke(pk);
 	    }
 	    
 	    //private static bool needsLavaDump = true;
+	    
+	    public class FruitPlantTag : MonoBehaviour {
+	    	
+	    	private FruitPlant plant;
+	    	private float baseGrowthTime;
+	    	
+	    	private float lastTickTime = -1;
+	    	
+	    	internal void setPlant(FruitPlant fp) {
+	    		plant = fp;
+	    		baseGrowthTime = fp.fruitSpawnInterval;
+	    	}
+	    	
+	    	public FruitPlant getPlant() {
+	    		return plant;
+	    	}
+	    	
+	    	public float getBaseGrowthTime() {
+	    		return baseGrowthTime;
+	    	}
+	    	
+	    	void Update() {
+	    		if (onFruitPlantTickEvent != null) {
+	    			float time = DayNightCycle.main.timePassedAsFloat;
+	    			if (time-lastTickTime >= 0.5F) {
+	    				lastTickTime = time;
+	    				onFruitPlantTickEvent.Invoke(this);
+	    			}
+	    		}
+	    	}
+	    	
+	    }
 	    
 	    public class LavaWarningTriggerDetector : MonoBehaviour {
 	    	

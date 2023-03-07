@@ -30,6 +30,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		public BasicCustomOre(string id, string name, string desc, VanillaResources template) : base(id, name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
+			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
 			baseTemplate = template;
 			
 			OnFinishedPatching += () => {

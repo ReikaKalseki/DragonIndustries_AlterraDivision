@@ -37,6 +37,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public BasicCraftingItem(string id, string name, string desc, string template) : base(id, name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
+			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
 			this.id = id;
 			
 			if (!addedTab) {

@@ -37,6 +37,7 @@ namespace ReikaKalseki.DIAlterra
 		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedPfb, string seedName = "Seed") : base(id, name, desc) {
 			baseTemplate = template;
 			ownerMod = SNUtil.tryGetModDLL();
+			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
 			seed = seedPfb == null ? null : new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
@@ -173,6 +174,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public BasicCustomPlantSeed(BasicCustomPlant p, string pfb, string seedName = "Seed") : base(p.ClassID+"_seed", p.FriendlyName+" "+seedName, p.Description) {
 			plant = p;
+			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, p.getOwnerMod());
 			sprite = plant.getSprite();
 			baseTemplate = new StringPrefabContainer(pfb);
 		}
