@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.Xml;
+using System.Globalization;
 
 using System.Collections;
 using System.Collections.Generic;
@@ -99,15 +100,15 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static XmlElement addProperty(this XmlNode xml, string name, int value) {
-			return xml.addProperty(name, value.ToString());
+			return xml.addProperty(name, value.ToString(CultureInfo.InvariantCulture));
 		}
 		
 		public static XmlElement addProperty(this XmlNode xml, string name, double value) {
-			return xml.addProperty(name, value.ToString());
+			return xml.addProperty(name, value.ToString(CultureInfo.InvariantCulture));
 		}
 		
 		public static XmlElement addProperty(this XmlNode xml, string name, bool value) {
-			return xml.addProperty(name, value.ToString());
+			return xml.addProperty(name, value.ToString(CultureInfo.InvariantCulture));
 		}
 		
 		public static XmlElement addProperty(this XmlNode xml, string name, string value = null) {
@@ -127,7 +128,7 @@ namespace ReikaKalseki.DIAlterra
 					return fallback;
 			}
 			else {
-				return double.Parse(xml.getProperty(name));
+				return double.Parse(xml.getProperty(name), CultureInfo.InvariantCulture);
 			}
 		}
 		
@@ -136,7 +137,7 @@ namespace ReikaKalseki.DIAlterra
 			bool nul = string.IsNullOrEmpty(s);
 			if (nul && !allowFallback)
 				throw new Exception("No matching tag '"+name+"'! "+xml.format());
-			return nul ? fallback : int.Parse(s);
+			return nul ? fallback : int.Parse(s, CultureInfo.InvariantCulture);
 		}
 		
 		public static bool getBoolean(this XmlElement xml, string name) {

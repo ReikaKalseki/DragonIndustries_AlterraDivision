@@ -18,6 +18,7 @@ namespace ReikaKalseki.DIAlterra
 		public readonly bool isLargeResource;
 		
 		public string collectSound = CraftData.defaultPickupSound;
+		public Vector2int inventorySize = new Vector2int(1, 1);
 		
 		public float glowIntensity {get; set;}		
 		public VanillaResources baseTemplate {get; set;}
@@ -79,6 +80,12 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Atlas.Sprite getIcon() {
 			return GetItemSprite();
+		}
+		
+		public sealed override Vector2int SizeInInventory {
+			get {
+				return inventorySize;
+			}
 		}
 		
 	}

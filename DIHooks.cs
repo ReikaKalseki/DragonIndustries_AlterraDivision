@@ -1152,5 +1152,24 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	return ret;
 	    }
+	    /*
+	    public static Vector2int getItemDisplaySize(TechType tt, InventoryItem ii) {
+	    	return getItemDisplaySize(tt, ii, ii.container);
+	    }
+	    
+	    public static Vector2int getItemDisplaySize(InventoryItem ii, TechType tt) {
+	    	return getItemDisplaySize(tt, ii, ii.container);
+	    }
+	    
+	    public static Vector2int getItemDisplaySize(TechType tt, InventoryItem ii, IItemsContainer con) {
+	    	if (ii != null && ii.item != null && ii.item && ii.item.gameObject != null && ii.item.gameObject) {
+			    //SNUtil.writeToChat((con != null ? con.label : "nocontainer")+" for "+tt+" in "+ii.item.gameObject.FindAncestor<Constructable>());
+			    BasicCustomPlant plant = BasicCustomPlant.getPlant(tt);
+			    if (plant != null && ii.item.gameObject.FindAncestor<Planter>()) {
+			    	return plant.getSize() == Plantable.PlantSize.Large ? new Vector2int(2, 2) : new Vector2int(1, 1);
+			    }
+	    	}
+	    	return CraftData.GetItemSize(tt);
+	    }*/
 	}
 }

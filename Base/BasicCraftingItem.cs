@@ -21,10 +21,12 @@ namespace ReikaKalseki.DIAlterra
 		public TechType unlockRequirement = TechType.None;
 		public Atlas.Sprite sprite = null;
 		public float craftingTime = 0;
+		public Vector2int inventorySize = new Vector2int(1, 1);
 		public readonly List<PlannedIngredient> byproducts = new List<PlannedIngredient>();
 		public string craftingSubCategory = ""+TechCategory.BasicMaterials;
+		public Action<Renderer> renderModify = null;
 		
-		public float glowIntensity {get; set;}			
+		public float glowIntensity {get; set;}
 		public StringPrefabContainer baseTemplate {get; set;}
 		
 		protected readonly Assembly ownerMod;
@@ -113,7 +115,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public sealed override GameObject GetGameObject() {
-			return ObjectUtil.getModPrefabBaseObject(this);
+			GameObject go = ObjectUtil.getModPrefabBaseObject(this);
+			if (renderModify != null)
+				renderModify(go.GetComponentInChildren<Renderer>());
+			return go;
 		}
 		
 		public Assembly getOwnerMod() {
@@ -156,6 +161,12 @@ namespace ReikaKalseki.DIAlterra
 		public sealed override float CraftingTime {
 			get {
 				return craftingTime;
+			}
+		}
+		
+		public sealed override Vector2int SizeInInventory {
+			get {
+				return inventorySize;
 			}
 		}
 		

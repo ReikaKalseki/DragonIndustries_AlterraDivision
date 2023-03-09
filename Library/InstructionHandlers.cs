@@ -225,22 +225,22 @@ namespace ReikaKalseki.DIAlterra
 		private static string toOperandString(OpCode code, object operand) {
 			if (operand is MethodInfo) {
 				MethodInfo m = (MethodInfo)operand;
-				return m.DeclaringType+"."+m.Name+" (static="+m.IsStatic+")";
+				return m.DeclaringType+"."+m.Name+" ("+string.Join(", ", m.GetParameters().Select<ParameterInfo, string>(p => p.ParameterType.Name+" "+p.Name))+") [static="+m.IsStatic+"]";
 			}
 			if (operand is FieldInfo) {
 				FieldInfo m = (FieldInfo)operand;
-				return m.DeclaringType+"."+m.Name+" (static="+m.IsStatic+")";
+				return m.DeclaringType+"."+m.Name+" [static="+m.IsStatic+"]";
 			}
-			if (code == OpCodes.Ldloc_S) {
+			if (/*code == OpCodes.Ldloc_S*/ operand is LocalBuilder) {
 				return "localvar "+((LocalBuilder)operand).LocalIndex;
-			}
+			}/*
 			if (code == OpCodes.Ldloc_S || code == OpCodes.Stloc_S) {
 				return "localvar "+((LocalBuilder)operand).LocalIndex;
-			}
+			}*/
 			if (code == OpCodes.Ldarg_S || code == OpCodes.Ldarg) {
 				return "arg "+operand;
 			}
-			if (code == OpCodes.Isinst || code == OpCodes.Newobj) {
+			if (/*code == OpCodes.Isinst || code == OpCodes.Newobj*/operand is Type) {
 				return "type "+((Type)operand).Name;
 			}
 			return operand != null ? operand+" ["+operand.GetType()+"]" : "<null>";

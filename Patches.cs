@@ -1115,8 +1115,133 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
+	/*
+	[HarmonyPatch(typeof(uGUI_ItemsContainer))]
+	[HarmonyPatch("OnAddItem")]
+	public static class ItemVisualSizeHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				PatchLib.patchVisualItemSize(codes);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(uGUI_ItemsContainerView))]
+	[HarmonyPatch("OnAddItem")]
+	public static class ItemVisualSizeHookView {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				PatchLib.patchVisualItemSize(codes);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(ItemsContainer))]
+	[HarmonyPatch("UnsafeAdd")]
+	public static class ItemFunctionalSizeHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				PatchLib.patchVisualItemSize(codes, true);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(InventoryItem))]
+	[HarmonyPatch("get_height")]
+	public static class InvItemHeightHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				PatchLib.patchVisualItemSize(codes, true, false, new Type[]{typeof(TechType), typeof(InventoryItem)});
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(InventoryItem))]
+	[HarmonyPatch("get_width")]
+	public static class InvItemWidthHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				PatchLib.patchVisualItemSize(codes, true, false, new Type[]{typeof(TechType), typeof(InventoryItem)});
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}*/
 	
 	static class PatchLib {
+		
+		internal static void patchVisualItemSize(List<CodeInstruction> codes, bool useSelfContainer = false) {
+			patchVisualItemSize(codes, useSelfContainer, true, useSelfContainer ? new Type[]{typeof(TechType), typeof(InventoryItem), typeof(IItemsContainer)} : new Type[]{typeof(TechType), typeof(InventoryItem)});
+		}
+		
+		internal static void patchVisualItemSize(List<CodeInstruction> codes, bool ldSelf = false, bool ldArg1 = true, params Type[] args) {
+			for (int i = codes.Count-1; i >= 0; i--) {
+				if (codes[i].opcode == OpCodes.Call) {
+					MethodInfo m = (MethodInfo)codes[i].operand;
+					if (m != null && m.DeclaringType.Name == "CraftData" && m.Name == "GetItemSize") {
+						MethodInfo call = InstructionHandlers.convertMethodOperand("ReikaKalseki.DIAlterra.DIHooks", "getItemDisplaySize", false, args);
+						codes[i].operand = call;
+						if (ldSelf)
+							codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+						if (ldArg1)
+							codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
+					}
+				}
+			}
+			//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			/*
+			int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "CraftData", "GetItemSize", false, new Type[]{typeof(TechType)});
+			codes[idx].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.DIAlterra.DIHooks", "getItemDisplaySize", false, typeof(TechType), typeof(InventoryItem));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_1));*/
+		}
 		
 		internal static void redirectPowerHook(List<CodeInstruction> codes) {
 			int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "PowerSystem", "AddEnergy", false, new Type[]{typeof(IPowerInterface), typeof(float), typeof(float).MakeByRefType()});
