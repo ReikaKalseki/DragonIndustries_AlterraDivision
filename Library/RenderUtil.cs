@@ -143,16 +143,22 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static void setPolyanilineColor(Renderer r, Color c, float glow) {
+		public static void setPolyanilineColor(Renderer r, Color c, float glow = 0) {
 			Material m = r.materials[1]; //liquid
 			m.SetColor("_Color", c);
 			m.SetColor("_SpecColor", c);
 			m.SetColor("_GlowColor", c);
 			setEmissivity(r.materials[0], 0, "GlowStrength");
 			setEmissivity(r.materials[2], 0, "GlowStrength");
+			r.materials[0].DisableKeyword("MARMO_EMISSION");
+			r.materials[2].DisableKeyword("MARMO_EMISSION");
 			setEmissivity(m, glow, "GlowStrength");
 			swapTextures(SNUtil.diDLL, r, "Textures/WhiteAniline", new Dictionary<int, string>(){{1, ""}});
 		}
+		
+		public static GameObject setModel(Renderer r, GameObject modelObj) {
+			return setModel(r.transform.parent.gameObject, r.gameObject.name, modelObj);
+		}			
 		
 		public static GameObject setModel(GameObject go, string localModelName, GameObject modelObj) { //FIXME duplicate models
 			ObjectUtil.removeChildObject(go, localModelName);
