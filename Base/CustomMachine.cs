@@ -219,8 +219,11 @@ namespace ReikaKalseki.DIAlterra
 			if (time-lastDayTime >= 5)
 				setupSky();
 			lastDayTime = time;
-			if (!storage)
+			if (!storage) {
 				storage = gameObject.GetComponentInChildren<StorageContainer>();
+				if (storage)
+					initStorage(storage);
+			}
 			Transform par = transform.parent;
 			if (!par || !par.GetComponent<SubRoot>()) {
 				findClosestSub();
@@ -250,6 +253,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected StorageContainer getStorage() {
 			return storage;
+		}
+		
+		protected virtual void initStorage(StorageContainer sc) {
+			
 		}
 		
 		protected bool consumePower(float baseCost, float sc) {

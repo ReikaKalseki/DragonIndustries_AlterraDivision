@@ -154,6 +154,7 @@ namespace ReikaKalseki.DIAlterra
 			r.materials[2].DisableKeyword("MARMO_EMISSION");
 			setEmissivity(m, glow, "GlowStrength");
 			swapTextures(SNUtil.diDLL, r, "Textures/WhiteAniline", new Dictionary<int, string>(){{1, ""}});
+			r.gameObject.FindAncestor<SkyApplier>().SetSky(Skies.Auto);
 		}
 		
 		public static GameObject setModel(Renderer r, GameObject modelObj) {
@@ -176,7 +177,7 @@ namespace ReikaKalseki.DIAlterra
 		public static void convertToModel(GameObject modelObj, params Type[] except) {
 			HashSet<Type> li = except.ToSet();
 			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
-				if (c is Transform || c is Renderer || c is MeshFilter || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier)
+				if (c is Transform || c is Renderer || c is MeshFilter || c is Animator || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier || c is AnimatorComponent)
 					continue;
 				if (li.Contains(c.GetType()))
 				    continue;

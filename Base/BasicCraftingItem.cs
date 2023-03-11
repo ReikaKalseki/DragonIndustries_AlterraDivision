@@ -173,5 +173,9 @@ namespace ReikaKalseki.DIAlterra
 		public sealed override string ToString() {
 			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
 		}
+		
+		public void addPostPatchCallback(Action a) {
+			OnFinishedPatching += () => {a();};
+		}
 	}
 }
