@@ -87,9 +87,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public override GameObject GetGameObject() {
-			GameObject pfb = CraftData.GetPrefabForTechType(template);
-			pfb = UnityEngine.Object.Instantiate(pfb);
-			pfb.SetActive(true);
+			GameObject pfb = ObjectUtil.createWorldObject(template);
 			CreatureEgg egg = pfb.EnsureComponent<CreatureEgg>();
 			egg.eggType = TechType;
 			egg.overrideEggType = TechType;

@@ -37,6 +37,14 @@ namespace ReikaKalseki.DIAlterra
 			vec.z = xyz.z;
 		}
 		
+		public static Color asColor(this Vector3 c) {
+			return new Color(c.x, c.y, c.z);
+		}
+		
+		public static Color asColor(this Vector4 c) {
+			return new Color(c.x, c.y, c.z, c.w);
+		}
+		
 		public static Vector3 toVector(this Color c) {
 			return new Vector3(c.r, c.g, c.b);
 		}

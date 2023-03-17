@@ -74,12 +74,9 @@ namespace ReikaKalseki.DIAlterra
 						UnityEngine.Object.Destroy(fx);
 					}
 					if (bubblePrefab == null) {
-						if (!UWE.PrefabDatabase.TryGetPrefab(BUBBLE_PREFAB, out bubblePrefab)) {
-						//if (!SNUtil.getPrefab("fca5cdd9-1d00-4430-8836-a747627cdb2f", out bubblePrefab)) {
-							SNUtil.writeToChat("Bubbles not loadable!");
-						}
+						bubblePrefab = ObjectUtil.lookupPrefab(BUBBLE_PREFAB);
 					}
-					if (bubblePrefab != null) {
+					if (bubblePrefab) {
 						fx = Utils.SpawnFromPrefab(bubblePrefab, obj.transform);
 						if (fx != null) {
 							if (fx.transform != null)

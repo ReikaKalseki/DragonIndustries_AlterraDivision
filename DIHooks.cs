@@ -473,8 +473,7 @@ namespace ReikaKalseki.DIAlterra {
 	    		int n = mapTo.getNumberCollectedAs();
 		    	SNUtil.log("Converting pickup '"+p+"' to '"+tt2+"' x"+n, SNUtil.diDLL);
 	    		for (int i = 0; i < n; i++) {
-		    		GameObject go = UnityEngine.Object.Instantiate(CraftData.GetPrefabForTechType(tt2));
-		    		go.SetActive(true);
+		    		GameObject go = ObjectUtil.createWorldObject(tt2);
 		    		p = go.GetComponent<Pickupable>();
 		    		Inventory.main.Pickup(p, false);
 	    		}

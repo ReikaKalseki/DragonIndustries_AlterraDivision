@@ -133,7 +133,7 @@ namespace ReikaKalseki.DIAlterra
 								SNUtil.log("Could not deserialize item - null TechType: "+e3.OuterXml, SNUtil.diDLL);
 							}
 							else {
-								GameObject igo = CraftData.GetPrefabForTechType(tt);
+								GameObject igo = ObjectUtil.lookupPrefab(tt);
 								if (igo == null) {
 									SNUtil.log("Could not deserialize item - resulted in null: "+e3.OuterXml, SNUtil.diDLL);
 									continue;

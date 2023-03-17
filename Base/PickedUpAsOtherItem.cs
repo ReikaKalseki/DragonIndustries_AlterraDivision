@@ -36,8 +36,7 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 			
 	    public override GameObject GetGameObject() {
-			GameObject world = UnityEngine.Object.Instantiate(CraftData.GetPrefabForTechType(template));
-			world.SetActive(true);
+			GameObject world = ObjectUtil.createWorldObject(template);
 			world.EnsureComponent<TechTag>().type = TechType;
 			world.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
 			Pickupable pp = world.EnsureComponent<Pickupable>();

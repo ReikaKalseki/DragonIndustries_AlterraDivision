@@ -379,14 +379,17 @@ namespace ReikaKalseki.DIAlterra
 			TechType type = CraftData.GetTechType(go);
 			return CraftData.GetClassIdForTechType(type);
 		}
+		
+		public static GameObject createWorldObject(TechType tt, bool clone = true, bool makeActive = true) {
+			return createWorldObject(CraftData.GetClassIdForTechType(tt), clone, makeActive);
+		}
 			
 		public static GameObject createWorldObject(string id, bool clone = true, bool makeActive = true) {
 			GameObject prefab = lookupPrefab(id);
 			if (prefab != null) {
 				GameObject go = clone ? UnityEngine.Object.Instantiate(prefab) : prefab;
 				if (go != null) {
-					if (makeActive)
-						go.SetActive(true);
+					go.SetActive(makeActive);
 					return go;
 				}
 				else {
@@ -398,6 +401,10 @@ namespace ReikaKalseki.DIAlterra
 				SNUtil.writeToChat("Prefab not found for id '"+id+"'.");
 				return null;
 			}
+		}
+		
+		public static GameObject lookupPrefab(TechType tt) {
+			return lookupPrefab(CraftData.GetClassIdForTechType(tt));
 		}
 			
 		public static GameObject lookupPrefab(string id) {
@@ -575,15 +582,11 @@ namespace ReikaKalseki.DIAlterra
 				world = getItemGO((Craftable)pfb, pfb.baseTemplate.getPrefabID());
 				world = UnityEngine.Object.Instantiate(world);
 			}
-			else if (UWE.PrefabDatabase.TryGetPrefab(pfb.baseTemplate.getPrefabID(), out prefab)) {
-				world = UnityEngine.Object.Instantiate(prefab);
-			}
 			else {
-				SNUtil.writeToChat("Could not fetch template GO for "+pfb);
-				return null;
+				world = createWorldObject(pfb.baseTemplate.getPrefabID(), true, false);
 			}
-			if (world == null) {
-				SNUtil.writeToChat("Got null for template GO for "+pfb);
+			if (!world) {
+				SNUtil.writeToChat("Could not fetch template GO for "+pfb);
 				return null;
 			}
 			world.SetActive(false);
@@ -620,8 +623,7 @@ namespace ReikaKalseki.DIAlterra
 			go.EnsureComponent<ResourceTracker>().techType = tech;
 			go.EnsureComponent<ResourceTracker>().overrideTechType = tech;
 			*/
-			GameObject prefab = CraftData.GetPrefabForTechType(tech, true);
-			GameObject world = UnityEngine.Object.Instantiate(prefab);
+			GameObject world = ObjectUtil.createWorldObject(tech, true, false);
 			world.transform.position = go.transform.position;
 			world.transform.rotation = go.transform.rotation;
 			world.transform.localScale = go.transform.localScale;
