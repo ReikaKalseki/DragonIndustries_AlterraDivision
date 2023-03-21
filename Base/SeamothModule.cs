@@ -71,7 +71,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"SeamothMenu"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
+				return new string[]{"SeamothModules"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
 			}
 		}
 		

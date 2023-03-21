@@ -54,6 +54,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<KnifeHarvest> knifeHarvestEvent;
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    public static event Action<FruitPlantTag> onFruitPlantTickEvent;
+	    public static event Action<ReaperLeviathan, Vehicle> reaperGrabVehicleEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -1150,6 +1151,30 @@ namespace ReikaKalseki.DIAlterra {
 	    		ret = ch.value;
 	    	}
 	    	return ret;
+	    }
+	    
+	    public static void onReaperGrabVehicle(ReaperLeviathan r, Vehicle v) {
+	    	if (reaperGrabVehicleEvent != null) {
+	    		reaperGrabVehicleEvent.Invoke(r, v);
+	    	}
+	    }
+	    
+	    public static void onDockingTriggerCollided(VehicleDockingBay v, Collider other) {
+	    	if (other.isTrigger)
+	    		return;
+			if (v.GetDockedVehicle())
+				return;
+			if (GameModeUtils.RequiresPower() && !v.IsPowered())
+				return;
+			if (v.interpolatingVehicle != null)
+				return;
+			Vehicle componentInHierarchy = UWE.Utils.GetComponentInHierarchy<Vehicle>(other.gameObject);
+			if (componentInHierarchy == null || componentInHierarchy.docked || componentInHierarchy.GetRecentlyUndocked())
+				return;
+			v.timeDockingStarted = Time.time;
+			v.interpolatingVehicle = componentInHierarchy;
+			v.startPosition = v.interpolatingVehicle.transform.position;
+			v.startRotation = v.interpolatingVehicle.transform.rotation;
 	    }
 	    /*
 	    public static Vector2int getItemDisplaySize(TechType tt, InventoryItem ii) {
