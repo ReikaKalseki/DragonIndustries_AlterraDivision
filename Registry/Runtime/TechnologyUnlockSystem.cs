@@ -49,10 +49,12 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	List<TechType> li2 = new List<TechType>();
 	    	foreach (TechType tt2 in li) {
-	    		if (!DuplicateRecipeDelegate.isDelegateItem(tt2) && !KnownTech.Contains(tt2)) {
-	    			SNUtil.log("Raising progression popup for "+tt2, SNUtil.diDLL);
-	    			li2.Add(tt2);
-	    		}
+	    		if (KnownTech.Contains(tt2))
+	    			continue;
+	    		if (DuplicateRecipeDelegate.isDelegateItem(tt2) && !DuplicateRecipeDelegate.getDelegateFromTech(tt2).allowTechUnlockPopups())
+	    			continue;
+	    		SNUtil.log("Raising progression popup for "+tt2, SNUtil.diDLL);
+	    		li2.Add(tt2);
 	    	}
 	    	if (li2.Count > 1)
 	    		SNUtil.triggerMultiTechPopup(li2);

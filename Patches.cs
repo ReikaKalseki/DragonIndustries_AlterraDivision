@@ -858,6 +858,7 @@ namespace ReikaKalseki.DIAlterra {
 						}
 					}
 				}
+				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onEMPTouch", false, typeof(EMPBlast), typeof(Collider)));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -1247,6 +1248,29 @@ namespace ReikaKalseki.DIAlterra {
 				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
 				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onDockingTriggerCollided", false, typeof(VehicleDockingBay), typeof(Collider)));
 				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(FMOD_CustomEmitter))]
+	[HarmonyPatch("OnPlay")]
+	public static class SoundHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				//int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "FMOD_CustomEmitter", "OnPlay", true, new Type[0]);
+				CodeInstruction ci = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onFModEmitterPlay", false, typeof(FMOD_CustomEmitter));
+				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), ci);
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {

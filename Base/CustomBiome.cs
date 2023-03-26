@@ -22,7 +22,6 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		public abstract bool isInBiome(Vector3 vec);
 		public abstract double getDistanceToBiome(Vector3 vec);
 		
 		public virtual void register() {

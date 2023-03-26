@@ -46,5 +46,9 @@ namespace ReikaKalseki.DIAlterra
 		public override bool isCaveBiome() {
 			return this == ALZ || this == ILZ || this == COVE || this == LOSTRIVER || this == JELLYSHROOM || this == DEEPGRAND;
 		}
+		
+		public override bool isInBiome(Vector3 pos) {
+			return BiomeBase.getBiome(pos) == this;
+		}
 	}
 }

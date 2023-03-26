@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public sealed class DuplicateRecipeDelegate : PdaItem, DuplicateItemDelegate {
+	public class DuplicateRecipeDelegate : PdaItem, DuplicateItemDelegate {
 		
 		public readonly PdaItem prefab;
 		public readonly TechType basis;
@@ -22,9 +22,10 @@ namespace ReikaKalseki.DIAlterra
 		public TechCategory category = TechCategory.Misc;
 		public TechGroup group = TechGroup.Uncategorized;
 		public Assembly ownerMod;
+		public bool allowUnlockPopups = false;
 		
 		private static readonly Dictionary<TechType, List<DuplicateItemDelegate>> delegates = new Dictionary<TechType, List<DuplicateItemDelegate>>();
-		private static readonly HashSet<TechType> delegateItems = new HashSet<TechType>();
+		private static readonly Dictionary<TechType, DuplicateItemDelegate> delegateItems = new Dictionary<TechType, DuplicateItemDelegate>();
 		
 		public DuplicateRecipeDelegate(PdaItem s, string suff = "") : base(s.ClassID+"_delegate"+getIndexSuffix(s.TechType), s.FriendlyName+suff, s.Description) {
 			basis = s.TechType;
@@ -62,7 +63,7 @@ namespace ReikaKalseki.DIAlterra
 			List<DuplicateItemDelegate> li = delegates.ContainsKey(tt) ? delegates[tt] : new List<DuplicateItemDelegate>();
 			li.Add(d);
 			delegates[tt] = li;
-			delegateItems.Add(((Spawnable)d).TechType);
+			delegateItems.Add(((Spawnable)d).TechType, d);
 			SNUtil.log("Registering delegate item "+d, d.getOwnerMod());
 		}
 		
@@ -71,7 +72,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static bool isDelegateItem(TechType tt) {
-			return delegateItems.Contains(tt);
+			return delegateItems.ContainsKey(tt);
+		}
+		
+		public static DuplicateItemDelegate getDelegateFromTech(TechType tt) {
+			return delegateItems[tt];
 		}
 		
 		public static void updateLocale() {
@@ -92,33 +97,33 @@ namespace ReikaKalseki.DIAlterra
 			return Language.main.Get("Tooltip_"+basis.AsString());
 		}
 
-		public override TechGroup GroupForPDA {
+		public override sealed TechGroup GroupForPDA {
 			get {
 				return group;
 			}
 		}
 
-		public override TechCategory CategoryForPDA {
+		public override sealed TechCategory CategoryForPDA {
 			get {
 				return category;
 			}
 		}
 
-		public override TechType RequiredForUnlock {
+		public override sealed TechType RequiredForUnlock {
 			get {
 				return unlock;
 			}
 		}
 		
-		public override GameObject GetGameObject() {
+		public override sealed GameObject GetGameObject() {
 			return ObjectUtil.createWorldObject(CraftData.GetClassIdForTechType(basis), true, false);
 		}
 		
-		protected override Atlas.Sprite GetItemSprite() {
+		protected override sealed Atlas.Sprite GetItemSprite() {
 			return sprite != null ? sprite : base.GetItemSprite();
 		}
 		
-		public override string ToString() {
+		public override sealed string ToString() {
 			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
 		}
 		
@@ -134,12 +139,16 @@ namespace ReikaKalseki.DIAlterra
 			return basis;
 		}
 		
-		protected override TechData GetBlueprintRecipe() {
+		protected override sealed TechData GetBlueprintRecipe() {
 			return null;
 		}
 		
 		public Assembly getOwnerMod() {
 			return ownerMod;
+		}
+		
+		public bool allowTechUnlockPopups() {
+			return allowUnlockPopups;
 		}
 	}
 	
@@ -154,6 +163,8 @@ namespace ReikaKalseki.DIAlterra
 		string getTooltip();
 		
 		Assembly getOwnerMod();
+		
+		bool allowTechUnlockPopups();
 		
 	}
 }

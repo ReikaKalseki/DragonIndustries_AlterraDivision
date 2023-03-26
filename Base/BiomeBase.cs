@@ -64,6 +64,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public abstract bool isCaveBiome();
+		
+		public abstract bool isInBiome(Vector3 pos);
 	}
 		
 	class UnknownBiome : BiomeBase {
@@ -73,6 +75,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public override bool isCaveBiome() {
+			return false;
+		}
+		
+		public override bool isInBiome(Vector3 pos) {
 			return false;
 		}
 		

@@ -24,6 +24,7 @@ namespace ReikaKalseki.DIAlterra
 		public float craftTime = 0.1F;
 		public string[] craftingMenuTree = new string[0];
 		public Assembly ownerMod;
+		public bool allowUnlockPopups = false;
 		
 		public string suffixName = "";
 		
@@ -145,6 +146,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public string getTooltip() {
 			return Language.main.Get("Tooltip_"+basis.AsString());
+		}
+		
+		public bool allowTechUnlockPopups() {
+			return allowUnlockPopups;
 		}
 	}
 }

@@ -129,5 +129,9 @@ namespace ReikaKalseki.DIAlterra
 		public string getTooltip() {
 			return "Reclaiming the crafting ingredients.";
 		}
+		
+		public bool allowTechUnlockPopups() {
+			return false;
+		}
 	}
 }

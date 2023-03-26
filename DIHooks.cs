@@ -45,6 +45,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SubRoot> onCyclopsSonarUsedEvent;
 	    public static event Action<GameObject> onEggHatchedEvent;
 	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
+	    public static event Action<EMPBlast, Collider> onEMPTouchEvent;
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
 	    public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
@@ -55,6 +56,7 @@ namespace ReikaKalseki.DIAlterra {
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    public static event Action<FruitPlantTag> onFruitPlantTickEvent;
 	    public static event Action<ReaperLeviathan, Vehicle> reaperGrabVehicleEvent;
+	    public static event Action<FMOD_CustomEmitter> onSoundPlayedEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -983,6 +985,12 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    }
 	    
+	    public static void onEMPTouch(EMPBlast e, Collider c) {
+	    	if (c && onEMPTouchEvent != null) {
+	    		onEMPTouchEvent.Invoke(e, c);
+	    	}
+	    }
+	    
 	    public static void appendItemTooltip(StringBuilder sb, TechType tt, GameObject obj) {
 	    	InfectedMixin mix = obj.GetComponent<InfectedMixin>();
 	    	if (mix) {
@@ -1195,5 +1203,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	return CraftData.GetItemSize(tt);
 	    }*/
+	    
+	    public static void onFModEmitterPlay(FMOD_CustomEmitter snd) {
+	    	if (onSoundPlayedEvent != null)
+	    		onSoundPlayedEvent.Invoke(snd);
+	    }
 	}
 }
