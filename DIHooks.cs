@@ -57,6 +57,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<FruitPlantTag> onFruitPlantTickEvent;
 	    public static event Action<ReaperLeviathan, Vehicle> reaperGrabVehicleEvent;
 	    public static event Action<FMOD_CustomEmitter> onSoundPlayedEvent;
+	    public static event Action<SolarEfficiencyCheck> solarEfficiencyEvent;
 	    
 	    static DIHooks() {
 	    	
@@ -283,6 +284,21 @@ namespace ReikaKalseki.DIAlterra {
 	    		originalValue = orig;
 	    		value = orig;
 	    		position = pos;
+	    	}
+	    	
+	    }
+	    
+	    public class SolarEfficiencyCheck {
+	    	
+	    	public readonly SolarPanel panel;
+	    	public readonly float originalValue;
+	    	
+	    	public float value;
+	    	
+	    	internal SolarEfficiencyCheck(SolarPanel pos, float orig) {
+	    		originalValue = orig;
+	    		value = orig;
+	    		panel = pos;
 	    	}
 	    	
 	    }
@@ -1104,7 +1120,13 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    public static void updateSolarPanel(SolarPanel p) {
 			if (p.gameObject.GetComponent<Constructable>().constructed) {
-	    		float gen = p.GetRechargeScalar() * DayNightCycle.main.deltaTime * 0.25f * 5f;
+		    	float eff = p.GetRechargeScalar();
+		    	if (solarEfficiencyEvent != null) {
+		    		SolarEfficiencyCheck ch = new SolarEfficiencyCheck(p, eff);
+		    		solarEfficiencyEvent.Invoke(ch);
+		    		eff = ch.value;
+		    	}
+	    		float gen = eff * DayNightCycle.main.deltaTime * 0.25f * 5f;
 	    		SubRoot sub = p.gameObject.FindAncestor<SubRoot>();
 	    		if (sub) {
 	    			float trash;
