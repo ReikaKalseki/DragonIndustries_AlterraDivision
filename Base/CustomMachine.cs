@@ -168,6 +168,7 @@ namespace ReikaKalseki.DIAlterra
 	public abstract class CustomMachineLogic : MonoBehaviour {
 		
 		internal Buildable prefab;
+		internal Constructable buildable;
 		private SubRoot sub;		
 		private StorageContainer storage;
 		
@@ -209,6 +210,8 @@ namespace ReikaKalseki.DIAlterra
 			float time = DayNightCycle.main.timePassedAsFloat;
 			if (prefab == null)
 				tryGetPrefab();
+			if (!buildable)
+				buildable = GetComponent<Constructable>();
 			if (spawnTime <= 0)
 				spawnTime = time;
 			float delta = time-lastUpdateTime;
@@ -259,20 +262,33 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		protected bool consumePower(float baseCost, float sc) {
+		protected void addItemToInventory(TechType tt, int amt = 1) {
+			StorageContainer sc = getStorage();
+			for (int i = 0; i < amt; i++) {
+				GameObject item = ObjectUtil.createWorldObject(CraftData.GetClassIdForTechType(tt), true, false);
+				SNUtil.log("Adding "+item+" to "+GetType().Name+" inventory");
+				item.SetActive(false);
+				sc.container.AddItem(item.GetComponent<Pickupable>());
+			}
+		}
+		
+		protected bool consumePower(float amt) {
 			//SNUtil.writeToChat("Wanted "+baseCost+"*"+sc+" from "+sub);
+			if (!buildable || !buildable.constructed)
+				return false;
 			if (!sub)
 				return false;
-			float amt = baseCost*sc;
 			//SNUtil.writeToChat(sc+" > "+amt);
 			if (amt > 0) {
 				float trash;
 				sub.powerRelay.ConsumeEnergy(amt, out lastReceived);
-				lastReceived += 0.0001F;
-				if (lastReceived < amt)
-					sub.powerRelay.AddEnergy(lastReceived, out trash);
-				else
+				if (lastReceived-amt > 0.001) {
+					//SNUtil.log("Refunding "+lastReceived+" power which was less than requested "+amt);
+					sub.powerRelay.AddEnergy(lastReceived, out trash); //refund
+				}
+				else {
 					return true;
+				}
 			}
 			return false;
 		}

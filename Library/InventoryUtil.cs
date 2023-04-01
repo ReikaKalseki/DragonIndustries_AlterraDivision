@@ -74,5 +74,9 @@ namespace ReikaKalseki.DIAlterra
 			Inventory.main.ForcePickup(obj.GetComponent<Pickupable>());
 		}
 		
+		public static void removeItem(StorageContainer sc, InventoryItem ii) {
+			sc.container.DestroyItem(ii.item.GetTechType());
+		}
+		
 	}
 }

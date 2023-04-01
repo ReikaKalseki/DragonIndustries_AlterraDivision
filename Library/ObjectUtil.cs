@@ -78,10 +78,6 @@ namespace ReikaKalseki.DIAlterra
 				res.gameObject.EnsureComponent<ResourceTrackerUpdater>().tracker = res;
 		}
 		
-		public static void removeItem(StorageContainer sc, InventoryItem ii) {
-			sc.container.DestroyItem(ii.item.GetTechType());
-		}
-		
 		public static bool isPDA(GameObject go) {
 			if (!go.GetComponent<StoryHandTarget>())
 				return false;
