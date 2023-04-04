@@ -76,6 +76,7 @@ namespace ReikaKalseki.DIAlterra
 				{"Laser", "6f01d2df-03b8-411f-808f-b3f0f37b0d5c"},
 				{"Repair", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
 				{"Openable", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
+				{"Delete", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
 			};
 			
 			internal DoorSwap(Vector3 pos, string t) {
@@ -96,10 +97,13 @@ namespace ReikaKalseki.DIAlterra
 				UnityEngine.Object.DestroyImmediate(go);
 				StarshipDoor d = put.GetComponent<StarshipDoor>();
 				if (d) {
-					if (doorType == "Openable") {
+					if (doorType == "Delete") {
+						ObjectUtil.removeChildObject(put, "Starship_doors_manual_01/Starship_doors_automatic");
+					}
+					else if (doorType == "Openable") {
 						d.UnlockDoor();
 					}
-					if (doorType == "Repair") {
+					else if (doorType == "Repair") {
 						d.LockDoor();
 						GameObject panel = ObjectUtil.createWorldObject("bb16d2bf-bc85-4bfa-a90e-ddc7343b0ac2", true, true);
 						panel.transform.position = put.transform.position;
