@@ -61,108 +61,124 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.writeToChat("Cannot rebuild worldgen seabase @ "+baseCenter+" - no data");
 					return;
 				}
-				foreach (XmlElement e2 in reconstructionData.getDirectElementsByTagName("part")) {
-					CustomPrefab pfb = new CustomPrefab("9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5"); //BaseCell
-					pfb.loadFromXML(e2);
-					if (baseHasPart(gameObject, pfb) && pfb.prefabName != "9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5") { //ie is loose
-						SNUtil.log("Skipped recreate of loose piece: "+pfb, SNUtil.diDLL);
-						continue;
-					}
-					SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb, SNUtil.diDLL);
-					GameObject go2 = pfb.createWorldObject();
-					go2.transform.parent = gameObject.transform;
-					baseCenter += go2.transform.position;
-					pieceCount++;
-					List<XmlElement> li1 = e2.getDirectElementsByTagName("cellData");
-					if (li1.Count == 1) {
-						foreach (XmlElement e3 in li1[0].getDirectElementsByTagName("component")) {
-							CustomPrefab pfb2 = new CustomPrefab("basePart");
-							//Base.Piece type = Enum.Parse(typeof(Base.Piece), e3.getProperty("piece"));
-							pfb2.loadFromXML(e3);
-							if (pfb2.prefabName == PlacedObject.BUBBLE_PREFAB)
-								continue;
-							SNUtil.log("Reconstructed base component: "+pfb2, SNUtil.diDLL);
-							GameObject go3 = pfb2.createWorldObject();
-							if (pfb2.prefabName == "RoomWaterParkBottom")
-								ObjectUtil.removeChildObject(go3, "BaseWaterParkFloorBottom/Bubbles");
-							else if (pfb2.prefabName == "RoomWaterParkHatch") {
-								ObjectUtil.removeChildObject(go3, "BaseCorridorHatch(Clone)");
-							}
-							go3.transform.parent = go2.transform;
-							rebuildNestedObjects(go3, e3);
-							if (!reconstructionData.getBoolean("allowDeconstruct")) {
-								ObjectUtil.removeComponent<BaseDeconstructable>(go3);
-								ObjectUtil.removeComponent<Constructable>(go3);
-								PreventDeconstruction pv = go3.EnsureComponent<PreventDeconstruction>();
-								pv.inBase = true;
-								pv.inCyclops = true;
-								pv.inEscapePod = true;
-							}
-							List<XmlElement> li0 = e3.getDirectElementsByTagName("supportData");
-							if (li0.Count == 1)
-								new SeabaseLegLengthPreservation(li0[0]).applyToObject(go3);
-							else if (li0.Count == 0)
-								new SeabaseLegLengthPreservation(null).applyToObject(go3);
-							li0 = e3.getDirectElementsByTagName("modify");
-							if (li0.Count == 1) {
-								List<ManipulationBase> li2 = new List<ManipulationBase>();
-								CustomPrefab.loadManipulations(li0[0], li2);
-								foreach (ManipulationBase mb in li2) {
-									mb.applyToObject(go3);
-								}
-							}
-						}
-					}
-					li1 = e2.getDirectElementsByTagName("inventory");
-					if (li1.Count == 1) {
-						//SNUtil.log("Recreating inventory contents: "+li1[0].OuterXml, SNUtil.diDLL);
-						StorageContainer sc = go2.GetComponent<StorageContainer>();
-						Charger cg = go2.GetComponent<Charger>();
-						Planter p = go2.GetComponent<Planter>();
-						if (sc == null && cg == null) {
-							SNUtil.log("Tried to deserialize inventory to a null container in "+go2);
+				List<XmlElement> li = reconstructionData.getDirectElementsByTagName("part");
+				SNUtil.log("Reconstructing base from "+li.Count+" parts", SNUtil.diDLL);
+				int idx = 0;
+				foreach (XmlElement e2 in li) {
+					//SNUtil.log("Reconstructing part #"+idx+" from "+e2.InnerXml, SNUtil.diDLL);
+					idx++;
+					try {
+						CustomPrefab pfb = new CustomPrefab("9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5"); //BaseCell
+						pfb.loadFromXML(e2);
+						if (baseHasPart(gameObject, pfb) && pfb.prefabName != "9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5") { //ie is loose
+							SNUtil.log("Skipped recreate of loose piece: "+pfb, SNUtil.diDLL);
 							continue;
 						}
-						GrowbedPropifier pg = null;
-						if (p != null) {
-							pg = go2.EnsureComponent<GrowbedPropifier>();
-						}
-						foreach (XmlElement e3 in li1[0].getDirectElementsByTagName("item")) {
-							TechType tt = SNUtil.getTechType(e3.getProperty("type"));
-							if (tt == TechType.None) {
-								SNUtil.log("Could not deserialize item - null TechType: "+e3.OuterXml, SNUtil.diDLL);
-							}
-							else {
-								GameObject igo = ObjectUtil.lookupPrefab(tt);
-								if (igo == null) {
-									SNUtil.log("Could not deserialize item - resulted in null: "+e3.OuterXml, SNUtil.diDLL);
+						SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb, SNUtil.diDLL);
+						GameObject go2 = pfb.createWorldObject();
+						go2.transform.parent = gameObject.transform;
+						GameObject mdl = ObjectUtil.getChildObject(go2, "MachineModel");
+						if (mdl)
+							mdl.SetActive(true);
+						baseCenter += go2.transform.position;
+						pieceCount++;
+						List<XmlElement> li1 = e2.getDirectElementsByTagName("cellData");
+						if (li1.Count == 1) {
+							foreach (XmlElement e3 in li1[0].getDirectElementsByTagName("component")) {
+								CustomPrefab pfb2 = new CustomPrefab("basePart");
+								//Base.Piece type = Enum.Parse(typeof(Base.Piece), e3.getProperty("piece"));
+								pfb2.loadFromXML(e3);
+								if (pfb2.prefabName == PlacedObject.BUBBLE_PREFAB)
 									continue;
+								SNUtil.log("Reconstructed base component: "+pfb2, SNUtil.diDLL);
+								GameObject go3 = pfb2.createWorldObject();
+								if (pfb2.prefabName == "RoomWaterParkBottom")
+									ObjectUtil.removeChildObject(go3, "BaseWaterParkFloorBottom/Bubbles");
+								else if (pfb2.prefabName == "RoomWaterParkHatch") {
+									ObjectUtil.removeChildObject(go3, "BaseCorridorHatch(Clone)");
 								}
-								int amt = e3.getInt("amount", 1);
-								string slot = e3.getProperty("slot", true);
-								for (int i = 0; i < amt; i++) {
-									GameObject igo2 = UnityEngine.Object.Instantiate(igo);
-									igo2.SetActive(false);
-									Pickupable pp = igo2.GetComponent<Pickupable>();
-									InventoryItem item = null;
-									if (pp == null) {
-										SNUtil.log("Could not deserialize item - no pickupable: "+e3.OuterXml, SNUtil.diDLL);
-									} 
-									//SNUtil.log("Added "+pp, SNUtil.diDLL);
-									if (cg != null) {
-										cg.equipment.AddItem(slot, new InventoryItem(pp), true);
-									}
-									else if (sc != null) {
-										item = sc.container.AddItem(pp);
+								go3.transform.parent = go2.transform;
+								rebuildNestedObjects(go3, e3);
+								if (!reconstructionData.getBoolean("allowDeconstruct")) {
+									ObjectUtil.removeComponent<BaseDeconstructable>(go3);
+									ObjectUtil.removeComponent<Constructable>(go3);
+									PreventDeconstruction pv = go3.EnsureComponent<PreventDeconstruction>();
+									pv.inBase = true;
+									pv.inCyclops = true;
+									pv.inEscapePod = true;
+								}
+								List<XmlElement> li0 = e3.getDirectElementsByTagName("supportData");
+								if (li0.Count == 1)
+									new SeabaseLegLengthPreservation(li0[0]).applyToObject(go3);
+								else if (li0.Count == 0)
+									new SeabaseLegLengthPreservation(null).applyToObject(go3);
+								li0 = e3.getDirectElementsByTagName("modify");
+								if (li0.Count == 1) {
+									List<ManipulationBase> li2 = new List<ManipulationBase>();
+									CustomPrefab.loadManipulations(li0[0], li2);
+									foreach (ManipulationBase mb in li2) {
+										mb.applyToObject(go3);
 									}
 								}
 							}
-						}/*
-						if (sc != null)
-							SNUtil.log("Recreated inventory contents: "+sc.container._items.toDebugString(), SNUtil.diDLL);
-						if (cg != null)
-							SNUtil.log("Recreated charger contents: "+cg.equipment.equipment.toDebugString(), SNUtil.diDLL);
-							*/
+						}
+						li1 = e2.getDirectElementsByTagName("inventory");
+						if (li1.Count == 1) {
+							//SNUtil.log("Recreating inventory contents: "+li1[0].OuterXml, SNUtil.diDLL);
+							StorageContainer sc = go2.GetComponent<StorageContainer>();
+							Charger cg = go2.GetComponent<Charger>();
+							Planter p = go2.GetComponent<Planter>();
+							if (sc == null && cg == null) {
+								SNUtil.log("Tried to deserialize inventory to a null container in "+go2);
+								continue;
+							}
+							GrowbedPropifier pg = null;
+							if (p != null) {
+								pg = go2.EnsureComponent<GrowbedPropifier>();
+							}
+							foreach (XmlElement e3 in li1[0].getDirectElementsByTagName("item")) {
+								TechType tt = SNUtil.getTechType(e3.getProperty("type"));
+								if (tt == TechType.None) {
+									SNUtil.log("Could not deserialize item - null TechType: "+e3.OuterXml, SNUtil.diDLL);
+								}
+								else {
+									bool lootCube = false;
+									GameObject igo = ObjectUtil.lookupPrefab(tt);
+									if (igo == null) {
+										SNUtil.log("Item did not have prefab, using loot cube: "+e3.OuterXml, SNUtil.diDLL);
+										igo = ObjectUtil.lookupPrefab("01de572d-5549-44c6-97cf-645b07d1c79d");
+										lootCube = true;
+									}
+									int amt = e3.getInt("amount", 1);
+									string slot = e3.getProperty("slot", true);
+									for (int i = 0; i < amt; i++) {
+										GameObject igo2 = UnityEngine.Object.Instantiate(igo);
+										igo2.SetActive(false);
+										Pickupable pp = igo2.GetComponent<Pickupable>();
+										pp.SetTechTypeOverride(tt, true);
+										InventoryItem item = null;
+										if (pp == null) {
+											SNUtil.log("Could not deserialize item - no pickupable: "+e3.OuterXml, SNUtil.diDLL);
+										} 
+										//SNUtil.log("Added "+pp, SNUtil.diDLL);
+										if (cg != null) {
+											cg.equipment.AddItem(slot, new InventoryItem(pp), true);
+										}
+										else if (sc != null) {
+											item = sc.container.AddItem(pp);
+										}
+									}
+								}
+							}/*
+							if (sc != null)
+								SNUtil.log("Recreated inventory contents: "+sc.container._items.toDebugString(), SNUtil.diDLL);
+							if (cg != null)
+								SNUtil.log("Recreated charger contents: "+cg.equipment.equipment.toDebugString(), SNUtil.diDLL);
+								*/
+						}
+					}
+					catch (Exception ex) {
+						SNUtil.log("Threw exception reconstructing part: "+ex.ToString(), SNUtil.diDLL);
 					}
 				}
 				ObjectUtil.removeChildObject(gameObject, "SubDamageSounds");

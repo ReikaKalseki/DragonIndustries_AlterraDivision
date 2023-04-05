@@ -33,6 +33,13 @@ namespace ReikaKalseki.DIAlterra
 			return false;
 		}
 		
+		public static bool isVehicleUpgradeSelected(Vehicle v, TechType tt) {
+			if (!v || v.activeSlot < 0)
+				return false;
+			InventoryItem ii = v.GetSlotItem(v.activeSlot);
+			return ii != null && ii.item.GetTechType() == tt;
+		}
+		
 		public static HashSet<TechType> getCyclopsUpgrades(SubRoot sub) {
 			HashSet<TechType> set = new HashSet<TechType>();
 	    	Equipment modules = sub.isCyclops && sub.upgradeConsole ? sub.upgradeConsole.modules : null;

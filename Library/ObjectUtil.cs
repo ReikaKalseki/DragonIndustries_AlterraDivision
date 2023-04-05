@@ -399,8 +399,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static GameObject lookupPrefab(TechType tt) {
-			return lookupPrefab(CraftData.GetClassIdForTechType(tt));
+		public static GameObject lookupPrefab(TechType tt) {/*
+			string id = CraftData.GetClassIdForTechType(tt);
+			return string.IsNullOrEmpty(id) ? null : lookupPrefab(id);*/
+			return CraftData.GetPrefabForTechType(tt);
 		}
 			
 		public static GameObject lookupPrefab(string id) {
