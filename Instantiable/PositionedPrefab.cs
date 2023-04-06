@@ -25,11 +25,13 @@ namespace ReikaKalseki.DIAlterra
 			
 		protected Guid? xmlID;
 		
-		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null)
+		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null, Vector3? sc = null)
 		{
 			prefabName = pfb;
 			position = GenUtil.getOrZero(pos);
 			rotation = GenUtil.getOrIdentity(rot);
+			if (sc != null && sc.HasValue)
+				scale = sc.Value;
 		}
 		
 		public PositionedPrefab(PositionedPrefab pfb)

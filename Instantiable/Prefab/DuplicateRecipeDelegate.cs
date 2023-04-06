@@ -55,7 +55,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static string getIndexSuffix(TechType tt) {
 			int count = delegates.ContainsKey(tt) ? delegates[tt].Count : 0;
-			return count <= 0 ? "" : count.ToString();
+			return count <= 0 ? "" : "_"+((count+1).ToString());
 		}
 		
 		public static void addDelegate(DuplicateItemDelegate d) {
@@ -124,7 +124,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public override sealed string ToString() {
-			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
+			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName+" in "+GroupForPDA+"/"+CategoryForPDA;
 		}
 		
 		public string getNameSuffix() {

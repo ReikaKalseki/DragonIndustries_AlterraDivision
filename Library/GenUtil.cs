@@ -53,7 +53,12 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo registerWorldgen(PositionedPrefab pfb, Action<GameObject> call = null) {
-			return registerWorldgen(pfb.prefabName, pfb.position, pfb.rotation, go => {go.transform.localScale = pfb.scale; if (call != null) call(go);});
+			return registerWorldgen(pfb.prefabName, pfb.position, pfb.rotation, go => {
+			    if (!Mathf.Approximately(pfb.scale.x, 1) || !Mathf.Approximately(pfb.scale.y, 1) || !Mathf.Approximately(pfb.scale.z, 1))
+					go.transform.localScale = pfb.scale;
+			    if (call != null)
+			    	call(go);
+			});
 		}
 		
 		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Vector3? rot = null, Action<GameObject> call = null) {

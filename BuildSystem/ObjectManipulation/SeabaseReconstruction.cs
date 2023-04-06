@@ -77,9 +77,6 @@ namespace ReikaKalseki.DIAlterra
 						SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb, SNUtil.diDLL);
 						GameObject go2 = pfb.createWorldObject();
 						go2.transform.parent = gameObject.transform;
-						GameObject mdl = ObjectUtil.getChildObject(go2, "MachineModel");
-						if (mdl)
-							mdl.SetActive(true);
 						baseCenter += go2.transform.position;
 						pieceCount++;
 						List<XmlElement> li1 = e2.getDirectElementsByTagName("cellData");
@@ -176,6 +173,9 @@ namespace ReikaKalseki.DIAlterra
 								SNUtil.log("Recreated charger contents: "+cg.equipment.equipment.toDebugString(), SNUtil.diDLL);
 								*/
 						}
+						GameObject mdl = ObjectUtil.getChildObject(go2, "MachineModel");
+						if (mdl)
+							mdl.SetActive(true);
 					}
 					catch (Exception ex) {
 						SNUtil.log("Threw exception reconstructing part: "+ex.ToString(), SNUtil.diDLL);
