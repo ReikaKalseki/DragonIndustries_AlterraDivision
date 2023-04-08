@@ -112,6 +112,8 @@ namespace ReikaKalseki.DIAlterra
     { 
         //dispatchLoadPhase("loadModInteract");
         //dispatchLoadPhase("loadFinal");
+        
+        RecipeUtil.dumpCraftTree(CraftTree.Type.Workbench);
     }
     
     private static void dispatchLoadPhase(string phase) {/*

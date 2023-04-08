@@ -44,5 +44,11 @@ namespace ReikaKalseki.DIAlterra
 				return TechCategory.Workbench;
 			}
 		}
+
+		public override string[] StepsToFabricatorTab {
+			get {
+				return new string[]{"SeamothModules"};
+			}
+		}
 	}
 }
