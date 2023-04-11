@@ -296,7 +296,12 @@ namespace ReikaKalseki.DIAlterra
 		private void findClosestSub() {
 			SNUtil.log("Custom machine "+this+" @ "+transform.position+" did not have proper parent component hierarchy: "+transform.parent);
 			foreach (SubRoot s in UnityEngine.Object.FindObjectsOfType<SubRoot>()) {
-				if (!sub || Vector3.Distance(s.transform.position, transform.position) < Vector3.Distance(sub.transform.position, transform.position)) {
+				if (!s.isBase)
+					continue;
+				float dist = Vector3.Distance(s.transform.position, transform.position);
+				if (dist > 350)
+					continue;
+				if (!sub || dist < Vector3.Distance(sub.transform.position, transform.position)) {
 					sub = s;
 				}
 			}

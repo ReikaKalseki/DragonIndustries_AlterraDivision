@@ -40,26 +40,28 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	   
 		public void triggerDirectUnlock(TechType tt) {
-	    	if (DIHooks.getWorldAge() <= 0.25F || !directUnlocks.ContainsKey(tt))
+	    	if (!directUnlocks.ContainsKey(tt))
 	   			return;
 	    	List<TechType> li = directUnlocks[tt];
 	    	if (li == null || li.Count == 0)
 	    		return;
 	    	SNUtil.log("Triggering direct unlock via "+tt+" of "+li.Count+":["+string.Join(", ", li.Select<TechType, string>(tc => ""+tc))+"]", SNUtil.diDLL);
 	    	
-	    	List<TechType> li2 = new List<TechType>();
-	    	foreach (TechType tt2 in li) {
-	    		if (KnownTech.Contains(tt2))
-	    			continue;
-	    		if (DuplicateRecipeDelegate.isDelegateItem(tt2) && !DuplicateRecipeDelegate.getDelegateFromTech(tt2).allowTechUnlockPopups())
-	    			continue;
-	    		SNUtil.log("Raising progression popup for "+tt2, SNUtil.diDLL);
-	    		li2.Add(tt2);
+	    	if (DIHooks.getWorldAge() > 0.25F) {
+		    	List<TechType> li2 = new List<TechType>();
+		    	foreach (TechType tt2 in li) {
+		    		if (KnownTech.Contains(tt2))
+		    			continue;
+		    		if (DuplicateRecipeDelegate.isDelegateItem(tt2) && !DuplicateRecipeDelegate.getDelegateFromTech(tt2).allowTechUnlockPopups())
+		    			continue;
+		    		SNUtil.log("Raising progression popup for "+tt2, SNUtil.diDLL);
+		    		li2.Add(tt2);
+		    	}
+		    	if (li2.Count > 1)
+		    		SNUtil.triggerMultiTechPopup(li2);
+		    	else if (li2.Count == 1)
+		    		SNUtil.triggerTechPopup(li2[0]);
 	    	}
-	    	if (li2.Count > 1)
-	    		SNUtil.triggerMultiTechPopup(li2);
-	    	else if (li2.Count == 1)
-	    		SNUtil.triggerTechPopup(li2[0]);
 	    	
 		   	foreach (TechType unlock in li) {
 		   		if (!KnownTech.Contains(unlock)) {

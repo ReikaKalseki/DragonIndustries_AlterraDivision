@@ -234,7 +234,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void dumpCraftTree(CraftTree.Type type) {
-			SNUtil.log("Tree "+type+":");
+			SNUtil.log("Tree "+type+":", SNUtil.diDLL);
 			CraftNode root = getRootNode(type);
 			dumpCraftTreeFromNode(root);
 		}

@@ -12,6 +12,8 @@ using UnityEngine;
 namespace ReikaKalseki.DIAlterra
 {
 	public static class ObjectUtil {
+		
+		public static bool debugMode;
 	    
 	    private static readonly HashSet<string> anchorPods = new HashSet<string>() {
 			VanillaFlora.ANCHOR_POD_SMALL1.getPrefabID(),
@@ -125,6 +127,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static void applyToComponents<C>(GameObject go, bool destroy, bool setA, bool setTo) where C : Component {
 			foreach (Component c in go.GetComponentsInChildren<C>(true)) {
+				if (debugMode)
+					SNUtil.log("Affecting component "+c+" in "+go+" @ "+go.transform.position+": "+destroy+"/"+setTo+"("+setA+")", SNUtil.diDLL);
 				if (c is MonoBehaviour && setA)
 					((MonoBehaviour)c).enabled = setTo;
 				if (destroy)
@@ -292,7 +296,8 @@ namespace ReikaKalseki.DIAlterra
 			bool startWild = name[0] == '*';
 			bool endWild = name[name.Length-1] == '*';
 			if (startWild || endWild) {
-				//SNUtil.log("Looking for child wildcard match "+name+" > "+startWild+", "+endWild);
+				if (debugMode)
+					SNUtil.log("Looking for child wildcard match "+name+" > "+startWild+", "+endWild, SNUtil.diDLL);
 				return findFirstChildMatching(go, name, startWild, endWild);
 			}
 			else {
@@ -329,7 +334,8 @@ namespace ReikaKalseki.DIAlterra
 					return t.gameObject;
 				}
 				else {
-					//SNUtil.log("Found no match for "+s0+" against "+t.gameObject.GetFullHierarchyPath());
+					if (debugMode)
+						SNUtil.log("Found no match for "+s0+" against "+t.gameObject.GetFullHierarchyPath(), SNUtil.diDLL);
 					GameObject inner = findFirstChildMatching(t.gameObject, s0, startWild, endWild);
 					if (inner)
 						return inner;

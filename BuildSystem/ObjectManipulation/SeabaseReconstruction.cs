@@ -52,6 +52,7 @@ namespace ReikaKalseki.DIAlterra
 			private int pieceCount;
 		
 			//private Planter[] planters = null;
+			private Animator[] animations = null;
 			private StorageContainer[] storages = null;
 			private Charger[] chargers = null;
 			
@@ -77,6 +78,8 @@ namespace ReikaKalseki.DIAlterra
 						SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb, SNUtil.diDLL);
 						GameObject go2 = pfb.createWorldObject();
 						go2.transform.parent = gameObject.transform;
+						go2.EnsureComponent<WorldgenSeabasePart>();
+						go2.EnsureComponent<PreventDeconstruction>();
 						baseCenter += go2.transform.position;
 						pieceCount++;
 						List<XmlElement> li1 = e2.getDirectElementsByTagName("cellData");
@@ -181,6 +184,7 @@ namespace ReikaKalseki.DIAlterra
 						SNUtil.log("Threw exception reconstructing part: "+ex.ToString(), SNUtil.diDLL);
 					}
 				}
+				//ObjectUtil.debugMode = true;
 				ObjectUtil.removeChildObject(gameObject, "SubDamageSounds");
 				ObjectUtil.removeChildObject(gameObject, "PowerAttach");
 				ObjectUtil.removeChildObject(gameObject, "MapRoomFunctionality");
@@ -195,8 +199,8 @@ namespace ReikaKalseki.DIAlterra
 				ObjectUtil.removeComponent<BaseRoot>(gameObject);
 				ObjectUtil.removeComponent<Base>(gameObject);
 				ObjectUtil.removeComponent<WaterPark>(gameObject);
-				ObjectUtil.setActive<Animator>(gameObject, false);
 				ObjectUtil.removeComponent<CustomMachineLogic>(gameObject);
+				//ObjectUtil.debugMode = false;
 				
 				baseCenter /= pieceCount;
 				
@@ -283,6 +287,12 @@ namespace ReikaKalseki.DIAlterra
 				if (chargers == null) {
 					chargers = gameObject.GetComponentsInChildren<Charger>();
 				}
+				if (animations == null) {
+					animations = gameObject.GetComponentsInChildren<Animator>();
+				}
+				foreach (Animator a in animations)
+					a.enabled = false;
+				
 				foreach (StorageContainer p in storages) {
 					if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {
 						try {
@@ -425,6 +435,20 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static int getBiomeIndex(string s) {
 			return WaterBiomeManager.main.GetBiomeIndex(s);
+		}
+		
+		internal class WorldgenSeabasePart : MonoBehaviour {
+			
+			private float lastTickTime;
+			
+			void Update() {
+				float time = DayNightCycle.main.timePassedAsFloat;
+				if (time-lastTickTime >= 1) {
+					lastTickTime = time;
+					ObjectUtil.removeComponent<CustomMachineLogic>(gameObject);
+				}
+			}
+			
 		}
 		
 		internal class SeabasePrefab : Spawnable {

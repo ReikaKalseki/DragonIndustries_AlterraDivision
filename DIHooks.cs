@@ -1206,6 +1206,64 @@ namespace ReikaKalseki.DIAlterra {
 			v.startPosition = v.interpolatingVehicle.transform.position;
 			v.startRotation = v.interpolatingVehicle.transform.rotation;
 	    }
+	    
+	    public static void onAcidTriggerCollided(AcidicBrineDamageTrigger v, Collider other) {
+	    	if (other.isTrigger)
+	    		return;
+			LiveMixin liveMixin = v.GetLiveMixin(other.gameObject);
+			if (v.IsValidTarget(liveMixin)) {
+				v.AddTarget(liveMixin.gameObject);
+			}
+	    }
+	    
+	    public static void onAirlockTouched(PrecursorDoorMotorModeSetter door, Collider col) {
+	    	if (col.isTrigger)
+	    		return;
+			if (door.setToMotorModeOnEnter == PrecursorDoorMotorMode.None)
+				return;
+			if (col.gameObject != null && col.gameObject.GetComponentInChildren<IgnoreTrigger>() != null)
+				return;
+			GameObject gameObject = UWE.Utils.GetEntityRoot(col.gameObject);
+			if (!gameObject)
+				gameObject = col.gameObject;
+			Player componentInHierarchy = UWE.Utils.GetComponentInHierarchy<Player>(gameObject);
+			if (componentInHierarchy) {
+				PrecursorDoorMotorMode precursorDoorMotorMode = door.setToMotorModeOnEnter;
+				if (precursorDoorMotorMode != PrecursorDoorMotorMode.Auto) {
+					if (precursorDoorMotorMode == PrecursorDoorMotorMode.ForceWalk) {
+						componentInHierarchy.precursorOutOfWater = true;
+					}
+				}
+				else {
+					componentInHierarchy.precursorOutOfWater = false;
+				}
+			}
+			Exosuit componentInHierarchy2 = UWE.Utils.GetComponentInHierarchy<Exosuit>(gameObject);
+			if (componentInHierarchy2) {
+				PrecursorDoorMotorMode precursorDoorMotorMode = door.setToMotorModeOnEnter;
+				if (precursorDoorMotorMode == PrecursorDoorMotorMode.Auto) {
+					componentInHierarchy2.precursorOutOfWater = false;
+					return;
+				}
+				if (precursorDoorMotorMode != PrecursorDoorMotorMode.ForceWalk) {
+					return;
+				}
+				componentInHierarchy2.precursorOutOfWater = true;
+			}
+			SeaMoth componentInHierarchy3 = UWE.Utils.GetComponentInHierarchy<SeaMoth>(gameObject);
+			if (componentInHierarchy3) {
+				PrecursorDoorMotorMode precursorDoorMotorMode = door.setToMotorModeOnEnter;
+				if (precursorDoorMotorMode == PrecursorDoorMotorMode.Auto) {
+					componentInHierarchy3.precursorOutOfWater = false;
+					return;
+				}
+				if (precursorDoorMotorMode != PrecursorDoorMotorMode.ForceWalk) {
+					return;
+				}
+				componentInHierarchy3.precursorOutOfWater = true;
+				componentInHierarchy3.GetComponent<Rigidbody>().useGravity = true;
+			}
+	    }
 	    /*
 	    public static Vector2int getItemDisplaySize(TechType tt, InventoryItem ii) {
 	    	return getItemDisplaySize(tt, ii, ii.container);

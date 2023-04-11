@@ -1260,6 +1260,52 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(AcidicBrineDamageTrigger))]
+	[HarmonyPatch("OnTriggerEnter")]
+	public static class BrineTouchDetection {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onAcidTriggerCollided", false, typeof(AcidicBrineDamageTrigger), typeof(Collider)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(PrecursorDoorMotorModeSetter))]
+	[HarmonyPatch("OnTriggerEnter")]
+	public static class AirlockTouchDetection {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onAirlockTouched", false, typeof(PrecursorDoorMotorModeSetter), typeof(Collider)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	[HarmonyPatch(typeof(FMOD_CustomEmitter))]
 	[HarmonyPatch("OnPlay")]
 	public static class SoundHook {

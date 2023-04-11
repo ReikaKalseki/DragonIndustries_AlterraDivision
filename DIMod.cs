@@ -62,8 +62,8 @@ namespace ReikaKalseki.DIAlterra
         
         locale.load();
         
-        createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.75F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground);
-        createEgg(TechType.GhostRayBlue, TechType.JumperEgg, 1.75F, "GhostRayDesc", true, 0.6F, 2, 1, BiomeType.TreeCove_LakeFloor);
+        createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground);
+        createEgg(TechType.GhostRayBlue, TechType.JumperEgg, 1.75F, "GhostRayDesc", true, 0.12F, 2, 1, BiomeType.TreeCove_LakeFloor);
         createEgg(TechType.GhostRayRed, TechType.CrabsnakeEgg, 1.25F, "CrimsonRayDesc", true, 0.6F, 2, 1, BiomeType.InactiveLavaZone_Chamber_Floor_Far);
         createEgg(TechType.Biter, TechType.RabbitrayEgg, 1F, "BiterDesc", false, 0.6F, 2, 1, BiomeType.GrassyPlateaus_CaveFloor, BiomeType.Mountains_CaveFloor);
         createEgg(TechType.Blighter, TechType.RabbitrayEgg, 1F, "BlighterDesc", false, 0.6F, 2, 1, BiomeType.BloodKelp_CaveFloor);
@@ -80,8 +80,6 @@ namespace ReikaKalseki.DIAlterra
 	    
 	    SpriteHandler.RegisterSprite(TechType.PDA, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/PDA"));
 	    SpriteHandler.RegisterSprite(TechType.Databox, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Databox"));
-	    
-	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
 	    
     	SNUtil.log("Finish DI Main Init", SNUtil.diDLL);
     }
@@ -112,8 +110,6 @@ namespace ReikaKalseki.DIAlterra
     { 
         //dispatchLoadPhase("loadModInteract");
         //dispatchLoadPhase("loadFinal");
-        
-        RecipeUtil.dumpCraftTree(CraftTree.Type.Workbench);
     }
     
     private static void dispatchLoadPhase(string phase) {/*
@@ -136,6 +132,7 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand("bdact", BuildingHandler.instance.activateObject);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
     }
     
