@@ -143,7 +143,7 @@ namespace ReikaKalseki.DIAlterra
 								}
 								else {
 									bool lootCube = false;
-									GameObject igo = ObjectUtil.lookupPrefab(tt);
+									GameObject igo = ObjectUtil.getItem(tt);
 									if (igo == null) {
 										SNUtil.log("Item did not have prefab, using loot cube: "+e3.OuterXml, SNUtil.diDLL);
 										igo = ObjectUtil.lookupPrefab("01de572d-5549-44c6-97cf-645b07d1c79d");
@@ -160,7 +160,6 @@ namespace ReikaKalseki.DIAlterra
 										if (pp == null) {
 											SNUtil.log("Could not deserialize item - no pickupable: "+e3.OuterXml, SNUtil.diDLL);
 										} 
-										//SNUtil.log("Added "+pp, SNUtil.diDLL);
 										if (cg != null) {
 											cg.equipment.AddItem(slot, new InventoryItem(pp), true);
 										}
@@ -168,6 +167,7 @@ namespace ReikaKalseki.DIAlterra
 											item = sc.container.AddItem(pp);
 										}
 									}
+									SNUtil.log("Added "+tt+" x"+amt, SNUtil.diDLL);
 								}
 							}/*
 							if (sc != null)
@@ -200,6 +200,7 @@ namespace ReikaKalseki.DIAlterra
 				ObjectUtil.removeComponent<Base>(gameObject);
 				ObjectUtil.removeComponent<WaterPark>(gameObject);
 				ObjectUtil.removeComponent<CustomMachineLogic>(gameObject);
+				ObjectUtil.removeComponent<Constructable>(gameObject); //TODO find a way to not need this so you *can* dismantle parts
 				//ObjectUtil.debugMode = false;
 				
 				baseCenter /= pieceCount;
@@ -291,7 +292,8 @@ namespace ReikaKalseki.DIAlterra
 					animations = gameObject.GetComponentsInChildren<Animator>();
 				}
 				foreach (Animator a in animations)
-					a.enabled = false;
+					if (a)
+						a.enabled = false;
 				
 				foreach (StorageContainer p in storages) {
 					if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {

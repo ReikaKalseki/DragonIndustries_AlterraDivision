@@ -405,7 +405,28 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static GameObject lookupPrefab(TechType tt) {/*
+		public static GameObject getItem(TechType tt) {
+			TechType seek = tt;
+			string sg = tt.AsString(false);
+			if (sg.EndsWith("EggUndiscovered", StringComparison.InvariantCultureIgnoreCase)) {
+				seek = (TechType)Enum.Parse(typeof(TechType), sg.Replace("EggUndiscovered", "Egg"));
+			}
+			switch(tt) { //special handling if any
+				default:
+					break;
+			}
+			GameObject pfb = UnityEngine.Object.Instantiate(lookupPrefab(seek));
+			pfb.SetActive(false);
+			if (seek != tt) {
+				Pickupable pp = pfb.GetComponentInChildren<Pickupable>();
+				if (pp)
+					pp.SetTechTypeOverride(tt);
+			}
+			return pfb;
+		}
+		
+		public static GameObject lookupPrefab(TechType tt) {
+			/*
 			string id = CraftData.GetClassIdForTechType(tt);
 			return string.IsNullOrEmpty(id) ? null : lookupPrefab(id);*/
 			return CraftData.GetPrefabForTechType(tt);

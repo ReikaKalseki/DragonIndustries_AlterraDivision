@@ -150,5 +150,9 @@ namespace ReikaKalseki.DIAlterra
 			return Quaternion.FromToRotation(Vector3.up, unit);//.Euler();
 		}
 		
+		public static Vector3 rotateVectorAroundAxis(Vector3 input, Vector3 axis, float angle) {
+			return Quaternion.AngleAxis(angle, axis) * input;
+		}
+		
 	}
 }

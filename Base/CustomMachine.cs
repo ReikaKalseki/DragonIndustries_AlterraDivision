@@ -273,7 +273,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected bool consumePower(float amt) {
-			//SNUtil.writeToChat("Wanted "+baseCost+"*"+sc+" from "+sub);
+			//SNUtil.writeToChat("Wanted "+amt+" from "+sub);
 			if (!buildable || !buildable.constructed)
 				return false;
 			if (!sub)
@@ -282,8 +282,9 @@ namespace ReikaKalseki.DIAlterra
 			if (amt > 0) {
 				float trash;
 				sub.powerRelay.ConsumeEnergy(amt, out lastReceived);
-				if (lastReceived-amt > 0.001) {
-					//SNUtil.log("Refunding "+lastReceived+" power which was less than requested "+amt);
+				//SNUtil.writeToChat("Got "+lastReceived);
+				if (amt-lastReceived > 0.001) {
+					SNUtil.log("Refunding "+lastReceived+" power which was less than requested "+amt);
 					sub.powerRelay.AddEnergy(lastReceived, out trash); //refund
 				}
 				else {

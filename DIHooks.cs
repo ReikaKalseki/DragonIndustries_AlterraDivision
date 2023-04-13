@@ -1288,5 +1288,9 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (onSoundPlayedEvent != null)
 	    		onSoundPlayedEvent.Invoke(snd);
 	    }
+	    
+	    public static float getMaxPropulsibleAABB(float orig, GameObject go) {
+	    	return go.GetComponentInChildren<Vehicle>() ? 999999 : orig;
+	    }
 	}
 }
