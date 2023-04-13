@@ -284,7 +284,7 @@ namespace ReikaKalseki.DIAlterra
 				sub.powerRelay.ConsumeEnergy(amt, out lastReceived);
 				//SNUtil.writeToChat("Got "+lastReceived);
 				if (amt-lastReceived > 0.001) {
-					SNUtil.log("Refunding "+lastReceived+" power which was less than requested "+amt);
+					//SNUtil.log("Refunding "+lastReceived+" power which was less than requested "+amt);
 					sub.powerRelay.AddEnergy(lastReceived, out trash); //refund
 				}
 				else {
