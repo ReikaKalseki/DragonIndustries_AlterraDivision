@@ -24,13 +24,13 @@ namespace ReikaKalseki.DIAlterra
 			return set;
 		}
 		
-		public static bool vehicleHasUpgrade(Vehicle v, TechType tt) {
+		public static bool vehicleHasUpgrade(Vehicle v, TechType tt) {/*
 			foreach (int idx in v.slotIndexes.Values) {
 				InventoryItem ii = v.GetSlotItem(idx);
 				if (ii != null && ii.item && ii.item.GetTechType() == tt)
 					return true;
 			}
-			return false;
+			return false;*/return v.modules.GetCount(tt) > 0;
 		}
 		
 		public static bool isVehicleUpgradeSelected(Vehicle v, TechType tt) {
@@ -54,7 +54,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static bool cyclopsHasUpgrade(SubRoot sub, TechType tt) {
-	    	Equipment modules = sub.isCyclops && sub.upgradeConsole ? sub.upgradeConsole.modules : null;
+	    	Equipment modules = sub.isCyclops && sub.upgradeConsole ? sub.upgradeConsole.modules : null;/*
 	    	if (modules != null) {
 		    	foreach (string slot in SubRoot.slotNames) {
 					TechType tt2 = modules.GetTechTypeInSlot(slot);
@@ -62,7 +62,8 @@ namespace ReikaKalseki.DIAlterra
 						return true;
 				}
 	    	}
-			return false;
+			return false;*/
+	    	return modules != null && modules.GetCount(tt) > 0;
 		}
 		
 		public static List<Battery> getCyclopsPowerCells(SubRoot sub) {

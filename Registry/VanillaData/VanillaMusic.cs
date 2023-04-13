@@ -74,6 +74,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void play() {
+			enable();
 			;//getObject().GetComponent<FMOD_CustomLoopingEmitter>().Play();
 			//SoundManager.playSound(getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset.path);
 			FMODUWE.PlayOneShot(getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset, Player.main.transform.position, 1);
