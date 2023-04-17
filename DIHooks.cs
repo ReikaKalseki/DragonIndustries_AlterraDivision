@@ -58,6 +58,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<ReaperLeviathan, Vehicle> reaperGrabVehicleEvent;
 	    public static event Action<FMOD_CustomEmitter> onSoundPlayedEvent;
 	    public static event Action<SolarEfficiencyCheck> solarEfficiencyEvent;
+	
+		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 	    
 	    static DIHooks() {
 	    	
@@ -346,8 +348,43 @@ namespace ReikaKalseki.DIAlterra {
 	    	CustomEgg.updateLocale();
 	    	PickedUpAsOtherItem.updateLocale();
 	    	SeamothModule.updateLocale();
-	    	
+	    	/*
+    		SNUtil.log("Location goals:", SNUtil.diDLL);
+	    	foreach (Story.LocationGoal g in Story.StoryGoalManager.main.locationGoalTracker.goals)
+	    		SNUtil.log(g.key+" at "+g.location+" ("+g.position+")", SNUtil.diDLL);
+    		SNUtil.log("Biome goals:", SNUtil.diDLL);
+	    	foreach (Story.BiomeGoal g in Story.StoryGoalManager.main.biomeGoalTracker.goals)
+	    		SNUtil.log(g.key+" in "+g.biome, SNUtil.diDLL);
+    		SNUtil.log("Compound goals:", SNUtil.diDLL);
+	    	foreach (Story.CompoundGoal g in Story.StoryGoalManager.main.compoundGoalTracker.goals)
+	    		SNUtil.log(g.key+" of ["+string.Join(", ",g.preconditions)+"]", SNUtil.diDLL);
+	    	*/
 	    	LanguageHandler.SetLanguageLine("BulkheadInoperable", "Bulkhead is inoperable");
+	    	
+	    	List<ModVersionCheck> vers = ModVersionCheck.getOutdatedVersions();
+			updateNotice.SetLocation(0, 250);
+			updateNotice.SetSize(24);
+			updateNotice.SetColor(Color.yellow);
+			List<string> li = new List<string>();
+	    	if (vers.Count > 0) {
+				li.Add("Your versions of the following mods are out of date:");
+				foreach (ModVersionCheck mv in vers) {
+					li.Add(mv.modName+": Current version "+mv.currentVersion+", newest version "+mv.remoteVersion);
+				}
+				li.Add("Update your mods to remove this warning.");
+	    	}
+			vers = ModVersionCheck.getErroredVersions();
+	    	if (vers.Count > 0) {
+				li.Add("Several mods failed to fetch version information:");
+				foreach (ModVersionCheck mv in vers) {
+					li.Add(mv.modName+": Installed version "+mv.currentVersion+", remote version "+mv.remoteVersion);
+				}
+				li.Add("You should redownload and reinstall mods with local errors and contact Reika if remote versions are invalid.");
+	    	}
+			if (li.Count > 0)
+				updateNotice.ShowMessage(string.Join("\n", li));
+			else
+				updateNotice.Hide();
 	    	
 	    	if (onWorldLoadedEvent != null)
 	    		onWorldLoadedEvent.Invoke();
@@ -364,6 +401,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void tickPlayer(Player ep) {
 	    	if (Time.timeScale <= 0)
 	    		return;
+	    	updateNotice.SetColor(Color.yellow);
 	    	
 	    	StoryHandler.instance.tick(ep);
 	    	
@@ -1119,7 +1157,10 @@ namespace ReikaKalseki.DIAlterra {
 	    }*/
 	    	
 	    public static void updateSolarPanel(SolarPanel p) {
-			if (p.gameObject.GetComponent<Constructable>().constructed) {
+	    	if (!p)
+	    		return;
+	    	Constructable c = p.gameObject.GetComponent<Constructable>();
+			if (c && c.constructed) {
 		    	float eff = p.GetRechargeScalar();
 		    	if (solarEfficiencyEvent != null) {
 		    		SolarEfficiencyCheck ch = new SolarEfficiencyCheck(p, eff);

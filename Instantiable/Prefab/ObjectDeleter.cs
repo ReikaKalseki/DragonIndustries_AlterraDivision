@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra {
 			void Start() {
 				foreach (PrefabIdentifier go in WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(transform.position, transform.localScale.x)) {
 					//if (go != this) //delete self too
-					UnityEngine.Object.DestroyImmediate(go.gameObject);
+					UnityEngine.Object.Destroy(go.gameObject);
 				}
 			}
 			

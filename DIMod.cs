@@ -8,6 +8,7 @@ using QModManager.API.ModLoading;
 using ReikaKalseki.DIAlterra;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
+using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {
@@ -32,7 +33,7 @@ namespace ReikaKalseki.DIAlterra
 
     [QModPrePatch]
     public static void PreLoad()
-    {
+    {    	
     	System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(PlacedObject).TypeHandle);
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(CustomPrefab).TypeHandle);
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(WorldGenerator).TypeHandle);
@@ -59,6 +60,10 @@ namespace ReikaKalseki.DIAlterra
 			FileLog.Log(ex.StackTrace);
 			FileLog.Log(ex.ToString());
         }
+        
+        ModVersionCheck.getFromGitVsInstall("Dragon Industries", SNUtil.diDLL, "DragonIndustries_AlterraDivision").register();
+        
+        new ObjectDeleter().Patch();
         
         locale.load();
         
