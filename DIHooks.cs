@@ -349,6 +349,9 @@ namespace ReikaKalseki.DIAlterra {
 	    	PickedUpAsOtherItem.updateLocale();
 	    	SeamothModule.updateLocale();
 	    	/*
+    		SNUtil.log("Item goals:", SNUtil.diDLL);
+	    	foreach (Story.ItemGoal g in Story.StoryGoalManager.main.itemGoalTracker.goals)
+	    		SNUtil.log(g.key+" from "+g.techType, SNUtil.diDLL);
     		SNUtil.log("Location goals:", SNUtil.diDLL);
 	    	foreach (Story.LocationGoal g in Story.StoryGoalManager.main.locationGoalTracker.goals)
 	    		SNUtil.log(g.key+" at "+g.location+" ("+g.position+")", SNUtil.diDLL);
@@ -388,6 +391,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	if (onWorldLoadedEvent != null)
 	    		onWorldLoadedEvent.Invoke();
+	    }
+	    
+	    public static void hideVersions() {
+	    	updateNotice.Hide();
 	    }
 	    
 	    public static float getWorldAge() {
