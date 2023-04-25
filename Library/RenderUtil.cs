@@ -114,7 +114,6 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
-			Dictionary<System.Reflection.Assembly, Dictionary<string, Texture2D>> dict = (Dictionary<System.Reflection.Assembly, Dictionary<string, Texture2D>>)typeof(ReikaKalseki.DIAlterra.TextureManager).GetField("textures", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
 			return flag;
 		}
 		
