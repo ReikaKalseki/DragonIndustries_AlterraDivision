@@ -58,6 +58,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<ReaperLeviathan, Vehicle> reaperGrabVehicleEvent;
 	    public static event Action<FMOD_CustomEmitter> onSoundPlayedEvent;
 	    public static event Action<SolarEfficiencyCheck> solarEfficiencyEvent;
+	    public static event Action<Vehicle, Player> vehicleEnterEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 	    
@@ -564,6 +565,10 @@ namespace ReikaKalseki.DIAlterra {
 				}
 			}
 	    	
+	    	GenUtil.CustomCrate cc = WorldUtil.getClosest<GenUtil.CustomCrate>(p.gameObject);
+	    	if (cc)
+	    		cc.onPickup(p);
+	    	
 	    	if (onItemPickedUpEvent != null)
 	    		onItemPickedUpEvent.Invoke(p);
 	    }
@@ -918,6 +923,7 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static void onBulkheadClick(BulkheadDoor bk) {
 			Base componentInParent = bk.GetComponentInParent<Base>();
+			//PreventDeconstruction prev = bk.GetComponentInParent<PreventDeconstruction>();
 			Sealed s = bk.GetComponent<Sealed>();
 			if (s != null && s.IsSealed()) {
 				
@@ -1339,6 +1345,12 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static float getMaxPropulsibleAABB(float orig, GameObject go) {
 	    	return go.GetComponentInChildren<Vehicle>() ? 999999 : orig;
+	    }
+	    
+	    public static void onVehicleEnter(Vehicle v, Player ep) {
+	    	if (vehicleEnterEvent != null && v && ep) {
+	    		vehicleEnterEvent.Invoke(v, ep);
+	    	}
 	    }
 	}
 }

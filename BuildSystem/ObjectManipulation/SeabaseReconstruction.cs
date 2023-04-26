@@ -26,6 +26,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly Dictionary<string, SeabasePrefab> dataCache = new Dictionary<string, SeabasePrefab>();
 		
+		static SeabaseReconstruction() {
+			new SeabaseDoorOpener().Patch();
+		}
+		
 		internal static SeabasePrefab getOrCreatePrefab(XmlElement e) {
 			string id = e.getProperty("identifier");
 			if (!dataCache.ContainsKey(id)) {
@@ -94,9 +98,10 @@ namespace ReikaKalseki.DIAlterra
 								GameObject go3 = pfb2.createWorldObject();
 								if (pfb2.prefabName == "RoomWaterParkBottom")
 									ObjectUtil.removeChildObject(go3, "BaseWaterParkFloorBottom/Bubbles");
-								else if (pfb2.prefabName == "RoomWaterParkHatch") {
+								else if (pfb2.prefabName == "RoomWaterParkHatch")
 									ObjectUtil.removeChildObject(go3, "BaseCorridorHatch(Clone)");
-								}
+								else if (pfb2.prefabName == "CorridorBulkhead")
+									go3.EnsureComponent<WorldgenBulkhead>();
 								go3.transform.parent = go2.transform;
 								rebuildNestedObjects(go3, e3);
 								if (!reconstructionData.getBoolean("allowDeconstruct")) {
@@ -485,6 +490,75 @@ namespace ReikaKalseki.DIAlterra
 				go.transform.localRotation = Quaternion.identity;
 				SNUtil.log("Finished deserializing seabase @ "+pos, SNUtil.diDLL);
 				return go;
+			}
+			
+		}
+		
+		internal class WorldgenBulkhead : MonoBehaviour {
+			
+			internal BulkheadDoor door;
+			
+			//private float openTime;
+			
+			void Update() {
+				if (!door)
+					door = GetComponentInChildren<BulkheadDoor>();
+				
+				if (door && door.isOpen && !hasOpener()) {/*
+					if (openTime > 4)
+						GenUtil.OpenWorldgenSeabaseDoor.lockOpen(door);
+					else
+						openTime += Time.deltaTime;*/
+					GameObject go = ObjectUtil.createWorldObject("SeabaseDoorOpener");
+					go.transform.position = transform.position;
+				}
+			}
+			
+			private bool hasOpener() {
+				SeabaseDoorOpenerTag bk = WorldUtil.getClosest<SeabaseDoorOpenerTag>(transform.position);
+				return bk && Vector3.Distance(bk.transform.position, transform.position) < 2;
+			}
+			
+		}
+		
+		class SeabaseDoorOpener : Spawnable {
+			
+			internal SeabaseDoorOpener() : base("SeabaseDoorOpener", "", "") {
+				
+			}
+				
+			public override GameObject GetGameObject() {
+				GameObject go = new GameObject();
+				go.EnsureComponent<PrefabIdentifier>().classId = ClassID;
+				go.EnsureComponent<TechTag>().type = TechType;
+				go.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.Near;
+				go.EnsureComponent<SeabaseDoorOpenerTag>();
+				return go;
+			}
+		}
+		
+		class SeabaseDoorOpenerTag : MonoBehaviour {
+			
+			private bool hasRun;
+			
+			void Update() {
+				if (!hasRun) {
+					WorldgenBulkhead bk = WorldUtil.getClosest<WorldgenBulkhead>(transform.position);
+					if (bk && Vector3.Distance(bk.transform.position, transform.position) < 2) {
+						bk.door.targetState = true;
+						bk.door.SetClips();
+						bk.door.ResetAnimations();
+						bk.door.animState = bk.door.SetAnimationState(bk.door.doorClipName);
+						bk.door.animState.normalizedTime = 1f;
+						bk.door.doorAnimation.Sample();
+						bk.door.doorClipName = null;
+						bk.door.viewClipName = null;
+						bk.door.sound = null;
+						bk.door.NotifyStateChange();
+						hasRun = true;
+						ObjectUtil.removeComponent<Sealed>(bk.gameObject);
+					}
+				}
 			}
 			
 		}

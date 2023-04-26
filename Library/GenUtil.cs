@@ -22,6 +22,9 @@ namespace ReikaKalseki.DIAlterra
 		static GenUtil() {
 			crates[0] = new Dictionary<TechType, Crate>();
 			crates[1] = new Dictionary<TechType, Crate>();
+			
+			new EmptyCrate().Patch();
+			//new OpenWorldgenSeabaseDoor().Patch();
 		}
 		
 		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
@@ -359,12 +362,6 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.writeToChat("Could not find class id for techtype for crate: "+containedTech);
 					id = CraftData.GetClassIdForTechType(TechType.Titanium);
 				}
-				GameObject item = ObjectUtil.createWorldObject(id, true, false);
-				item.transform.parent = go.transform;
-				item.SetActive(true);
-				item.transform.localPosition = Vector3.zero;
-				item.transform.localRotation = Quaternion.identity;
-				item.GetComponent<Rigidbody>().isKinematic = true;
 				pre.prefabPlaceholders[0].prefabClassId = id;
 				pre.prefabPlaceholders[0].highPriority = true;
 				pre.prefabPlaceholders[0].name = containedTech.AsString();
@@ -379,24 +376,80 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		class CustomCrate : MonoBehaviour {
+		internal class EmptyCrate : CustomPrefabImpl {
+	        
+	        internal EmptyCrate() : base("EmptyCrate", "580154dd-b2a3-4da1-be14-9a22e20385c8") {
+				
+	        }
+			
+			public override void prepareGameObject(GameObject go, Renderer[] r) {
+				go.GetComponentInChildren<Animation>().Play(go.GetComponent<SupplyCrate>().snapOpenOnLoad);
+				ObjectUtil.removeComponent<PrefabPlaceholdersGroup>(go);
+				ObjectUtil.removeComponent<CustomCrate>(go);
+				ObjectUtil.removeComponent<SupplyCrate>(go);
+				ObjectUtil.removeComponent<PrefabPlaceholder>(go);
+				go.EnsureComponent<EmptyCrateTag>();
+			}
+			
+		}
+		
+		class EmptyCrateTag : MonoBehaviour {
+			
+			private Animation animator;
+			
+			void Update() {
+				if (!animator)
+					animator = GetComponentInChildren<Animation>();
+				
+				if (animator)
+					animator.Play("crate_treasure_chest_open_static");
+			}
+		}
+		
+		internal class CustomCrate : MonoBehaviour {
 			
 			private PrefabPlaceholder reference;
 			private SupplyCrate crate;
 			
+			private Pickupable item;
+			
 			void Update() {
 				if (!reference)
-					reference = gameObject.GetComponentInChildren<PrefabPlaceholder>();
+					reference = GetComponentInChildren<PrefabPlaceholder>();
 				if (!crate)
-					crate = gameObject.GetComponentInChildren<SupplyCrate>();
+					crate = GetComponent<SupplyCrate>();
+				if (reference && !item) {
+					GameObject go = ObjectUtil.createWorldObject(reference.prefabClassId, true, false);
+					go.transform.parent = transform;
+					go.SetActive(true);
+					go.transform.localPosition = Vector3.zero;
+					go.transform.localRotation = Quaternion.identity;
+					go.GetComponent<Rigidbody>().isKinematic = true;
+					item = go.GetComponent<Pickupable>();
+				}
 				cleanDuplicateInternalItems();
-				if (crate.open) {
-					foreach (PrefabIdentifier pi in gameObject.GetComponentsInChildren<PrefabIdentifier>()) {
+				if (reference && crate && crate.open) {
+					foreach (PrefabIdentifier pi in GetComponentsInChildren<PrefabIdentifier>()) {
 						if (pi && pi.classId == reference.prefabClassId) {
 							pi.gameObject.SetActive(true);
-							pi.gameObject.transform.localPosition = Vector3.up*0.22F;
+							pi.transform.localPosition = Vector3.up*0.22F;
 						}
 					}
+				}
+			}
+			
+			internal void onPickup(Pickupable pp) {
+				if (pp == item) {/*
+					UnityEngine.Object.DestroyImmediate(reference);
+					UnityEngine.Object.DestroyImmediate(GetComponent<PrefabPlaceholdersGroup>());
+					UnityEngine.Object.DestroyImmediate(crate);
+					*/
+					GameObject put = ObjectUtil.createWorldObject("EmptyCrate");
+					put.transform.position = transform.position;
+					put.transform.rotation = transform.rotation;
+					put.transform.localScale = transform.localScale;
+					put.GetComponentInChildren<Animation>().Play(crate.snapOpenOnLoad);
+					UnityEngine.Object.Destroy(gameObject, 1.5F);
 				}
 			}
 			
@@ -415,6 +468,54 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 		}
+		/*
+		internal class OpenWorldgenSeabaseDoor : Spawnable {
+	        
+			internal OpenWorldgenSeabaseDoor() : base("OpenWorldgenSeabaseDoor", "", "") {
+				
+	        }
+			
+			public override GameObject GetGameObject() {
+				GameObject go = ObjectUtil.getBasePiece(Base.Piece.CorridorBulkhead);
+				go.GetComponentInChildren<BulkheadDoor>().gameObject.EnsureComponent<OpenBaseDoorTag>();
+				return go;
+			}
+			
+			internal static void lockOpen(BulkheadDoor door) {
+				GameObject put = ObjectUtil.createWorldObject("OpenWorldgenSeabaseDoor");
+				GameObject obj = door.gameObject.FindAncestor<SeabaseReconstruction.WorldgenBulkhead>().gameObject;
+				put.transform.position = obj.transform.position;
+				put.transform.rotation = obj.transform.rotation;
+				put.transform.localScale = obj.transform.localScale;
+				UnityEngine.Object.DestroyImmediate(obj);
+				//SNUtil.writeToChat("Created replacement door");
+			}
+			
+		}
+		
+		class OpenBaseDoorTag : MonoBehaviour {
+			
+			private BulkheadDoor door;
+			
+			void Update() {
+				if (!door)
+					door = GetComponent<BulkheadDoor>();
+				
+				if (door && !door.isOpen) {
+					door.targetState = true;
+					door.SetClips();
+					door.ResetAnimations();
+					door.animState = door.SetAnimationState(door.doorClipName);
+					door.animState.normalizedTime = 1f;
+					door.doorAnimation.Sample();
+					door.doorClipName = null;
+					door.viewClipName = null;
+					door.sound = null;
+					door.NotifyStateChange();
+					UnityEngine.Object.DestroyImmediate(door);
+				}
+			}
+		}*/
 		
 	}
 }
