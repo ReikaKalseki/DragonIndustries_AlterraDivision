@@ -258,6 +258,10 @@ namespace ReikaKalseki.DIAlterra
 			return storage;
 		}
 		
+		protected Constructable getBuildable() {
+			return buildable;
+		}
+		
 		protected virtual void initStorage(StorageContainer sc) {
 			
 		}

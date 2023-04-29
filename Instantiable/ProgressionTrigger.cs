@@ -96,6 +96,25 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
+	public class TechUnlockEffect : DelayedProgressionEffect {
+		
+		public readonly TechType unlock;
+		
+		public TechUnlockEffect(TechType tt, float chance = 1) : base(() => unlockTech(tt), () => KnownTech.knownTech.Contains(tt), chance) {
+			unlock = tt;
+		}
+		
+		private static void unlockTech(TechType tt) {
+			KnownTech.Add(tt);
+			SNUtil.triggerTechPopup(tt);
+		}
+		
+		public override string ToString() {
+			return "Unlock tech "+unlock;
+		}
+		
+	}
+	
 	public class DelayedEncyclopediaEffect : DelayedProgressionEffect {
 		
 		private readonly PDAManager.PDAPage page;
