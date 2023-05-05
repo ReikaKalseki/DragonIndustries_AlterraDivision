@@ -59,6 +59,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<FMOD_CustomEmitter> onSoundPlayedEvent;
 	    public static event Action<SolarEfficiencyCheck> solarEfficiencyEvent;
 	    public static event Action<Vehicle, Player> vehicleEnterEvent;
+	    public static event Action<DepthCompassCheck> depthCompassEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 	    
@@ -314,6 +315,24 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	internal BulkheadLaserCutterHoverCheck(Sealed s) {
 	    		obj = s;
+	    	}
+	    	
+	    }
+	    
+	    public class DepthCompassCheck {
+	    	
+	    	public readonly int originalValue;
+	    	public readonly int originalCrushValue;
+	    	
+	    	public int value;
+	    	public int crushValue;
+	    	
+	    	internal DepthCompassCheck(int orig, int crush) {
+	    		originalValue = orig;
+	    		value = orig;
+	    		
+	    		originalCrushValue = crush;
+	    		crushValue = crush;
 	    	}
 	    	
 	    }
@@ -1351,6 +1370,25 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (vehicleEnterEvent != null && v && ep) {
 	    		vehicleEnterEvent.Invoke(v, ep);
 	    	}
+	    }
+	    /*
+	    public static void getCompassDepth(uGUI_DepthCompass gui, ref int depth) {
+	    	if (depthCompassEvent != null) {
+	    		DepthCompassCheck ch = new DepthCompassCheck(depth);
+	    		depthCompassEvent.Invoke(ch);
+	    		depth = ch.value;
+	    	}
+	    }
+	    */
+	    public static uGUI_DepthCompass.DepthMode getCompassDepth(uGUI_DepthCompass gui, out int depth, out int crush) {
+	    	uGUI_DepthCompass.DepthMode ret = gui.GetDepthInfo(out depth, out crush);
+	    	if (depthCompassEvent != null) {
+	    		DepthCompassCheck ch = new DepthCompassCheck(depth, crush);
+	    		depthCompassEvent.Invoke(ch);
+	    		depth = ch.value;
+	    		crush = ch.crushValue;
+	    	}
+	    	return ret;
 	    }
 	}
 }

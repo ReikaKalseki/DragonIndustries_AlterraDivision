@@ -704,5 +704,19 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void addCyclopsHologramWarning(Component sub, GameObject go, Sprite spr = null) {
+			CyclopsHolographicHUD hud = sub.GetComponentInChildren<CyclopsHolographicHUD>();
+			if (hud) {
+				hud.AttachedLavaLarva(go);
+				if (spr != null) {
+					foreach (CyclopsHolographicHUD.LavaLarvaIcon ping in hud.lavaLarvaIcons) {
+						if (ping.refGo.Equals(go)) {
+							ping.creatureIcon.GetComponentInChildren<UnityEngine.UI.Image>().sprite = spr;
+						}
+					}
+				}
+			}
+		}
+		
 	}
 }

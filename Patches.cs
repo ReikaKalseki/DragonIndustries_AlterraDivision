@@ -1394,6 +1394,44 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(uGUI_DepthCompass))]
+	[HarmonyPatch("UpdateDepth")]
+	public static class OverrideDepthCompass {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {/*
+				for (int i = codes.Count-1; i >= 0; i--) {
+					if (codes[i].opcode == OpCodes.Call) {
+						MethodInfo mi = (MethodInfo)codes[i].operand;
+						if (mi.Name == "FloorToInt") {
+							codes.Insert(i, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getCompassDepth", false, typeof(float)));
+						}
+					}
+				}*/
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "uGUI_DepthCompass", "GetDepthInfo", true, new Type[]{typeof(int).MakeByRefType(), typeof(int).MakeByRefType()});
+				/*
+				List<CodeInstruction> li = new List<CodeInstruction>();
+				li.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				li.Add(new CodeInstruction(OpCodes.Ldloc_S, 0));
+				li.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getCompassDepth", false, typeof(uGUI_DepthCompass), typeof(int).MakeByRefType()));
+				//li.Add(new CodeInstruction(OpCodes.Stloc_S, 0));
+				codes.InsertRange(idx+2, li);*/
+				
+				codes[idx].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.DIAlterra.DIHooks", "getCompassDepth", false, typeof(uGUI_DepthCompass), typeof(int).MakeByRefType(), typeof(int).MakeByRefType());
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
 		
 		internal static void patchVisualItemSize(List<CodeInstruction> codes, bool useSelfContainer = false) {
