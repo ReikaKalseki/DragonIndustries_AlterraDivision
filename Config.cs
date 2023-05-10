@@ -80,7 +80,7 @@ namespace ReikaKalseki.DIAlterra
 			Directory.CreateDirectory(folder);
 			string path = Path.Combine(folder, filename);
 			if (File.Exists(path)) {
-				SNUtil.log("Loading config file at "+path);
+				SNUtil.log("Loading config file at "+path, owner);
 				try {
 					XmlDocument doc = new XmlDocument();
 					doc.Load(path);

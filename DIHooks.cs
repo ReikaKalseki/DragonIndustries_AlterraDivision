@@ -384,6 +384,8 @@ namespace ReikaKalseki.DIAlterra {
 	    	*/
 	    	LanguageHandler.SetLanguageLine("BulkheadInoperable", "Bulkhead is inoperable");
 	    	
+	    	SaveSystem.populateLoad();
+	    	
 	    	List<ModVersionCheck> vers = ModVersionCheck.getOutdatedVersions();
 			updateNotice.SetLocation(0, 250);
 			updateNotice.SetSize(24);

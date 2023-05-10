@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Xml;
 
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
@@ -13,6 +14,8 @@ using ReikaKalseki.DIAlterra;
 namespace ReikaKalseki.DIAlterra
 {
 	public abstract class CustomMachine<M> : Buildable, DIPrefab<CustomMachine<M>, StringPrefabContainer> where M : CustomMachineLogic {
+		
+		private static readonly MachineSaveHandler saveHandler = new MachineSaveHandler();
 		
 		private readonly List<PlannedIngredient> recipe = new List<PlannedIngredient>();
 		
@@ -29,7 +32,10 @@ namespace ReikaKalseki.DIAlterra
 			this.id = id;
 			baseTemplate = new StringPrefabContainer(template);
 			
-			OnFinishedPatching += () => {DIMod.machineList[TechType] = this;};
+			OnFinishedPatching += () => {
+				DIMod.machineList[TechType] = this;
+				SaveSystem.addSaveHandler(ClassID, saveHandler);
+			};
 		}
 		
 		public CustomMachine<M> addIngredient(ItemDef item, int amt) {
@@ -164,6 +170,17 @@ namespace ReikaKalseki.DIAlterra
 			return TextureManager.getSprite(ownerMod, "Textures/Items/"+ObjectUtil.formatFileName(this));
 		}
 	}
+	
+	internal class MachineSaveHandler : SaveSystem.SaveHandler {
+		
+		public override void save(PrefabIdentifier pi) {
+			pi.GetComponentInChildren<CustomMachineLogic>().save(data);
+		}
+		
+		public override void load(PrefabIdentifier pi) {
+			pi.GetComponentInChildren<CustomMachineLogic>().load(data);
+		}
+	}
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {
 		
@@ -189,6 +206,14 @@ namespace ReikaKalseki.DIAlterra
 		
 		public virtual float getBaseEnergyStorageCapacityBonus() {
 			return 0;
+		}
+		
+		protected internal virtual void load(XmlElement data) {
+			//spawnTime = (float)data.getFloat("spawnTime", float.NaN);
+		}
+		
+		protected internal virtual void save(XmlElement data) {
+			//data.addProperty("spawnTime", spawnTime);
 		}
 		
 		private void setupSky() {
