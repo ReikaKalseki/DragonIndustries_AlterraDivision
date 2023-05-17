@@ -23,8 +23,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private XmlDocument xmlFile;
 		
-		public XMLLocale(string path) {
-			ownerMod = SNUtil.tryGetModDLL();
+		public XMLLocale(Assembly owner, string path) {
+			ownerMod = owner;
 			relativePath = path;
 		}
 		
@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 				LocaleEntry lc = constructEntry(e);
 				entries[lc.key] = lc;
 			}
-			SNUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Keys));/*
+			SNUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Keys), ownerMod);/*
 			foreach (LocaleEntry e in entries.Values) {
 				SNUtil.log(e.ToString());
 			}*/
@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra
 				doc.Load(path);
 			}
 			else {
-				SNUtil.log("Could not find XML file "+path+"!");
+				SNUtil.log("Could not find XML file "+path+"!", ownerMod);
 			}
 			return doc;
 		}

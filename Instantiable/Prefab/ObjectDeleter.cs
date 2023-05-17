@@ -20,7 +20,7 @@ namespace ReikaKalseki.DIAlterra {
 		private readonly System.Reflection.Assembly ownerMod;
 	        
 		public ObjectDeleter() : base("ObjectDeleter", "", "") {
-			ownerMod = SNUtil.tryGetModDLL();
+			ownerMod = SNUtil.tryGetModDLL(true);
 	    }
 			
 	    public override GameObject GetGameObject() {

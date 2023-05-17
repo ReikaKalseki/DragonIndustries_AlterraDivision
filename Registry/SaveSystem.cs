@@ -36,7 +36,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void handleSave() {
-			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".xml");
+			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".dat");
 			XmlDocument doc = new XmlDocument();
 			XmlElement rootnode = doc.CreateElement("Root");
 			doc.AppendChild(rootnode);
@@ -56,7 +56,9 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void handleLoad() {
-			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".xml");
+			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".dat");
+			if (!File.Exists(path))
+				path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".xml");
 			if (File.Exists(path)) {
 				XmlDocument doc = new XmlDocument();
 				doc.Load(path);
@@ -133,6 +135,8 @@ namespace ReikaKalseki.DIAlterra {
 			
 			public override void save(PrefabIdentifier pi) {
 				C com = pi.GetComponentInChildren<C>();
+				if (!com)
+					return;
 				foreach (string s in fields) {
 					object val = getField(s).GetValue(com);
 					if (val is string)
@@ -156,6 +160,8 @@ namespace ReikaKalseki.DIAlterra {
 			
 			public override void load(PrefabIdentifier pi) {
 				C com = pi.GetComponentInChildren<C>();
+				if (!com)
+					return;
 				foreach (string s in fields) {
 					FieldInfo fi = getField(s);
 					if (fi.FieldType == typeof(string))
@@ -178,6 +184,11 @@ namespace ReikaKalseki.DIAlterra {
 			private FieldInfo getField(string s) {
 				return typeof(C).GetField(s, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 			}
+			
+			public override string ToString() {
+				return string.Format("[ComponentFieldSaveHandler Fields={0}]", fields.toDebugString());
+			}
+ 
 		}
 		
 	}

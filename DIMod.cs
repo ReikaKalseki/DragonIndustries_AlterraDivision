@@ -17,7 +17,7 @@ namespace ReikaKalseki.DIAlterra
   {
     public const string MOD_KEY = "ReikaKalseki.DIAlterra";
     
-    public static readonly XMLLocale locale = new XMLLocale("XML/locale.xml");
+    public static readonly XMLLocale locale = new XMLLocale(SNUtil.diDLL, "XML/locale.xml");
     /*
     private static readonly List<SNMod> mods = new List<SNMod>();
     
@@ -27,7 +27,7 @@ namespace ReikaKalseki.DIAlterra
     */
     //public static readonly ModLogger logger = new ModLogger();
     
-    public static readonly Config<DIConfig.ConfigEntries> config = new Config<DIConfig.ConfigEntries>();
+    public static readonly Config<DIConfig.ConfigEntries> config = new Config<DIConfig.ConfigEntries>(SNUtil.diDLL);
 		
 	internal static readonly Dictionary<TechType, Buildable> machineList = new Dictionary<TechType, Buildable>();
 
@@ -62,6 +62,7 @@ namespace ReikaKalseki.DIAlterra
         }
         
         ModVersionCheck.getFromGitVsInstall("Dragon Industries", SNUtil.diDLL, "DragonIndustries_AlterraDivision").register();
+        SNUtil.checkModHash(SNUtil.diDLL);
         
         new ObjectDeleter().Patch();
         

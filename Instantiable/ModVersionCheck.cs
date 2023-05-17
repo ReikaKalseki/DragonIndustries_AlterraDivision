@@ -35,7 +35,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public void register() {
 	    	modVersions.Add(this);
 	    	modVersions.Sort();
-	    	SNUtil.log("Registered version check "+this);
+	    	SNUtil.log("Registered version check "+this, SNUtil.tryGetModDLL(true));
 	    }
 		
 		public int CompareTo(ModVersionCheck other) {

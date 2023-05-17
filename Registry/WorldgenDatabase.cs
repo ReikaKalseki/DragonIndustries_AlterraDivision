@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using System.Xml;
+using System.Linq;
 using System.Xml.Serialization;
+using System.IO.Compression;
 using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
@@ -22,27 +24,53 @@ namespace ReikaKalseki.DIAlterra
 		public void load() {
 			string root = Path.GetDirectoryName(ownerMod.Location);
 			string folder = Path.Combine(root, "XML/WorldgenSets");
-			string xml = Path.Combine(root, "XML/worldgen.xml");
 			objects.Clear();
 			if (Directory.Exists(folder)) {
-				string[] files = Directory.GetFiles(folder, "*.xml", SearchOption.AllDirectories);
+				IEnumerable<string> files = Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories).Where(isLoadableWorldgenXML);
 				SNUtil.log("Loading worldgen maps from folder '"+folder+"': "+string.Join(", ", files), ownerMod);
 				foreach (string file in files) {
 					loadXML(file);
 				}
 			}
-			else if (File.Exists(xml)) {
-				loadXML(xml);
-			}
 			else {
-				SNUtil.log("Worldgen XML not found!", ownerMod);
+				SNUtil.log("Worldgen XMLs not found!", ownerMod);
 			}
 		}
 		
-		private void loadXML(string xml) {
-			SNUtil.log("Loading worldgen map from XML @ "+xml, ownerMod);
+		private bool isLoadableWorldgenXML(string file) {
+			string ext = Path.GetExtension(file);
+			if (ext == ".xml")
+				return true;
+			if (ext == ".gen") {
+				bool xml = File.Exists(file.Replace(".gen", ".xml"));
+				if (xml)
+					SNUtil.log("Skipping packed worldgen XML "+file+" as an unpacked version is present", ownerMod);
+				return !xml;
+			}
+			return false;
+		}
+		
+		private void loadXML(string file) {
+			SNUtil.log("Loading worldgen map from XML file @ "+file, ownerMod);
+			string xml;
+			if (file.EndsWith(".gen", StringComparison.InvariantCultureIgnoreCase)) {
+				byte[] arr;
+				using(FileStream inp = File.OpenRead(file)) {
+					using(GZipStream zip = new GZipStream(inp, CompressionMode.Decompress, true)) {
+						using (MemoryStream mem = new MemoryStream()) {
+			                zip.CopyTo(mem);
+			                arr = mem.ToArray();
+			            }
+					}
+				}
+				arr = arr.Reverse().Skip(8).Where((b, idx) => idx%2 == 0).ToArray();
+				xml = System.Text.Encoding.UTF8.GetString(arr);
+			}
+			else {
+				xml = File.ReadAllText(file);
+			}
 			XmlDocument doc = new XmlDocument();
-			doc.Load(xml);
+			doc.LoadXml(xml);
 			int loaded = 0;
 			foreach (XmlElement e in doc.DocumentElement.ChildNodes) {
 				try {

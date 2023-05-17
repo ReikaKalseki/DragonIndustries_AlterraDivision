@@ -11,6 +11,8 @@ using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Utility;
 
+using System.Security.Cryptography;
+
 using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra
@@ -34,6 +36,20 @@ namespace ReikaKalseki.DIAlterra
         };
 		
 		//private static readonly Dictionary<string, TechType> moddedTechs = new Dictionary<string, TechType>();
+		
+		public static void checkModHash(Assembly mod) {
+			using (MD5 md5 = MD5.Create()) {
+			    using (FileStream stream = File.OpenRead(mod.Location)) {
+					byte[] hash = md5.ComputeHash(stream);
+					string hashfile = Path.Combine(Path.GetDirectoryName(mod.Location), "mod.hash");
+					byte[] stored = File.ReadAllBytes(hashfile);
+					if (stored.SequenceEqual(hash))
+						log("Mod "+mod.Location+" hash check passed with hash "+hash.toDebugString(), mod);
+					else
+						throw new Exception("Your mod assembly has been modified! Redownload it.\nExpected: "+stored.toDebugString()+"\nActual: "+hash.toDebugString());
+			    }
+			}
+		}
 		
 		internal static Assembly tryGetModDLL(bool acceptDI = false) {
 			Assembly di = Assembly.GetExecutingAssembly();
@@ -162,10 +178,11 @@ namespace ReikaKalseki.DIAlterra
 					page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/"+pageHeader));
 				page.register();
 			}
-			addPDAEntry(pfb, scanTime, page, modify);
+			if (scanTime >= 0)
+				addScanUnlock(pfb, scanTime, page, modify);
 		}
 		
-		public static void addPDAEntry(Spawnable pfb, float scanTime, PDAManager.PDAPage page = null, Action<PDAScanner.EntryData> modify = null) {
+		public static void addScanUnlock(Spawnable pfb, float scanTime, PDAManager.PDAPage page = null, Action<PDAScanner.EntryData> modify = null) {
 			PDAScanner.EntryData e = new PDAScanner.EntryData();
 			e.key = pfb.TechType;
 			e.scanTime = scanTime;

@@ -25,9 +25,8 @@ namespace ReikaKalseki.DIAlterra
 		private readonly Dictionary<string, Func<float, float>> overrides = new Dictionary<string, Func<float, float>>();
 		private readonly Dictionary<string, Func<string, string>> overridesString = new Dictionary<string, Func<string, string>>();
 		
-		public Config()
-		{
-			owner = SNUtil.tryGetModDLL();
+		public Config(Assembly owner) {
+			this.owner = owner;
 			filename = /*Environment.UserName+"_"+*/owner.GetName().Name+"_Config.xml";
 			populateDefaults();
 		}
@@ -69,7 +68,7 @@ namespace ReikaKalseki.DIAlterra
 				ConfigEntry e = getEntry(key);
 				e.enumIndex = name;
 				data[name] = e.defaultValue;
-				//SNUtil.log("Initializing config entry "+name+" to "+e.formatValue(e.defaultValue)+" hash = "+RuntimeHelpers.GetHashCode(e));
+				//SNUtil.log("Initializing config entry "+name+" to "+e.formatValue(e.defaultValue)+" hash = "+RuntimeHelpers.GetHashCode(e), owner);
 			}
 		}
 		
@@ -108,13 +107,13 @@ namespace ReikaKalseki.DIAlterra
 						}
 					}
 					string vals = string.Join(";", data.Select(x => x.Key + "=" + x.Value).ToArray());
-					SNUtil.log("Config successfully loaded: "+vals);
+					SNUtil.log("Config successfully loaded: "+vals, owner);
 					if (missing.Count > 0) {
 						string keys = string.Join(";", missing.ToArray());
 						SNUtil.log("Note: "+missing.Count+" entries were missing from the config and so stayed the default values.", owner);
 						SNUtil.log("Missing keys: "+keys, owner);
 						//SNUtil.log("It is recommended that you regenerate your config by renaming your current config file, letting a new one generate," +
-						         // "then copying your changes into the new one.");
+						         // "then copying your changes into the new one.", owner);
 						SNUtil.log("Your config will be regenerated (keeping your changes) to add them to the file.", owner);
 						File.Delete(path);
 						generateFile(path, e => getFloat(getEnum(e)));
@@ -162,7 +161,7 @@ namespace ReikaKalseki.DIAlterra
 			
 			XmlElement val = doc.CreateElement("value");
 			float amt = valGetter(e);
-			//SNUtil.log(valGetter+": Parsed value "+amt+" for "+key);
+			//SNUtil.log(valGetter+": Parsed value "+amt+" for "+key, owner);
 			val.InnerText = e.formatValue(amt);
 			node.AppendChild(val);
 			

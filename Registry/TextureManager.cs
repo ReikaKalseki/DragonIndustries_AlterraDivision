@@ -63,7 +63,7 @@ namespace ReikaKalseki.DIAlterra
 		private static Atlas.Sprite loadSprite(Assembly a, string relative) {
 			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
-			SNUtil.log("Loading sprite from '"+path+"'");
+			SNUtil.log("Loading sprite from '"+path+"'", a);
 			Atlas.Sprite newTex = ImageUtils.LoadSpriteFromFile(path);
 			if (newTex == null) {
 				//newTex = NOT_FOUND;
