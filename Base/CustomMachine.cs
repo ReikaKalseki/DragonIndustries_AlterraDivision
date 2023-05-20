@@ -307,6 +307,8 @@ namespace ReikaKalseki.DIAlterra
 				return false;
 			if (!sub)
 				return false;
+			if (!GameModeUtils.RequiresPower())
+				return true;
 			//SNUtil.writeToChat(sc+" > "+amt);
 			if (amt > 0) {
 				float trash;

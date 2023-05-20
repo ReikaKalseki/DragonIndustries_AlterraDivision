@@ -23,6 +23,12 @@ namespace ReikaKalseki.DIAlterra
 		public readonly string displayName;
 		private readonly List<string> internalNames = new List<string>();
 		
+		public static readonly Dictionary<Vector3, BiomeBase> biomeHoles = new Dictionary<Vector3, BiomeBase>();
+		
+		public static void initializeBiomeHoles() {
+			biomeHoles[new Vector3(1042.7F, -500F, 919.11F)] = VanillaBiomes.MOUNTAINS;
+		}
+		
 		protected BiomeBase(string d, params string[] ids) {
 			displayName = d;
 			foreach (string id in ids) {
@@ -33,7 +39,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private static void registerID(BiomeBase b, string id) {
-			id = id.ToLowerInvariant();
+			if (id != null)
+				id = id.ToLowerInvariant();
 			biomeList[id] = b;
 			biomeList[id+"_cave"] = b;
 			biomeList[id+"_cave_dark"] = b;
@@ -53,13 +60,19 @@ namespace ReikaKalseki.DIAlterra
 			return GetType().Name+" ["+string.Join(", ", internalNames)+"]";
 		}
 		
-		public static BiomeBase getBiome(string id) {
+		private static BiomeBase getBiome(string id) {
 			id = id.ToLowerInvariant();
 			return biomeList.ContainsKey(id) ? biomeList[id] : UNRECOGNIZED;
 		}
 		
 		public static BiomeBase getBiome(Vector3 pos) {
 			string biome = WaterBiomeManager.main.GetBiome(pos, false);
+			if (string.IsNullOrEmpty(biome)) {
+				foreach (KeyValuePair<Vector3, BiomeBase> kvp in biomeHoles) {
+					if (Vector3.Distance(kvp.Key, pos) <= 125)
+						return kvp.Value;
+				}
+			}
 			return string.IsNullOrEmpty(biome) ? VanillaBiomes.VOID : getBiome(biome);
 		}
 		

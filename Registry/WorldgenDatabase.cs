@@ -121,7 +121,7 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.log(ex.ToString(), ownerMod);
 				}
 			}
-			SNUtil.log("Loaded "+loaded+" worldgen elements from file "+xml);
+			SNUtil.log("Loaded "+loaded+" worldgen elements from file "+file);
 		}
 		
 		public int getCount(string classID, Vector3? near = null, float dist = -1) {

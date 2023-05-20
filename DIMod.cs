@@ -116,6 +116,7 @@ namespace ReikaKalseki.DIAlterra
     { 
         //dispatchLoadPhase("loadModInteract");
         //dispatchLoadPhase("loadFinal");
+        BiomeBase.initializeBiomeHoles();
     }
     
     private static void dispatchLoadPhase(string phase) {/*
@@ -144,9 +145,8 @@ namespace ReikaKalseki.DIAlterra
     }
     
     private static void printBiomeData() {
-    	string biome = WaterBiomeManager.main.GetBiome(Player.main.transform.position, false);
-    	SNUtil.writeToChat("Current biome: "+biome);
-    	SNUtil.writeToChat("Localized name: "+BiomeBase.getBiome(biome).displayName);
+    	SNUtil.writeToChat("Current native biome: "+WaterBiomeManager.main.GetBiome(Player.main.transform.position, false));
+    	SNUtil.writeToChat("Localized DI name: "+BiomeBase.getBiome(Player.main.transform.position).displayName);
     }
   }
 }

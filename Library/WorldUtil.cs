@@ -173,8 +173,7 @@ batch_id = (19, 17, 16)
 		}
 		
 		public static bool isInCave(Vector3 pos) {
-	   		string biome = WaterBiomeManager.main.GetBiome(pos, false);
-	   		return !string.IsNullOrEmpty(biome) && (BiomeBase.getBiome(biome).isCaveBiome() || biome.ToLowerInvariant().Contains("_cave"));
+	   		return BiomeBase.getBiome(pos).isCaveBiome() || WaterBiomeManager.main.GetBiome(pos, false).ToLowerInvariant().Contains("_cave");
 		}
 		
 		public static bool isInWreck(Vector3 pos) {

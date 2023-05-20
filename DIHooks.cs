@@ -357,6 +357,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	CustomBiome.tickMusic(cyc);
 	    	
+	    	if (getWorldAge() > 0.25F) {
+	    		SaveSystem.populateLoad();
+	    	}
+	    	
 	    	if (onDayNightTickEvent != null)
 	    		onDayNightTickEvent.Invoke(cyc);
 	    }
@@ -384,7 +388,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	*/
 	    	LanguageHandler.SetLanguageLine("BulkheadInoperable", "Bulkhead is inoperable");
 	    	
-	    	SaveSystem.populateLoad();
+	    	//SaveSystem.populateLoad();
 	    	
 	    	List<ModVersionCheck> vers = ModVersionCheck.getOutdatedVersions();
 			updateNotice.SetLocation(0, 250);

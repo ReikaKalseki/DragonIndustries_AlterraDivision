@@ -87,6 +87,9 @@ namespace ReikaKalseki.DIAlterra {
 			if (pi && !string.IsNullOrEmpty(pi.ClassId)) {
 				SaveHandler ret;
 				XmlElement elem = null;
+				//SNUtil.log("Attempting to load "+pi+" ["+pi.id+"]", SNUtil.diDLL);
+				if (needSaveData && handlers.ContainsKey(pi.ClassId) && !saveData.ContainsKey(pi.Id))
+					SNUtil.log("Object "+pi+" ["+pi.id+"] had no data to load!", SNUtil.diDLL);
 				if (handlers.TryGetValue(pi.ClassId, out ret) && (!needSaveData || saveData.TryGetValue(pi.Id, out elem))) {
 					if (elem != null)
 						ret.data = elem;
