@@ -718,5 +718,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static bool isOnScreen(GameObject go, Camera c) {
+		      Plane[] planes = GeometryUtility.CalculateFrustumPlanes(c);
+		      if (GeometryUtility.TestPlanesAABB(planes, new Bounds(go.transform.position, Vector3.one*0.25F)))
+		          return true;
+		      else
+		          return false;
+		}
+		
 	}
 }

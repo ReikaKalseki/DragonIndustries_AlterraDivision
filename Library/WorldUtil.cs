@@ -212,24 +212,33 @@ batch_id = (19, 17, 16)
 			
 		}*/
 		
-		public static ParticleSystem spawnParticlesAt(Vector3 pos, string pfb, float dur) {
-			if (Vector3.Distance(pos, Player.main.transform.position) >= 200)
+		public static void setParticlesTemporary(ParticleSystem p, float dur, float killOffset = 5) {
+			p.Play(true);
+			p.gameObject.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);
+			UnityEngine.Object.Destroy(p.gameObject, dur+killOffset);
+			PrefabIdentifier pi = p.gameObject.FindAncestor<PrefabIdentifier>();
+			if (pi)
+				UnityEngine.Object.DestroyImmediate(pi);
+			LargeWorldEntity lw = p.gameObject.FindAncestor<LargeWorldEntity>();
+			if (lw)
+				UnityEngine.Object.DestroyImmediate(lw);
+		}
+		
+		public static ParticleSystem spawnParticlesAt(Vector3 pos, string pfb, float dur, bool forceSpawn = false, float killOffset = 5) {
+			if (!forceSpawn && Vector3.Distance(pos, Player.main.transform.position) >= 200)
 				return null;
 			GameObject particle = ObjectUtil.createWorldObject(pfb);
 			particle.SetActive(true);
 			particle.transform.position = pos;
-			ParticleSystem p = particle.GetComponentInChildren<ParticleSystem>();
-			p.Play(true);
-			particle.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);
-			UnityEngine.Object.Destroy(particle, dur+5);
-			ObjectUtil.removeComponent<PrefabIdentifier>(particle); //this will absolutely prevent it from being saved to disk
+			ParticleSystem p = particle.GetComponent<ParticleSystem>();
+			setParticlesTemporary(p, dur, killOffset);
 			return p;
 		}
 		
 		class TransientParticleTag : MonoBehaviour {
 			
-			void stop() {
-				GetComponentInChildren<ParticleSystem>().Stop(true, ParticleSystemStopBehavior.StopEmitting);
+			public void stop() {
+				GetComponent<ParticleSystem>().Stop(true, ParticleSystemStopBehavior.StopEmitting);
 			}
 		
 			void OnDestroy() {

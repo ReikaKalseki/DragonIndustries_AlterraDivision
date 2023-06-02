@@ -267,5 +267,41 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
+		public static void shakeCamera(float duration, float intensity, float frequency = 1) {
+			//Camera.main.gameObject.EnsureComponent<CameraShake>().fire(intensity, duration, falloff);
+			MainCameraControl cam = Player.main.GetComponentInChildren<MainCameraControl>();
+			cam.ShakeCamera(intensity, duration, MainCameraControl.ShakeMode.BuildUp, frequency);
+		}
+		/*
+		private class CameraShake : MonoBehaviour {
+			
+			private float duration;			
+			private float intensity;
+			private float falloff;
+			
+			private Vector3 originalPosition;
+			private float durationToGo;	
+			
+			internal void fire(float i, float d, float f) {
+				originalPosition = transform.position;
+				duration = d;
+				durationToGo = d;
+				intensity = i;
+				falloff = f;
+			}
+		
+			void Update() {
+				if (durationToGo > 0) {
+					float i = Mathf.Lerp(0, intensity, durationToGo/duration);
+					transform.position = originalPosition+UnityEngine.Random.insideUnitSphere*i;
+					durationToGo -= Time.deltaTime*falloff;
+				}
+				else {
+					transform.position = originalPosition;
+					UnityEngine.Object.Destroy(this);
+				}
+			}
+		}*/
+		
 	}
 }

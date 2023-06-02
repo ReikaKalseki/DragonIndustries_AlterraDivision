@@ -73,6 +73,7 @@ namespace ReikaKalseki.DIAlterra
         createEgg(TechType.GhostRayRed, TechType.CrabsnakeEgg, 1.25F, "CrimsonRayDesc", true, 0.6F, 2, 1, BiomeType.InactiveLavaZone_Chamber_Floor_Far);
         createEgg(TechType.Biter, TechType.RabbitrayEgg, 1F, "BiterDesc", false, 0.6F, 2, 1, BiomeType.GrassyPlateaus_CaveFloor, BiomeType.Mountains_CaveFloor);
         createEgg(TechType.Blighter, TechType.RabbitrayEgg, 1F, "BlighterDesc", false, 0.6F, 2, 1, BiomeType.BloodKelp_CaveFloor);
+        GenUtil.registerSlotWorldgen("b5d6cf1a-7d42-45f2-a0f3-0e05ff707502", "WorldEntities/Eggs/JumperEgg.prefab", TechType.JumperEgg, EntitySlot.Type.Small, LargeWorldEntity.CellLevel.Medium, BiomeType.Kelp_CaveFloor, 1, 0.275F);
         
         /*
         dispatchLoadPhase("loadConfig");
@@ -140,6 +141,7 @@ namespace ReikaKalseki.DIAlterra
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, float>>("particle", spawnParticle);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
     }
@@ -147,6 +149,10 @@ namespace ReikaKalseki.DIAlterra
     private static void printBiomeData() {
     	SNUtil.writeToChat("Current native biome: "+WaterBiomeManager.main.GetBiome(Player.main.transform.position, false));
     	SNUtil.writeToChat("Localized DI name: "+BiomeBase.getBiome(Player.main.transform.position).displayName);
+    }
+    
+    private static void spawnParticle(string pfb, float dur) {
+    	WorldUtil.spawnParticlesAt(Camera.main.transform.position+Camera.main.transform.forward.normalized*10, pfb, dur, true);
     }
   }
 }
