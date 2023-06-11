@@ -174,11 +174,15 @@ namespace ReikaKalseki.DIAlterra
 	internal class MachineSaveHandler : SaveSystem.SaveHandler {
 		
 		public override void save(PrefabIdentifier pi) {
-			pi.GetComponentInChildren<CustomMachineLogic>().save(data);
+			CustomMachineLogic lgc = pi.GetComponentInChildren<CustomMachineLogic>();
+			if (lgc)
+				lgc.save(data);
 		}
 		
 		public override void load(PrefabIdentifier pi) {
-			pi.GetComponentInChildren<CustomMachineLogic>().load(data);
+			CustomMachineLogic lgc = pi.GetComponentInChildren<CustomMachineLogic>();
+			if (lgc)
+				lgc.load(data);
 		}
 	}
 		
@@ -328,7 +332,7 @@ namespace ReikaKalseki.DIAlterra
 		private void findClosestSub() {
 			SNUtil.log("Custom machine "+this+" @ "+transform.position+" did not have proper parent component hierarchy: "+transform.parent);
 			foreach (SubRoot s in UnityEngine.Object.FindObjectsOfType<SubRoot>()) {
-				if (!s.isBase)
+				if (s.isCyclops || !s.isBase)
 					continue;
 				float dist = Vector3.Distance(s.transform.position, transform.position);
 				if (dist > 350)
@@ -338,7 +342,8 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			if (sub) {
-				gameObject.transform.parent = sub.gameObject.transform;
+				transform.parent = sub.transform;
+				SNUtil.log("Custom machine "+this+" @ "+transform.position+" parented to sub: "+sub);
 			}
 			
 			foreach (SkyApplier sky in gameObject.GetComponents<SkyApplier>()) {

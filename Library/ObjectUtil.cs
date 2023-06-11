@@ -726,5 +726,17 @@ namespace ReikaKalseki.DIAlterra
 		          return false;
 		}
 		
+		public static bool isRoom(GameObject go, bool allowTunnelConnections) {
+			if (!allowTunnelConnections) {
+				GameObject g2 = go;
+				while (g2.transform.parent && !g2.name.StartsWith("Base", StringComparison.InvariantCultureIgnoreCase))
+					g2 = g2.transform.parent.gameObject;
+				if (g2.name.Contains("Corridor") || g2.name.Contains("Hatch"))
+					return false;
+			}
+			BaseCell bc = go.FindAncestor<BaseCell>();
+			return bc && getChildObject(bc.gameObject, "BaseRoom");
+		}
+		
 	}
 }
