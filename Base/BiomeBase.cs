@@ -16,6 +16,20 @@ namespace ReikaKalseki.DIAlterra
 {
 	public abstract class BiomeBase {
 		
+		private static readonly List<string> variants = new List<string>(){
+			"",
+			"_cave",
+			"_cave_dark",
+			"_cave_light",
+			"_cave_trans",
+			"_CaveEntrance",
+			"_Caves",
+			"_Geyser",
+			"_ThermalVent",
+			"_Skeleton",
+			"_Water",
+		};
+		
 		private static readonly Dictionary<string, BiomeBase> biomeList = new Dictionary<string, BiomeBase>();
 		
 		private static readonly UnknownBiome UNRECOGNIZED = new UnknownBiome();
@@ -41,15 +55,11 @@ namespace ReikaKalseki.DIAlterra
 		private static void registerID(BiomeBase b, string id) {
 			if (id != null)
 				id = id.ToLowerInvariant();
-			biomeList[id] = b;
-			biomeList[id+"_cave"] = b;
-			biomeList[id+"_cave_dark"] = b;
-			biomeList[id+"_cave_light"] = b;
-			biomeList[id+"_cave_trans"] = b;
-			biomeList[id+"_caveentrance"] = b;
-			biomeList[id+"_caves"] = b;
-			biomeList[id+"_geyser"] = b;
-			biomeList[id+"_ThermalVent"] = b;
+			foreach (string s in variants) {
+				string key = id+s;
+				biomeList[key.ToLowerInvariant()] = b;
+				SNUtil.log("Registered biome "+b.displayName+" with id "+key);
+			}
 		}
 		
 		public IEnumerable<string> getIDs() {

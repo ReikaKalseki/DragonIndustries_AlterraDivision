@@ -16,19 +16,42 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
 		
-		public static void setEmissivity(Renderer r, float amt, string type, HashSet<int> matIndices = null) {
+		public static void setEmissivity(Renderer r, float amt, HashSet<int> matIndices = null) {
+			setEmissivity(r, amt, amt, matIndices);
+		}
+		
+		public static void setEmissivity(Renderer r, float amt, float night, HashSet<int> matIndices = null) {
 			Material[] mr = r.materials;
 			for (int i = 0; i < mr.Length; i++) {
 				if (matIndices != null && !matIndices.Contains(i))
 					continue;
-				setEmissivity(mr[i], amt, type);
+				setEmissivity(mr[i], amt, night);
 			}
 		}
 		
-		public static void setEmissivity(Material m, float amt, string type) {
-			m.SetFloat("_"+type, amt);
-			m.SetFloat("_"+type+"Night", amt);
+		public static void setEmissivity(Material m, float amt) {
+			setEmissivity(m, amt, amt);
+		}
+		
+		public static void setEmissivity(Material m, float amt, float night) {
+			m.SetFloat("_GlowStregth", amt);
+			m.SetFloat("_GlowStregthNight", night);
 			m.EnableKeyword("MARMO_EMISSION");
+		}
+		
+		public static void setGlossiness(Renderer r, float specular, float shininess, float fresnel, HashSet<int> matIndices = null) {
+			Material[] mr = r.materials;
+			for (int i = 0; i < mr.Length; i++) {
+				if (matIndices != null && !matIndices.Contains(i))
+					continue;
+				setGlossiness(mr[i], specular, shininess, fresnel);
+			}
+		}
+		
+		public static void setGlossiness(Material m, float specular, float shininess, float fresnel) {
+			m.SetFloat("_Fresnel", fresnel);
+			m.SetFloat("_Shininess", shininess);
+			m.SetFloat("_SpecInt", specular);
 		}
 		
 		public static void makeTransparent(Renderer r, HashSet<int> matIndices = null) {
@@ -133,10 +156,10 @@ namespace ReikaKalseki.DIAlterra
 				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb, pfb.getOwnerMod());
 			
 			if (pfb.glowIntensity > 0) {
-				setEmissivity(r, pfb.glowIntensity, "GlowStrength");
+				setEmissivity(r, pfb.glowIntensity);
 			}
 			else {
-				setEmissivity(r, 0, "GlowStrength");
+				setEmissivity(r, 0);
 				foreach (Material m in r.materials)
 					m.DisableKeyword("MARMO_EMISSION");
 			}
@@ -147,11 +170,11 @@ namespace ReikaKalseki.DIAlterra
 			m.SetColor("_Color", c);
 			m.SetColor("_SpecColor", c);
 			m.SetColor("_GlowColor", c);
-			setEmissivity(r.materials[0], 0, "GlowStrength");
-			setEmissivity(r.materials[2], 0, "GlowStrength");
+			setEmissivity(r.materials[0], 0);
+			setEmissivity(r.materials[2], 0);
 			r.materials[0].DisableKeyword("MARMO_EMISSION");
 			r.materials[2].DisableKeyword("MARMO_EMISSION");
-			setEmissivity(m, glow, "GlowStrength");
+			setEmissivity(m, glow);
 			swapTextures(SNUtil.diDLL, r, "Textures/WhiteAniline", new Dictionary<int, string>(){{1, ""}});
 			r.gameObject.FindAncestor<SkyApplier>().SetSky(Skies.Auto);
 		}

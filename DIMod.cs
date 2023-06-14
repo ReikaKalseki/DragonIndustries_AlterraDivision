@@ -141,6 +141,7 @@ namespace ReikaKalseki.DIAlterra
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("clear000", clear000);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, float>>("particle", spawnParticle);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
@@ -153,6 +154,16 @@ namespace ReikaKalseki.DIAlterra
     
     private static void spawnParticle(string pfb, float dur) {
     	WorldUtil.spawnParticlesAt(Camera.main.transform.position+Camera.main.transform.forward.normalized*10, pfb, dur, true);
+    }
+    
+    private static void clear000() {
+    	foreach (GameObject go in WorldUtil.getObjectsNear(Vector3.zero, 0.2F)) {
+    		if (go && go.activeInHierarchy && go.transform.position.magnitude < 0.02F) {
+    			PrefabIdentifier pi = go.FindAncestor<PrefabIdentifier>();
+    			if (pi && !pi.GetComponentInChildren<Vehicle>() && !pi.GetComponentInChildren<Player>() && !pi.GetComponentInChildren<SubRoot>())
+    				UnityEngine.Object.Destroy(pi.gameObject);
+    		}
+    	}
     }
   }
 }
