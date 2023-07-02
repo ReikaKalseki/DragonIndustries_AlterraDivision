@@ -181,11 +181,11 @@ batch_id = (19, 17, 16)
 	   		return !string.IsNullOrEmpty(biome) && biome.ToLowerInvariant().Contains("wreck");
 		}
 		
-		public static bool lineOfSight(GameObject o1, GameObject o2, bool solidOnly = false) {
-			return lineOfSight(o1, o2, o1.transform.position, o2.transform.position, solidOnly);
+		public static bool lineOfSight(GameObject o1, GameObject o2, Func<RaycastHit, bool> filter = null) {
+			return lineOfSight(o1, o2, o1.transform.position, o2.transform.position, filter);
 		}
 		
-		public static bool lineOfSight(GameObject o1, GameObject o2, Vector3 pos1, Vector3 pos2, bool solidOnly = false) {/*
+		public static bool lineOfSight(GameObject o1, GameObject o2, Vector3 pos1, Vector3 pos2, Func<RaycastHit, bool> filter = null) {/*
 			RaycastHit hit;
 			Physics.Linecast(o1.transform.position, o2.transform.position, out hit);
 			if (hit) {
@@ -197,6 +197,8 @@ batch_id = (19, 17, 16)
 				if (!hit.collider || hit.collider.isTrigger)
 					continue;
 				if (hit.transform == o1.transform || hit.transform == o2.transform)
+					continue;
+				if (filter != null && !filter.Invoke(hit))
 					continue;
 				if (Array.IndexOf(o1.GetComponentsInChildren<Collider>(), hit.collider) >= 0)
 					continue;

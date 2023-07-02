@@ -110,6 +110,7 @@ namespace ReikaKalseki.DIAlterra
 			GameObject go = ObjectUtil.getModPrefabBaseObject(this);
 			Pickupable p = go.EnsureComponent<Pickupable>();
 			p.isPickupable = false;
+			go.EnsureComponent<ImmuneToPropulsioncannon>();
 			return go;
 		}
 		

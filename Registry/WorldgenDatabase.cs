@@ -112,7 +112,7 @@ namespace ReikaKalseki.DIAlterra
 							}
 							else {
 								throw new Exception("No worldgen loadable for '"+e.Name+"' "+e.format());
-							}	
+							}
 						}
 					}
 				}
