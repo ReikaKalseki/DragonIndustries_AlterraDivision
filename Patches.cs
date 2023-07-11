@@ -1432,6 +1432,32 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(Survival))]
+	[HarmonyPatch("OnRespawn")]
+	public static class RespawnHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new List<CodeInstruction>(){
+					new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRespawnPre", false, typeof(Survival), typeof(Player))
+				});
+				InstructionHandlers.patchEveryReturnPre(codes, new List<CodeInstruction>(){
+					new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRespawnPost", false, typeof(Survival), typeof(Player))
+				});
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
 		
 		internal static void patchVisualItemSize(List<CodeInstruction> codes, bool useSelfContainer = false) {

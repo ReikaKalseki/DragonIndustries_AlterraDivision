@@ -60,6 +60,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SolarEfficiencyCheck> solarEfficiencyEvent;
 	    public static event Action<Vehicle, Player> vehicleEnterEvent;
 	    public static event Action<DepthCompassCheck> depthCompassEvent;
+	    public static event Action<Survival, Player, bool> respawnEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 	    
@@ -1396,5 +1397,17 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	return ret;
 	    }
+	   
+	   public static void onRespawnPre(Survival s, Player ep) {
+	    	if (respawnEvent != null && s && ep) {
+	    		respawnEvent.Invoke(s, ep, false);
+	    	}
+	   }
+	   
+	   public static void onRespawnPost(Survival s, Player ep) {
+	    	if (respawnEvent != null && s && ep) {
+	    		respawnEvent.Invoke(s, ep, true);
+	    	}
+	   }
 	}
 }
