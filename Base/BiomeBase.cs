@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Xml;
+using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -35,7 +36,7 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly UnknownBiome UNRECOGNIZED = new UnknownBiome();
 
 		public readonly string displayName;
-		private readonly List<string> internalNames = new List<string>();
+		private readonly HashSet<string> internalNames = new HashSet<string>();
 		
 		public static readonly Dictionary<Vector3, BiomeBase> biomeHoles = new Dictionary<Vector3, BiomeBase>();
 		
@@ -45,45 +46,57 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected BiomeBase(string d, params string[] ids) {
 			displayName = d;
-			foreach (string id in ids) {
-				string path = PrefabData.getPrefab(id);
-				internalNames.Add(id);
+			foreach (string id in ids)
 				registerID(this, id);
-			}
 		}
 		
 		private static void registerID(BiomeBase b, string id) {
-			if (id != null)
-				id = id.ToLowerInvariant();
 			foreach (string s in variants) {
-				string key = id+s;
-				biomeList[key.ToLowerInvariant()] = b;
+				string key = (id+s).ToLowerInvariant();
+				biomeList[key] = b;
+				b.internalNames.Add(key);
 				SNUtil.log("Registered biome "+b.displayName+" with id "+key);
 			}
 		}
 		
+		public bool containsID(string id) {
+			if (id == null)
+				return this == VanillaBiomes.VOID;
+			return internalNames.Contains(id.ToLowerInvariant());
+		}
+		
 		public IEnumerable<string> getIDs() {
-			return new ReadOnlyCollection<string>(internalNames);
+			return new ReadOnlyCollection<string>(internalNames.ToList());
 		}
 		
 		public override string ToString() {
-			return GetType().Name+" ["+string.Join(", ", internalNames)+"]";
+			return GetType().Name+" "+displayName+": ["+string.Join(", ", internalNames)+"]";
+		}
+		
+		public static BiomeBase getBiome(Vector3 pos) {
+			//if (logBiomeFetch)
+			//	SNUtil.writeToChat("Getting biome at "+pos);
+			string biome = DIHooks.getBiomeAt(WaterBiomeManager.main.GetBiome(pos, false), pos); //will fire the event
+			//if (logBiomeFetch)
+			//	SNUtil.writeToChat("WBM found "+biome);
+			if (string.IsNullOrEmpty(biome)) {
+				foreach (KeyValuePair<Vector3, BiomeBase> kvp in biomeHoles) {
+					if (Vector3.Distance(kvp.Key, pos) <= 125) {
+						//if (logBiomeFetch)
+						//	SNUtil.writeToChat("Matched to hole "+kvp.Key+", "+kvp.Value);
+						return kvp.Value;
+					}
+				}
+			}
+			BiomeBase ret = string.IsNullOrEmpty(biome) ? VanillaBiomes.VOID : getBiome(biome);
+			//if (logBiomeFetch)
+			//	SNUtil.writeToChat("Lookup to "+ret.displayName);
+			return ret;
 		}
 		
 		private static BiomeBase getBiome(string id) {
 			id = id.ToLowerInvariant();
 			return biomeList.ContainsKey(id) ? biomeList[id] : UNRECOGNIZED;
-		}
-		
-		public static BiomeBase getBiome(Vector3 pos) {
-			string biome = WaterBiomeManager.main.GetBiome(pos, false);
-			if (string.IsNullOrEmpty(biome)) {
-				foreach (KeyValuePair<Vector3, BiomeBase> kvp in biomeHoles) {
-					if (Vector3.Distance(kvp.Key, pos) <= 125)
-						return kvp.Value;
-				}
-			}
-			return string.IsNullOrEmpty(biome) ? VanillaBiomes.VOID : getBiome(biome);
 		}
 		
 		public abstract bool isCaveBiome();

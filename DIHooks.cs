@@ -231,17 +231,21 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public class WaterFogValues {
 	    	
-	    	public readonly Vector4 originalColor;
+	    	public readonly Color originalColor;
 	    	public readonly float originalDensity;
+	    	public readonly float originalSunValue;
 	    	
-	    	public Vector4 color;
+	    	public Color color;
 	    	public float density;
+	    	public float sunValue;
 	    	
-	    	internal WaterFogValues(Vector4 c, float d) {
+	    	internal WaterFogValues(Color c, float d, float s) {
 	    		originalColor = c;
 	    		originalDensity = d;
+	    		originalSunValue = s;
 	    		density = d;
 	    		color = c;
+	    		sunValue = s;
 	    	}
 	    	
 	    }
@@ -1142,14 +1146,17 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			CustomBiome b = BiomeBase.getBiome(cam.transform.position) as CustomBiome;
 			if (b != null) {
-				fogColor.setXYZ(b.getFogColor(fogColor.getXYZ()));
+				fogColor = fogColor.setXYZ(b.getFogColor(fogColor.getXYZ()));
 				fogColor.w = b.getSunIntensity(fogColor.w);
 				fogDensity = b.getFogDensity(fogDensity);
 			}
-			WaterFogValues wf = new WaterFogValues(fogColor, fogDensity);
+			WaterFogValues wf = new WaterFogValues(fogColor.asColor(), fogDensity, fogColor.w);
 	    	if (fogCalculateEvent != null)
 	    		fogCalculateEvent.Invoke(wf);
-			Shader.SetGlobalVector(ShaderPropertyID._UweFogLightColor, wf.color);
+	    	Vector4 vec4 = wf.color.toVectorA();
+	    	vec4.w = wf.sunValue;
+	    	//SNUtil.writeToChat("Fog color "+vec4+", with density "+fogDensity.ToString("0.000"));
+			Shader.SetGlobalVector(ShaderPropertyID._UweFogLightColor, vec4);
 			Shader.SetGlobalFloat(ShaderPropertyID._UweExtinctionAndScatteringScale, wf.density);
 	    }
 	    

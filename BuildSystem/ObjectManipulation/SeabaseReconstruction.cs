@@ -60,7 +60,7 @@ namespace ReikaKalseki.DIAlterra
 			private StorageContainer[] storages = null;
 			private Charger[] chargers = null;
 			
-			void rebuild() {
+			void rebuild(float time) {
 				SNUtil.log("Seabase '"+seabaseID+"' undergoing reconstruction", SNUtil.diDLL);
 				if (reconstructionData == null) {
 					SNUtil.writeToChat("Cannot rebuild worldgen seabase @ "+baseCenter+" - no data");
@@ -229,7 +229,7 @@ namespace ReikaKalseki.DIAlterra
 				foreach (MapRoomCamera c in gameObject.GetComponentsInChildren<MapRoomCamera>(true)) {
 					UnityEngine.Object.DestroyImmediate(c.gameObject);
 				}
-				SNUtil.log("Finished reconstructing seabase '"+seabaseID+"' @ "+baseCenter, SNUtil.diDLL);
+				SNUtil.log("Finished reconstructing seabase '"+seabaseID+"' @ "+baseCenter+" @ "+time, SNUtil.diDLL);
 				//ObjectUtil.dumpObjectData(gameObject);
 			}
 
@@ -253,7 +253,7 @@ namespace ReikaKalseki.DIAlterra
 						marker.name = GEN_MARKER;
 						marker.transform.parent = transform;
 					}*/
-					rebuild();
+					rebuild(time);
 				}
 				if (time-lastSkyTime >= 15) {
 					SkyApplier[] skies = gameObject.GetComponentsInChildren<SkyApplier>(true);

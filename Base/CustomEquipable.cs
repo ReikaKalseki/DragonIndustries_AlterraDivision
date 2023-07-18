@@ -138,8 +138,13 @@ namespace ReikaKalseki.DIAlterra
 			return new TechData
 			{
 				Ingredients = RecipeUtil.buildRecipeList(recipe),
-				craftAmount = 1
+				craftAmount = 1,
+				LinkedItems = getAuxCrafted()
 			};
+		}
+		
+		public virtual List<TechType> getAuxCrafted() {
+			return new List<TechType>();
 		}
 	}
 }

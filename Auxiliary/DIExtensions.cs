@@ -31,10 +31,11 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
-		public static void setXYZ(this Vector4 vec, Vector3 xyz) {
+		public static Vector4 setXYZ(this Vector4 vec, Vector3 xyz) {
 			vec.x = xyz.x;
 			vec.y = xyz.y;
 			vec.z = xyz.z;
+			return new Vector4(xyz.x, xyz.y, xyz.z, vec.w);
 		}
 		
 		public static Color asColor(this Vector3 c) {

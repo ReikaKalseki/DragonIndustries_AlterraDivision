@@ -58,6 +58,16 @@ namespace ReikaKalseki.DIAlterra {
 			RenderUtil.swapTextures(SNUtil.diDLL, r, "Textures/DataChit/", new Dictionary<int, string>{{0, ""}, {1, ""}, {2, ""}});
 			foreach (Material m in r.materials)
 				m.SetColor("_GlowColor", renderColor.WithAlpha(1));
+			Light l = ObjectUtil.addLight(world);
+			l.color = renderColor;
+			l.range = 6;
+			l.intensity = 0.5F;
+			l.transform.localPosition = new Vector3(0.0F, 0.5F, 0.15F);
+			l = ObjectUtil.addLight(world);
+			l.color = renderColor;
+			l.range = 1.2F;
+			l.intensity = 1.5F;
+			l.transform.localPosition = new Vector3(0.0F, 0.125F, 0.15F);
 			return world;
 	    }
 	
