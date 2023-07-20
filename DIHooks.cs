@@ -61,6 +61,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<Vehicle, Player> vehicleEnterEvent;
 	    public static event Action<DepthCompassCheck> depthCompassEvent;
 	    public static event Action<Survival, Player, bool> respawnEvent;
+	    public static event Action<PropulsibilityCheck> propulsibilityEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 	    
@@ -285,7 +286,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public class RadiationCheck {
 	    	
 	    	public readonly Vector3 position;
-	    	public readonly float originalValue;
+	    	public readonly float originalValue; //0-1
 	    	
 	    	public float value;
 	    	
@@ -293,6 +294,21 @@ namespace ReikaKalseki.DIAlterra {
 	    		originalValue = orig;
 	    		value = orig;
 	    		position = pos;
+	    	}
+	    	
+	    }
+	    
+	    public class PropulsibilityCheck {
+	    	
+	    	public readonly GameObject obj;
+	    	public readonly float originalValue;
+	    	
+	    	public float value;
+	    	
+	    	internal PropulsibilityCheck(GameObject go, float orig) {
+	    		originalValue = orig;
+	    		value = orig;
+	    		obj = go;
 	    	}
 	    	
 	    }
@@ -1091,7 +1107,9 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void appendItemTooltip(StringBuilder sb, TechType tt, GameObject obj) {
 	    	InfectedMixin mix = obj.GetComponent<InfectedMixin>();
 	    	if (mix) {
-	    		TooltipFactory.WriteDescription(sb, getInfectionTooltip(mix));//TooltipFactory.WriteDescription(sb, "Infected: "+((int)(mix.infectedAmount*100))+"%");
+	    		string tip = getInfectionTooltip(mix);
+	    		if (!string.IsNullOrEmpty(tip))
+	    			TooltipFactory.WriteDescription(sb, tip);//TooltipFactory.WriteDescription(sb, "Infected: "+((int)(mix.infectedAmount*100))+"%");
 	    	}
 	    	Peeper peep = obj.GetComponent<Peeper>();
 	    	if (peep && peep.isHero) {
@@ -1120,7 +1138,8 @@ namespace ReikaKalseki.DIAlterra {
 	    		}
 	    	}
 	    	else {
-		   		return "Status: Healthy.";
+	    		LiveMixin lv = mix.GetComponent<LiveMixin>();
+	    		return !lv || lv.IsAlive() ? "Status: Healthy." : null;
 	    	}
 	    }
 	    
@@ -1377,7 +1396,15 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static float getMaxPropulsibleAABB(float orig, GameObject go) {
-	    	return go.GetComponentInChildren<Vehicle>() ? 999999 : orig;
+	    	float val = orig;
+	    	if (go.GetComponentInChildren<Vehicle>() || go.GetComponentInChildren<AlwaysPropulsible>())
+	    		val = 999999;
+	    	if (propulsibilityEvent != null) {
+	    		PropulsibilityCheck e = new PropulsibilityCheck(go, val);
+	    		propulsibilityEvent.Invoke(e);
+	    		val = e.value;
+	    	}
+	    	return val;
 	    }
 	    
 	    public static void onVehicleEnter(Vehicle v, Player ep) {

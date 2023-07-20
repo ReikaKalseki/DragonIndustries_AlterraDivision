@@ -200,6 +200,18 @@ namespace ReikaKalseki.DIAlterra
 			PDAHandler.AddCustomScannerEntry(e);
 		}
 		
+		public static void addScanUnlock(TechType toScan, float scanTime, TechType unlock, int total, bool remove) {
+			PDAScanner.EntryData e = new PDAScanner.EntryData();
+			e.key = toScan;
+			e.scanTime = scanTime;
+			e.locked = true;
+			e.blueprint = unlock;
+			e.isFragment = true;
+			e.totalFragments = total;
+			e.destroyAfterScan = remove;
+			PDAHandler.AddCustomScannerEntry(e);
+		}
+		
 		public static void triggerTechPopup(TechType tt, Sprite spr = null) {
 		   	KnownTech.AnalysisTech at = new KnownTech.AnalysisTech();
 		   	at.techType = tt;

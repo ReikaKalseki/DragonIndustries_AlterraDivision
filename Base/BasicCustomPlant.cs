@@ -13,10 +13,10 @@ using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class BasicCustomPlant : Spawnable, DIPrefab<VanillaFlora>, Flora {
+	public class BasicCustomPlant : Spawnable, DIPrefab<FloraPrefabFetch>, Flora {
 		
 		public float glowIntensity {get; set;}		
-		public VanillaFlora baseTemplate {get; set;}
+		public FloraPrefabFetch baseTemplate {get; set;}
 		
 		public readonly BasicCustomPlantSeed seed;
 		
@@ -30,18 +30,18 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly Dictionary<TechType, BasicCustomPlant> plants = new Dictionary<TechType, BasicCustomPlant>();
 		
-		public BasicCustomPlant(XMLLocale.LocaleEntry e, VanillaFlora template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
+		public BasicCustomPlant(XMLLocale.LocaleEntry e, FloraPrefabFetch template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
 			
 		}
 			
-		public BasicCustomPlant(string id, string name, string desc, VanillaFlora template, string seedPfb, string seedName = "Seed") : base(id, name, desc) {
+		public BasicCustomPlant(string id, string name, string desc, FloraPrefabFetch template, string seedPfb, string seedName = "Seed") : base(id, name, desc) {
 			baseTemplate = template;
 			ownerMod = SNUtil.tryGetModDLL();
 			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
 			seed = seedPfb == null ? null : new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
-				if (collectionMethod != HarvestType.None) {
+				if (collectionMethod != HarvestType.None || generateSeed()) {
 					seed.Patch();
 					ItemRegistry.instance.addItem(seed);
 					setPlantSeed(seed.TechType, this);
@@ -103,7 +103,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public sealed override string ToString() {
-			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
+			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName+" S="+seed;
 		}
 			
 		public sealed override GameObject GetGameObject() {
@@ -120,6 +120,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected virtual bool isExploitable() {
 			return collectionMethod != HarvestType.None || isResource();
+		}
+		
+		protected virtual bool generateSeed() {
+			return collectionMethod != HarvestType.None;
 		}
 		
 		public virtual bool isResource() {
@@ -162,6 +166,24 @@ namespace ReikaKalseki.DIAlterra
 			return plants.ContainsKey(tt) ? plants[tt] : null;
 		}
 		
+	}
+	
+	public class FloraPrefabFetch : PrefabReference {
+		
+		private string prefab;
+		private VanillaFlora flora;
+		
+		public FloraPrefabFetch(string pfb) {
+			prefab = pfb;
+		}
+		
+		public FloraPrefabFetch(VanillaFlora f) {
+			flora = f;
+		}
+		
+		public string getPrefabID() {
+			return flora == null ? prefab : flora.getRandomPrefab(false);
+		}
 	}
 	
 	public class BasicCustomPlantSeed : Spawnable, DIPrefab<StringPrefabContainer> {
@@ -262,6 +284,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public string getTextureFolder() {
 			return "Items";
+		}
+		
+		public sealed override string ToString() {
+			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
 		}
 		
 	}

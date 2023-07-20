@@ -169,6 +169,8 @@ namespace ReikaKalseki.DIAlterra {
 					FieldInfo fi = getField(s);
 					if (fi.FieldType == typeof(string))
 						fi.SetValue(com, data.getProperty(s));
+					else if (fi.FieldType == typeof(bool))
+						fi.SetValue(com, data.getBoolean(s));
 					else if (fi.FieldType == typeof(int))
 						fi.SetValue(com, data.getInt(s, 0, false));
 					else if (fi.FieldType == typeof(float))
