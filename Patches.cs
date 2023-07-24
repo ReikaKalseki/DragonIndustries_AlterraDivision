@@ -425,6 +425,26 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(VehicleDockingBay))]
+	[HarmonyPatch("Start")]
+	public static class VehicleDockingBaySpawnHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onDockingBaySpawn", false, typeof(VehicleDockingBay)));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	[HarmonyPatch(typeof(GrowingPlant))]
 	[HarmonyPatch("SpawnGrownModel")]
 	public static class PlantFinishedGrowingHook {
@@ -1330,15 +1350,76 @@ namespace ReikaKalseki.DIAlterra {
 	}
 	
 	[HarmonyPatch(typeof(PropulsionCannon))]
+	[HarmonyPatch("ValidateObject")]
+	public static class PropulsabilityHookMass {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				PatchLib.patchPropulsability(codes, InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldfld, "PropulsionCannon", "maxMass", true), true);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(PropulsionCannon))]
 	[HarmonyPatch("ValidateNewObject")]
 	public static class PropulsabilityHook {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldfld, "PropulsionCannon", "maxAABBVolume", true);
-				codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getMaxPropulsibleAABB", false, typeof(float), typeof(GameObject)));
-				codes.Insert(idx+1, new CodeInstruction(OpCodes.Ldarg_1));
+				PatchLib.patchPropulsability(codes, InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldfld, "PropulsionCannon", "maxAABBVolume", true), false);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(PropulsionCannon))]
+	[HarmonyPatch("TraceForGrabTarget")]
+	public static class PropulsionGrabPositionFix {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "UWE.Utils", "SpherecastIntoSharedBuffer", false, new Type[]{typeof(Vector3), typeof(float), typeof(Vector3), typeof(float), typeof(int), typeof(QueryTriggerInteraction)});
+				codes[idx-1] = new CodeInstruction(OpCodes.Ldc_I4_1);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(PropulsionCannon))]
+	[HarmonyPatch("GetObjectPosition")]
+	public static class PropulsionGrabPositionFix2 {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Stfld, "PropulsionCannon", "grabbedObjectCenter");
+				codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getPropulsionTargetCenter", false, typeof(Vector3), typeof(GameObject)));
+				codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_1));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -1358,9 +1439,8 @@ namespace ReikaKalseki.DIAlterra {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldc_R4, 400F);
-				codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getMaxPropulsibleAABB", false, typeof(float), typeof(GameObject)));
-				codes.Insert(idx+1, new CodeInstruction(OpCodes.Ldloc_S, 11));
+				PatchLib.patchPropulsability(codes, InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldc_R4, 1300F), true, new CodeInstruction(OpCodes.Ldloc_S, 11));
+				PatchLib.patchPropulsability(codes, InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldc_R4, 400F), false, new CodeInstruction(OpCodes.Ldloc_S, 11));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -1457,8 +1537,78 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
+	/*
+	[HarmonyPatch(typeof(Vehicle))]
+	[HarmonyPatch("set_docked")]
+	public static class DockingDebug {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "logDockingVehicle", false, typeof(Vehicle), typeof(bool)));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	*/
+	
+	[HarmonyPatch(typeof(Drillable))]
+	[HarmonyPatch("OnDrill")]
+	public static class DrillableCallHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), new CodeInstruction(OpCodes.Ldarg_2), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onDrillableDrilled", false, typeof(Drillable), typeof(Vector3), typeof(Exosuit)));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(uGUI_MainMenu))]
+	[HarmonyPatch("Awake")]
+	public static class MainMenuLoadHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onMainMenuLoaded", false, new Type[0]));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
 	
 	static class PatchLib {
+		
+		internal static void patchPropulsability(List<CodeInstruction> codes, int idx, bool mass, CodeInstruction go = null) {
+			List<CodeInstruction> add = new List<CodeInstruction>();
+			add.Add(go == null ? new CodeInstruction(OpCodes.Ldarg_1) : go);
+			add.Add(new CodeInstruction(OpCodes.Ldarg_0));
+			add.Add(new CodeInstruction(mass ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+			add.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getMaxPropulsible", false, typeof(float), typeof(GameObject), typeof(MonoBehaviour), typeof(bool)));
+			codes.InsertRange(idx+1, add);
+		}
 		
 		internal static void patchVisualItemSize(List<CodeInstruction> codes, bool useSelfContainer = false) {
 			patchVisualItemSize(codes, useSelfContainer, true, useSelfContainer ? new Type[]{typeof(TechType), typeof(InventoryItem), typeof(IItemsContainer)} : new Type[]{typeof(TechType), typeof(InventoryItem)});

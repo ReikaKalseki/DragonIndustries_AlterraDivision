@@ -110,7 +110,7 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
-		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null, bool skipPrint = false)  {
+		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
 			if (r == null)
 				throw new Exception("Tried to retexture a null renderer!");
 			bool flag = false;
@@ -128,8 +128,8 @@ namespace ReikaKalseki.DIAlterra
 						if (newTex != null) {
 							r.materials[i].SetTexture(type, newTex);
 							flag = true;
-							if (!skipPrint)
-								SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
+							//if (!skipPrint)
+							//	SNUtil.log("Found "+r+"/"+i+" "+type+" texture @ "+name, a);
 						}
 						else {
 							//SNUtil.writeToChat("No texture found at "+path, a);
@@ -148,7 +148,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void swapToModdedTextures<T>(Renderer r, DIPrefab<T> pfb) where T : PrefabReference {
 			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
-			SNUtil.log("Applying custom textures in '"+path+"' to mod prefab "+pfb+" renderer "+r, pfb.getOwnerMod());
+			//SNUtil.log("Applying custom textures in '"+path+"' to mod prefab "+pfb+" renderer "+r, pfb.getOwnerMod());
 			Dictionary<int,string> dict = null;
 			if (pfb is MultiTexturePrefab<T>)
 				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers(r);

@@ -62,8 +62,11 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<DepthCompassCheck> depthCompassEvent;
 	    public static event Action<Survival, Player, bool> respawnEvent;
 	    public static event Action<PropulsibilityCheck> propulsibilityEvent;
+	    public static event Action<Drillable, Vector3, Exosuit> drillableDrillTickEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
+		
+		private static bool hasLoadedAWorld = false;
 	    
 	    static DIHooks() {
 	    	
@@ -302,13 +305,17 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	public readonly GameObject obj;
 	    	public readonly float originalValue;
+	    	public readonly MonoBehaviour gunComponent;
+	    	public readonly bool isMass;
 	    	
 	    	public float value;
 	    	
-	    	internal PropulsibilityCheck(GameObject go, float orig) {
+	    	internal PropulsibilityCheck(GameObject go, float orig, MonoBehaviour gun, bool mass) {
 	    		originalValue = orig;
 	    		value = orig;
 	    		obj = go;
+	    		isMass = mass;
+	    		gunComponent = gun;
 	    	}
 	    	
 	    }
@@ -386,7 +393,13 @@ namespace ReikaKalseki.DIAlterra {
 	    		onDayNightTickEvent.Invoke(cyc);
 	    }
 	    
+	    public static void onMainMenuLoaded() {
+	    	worldLoadTime = -1;
+	    }
+	    
 	    public static void onWorldLoaded() {
+	    	bool warnRestart = hasLoadedAWorld;
+	    	hasLoadedAWorld = true;
 	    	worldLoadTime = Time.time;
 	    	SNUtil.log("Intercepted world load", SNUtil.diDLL);
 	    	DuplicateRecipeDelegate.updateLocale();
@@ -431,6 +444,8 @@ namespace ReikaKalseki.DIAlterra {
 				}
 				li.Add("You should redownload and reinstall mods with local errors and contact Reika if remote versions are invalid.");
 	    	}
+			if (warnRestart)
+				li.Add("You have reloaded a save without exiting the game. This breaks mod loading and will damage your world. Restart your game when changing/reloading saves.");
 			if (li.Count > 0)
 				updateNotice.ShowMessage(string.Join("\n", li));
 			else
@@ -682,8 +697,13 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    }
 	    
+	    public static void onDockingBaySpawn(VehicleDockingBay b) {
+	    	b.gameObject.EnsureComponent<DockLock>();
+	    }
+	    
 	    public static void onSkyApplierSpawn(SkyApplier pk) {
 	    	if (pk.GetComponent<Vehicle>()) {
+	    		pk.gameObject.EnsureComponent<FixedBounds>()._bounds = new Bounds(Vector3.zero, Vector3.one*5);
 	    		GameObject go = ObjectUtil.getChildObject(pk.gameObject, "LavaWarningTrigger");
 	    		if (!go) {
 	    			go = new GameObject("LavaWarningTrigger");
@@ -734,6 +754,25 @@ namespace ReikaKalseki.DIAlterra {
 	    				lastTickTime = time;
 	    				onFruitPlantTickEvent.Invoke(this);
 	    			}
+	    		}
+	    	}
+	    	
+	    }
+	    
+	    public class DockLock : MonoBehaviour {
+	    	
+	    	private VehicleDockingBay bay;
+	    	
+	    	private float lastTime;
+	    	
+	    	public void Update() {
+	    		if (!bay)
+	    			bay = GetComponent<VehicleDockingBay>();
+	    		
+	    		if (bay.dockedVehicle && DayNightCycle.main.timePassedAsFloat-lastTime >= 0.5F && !bay.dockedVehicle.GetComponentInParent<SubRoot>()) {
+	    			bay.DockVehicle(bay.dockedVehicle, false);
+	    			SNUtil.writeToChat("Re-binding vehicle "+bay.dockedVehicle+" to docking bay "+bay.gameObject.GetFullHierarchyPath());
+	    			lastTime = DayNightCycle.main.timePassedAsFloat;
 	    		}
 	    	}
 	    	
@@ -1395,17 +1434,39 @@ namespace ReikaKalseki.DIAlterra {
 	    		onSoundPlayedEvent.Invoke(snd);
 	    }
 	    
-	    public static float getMaxPropulsibleAABB(float orig, GameObject go) {
+	    public static float getMaxPropulsible(float orig, GameObject go, MonoBehaviour gun, bool isMass) {
+	    	if (go.FindAncestor<Constructable>() || go.FindAncestor<SubRoot>())
+	    		return 0;
 	    	float val = orig;
-	    	if (go.GetComponentInChildren<Vehicle>() || go.GetComponentInChildren<AlwaysPropulsible>())
-	    		val = 999999;
 	    	if (propulsibilityEvent != null) {
-	    		PropulsibilityCheck e = new PropulsibilityCheck(go, val);
+	    		PropulsibilityCheck e = new PropulsibilityCheck(go, val, gun, isMass);
 	    		propulsibilityEvent.Invoke(e);
 	    		val = e.value;
 	    	}
+	    	if (go.GetComponentInChildren<Vehicle>() || go.GetComponentInChildren<AlwaysPropulsible>())
+	    		val = 999999999F;
+	    	//Bounds aabb = go.GetComponent<FixedBounds>() ? go.GetComponent<FixedBounds>().bounds : UWE.Utils.GetEncapsulatedAABB(go, 20);
+	    	//SNUtil.writeToChat("Modifying ["+isMass+"] propulsibility check of "+go+": "+orig+">"+val+"; mass="+go.GetComponent<Rigidbody>().mass+", AABB="+(aabb.size.x * aabb.size.y * aabb.size.z));
 	    	return val;
 	    }
+	    
+	    public static Vector3 getPropulsionTargetCenter(Vector3 orig, GameObject go) {
+	    	Vehicle v = go.GetComponentInChildren<Vehicle>();
+	    	if (v) {
+	    		Vector3 ret = go.transform.position;
+	    		if (v is SeaMoth)
+	    			ret += go.transform.forward*-1.25F+go.transform.up*-0.125F;
+	    		return ret;
+	    	}
+	    	return orig;
+	    }
+	/*
+		public static void logDockingVehicle(Vehicle v, bool dock) {
+	    	string s = "Setting vehicle "+v+": dock state (path="+v.gameObject.GetFullHierarchyPath()+")"+" - "+dock;
+		    SNUtil.writeToChat(s);
+		    SNUtil.log(s, SNUtil.diDLL);
+		    SNUtil.log("from trace "+Environment.StackTrace, SNUtil.diDLL);
+		}*/
 	    
 	    public static void onVehicleEnter(Vehicle v, Player ep) {
 	    	if (vehicleEnterEvent != null && v && ep) {
@@ -1433,15 +1494,18 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	   
 	   public static void onRespawnPre(Survival s, Player ep) {
-	    	if (respawnEvent != null && s && ep) {
+	    	if (respawnEvent != null && s && ep)
 	    		respawnEvent.Invoke(s, ep, false);
-	    	}
 	   }
 	   
 	   public static void onRespawnPost(Survival s, Player ep) {
-	    	if (respawnEvent != null && s && ep) {
+	    	if (respawnEvent != null && s && ep)
 	    		respawnEvent.Invoke(s, ep, true);
-	    	}
+	   }
+	   
+	   public static void onDrillableDrilled(Drillable dr, Vector3 pos, Exosuit driller) {
+	   	if (drillableDrillTickEvent != null && dr)
+	   		drillableDrillTickEvent.Invoke(dr, pos, driller);
 	   }
 	}
 }
