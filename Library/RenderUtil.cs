@@ -267,6 +267,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void dumpTexture(Assembly a, string fn, RenderTexture img, string pathOverride = null) {
+		    Texture2D copy = new Texture2D(img.width, img.height);
+		    copy.ReadPixels(new Rect(0, 0, img.width, img.height), 0, 0);
+		    copy.Apply();
+		    dumpTexture(a, fn, copy, pathOverride);
+		}
+		
 		public static void dumpTexture(Assembly a, string fn, Texture2D img, string pathOverride = null) {
 			if (img != null) {
 				byte[] raw = duplicateTexture(img).EncodeToPNG();

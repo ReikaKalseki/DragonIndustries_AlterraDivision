@@ -1181,7 +1181,140 @@ namespace ReikaKalseki.DIAlterra {
 	    		return !lv || lv.IsAlive() ? "Status: Healthy." : null;
 	    	}
 	    }
+	     /*
+	    public static WaterscapeVolume.Settings currentRenderVolume = new WaterscapeVolume.Settings();
+	   
+	    public static void overrideFog(WaterBiomeManager biomes, Vector3 pos, bool detail, WaterscapeVolume.Settings settings) {
+	    	if (KeyCodeUtils.GetKeyHeld(KeyCode.LeftControl)) {
+	    		currentRenderVolume.copyObject(settings);
+	    	}
+	    	if (KeyCodeUtils.GetKeyHeld(KeyCode.LeftAlt)) {
+	    		settings = currentRenderVolume;
+	    	}
+	    	biomes.atmosphereVolumeMaterial.SetVector(ShaderPropertyID._Value, biomes.GetExtinctionTextureValue(settings));
+			biomes.atmosphereVolumeMaterial.SetVector(ShaderPropertyID._Value1, biomes.GetScatteringTextureValue(settings));
+			biomes.atmosphereVolumeMaterial.SetVector(ShaderPropertyID._Value2, biomes.GetEmissiveTextureValue(settings));
+	    }*/
 	    
+	    public static void onFogRasterized(WaterBiomeManager biomes, Vector3 pos, bool detail) {
+	    	SNUtil.writeToChat("Rasterizing fog @ "+pos);
+	    }
+	     
+	     public static Vector4? overriddenExtinction;
+	     public static Vector4? overriddenScattering;
+	     public static Vector4? overriddenEmissive;
+	     public static Color? scatterColorOverride;
+	     public static float? murkinessOverride;
+	     public static Vector3? absorptionOverride;
+	     public static float? scatteringOverride;
+	     public static float? fogStartOverride;
+	     public static float? sunScaleOverride;
+	     
+	    public static Vector4 interceptExtinction(Vector4 orig, WaterscapeVolume.Settings settings) {
+	     	SNUtil.writeToChat("Recomputed extinction to "+orig.ToString("0.0000")+" in "+settings.toDetailedString());
+	     	if (murkinessOverride.HasValue || absorptionOverride.HasValue || scatteringOverride.HasValue || fogStartOverride.HasValue) {
+	     		float d = (murkinessOverride.HasValue ? murkinessOverride.Value : settings.murkiness) / 100f;
+	     		float scatter = scatteringOverride.HasValue ? scatteringOverride.Value : settings.scattering;
+	     		Vector3 vector = (absorptionOverride.HasValue ? absorptionOverride.Value : settings.absorption) + scatter * Vector3.one;
+				Vector4 ret = new Vector4(vector.x, vector.y, vector.z, scatter) * d;
+				ret.w = fogStartOverride.HasValue ? fogStartOverride.Value : settings.startDistance;
+				return ret;
+	     	}
+	     	return overriddenExtinction.HasValue ? overriddenExtinction.Value : orig;	
+	    }
+	     
+	    public static Vector4 interceptScattering(Vector4 orig, WaterscapeVolume.Settings settings) {
+	     	SNUtil.writeToChat("Recomputed scatter to "+orig.ToString("0.0000")+" in "+settings.toDetailedString());
+	     	if (scatterColorOverride.HasValue || sunScaleOverride.HasValue) {
+				Vector4 extinctionAndScatteringCoefficients = settings.GetExtinctionAndScatteringCoefficients();
+				Color linear = scatterColorOverride.HasValue ? scatterColorOverride.Value : settings.scatteringColor.linear;
+				Vector4 result;
+				result.x = linear.r * extinctionAndScatteringCoefficients.w;
+				result.y = linear.g * extinctionAndScatteringCoefficients.w;
+				result.z = linear.b * extinctionAndScatteringCoefficients.w;
+				result.w = (sunScaleOverride.HasValue ? sunScaleOverride.Value : settings.sunlightScale) * WaterBiomeManager.main.waterTransmission;
+				return result;
+	     	}
+	     	return overriddenScattering.HasValue ? overriddenScattering.Value : orig;
+	    }
+	     
+	    public static Vector4 interceptEmissive(Vector4 orig, WaterscapeVolume.Settings settings) {
+	     	SNUtil.writeToChat("Recomputed emissive to "+orig.ToString("0.0000")+" in "+settings.toDetailedString());
+	     	return overriddenEmissive.HasValue ? overriddenEmissive.Value : orig;
+	    }
+	    
+	    public static void recomputeFog() {
+	    	WaterBiomeManager.main.Rebuild();
+	    	WaterBiomeManager.main.BuildSettingsTextures();
+	    }
+	    
+	    public static void dumpWaterscapeTextures() {
+	    	WaterBiomeManager wbm = WaterBiomeManager.main;
+	    	//string biome = wbm.GetBiome(Camera.main.transform.position);
+	    	//SNUtil.writeToChat("Dumping biome textures @ "+biome);
+	    	foreach (FieldInfo f in typeof(WaterBiomeManager).GetFields((BindingFlags)0x7fffffff)) {
+	    		object get = f.GetValue(wbm);
+	    		if (get is RenderTexture) {
+	    			SNUtil.writeToChat("Dumping RenderTexture WaterBiomeManager::"+f.Name);
+	    			RenderUtil.dumpTexture(SNUtil.diDLL, f.Name, (RenderTexture)get);
+	    		}
+	    		else if (get is Texture2D) {
+	    			SNUtil.writeToChat("Dumping Texture2D WaterBiomeManager::"+f.Name);
+	    			RenderUtil.dumpTexture(SNUtil.diDLL, f.Name, (Texture2D)get);
+	    		}
+	    		else {
+	    			//SNUtil.writeToChat("Skipping non-texture object "+get);
+	    		}
+	    	}
+	    }
+	    /*
+	    public static void interceptChosenFog(WaterscapeVolume vol, Camera cam) {
+			vol.SetupWaterPlane(cam, vol.waterPlane);
+			vol.biomeManager.SetupConstantsForCamera(cam);
+			if (vol.fogEnabled)
+				Shader.SetGlobalFloat(ShaderPropertyID._UweFogEnabled, 1f);
+			float transmission = vol.GetTransmission();
+			Shader.SetGlobalFloat(ShaderPropertyID._UweCausticsScale, vol.causticsScale * vol.surface.GetCausticsWorldToTextureScale());
+			Shader.SetGlobalVector(ShaderPropertyID._UweCausticsAmount, new Vector3(vol.causticsAmount, vol.surface.GetCausticsTextureScale() * vol.causticsAmount, vol.surface.GetCausticsTextureScale()));
+			Shader.SetGlobalFloat(ShaderPropertyID._UweWaterTransmission, transmission);
+			Shader.SetGlobalFloat(ShaderPropertyID._UweWaterEmissionAmbientScale, vol.emissionAmbientScale);
+			float depth = (cam.transform.position.y - vol.aboveWaterMinHeight) / (vol.aboveWaterMaxHeight - vol.aboveWaterMinHeight);
+			float fogDensity = Mathf.Lerp(1f, vol.aboveWaterDensityScale, depth);
+			Shader.SetGlobalFloat(ShaderPropertyID._UweExtinctionAndScatteringScale, fogDensity);
+			if (vol.sky != null) {
+				Vector3 lightDirection = vol.sky.GetLightDirection();
+			if (KeyCodeUtils.GetKeyHeld(KeyCode.LeftAlt))
+				lightDirection.x = 1;
+			if (KeyCodeUtils.GetKeyHeld(KeyCode.LeftControl))
+				lightDirection.y = 1;
+			if (KeyCodeUtils.GetKeyHeld(KeyCode.LeftShift))
+				lightDirection.z = 1;
+			if (KeyCodeUtils.GetKeyHeld(KeyCode.Tab))
+				SNUtil.writeToChat(lightDirection.ToString());
+				lightDirection.y = Mathf.Min(lightDirection.y, -0.01f);
+				Vector3 camLight = -cam.worldToCameraMatrix.MultiplyVector(lightDirection);
+				Color lightColor = vol.sky.GetLightColor();
+				Vector4 fogValues = lightColor;
+				fogValues.w = vol.sunLightAmount * transmission;
+				float brightness = lightColor.r * 0.3f + lightColor.g * 0.59f + lightColor.b * 0.11f;
+				Shader.SetGlobalVector(ShaderPropertyID._UweFogVsLightDirection, camLight);
+				Shader.SetGlobalVector(ShaderPropertyID._UweFogWsLightDirection, lightDirection);
+				Shader.SetGlobalVector(ShaderPropertyID._UweFogLightColor, fogValues);
+				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, brightness);
+			}
+			else {
+				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightAmount, 0f);
+			}
+			Shader.SetGlobalVector(ShaderPropertyID._UweColorCastFactor, new Vector2(vol.colorCastDistanceFactor, vol.colorCastDepthFactor));
+			Shader.SetGlobalFloat(ShaderPropertyID._UweAboveWaterFogStartDistance, vol.aboveWaterStartDistance);
+			Vector3 scatter = default(Vector3);
+			scatter.x = (1f - vol.scatteringPhase * vol.scatteringPhase) / 12.566371f;
+			scatter.y = 1f + vol.scatteringPhase * vol.scatteringPhase;
+			scatter.z = 2f * vol.scatteringPhase;
+			Shader.SetGlobalVector(ShaderPropertyID._UweFogMiePhaseConst, scatter);
+			Shader.SetGlobalFloat(ShaderPropertyID._UweSunAttenuationFactor, vol.sunAttenuation);
+	    }*/
+	    /*
 	    public static void interceptChosenFog(WaterscapeVolume vol, Camera cam) {
 	    	if (!vol || !cam)
 	    		return;
@@ -1194,14 +1327,11 @@ namespace ReikaKalseki.DIAlterra {
 				Vector3 lightDirection = vol.sky.GetLightDirection();
 				lightDirection.y = Mathf.Min(lightDirection.y, -0.01f);
 				Vector3 v = -cam.worldToCameraMatrix.MultiplyVector(lightDirection);
-				Color lightColor = vol.sky.GetLightColor();
-				fogColor = lightColor;
+				fogColor = vol.sky.GetLightColor();
 				fogColor.w = vol.sunLightAmount * vol.GetTransmission();
-				float value3 = lightColor.r * 0.3f + lightColor.g * 0.59f + lightColor.b * 0.11f;
 				Shader.SetGlobalVector(ShaderPropertyID._UweFogVsLightDirection, v);
 				Shader.SetGlobalVector(ShaderPropertyID._UweFogWsLightDirection, lightDirection);
-				Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, value3);
-			}
+			}/*
 			CustomBiome b = BiomeBase.getBiome(cam.transform.position) as CustomBiome;
 			if (b != null) {
 				fogColor = fogColor.setXYZ(b.getFogColor(fogColor.getXYZ()));
@@ -1212,11 +1342,22 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (fogCalculateEvent != null)
 	    		fogCalculateEvent.Invoke(wf);
 	    	Vector4 vec4 = wf.color.toVectorA();
-	    	vec4.w = wf.sunValue;
+	    	vec4.w = wf.sunValue;*//*Vector4 vec4 = fogColor;
 	    	//SNUtil.writeToChat("Fog color "+vec4+", with density "+fogDensity.ToString("0.000"));
 			Shader.SetGlobalVector(ShaderPropertyID._UweFogLightColor, vec4);
-			Shader.SetGlobalFloat(ShaderPropertyID._UweExtinctionAndScatteringScale, wf.density);
-	    }
+			Shader.SetGlobalFloat(ShaderPropertyID._UweExtinctionAndScatteringScale, /*wf.density*//*fogDensity);
+			float value3 = fogColor.x * 0.3f + fogColor.y * 0.59f + fogColor.z * 0.11f;
+			Shader.SetGlobalFloat(ShaderPropertyID._UweFogLightGreyscaleColor, value3);
+			Vector3 v2 = default(Vector3);
+			v2.x = (1f - vol.scatteringPhase * vol.scatteringPhase) / 12.566371f;
+			v2.y = 1f + vol.scatteringPhase * vol.scatteringPhase;
+			v2.z = 2f * vol.scatteringPhase;
+			Shader.SetGlobalVector(ShaderPropertyID._UweFogMiePhaseConst, v2);
+			Shader.SetGlobalFloat(ShaderPropertyID._UweSunAttenuationFactor, vol.sunAttenuation);
+			Shader.SetGlobalVector(ShaderPropertyID._UweColorCastFactor, new Vector2(vol.colorCastDistanceFactor, vol.colorCastDepthFactor));
+			Shader.SetGlobalFloat(ShaderPropertyID._UweAboveWaterFogStartDistance, vol.aboveWaterStartDistance);
+			//SNUtil.writeToChat("Applying fog of "+vol+" @ "+vol.transform.position);
+	    }*/
 	    
 	    public static bool interceptConstructability(/*Collider c*/) {
 	    	bool orig = Builder.UpdateAllowed();

@@ -22,7 +22,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal static class SeabaseReconstruction {
+	public static class SeabaseReconstruction {
 		
 		private static readonly Dictionary<string, SeabasePrefab> dataCache = new Dictionary<string, SeabasePrefab>();
 		
@@ -44,7 +44,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		class WorldgenSeabaseController : MonoBehaviour {
+		public class WorldgenSeabaseController : MonoBehaviour {
 			
 			private static readonly string GEN_MARKER = "GenMarker";
 			

@@ -23,6 +23,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private readonly Assembly ownerMod;
 		
+		private PDAManager.PDAPage page;
+		
 		public float glowIntensity {get; set;}		
 		public StringPrefabContainer baseTemplate {get; set;}
 		
@@ -95,7 +97,20 @@ namespace ReikaKalseki.DIAlterra
 				e.isFragment = true;
 				e.totalFragments = needed;
 				e.key = GenUtil.getFragment(TechType, 0).TechType;
+				if (page != null)
+					e.encyclopedia = page.id;
 			});
+		}
+		
+		public void addPDAPage(string text, string pageHeader = null) {
+			page = PDAManager.createPage("ency_"+ClassID, FriendlyName, text, isPowerGenerator() ? "Tech/Power" : "Tech/Habitats");
+			if (pageHeader != null)
+				page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/"+pageHeader));
+			page.register();
+		}
+		
+		protected virtual bool isPowerGenerator() {
+			return false;
 		}
 		
 		//protected abstract OrientedBounds[] GetBounds { get; }

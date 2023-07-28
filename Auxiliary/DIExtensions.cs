@@ -326,11 +326,11 @@ namespace ReikaKalseki.DIAlterra
 		}
 		*/
 		public static string toDebugString<K, V>(this IDictionary<K, V> dict) {
-			return "{" + string.Join(",", dict.Select(kv => kv.Key + "=" + stringify(kv.Value)).ToArray()) + "}";//return toDebugString((IDictionary<object, object>)dict);
+			return dict.Count+":{" + string.Join(",", dict.Select(kv => kv.Key + "=" + stringify(kv.Value)).ToArray()) + "}";//return toDebugString((IDictionary<object, object>)dict);
 		}
 		
 		public static string toDebugString<E>(this IEnumerable<E> c) {
-			return "[" + string.Join(",", c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
+			return c.Count()+":[" + string.Join(",", c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
 		}
 		
 		public static bool overlaps<E>(this ICollection<E> c, ICollection<E> other) {
@@ -378,6 +378,10 @@ namespace ReikaKalseki.DIAlterra
 	         
 	         return comp;
 	     }
+		
+		public static string toDetailedString(this WaterscapeVolume.Settings s) {
+			return String.Format("Start={0:0.0000}, Murk={1:0.0000}, Absorb={2:0.0000}, AmbScale={3:0.0000}, Emissive={4}, EmisScale={5:0.0000}, Scatter={6:0.0000}, ScatterColor={7}, Sun={8:0.0000}, Temp={9}", s.startDistance, s.murkiness, s.absorption, s.ambientScale, s.emissive.ToString("0.0000"), s.emissiveScale, s.scattering, s.scatteringColor.ToString("0.0000"), s.sunlightScale, s.temperature);
+		}
 		
 	}
 }

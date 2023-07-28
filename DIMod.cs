@@ -139,6 +139,7 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand("bdtex", BuildingHandler.instance.dumpTextures);
         BuildingHandler.instance.addCommand("bdact", BuildingHandler.instance.activateObject);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
+        ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("dumpBiomeTex", DIHooks.dumpWaterscapeTextures);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("clear000", clear000);

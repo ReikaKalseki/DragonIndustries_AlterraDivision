@@ -214,6 +214,23 @@ batch_id = (19, 17, 16)
 			
 		}*/
 		
+		public static List<RaycastHit> getTerrainMountedPositionsAround(Vector3 pos, float range, int num) {
+			List<RaycastHit> ret = new List<RaycastHit>();
+			for (int i = 0; i < num; i++) {
+				Vector3 diff = new Vector3(UnityEngine.Random.Range(-range, range), 0, UnityEngine.Random.Range(-range, range)).setLength(UnityEngine.Random.Range(0.01F, range));
+				Vector3 pos2 = (pos+diff).setY(pos.y+15);
+				RaycastHit? hit = getTerrainVectorAt(pos2, 25);
+				if (hit.HasValue)
+					ret.Add(hit.Value);
+			}
+			return ret;
+		}
+		
+		public static RaycastHit? getTerrainVectorAt(Vector3 pos, float maxDown = 1) {
+			Ray ray = new Ray(pos, Vector3.down);
+			return UWE.Utils.RaycastIntoSharedBuffer(ray, maxDown, Voxeland.GetTerrainLayerMask()) > 0 ? UWE.Utils.sharedHitBuffer[0] : (RaycastHit?)null;
+		}
+		
 		public static void setParticlesTemporary(ParticleSystem p, float dur, float killOffset = 5) {
 			p.Play(true);
 			p.gameObject.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);

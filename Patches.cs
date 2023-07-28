@@ -931,15 +931,111 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	/*
 	[HarmonyPatch(typeof(WaterscapeVolume))]
 	[HarmonyPatch("PreRender")]
 	public static class WaterFogShaderHook {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				//int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "uSkyManager", "GetLightColor", true, new Type[0]);
+				//codes.InsertRange(idx+1, new List<CodeInstruction>{new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptChosenColor", false, typeof(Color), typeof(WaterscapeVolume), typeof(Camera))});
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptChosenFog", false, typeof(WaterscapeVolume), typeof(Camera)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}*/
+	
+	[HarmonyPatch(typeof(WaterBiomeManager))]
+	[HarmonyPatch("RasterizeAtmosphereVolumes")]
+	public static class WaterFogShaderHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {/*
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "WaterBiomeManager", "GetEmissiveTextureValue", true, new Type[]{typeof(WaterscapeVolume.Settings)});
+				CodeInstruction settings = codes[idx-1];
+				List<CodeInstruction> add = new List<CodeInstruction>{
+					new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), new CodeInstruction(OpCodes.Ldarg_2), new CodeInstruction(settings.opcode, settings.operand),
+					InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "overrideFog", false, typeof(WaterBiomeManager), typeof(Vector3), typeof(bool), typeof(WaterscapeVolume.Settings))
+				};
+				codes.InsertRange(idx+2, add);*/
+				List<CodeInstruction> add = new List<CodeInstruction>{
+					new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), new CodeInstruction(OpCodes.Ldarg_2),
+					InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onFogRasterized", false, typeof(WaterBiomeManager), typeof(Vector3), typeof(bool))
+				};
+				InstructionHandlers.patchInitialHook(add);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(WaterBiomeManager))]
+	[HarmonyPatch("GetExtinctionTextureValue")]
+	public static class ExtinctionTextureHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptChosenFog", false, typeof(WaterscapeVolume), typeof(Camera)));
+				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptExtinction", false, typeof(Vector4), typeof(WaterscapeVolume.Settings)));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(WaterBiomeManager))]
+	[HarmonyPatch("GetScatteringTextureValue")]
+	public static class ScatterTextureHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptScattering", false, typeof(Vector4), typeof(WaterscapeVolume.Settings)));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(WaterBiomeManager))]
+	[HarmonyPatch("GetEmissiveTextureValue")]
+	public static class EmissiveTextureHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "interceptEmissive", false, typeof(Vector4), typeof(WaterscapeVolume.Settings)));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
