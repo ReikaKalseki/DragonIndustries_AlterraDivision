@@ -283,7 +283,7 @@ namespace ReikaKalseki.DIAlterra
 			selectLastPlaced();
 		}
 		
-		private string getDumpFile(string name) {
+		public string getDumpFile(string name) {
 			string folder = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "ObjectDump");
 			Directory.CreateDirectory(folder);
 			return Path.Combine(folder, name+".xml");

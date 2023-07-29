@@ -37,6 +37,8 @@ namespace ReikaKalseki.DIAlterra
 			OnFinishedPatching += () => {
 				DIMod.machineList[TechType] = this;
 				SaveSystem.addSaveHandler(ClassID, saveHandler);
+				if (page != null)
+					TechnologyUnlockSystem.instance.registerPage(TechType, page);
 			};
 		}
 		
@@ -107,6 +109,8 @@ namespace ReikaKalseki.DIAlterra
 			if (pageHeader != null)
 				page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/"+pageHeader));
 			page.register();
+			if (IsPatched)
+				TechnologyUnlockSystem.instance.registerPage(TechType, page);
 		}
 		
 		protected virtual bool isPowerGenerator() {

@@ -271,8 +271,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void NotifyGoalComplete(string key) {
-				if (key == containedTech.AsString())
+				if (key == containedTech.AsString()) {
 					SNUtil.triggerTechPopup(containedTech);
+					TechnologyUnlockSystem.instance.triggerDirectUnlock(containedTech, false);
+				}
 			}
 			
 		}

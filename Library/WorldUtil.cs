@@ -119,6 +119,7 @@ batch_id = (19, 17, 16)
 			return set;
 		}
 		
+		/** Will not find things without colliders! */
 		public static HashSet<C> getObjectsNearWithComponent<C>(Vector3 pos, float r) where C : MonoBehaviour {
 			HashSet<C> set = new HashSet<C>();
 			/*

@@ -73,6 +73,12 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures GHOST_LEVIATHAN = new VanillaCreatures("54701bfc-bb1a-4a84-8f79-ba4f76691bef").addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.GRANDREEF).addBiome(VanillaBiomes.VOID);
 		public static readonly VanillaCreatures SEADRAGON = new VanillaCreatures("ff43eacd-1a9e-4182-ab7b-aa43c16d1e53").addBiome(VanillaBiomes.ILZ).addBiome(VanillaBiomes.ALZ);
 		
+		public static readonly VanillaCreatures SCHOOL_HOOPFISH = new VanillaCreatures("08cb3290-504b-4191-97ee-6af1588af5c0").addBiome(VanillaBiomes.MOUNTAINS).addBiome(VanillaBiomes.KELP);
+		public static readonly VanillaCreatures SCHOOL_SPINEFISH = new VanillaCreatures("2d3ea578-e4fa-4246-8bc9-ed8e66dec781").addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.LOSTRIVER);
+		public static readonly VanillaCreatures SCHOOL_BOOMERANG = new VanillaCreatures("8ffbb5b5-21b4-4687-9118-730d59330c9a").addBiome(VanillaBiomes.SHALLOWS).addBiome(VanillaBiomes.CRASH).addBiome(VanillaBiomes.CRAG).addBiome(VanillaBiomes.REDGRASS).addBiome(VanillaBiomes.GRANDREEF).addBiome(VanillaBiomes.KOOSH);
+		public static readonly VanillaCreatures SCHOOL_BLADDERFISH = new VanillaCreatures("a7b70c23-8e57-43e0-ab39-e02a29341376").addBiome(VanillaBiomes.SHALLOWS).addBiome(VanillaBiomes.REDGRASS).addBiome(VanillaBiomes.GRANDREEF);
+		public static readonly VanillaCreatures SCHOOL_HOLEFISH = new VanillaCreatures("ce23b9ee-fd98-4677-9919-20248356f7cf").addBiome(VanillaBiomes.SHALLOWS).addBiome(VanillaBiomes.CRASH);
+		
 		private static readonly Dictionary<string, VanillaCreatures> names = new Dictionary<string, VanillaCreatures>();
 		
 		public static VanillaCreatures getByName(string n) {

@@ -25,8 +25,7 @@ namespace ReikaKalseki.DIAlterra
 			
 		protected Guid? xmlID;
 		
-		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null, Vector3? sc = null)
-		{
+		public PositionedPrefab(string pfb, Vector3? pos = null, Quaternion? rot = null, Vector3? sc = null) {
 			prefabName = pfb;
 			position = GenUtil.getOrZero(pos);
 			rotation = GenUtil.getOrIdentity(rot);
@@ -34,8 +33,14 @@ namespace ReikaKalseki.DIAlterra
 				scale = sc.Value;
 		}
 		
-		public PositionedPrefab(PositionedPrefab pfb)
-		{
+		public PositionedPrefab(PrefabIdentifier pi) {
+			prefabName = pi.classId;
+			position = pi.transform.position;
+			rotation = pi.transform.rotation;
+			scale = pi.transform.localScale;
+		}
+		
+		public PositionedPrefab(PositionedPrefab pfb) {
 			prefabName = pfb.prefabName;
 			position = pfb.position;
 			rotation = pfb.rotation;

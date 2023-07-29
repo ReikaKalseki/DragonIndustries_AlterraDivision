@@ -22,9 +22,16 @@ namespace ReikaKalseki.DIAlterra
 		public StringPrefabContainer baseTemplate {get; set;}
 		
 		public TechType dependency = TechType.None;
+		private PDAManager.PDAPage page;
 		
 		protected CustomEquipable(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
-			
+			if (!string.IsNullOrEmpty(e.pda)) {
+				page = PDAManager.createPage("ency_"+ClassID, FriendlyName, e.pda, "Tech/Equipment");
+				string header = e.getField<string>("header");
+				if (header != null)
+					page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/"+header));
+				page.register();
+			}
 		}
 		
 		protected CustomEquipable(string id, string name, string desc, string template) : base(id, name, desc) {
@@ -34,7 +41,11 @@ namespace ReikaKalseki.DIAlterra
 			
 			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);
 			
-			OnFinishedPatching += () => {ItemRegistry.instance.addItem(this);};
+			OnFinishedPatching += () => {
+				ItemRegistry.instance.addItem(this);
+				if (page != null)
+					TechnologyUnlockSystem.instance.registerPage(TechType, page);
+			};
 		}
 		/*
 		public TechType getTechType() {

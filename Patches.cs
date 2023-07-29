@@ -956,7 +956,7 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}*/
-	
+	/*
 	[HarmonyPatch(typeof(WaterBiomeManager))]
 	[HarmonyPatch("RasterizeAtmosphereVolumes")]
 	public static class WaterFogShaderHook {
@@ -970,7 +970,7 @@ namespace ReikaKalseki.DIAlterra {
 					new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), new CodeInstruction(OpCodes.Ldarg_2), new CodeInstruction(settings.opcode, settings.operand),
 					InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "overrideFog", false, typeof(WaterBiomeManager), typeof(Vector3), typeof(bool), typeof(WaterscapeVolume.Settings))
 				};
-				codes.InsertRange(idx+2, add);*/
+				codes.InsertRange(idx+2, add);*//*
 				List<CodeInstruction> add = new List<CodeInstruction>{
 					new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), new CodeInstruction(OpCodes.Ldarg_2),
 					InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onFogRasterized", false, typeof(WaterBiomeManager), typeof(Vector3), typeof(bool))
@@ -987,7 +987,7 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	*/
 	[HarmonyPatch(typeof(WaterBiomeManager))]
 	[HarmonyPatch("GetExtinctionTextureValue")]
 	public static class ExtinctionTextureHook {

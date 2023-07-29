@@ -20,6 +20,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static readonly TechnologyUnlockSystem instance = new TechnologyUnlockSystem();
 	    
 	    private readonly Dictionary<TechType, List<TechType>> directUnlocks = new Dictionary<TechType, List<TechType>>();
+	    private readonly Dictionary<TechType, PDAManager.PDAPage> techPages = new Dictionary<TechType, PDAManager.PDAPage>();
 		
 		private TechnologyUnlockSystem() {
 	    	
@@ -30,6 +31,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	li.Add(to);
 	    	directUnlocks[from] = li;
 	    }
+	    
+	    public void registerPage(TechType from, PDAManager.PDAPage page) {
+	    	techPages[from] = page;
+	    }
 		
 		public void onLogin() {
 	    	foreach (TechType kvp in directUnlocks.Keys) {
@@ -39,7 +44,10 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 		}
 	   
-		public void triggerDirectUnlock(TechType tt) {
+		public void triggerDirectUnlock(TechType tt, bool allowPopups = true) {
+	    	if (techPages.ContainsKey(tt)) {
+	    		techPages[tt].unlock(false);
+	    	}
 	    	if (!directUnlocks.ContainsKey(tt))
 	   			return;
 	    	List<TechType> li = directUnlocks[tt];
@@ -57,10 +65,12 @@ namespace ReikaKalseki.DIAlterra {
 		    		SNUtil.log("Raising progression popup for "+tt2, SNUtil.diDLL);
 		    		li2.Add(tt2);
 		    	}
-		    	if (li2.Count > 1)
-		    		SNUtil.triggerMultiTechPopup(li2);
-		    	else if (li2.Count == 1)
-		    		SNUtil.triggerTechPopup(li2[0]);
+		    	if (allowPopups) {
+			    	if (li2.Count > 1)
+			    		SNUtil.triggerMultiTechPopup(li2);
+			    	else if (li2.Count == 1)
+			    		SNUtil.triggerTechPopup(li2[0]);
+		    	}
 	    	}
 	    	
 		   	foreach (TechType unlock in li) {

@@ -123,7 +123,7 @@ namespace ReikaKalseki.DIAlterra
 				return !string.IsNullOrEmpty(storyGate) && StoryGoalManager.main.completedGoals.Contains(storyGate);
 			}
 		
-			public void activate(int delay = 0) {					
+			public void activate(int delay = 0) {
 				signalHolder.signalInstance.displayPingInManager = true;
 				signalHolder.signalInstance.enabled = true;
 				signalHolder.signalInstance.SetVisible(true);

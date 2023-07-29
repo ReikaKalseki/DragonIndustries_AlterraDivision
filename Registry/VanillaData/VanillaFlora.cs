@@ -124,6 +124,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora BLOOD_KELP = new VanillaFlora(6, 0.1, "1c28891f-df08-4eee-a081-118955b0d303", "461487ff-aea5-426e-b473-a378dca662b9", "66f2188b-b537-49ac-b6e7-08f446eca9e8", "8c4ba581-e392-41ab-80a9-a4a2745dcfdb", "a4912ba2-5643-46ee-bd69-6be53dd55d45", "d0811984-35bb-435f-acad-3abcf4fb5d32", "d69d04e9-bef6-4229-9bea-a76378cb0018", "e0ae8532-a6d5-436f-bdc0-846061d91686").markResources().addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.BLOODKELP);
 		public static readonly VanillaFlora COVE_TREE = new VanillaFlora("0e7cc3b9-cdf2-42d9-9c1f-c11b94277c19", 5, 4).addBiome(VanillaBiomes.COVE);
 		public static readonly VanillaFlora GRUE_CLUSTER = new VanillaFlora(6, "71498905-2ce2-4622-8d6f-40212f6202df", "6f5c4850-b8bd-461a-999d-1c49d69ffe3a", "94d7ed83-abb8-49af-9f27-10771dcd1485", "82287160-87eb-4fdd-ae33-945ba666ae60").addBiome(VanillaBiomes.MUSHROOM).addBiome(VanillaBiomes.TREADER, true);
+		public static readonly VanillaFlora MUSHROOM_BUMP = new VanillaFlora(0, "5086a02a-ea6d-41ba-90c3-ea74d97cf6b5", "961194a9-e88b-40d7-900d-a48c5b739352", "a1f8e7cf-83ae-438c-9197-3321374eca56", "f3de21af-550b-4901-a6e8-e45e31c1509d", "fe145621-5b25-4000-a3dd-74c1aaa961e2").addBiome(VanillaBiomes.MUSHROOM);
 		
 		private static readonly Dictionary<string, VanillaFlora> names = new Dictionary<string, VanillaFlora>();
 		
@@ -213,7 +214,7 @@ namespace ReikaKalseki.DIAlterra
 			return this;
 		}
 		
-		private VanillaFlora addBiome(BiomeBase biome, bool caveOnly = false) {
+		public VanillaFlora addBiome(BiomeBase biome, bool caveOnly = false) {
 			biomeSetCave.Add(biome);
 			if (!caveOnly)
 				biomeSetSurface.Add(biome);

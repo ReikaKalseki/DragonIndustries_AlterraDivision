@@ -33,9 +33,38 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public abstract VanillaMusic[] getMusicOptions();
-		public abstract Vector3 getFogColor(Vector3 orig);
-		public abstract float getSunIntensity(float orig);
-		public abstract float getFogDensity(float orig);
+		
+		public virtual float getMurkiness(float orig) {
+			return orig;
+		}
+		
+		public virtual float getScatteringFactor(float orig) {
+			return orig;
+		}
+		
+		public virtual Vector3 getColorFalloff(Vector3 orig) {
+			return orig;
+		}
+		
+		public virtual float getFogStart(float orig) {
+			return orig;
+		}
+		
+		public virtual float getScatterFactor(float orig) {
+			return orig;
+		}
+		
+		public virtual Color getWaterColor(Color orig) {
+			return orig;
+		}
+		
+		public virtual float getSunScale(float orig) {
+			return orig;
+		}
+		
+		public virtual Vector4 getEmissiveVector(Vector4 orig) {
+			return orig;
+		}
 		
 		public static void tickMusic(DayNightCycle cyc) {
 			if (cyc.timePassedAsFloat >= nextMusicChoiceTime) {

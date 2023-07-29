@@ -47,7 +47,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<EMPBlast, GameObject> onEMPHitEvent;
 	    public static event Action<EMPBlast, Collider> onEMPTouchEvent;
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
-	    public static event Action<WaterFogValues> fogCalculateEvent;
+	    //public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
 	    public static event Action<StoryHandCheck> storyHandEvent;
 	    public static event Action<RadiationCheck> radiationCheckEvent;
@@ -67,6 +67,8 @@ namespace ReikaKalseki.DIAlterra {
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
 		private static bool hasLoadedAWorld = false;
+		
+		private static CustomBiome currentCustomBiome;
 	    
 	    static DIHooks() {
 	    	
@@ -468,6 +470,10 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void tickPlayer(Player ep) {
+	    	CustomBiome b = BiomeBase.getBiome(Camera.main.transform.position) as CustomBiome;
+	    	if (currentCustomBiome != b)
+	    		recomputeFog();
+	    	currentCustomBiome = b;
 	    	if (Time.timeScale <= 0)
 	    		return;
 	    	updateNotice.SetColor(Color.yellow);
@@ -1194,53 +1200,47 @@ namespace ReikaKalseki.DIAlterra {
 	    	biomes.atmosphereVolumeMaterial.SetVector(ShaderPropertyID._Value, biomes.GetExtinctionTextureValue(settings));
 			biomes.atmosphereVolumeMaterial.SetVector(ShaderPropertyID._Value1, biomes.GetScatteringTextureValue(settings));
 			biomes.atmosphereVolumeMaterial.SetVector(ShaderPropertyID._Value2, biomes.GetEmissiveTextureValue(settings));
-	    }*/
+	    }
 	    
 	    public static void onFogRasterized(WaterBiomeManager biomes, Vector3 pos, bool detail) {
 	    	SNUtil.writeToChat("Rasterizing fog @ "+pos);
-	    }
-	     
-	     public static Vector4? overriddenExtinction;
-	     public static Vector4? overriddenScattering;
-	     public static Vector4? overriddenEmissive;
-	     public static Color? scatterColorOverride;
-	     public static float? murkinessOverride;
-	     public static Vector3? absorptionOverride;
-	     public static float? scatteringOverride;
-	     public static float? fogStartOverride;
-	     public static float? sunScaleOverride;
+	    }*/
 	     
 	    public static Vector4 interceptExtinction(Vector4 orig, WaterscapeVolume.Settings settings) {
-	     	SNUtil.writeToChat("Recomputed extinction to "+orig.ToString("0.0000")+" in "+settings.toDetailedString());
-	     	if (murkinessOverride.HasValue || absorptionOverride.HasValue || scatteringOverride.HasValue || fogStartOverride.HasValue) {
-	     		float d = (murkinessOverride.HasValue ? murkinessOverride.Value : settings.murkiness) / 100f;
-	     		float scatter = scatteringOverride.HasValue ? scatteringOverride.Value : settings.scattering;
-	     		Vector3 vector = (absorptionOverride.HasValue ? absorptionOverride.Value : settings.absorption) + scatter * Vector3.one;
+	     	BiomeBase at = BiomeBase.getBiome(Camera.main.transform.position);
+	     	if (at is CustomBiome) {
+	     		CustomBiome b = (CustomBiome)at;
+	     		float d = b.getMurkiness(settings.murkiness) / 100f;
+	     		float scatter = b.getScatteringFactor(settings.scattering);
+	     		Vector3 vector = b.getColorFalloff(settings.absorption) + scatter * Vector3.one;
 				Vector4 ret = new Vector4(vector.x, vector.y, vector.z, scatter) * d;
-				ret.w = fogStartOverride.HasValue ? fogStartOverride.Value : settings.startDistance;
+				ret.w = b.getFogStart(settings.startDistance);
 				return ret;
 	     	}
-	     	return overriddenExtinction.HasValue ? overriddenExtinction.Value : orig;	
+	     	return orig;	
 	    }
 	     
 	    public static Vector4 interceptScattering(Vector4 orig, WaterscapeVolume.Settings settings) {
-	     	SNUtil.writeToChat("Recomputed scatter to "+orig.ToString("0.0000")+" in "+settings.toDetailedString());
-	     	if (scatterColorOverride.HasValue || sunScaleOverride.HasValue) {
-				Vector4 extinctionAndScatteringCoefficients = settings.GetExtinctionAndScatteringCoefficients();
-				Color linear = scatterColorOverride.HasValue ? scatterColorOverride.Value : settings.scatteringColor.linear;
+	     	BiomeBase at = BiomeBase.getBiome(Camera.main.transform.position);
+	     	if (at is CustomBiome) {
+	     		CustomBiome b = (CustomBiome)at;
+	     		float factor = b.getScatterFactor(settings.GetExtinctionAndScatteringCoefficients().w);
+				Color linear = b.getWaterColor(settings.scatteringColor.linear);
 				Vector4 result;
-				result.x = linear.r * extinctionAndScatteringCoefficients.w;
-				result.y = linear.g * extinctionAndScatteringCoefficients.w;
-				result.z = linear.b * extinctionAndScatteringCoefficients.w;
-				result.w = (sunScaleOverride.HasValue ? sunScaleOverride.Value : settings.sunlightScale) * WaterBiomeManager.main.waterTransmission;
+				result.x = linear.r * factor;
+				result.y = linear.g * factor;
+				result.z = linear.b * factor;
+				result.w = b.getSunScale(settings.sunlightScale) * WaterBiomeManager.main.waterTransmission;
 				return result;
 	     	}
-	     	return overriddenScattering.HasValue ? overriddenScattering.Value : orig;
+	     	return orig;
 	    }
 	     
 	    public static Vector4 interceptEmissive(Vector4 orig, WaterscapeVolume.Settings settings) {
-	     	SNUtil.writeToChat("Recomputed emissive to "+orig.ToString("0.0000")+" in "+settings.toDetailedString());
-	     	return overriddenEmissive.HasValue ? overriddenEmissive.Value : orig;
+	     	BiomeBase at = BiomeBase.getBiome(Camera.main.transform.position);
+	     	if (at is CustomBiome)
+	     		return ((CustomBiome)at).getEmissiveVector(orig);
+	     	return orig;
 	    }
 	    
 	    public static void recomputeFog() {
