@@ -137,7 +137,7 @@ batch_id = (19, 17, 16)
 				}
 			}
 			*/
-			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F)) {
+			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F, -5, QueryTriggerInteraction.Collide)) {
 				if (hit.transform) {
 					GameObject go = UWE.Utils.GetEntityRoot(hit.transform.gameObject);
 					if (!go)
@@ -231,7 +231,17 @@ batch_id = (19, 17, 16)
 			Ray ray = new Ray(pos, Vector3.down);
 			return UWE.Utils.RaycastIntoSharedBuffer(ray, maxDown, Voxeland.GetTerrainLayerMask()) > 0 ? UWE.Utils.sharedHitBuffer[0] : (RaycastHit?)null;
 		}
-		
+		/*
+		public static bool isScannerRoomInRange(Vector3 position, bool needFunctional = true, float maxRange = 500, TechType scanningFor = TechType.None) {
+			foreach (MapRoomFunctionality room in getObjectsNearWithComponent<MapRoomFunctionality>(position, maxRange)) {
+				bool working = !needFunctional || room.CheckIsPowered();
+				bool finding = scanningFor == TechType.None || room.typeToScan == scanningFor;
+				if (working && finding && Vector3.Distance(room.transform.position, position) <= room.GetScanRange())
+					return true;
+			}
+			return false;
+		}
+		*/
 		public static void setParticlesTemporary(ParticleSystem p, float dur, float killOffset = 5) {
 			p.Play(true);
 			p.gameObject.EnsureComponent<TransientParticleTag>().Invoke("stop", dur);

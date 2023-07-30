@@ -17,6 +17,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public readonly TechType creatureToSpawn;
 		private readonly TechType template;
+		private TechType undiscoveredTechType;
 		
 		private readonly string creatureID;
 		
@@ -24,6 +25,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private string eggTexture;
 		public string creatureHeldDesc = null;
+		private Action<GameObject> objectModify = null;
 		
 		public int eggSize = 2;
 		public int creatureSize = 3;
@@ -66,6 +68,10 @@ namespace ReikaKalseki.DIAlterra {
 			
 			WaterParkCreature.waterParkCreatureParameters[creatureToSpawn] = eggProperties;
 			
+			undiscoveredTechType = TechTypeHandler.AddTechType(ownerMod, ClassID+"_undiscovered", "", "");
+			SpriteHandler.RegisterSprite(undiscoveredTechType, GetItemSprite());
+			CraftDataHandler.SetItemSize(undiscoveredTechType, SizeInInventory);
+			
 			//WaterParkCreatureData data = ScriptableObject.CreateInstance<WaterParkCreatureData>();
 			
 			SNUtil.log("Constructed custom egg for "+creatureID+": "+TechType, ownerMod);
@@ -82,6 +88,10 @@ namespace ReikaKalseki.DIAlterra {
 			SpriteHandler.RegisterSprite(creatureToSpawn, TextureManager.getSprite(ownerMod, eggTexture+creatureID+"_Hatched"));
 		}
 		
+		public void modifyGO(Action<GameObject> a) {
+			objectModify = a;
+		}
+		
 		protected sealed override Atlas.Sprite GetItemSprite() {
 			return TextureManager.getSprite(ownerMod, "Textures/Items/Egg_"+creatureID);
 		}
@@ -90,12 +100,14 @@ namespace ReikaKalseki.DIAlterra {
 			GameObject pfb = ObjectUtil.createWorldObject(template);
 			CreatureEgg egg = pfb.EnsureComponent<CreatureEgg>();
 			egg.eggType = TechType;
-			egg.overrideEggType = TechType;
+			egg.overrideEggType = undiscoveredTechType; //undiscovered
 			egg.hatchingCreature = creatureToSpawn;
 			egg.explodeOnHatch = false;
 			ObjectUtil.fullyEnable(pfb);
 			pfb.transform.localScale = Vector3.one*eggScale;
 			RenderUtil.swapTextures(ownerMod, pfb.GetComponentInChildren<Renderer>(), eggTexture+creatureID);
+			if (objectModify != null)
+				objectModify.Invoke(pfb);
 			return pfb;
 		}
 		
@@ -104,6 +116,10 @@ namespace ReikaKalseki.DIAlterra {
 				string cname = Language.main.Get(e.creatureToSpawn);
 				LanguageHandler.SetLanguageLine(e.TechType.AsString(), cname+" Egg");
 				LanguageHandler.SetLanguageLine("Tooltip_"+e.TechType.AsString(), "Hatches a "+cname);
+				
+				LanguageHandler.SetLanguageLine(e.undiscoveredTechType.AsString(), Language.main.Get(TechType.BonesharkEggUndiscovered));
+				LanguageHandler.SetLanguageLine("Tooltip_"+e.undiscoveredTechType.AsString(), Language.main.Get("Tooltip_"+TechType.BonesharkEggUndiscovered.AsString()));
+				
 				SNUtil.log("Relocalized "+e+" > "+Language.main.Get(e.TechType), e.ownerMod);
 				if (!string.IsNullOrEmpty(e.creatureHeldDesc)) {
 					LanguageHandler.SetLanguageLine("Tooltip_"+e.creatureToSpawn.AsString(), e.creatureHeldDesc+"\nRaised in containment.");

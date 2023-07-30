@@ -68,7 +68,14 @@ namespace ReikaKalseki.DIAlterra
         
         locale.load();
         
-        createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground);
+        createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground).modifyGO(e => 
+		{
+       		foreach (Renderer r in e.GetComponentsInChildren<Renderer>()) {
+				RenderUtil.makeTransparent(r);
+				RenderUtil.setGlossiness(r.material, 10, 6, 0.5F);
+				r.material.SetColor("_SpecColor", new Color(1, 1, 0.8F, 1));
+			}
+		});
         createEgg(TechType.GhostRayBlue, TechType.JumperEgg, 1.75F, "GhostRayDesc", true, 0.12F, 2, 1, BiomeType.TreeCove_LakeFloor);
         createEgg(TechType.GhostRayRed, TechType.CrabsnakeEgg, 1.25F, "CrimsonRayDesc", true, 0.6F, 2, 1, BiomeType.InactiveLavaZone_Chamber_Floor_Far);
         createEgg(TechType.Biter, TechType.RabbitrayEgg, 1F, "BiterDesc", false, 0.6F, 2, 1, BiomeType.GrassyPlateaus_CaveFloor, BiomeType.Mountains_CaveFloor);
@@ -100,7 +107,7 @@ namespace ReikaKalseki.DIAlterra
     	Player.main.GetComponent<LiveMixin>().TakeDamage(99999);
     }
     
-    private static void createEgg(TechType creature, TechType basis, float scale, string locKey, bool isBig, float grownScale, float daysToGrow, float rate, params BiomeType[] spawn) {
+    private static CustomEgg createEgg(TechType creature, TechType basis, float scale, string locKey, bool isBig, float grownScale, float daysToGrow, float rate, params BiomeType[] spawn) {
     	Action<CustomEgg> a = e => {
     		e.eggProperties.maxSize = grownScale;
     		if (!isBig)
@@ -108,8 +115,9 @@ namespace ReikaKalseki.DIAlterra
     		e.eggProperties.growingPeriod = daysToGrow*20*60;
     	};
     	SNUtil.allowDIDLL = true;
-    	CustomEgg.createAndRegisterEgg(creature, basis, scale, locale.getEntry(locKey).desc, isBig, a, rate, spawn);
+    	CustomEgg egg = CustomEgg.createAndRegisterEgg(creature, basis, scale, locale.getEntry(locKey).desc, isBig, a, rate, spawn);
     	SNUtil.allowDIDLL = false;
+    	return egg;
     }
     
     [QModPostPatch]

@@ -414,13 +414,14 @@ namespace ReikaKalseki.DIAlterra
 			private SupplyCrate crate;
 			
 			private Pickupable item;
+			private bool spawnedItem = false;
 			
 			void Update() {
 				if (!reference)
 					reference = GetComponentInChildren<PrefabPlaceholder>();
 				if (!crate)
 					crate = GetComponent<SupplyCrate>();
-				if (reference && !item) {
+				if (reference && !item && !spawnedItem) {
 					GameObject go = ObjectUtil.createWorldObject(reference.prefabClassId, true, false);
 					go.transform.parent = transform;
 					go.SetActive(true);
@@ -428,6 +429,7 @@ namespace ReikaKalseki.DIAlterra
 					go.transform.localRotation = Quaternion.identity;
 					go.GetComponent<Rigidbody>().isKinematic = true;
 					item = go.GetComponent<Pickupable>();
+					spawnedItem = true;
 				}
 				cleanDuplicateInternalItems();
 				if (reference && crate && crate.open) {

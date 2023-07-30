@@ -63,6 +63,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<Survival, Player, bool> respawnEvent;
 	    public static event Action<PropulsibilityCheck> propulsibilityEvent;
 	    public static event Action<Drillable, Vector3, Exosuit> drillableDrillTickEvent;
+	    public static event Action<DroppabilityCheck> droppabilityEvent;
+	    public static event Action<MapRoomFunctionality> scannerRoomTickEvent;	    
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -364,7 +366,23 @@ namespace ReikaKalseki.DIAlterra {
 	    		originalCrushValue = crush;
 	    		crushValue = crush;
 	    	}
+	    }
+	    
+	    public class DroppabilityCheck {
 	    	
+	    	public readonly Pickupable item;
+	    	public readonly bool notify;
+	    	public readonly bool defaultAllow;
+	    	
+	    	public bool allow;
+	    	public string error = null;
+	    	
+	    	internal DroppabilityCheck(Pickupable pp, bool n, bool a) {
+	    		item = pp;
+	    		notify = n;
+	    		defaultAllow = a;
+	    		allow = defaultAllow;
+	    	}
 	    }
     
 	    public static void onTick(DayNightCycle cyc) {
@@ -952,6 +970,19 @@ namespace ReikaKalseki.DIAlterra {
 					FMODUWE.PlayOneShot(CraftData.GetUseEatSound(tt), Player.main.transform.position, 1f);
 			}
 			return flag;
+	    }
+	    
+	    public static bool isItemDroppable(Pickupable pp, bool notify) {
+	    	bool flag = Inventory.CanDropItemHere(pp, notify);
+	    	if (pp && droppabilityEvent != null) {
+	    		DroppabilityCheck dropCheck = new DroppabilityCheck(pp, notify, flag);
+	    		droppabilityEvent.Invoke(dropCheck);
+	    		flag = dropCheck.allow;
+	    		if (notify && !flag && !string.IsNullOrEmpty(dropCheck.error)) {
+	    			ErrorMessage.AddError(dropCheck.error);
+	    		}
+	    	}
+	    	return flag;
 	    }
 	   
 		public static void onScanComplete(PDAScanner.EntryData data) {
@@ -1647,6 +1678,11 @@ namespace ReikaKalseki.DIAlterra {
 	   public static void onDrillableDrilled(Drillable dr, Vector3 pos, Exosuit driller) {
 	   	if (drillableDrillTickEvent != null && dr)
 	   		drillableDrillTickEvent.Invoke(dr, pos, driller);
+	   }
+	   
+	   public static void onMapRoomTick(MapRoomFunctionality map) {
+	    	if (scannerRoomTickEvent != null && map)
+	    		scannerRoomTickEvent.Invoke(map);
 	   }
 	}
 }

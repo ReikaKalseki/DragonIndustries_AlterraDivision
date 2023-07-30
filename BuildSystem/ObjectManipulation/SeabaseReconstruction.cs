@@ -51,7 +51,10 @@ namespace ReikaKalseki.DIAlterra
 			internal XmlElement reconstructionData;
 			internal string seabaseID;
 			
+			private float lastBuildTime = -1;
 			private float lastSkyTime = -1;
+			private float lastModifyTime = -1;
+			
 			private Vector3 baseCenter = Vector3.zero;
 			private int pieceCount;
 		
@@ -237,23 +240,31 @@ namespace ReikaKalseki.DIAlterra
 				float time = DayNightCycle.main.timePassedAsFloat;
 				if (seabaseID == null)
 					seabaseID = gameObject.GetComponentInChildren<SeabaseIDHolder>().name;
+				if (seabaseID == null) {
+					SNUtil.writeToChat("Could not find seabase ID in "+this+" @ "+transform.position);
+					return;
+				}
 				if (reconstructionData == null) {
 					reconstructionData = dataCache[seabaseID].data;
 				}
-				foreach (Transform t in transform) {
-					if (t.gameObject.name.Contains("BaseCell") && t.childCount == 0) {
-						UnityEngine.Object.Destroy(t.gameObject);
+				
+				if (time-lastBuildTime >= 1) {
+					foreach (Transform t in transform) {
+						if (t.gameObject.name.Contains("BaseCell") && t.childCount == 0) {
+							UnityEngine.Object.Destroy(t.gameObject);
+						}
 					}
-				}
-				if (!ObjectUtil.getChildObject(gameObject, "BaseCell")) {/*
-					GameObject marker = ObjectUtil.getChildObject(gameObject, GEN_MARKER);
-					bool isNew = !marker;
-					if (!marker) {
-						marker = new GameObject();
-						marker.name = GEN_MARKER;
-						marker.transform.parent = transform;
-					}*/
-					rebuild(time);
+					if (!ObjectUtil.getChildObject(gameObject, "BaseCell")) {/*
+						GameObject marker = ObjectUtil.getChildObject(gameObject, GEN_MARKER);
+						bool isNew = !marker;
+						if (!marker) {
+							marker = new GameObject();
+							marker.name = GEN_MARKER;
+							marker.transform.parent = transform;
+						}*/
+						rebuild(time);
+					}
+					lastBuildTime = time;
 				}
 				if (time-lastSkyTime >= 15) {
 					SkyApplier[] skies = gameObject.GetComponentsInChildren<SkyApplier>(true);
@@ -289,62 +300,70 @@ namespace ReikaKalseki.DIAlterra
 				}*/
 				if (storages == null) {
 					storages = gameObject.GetComponentsInChildren<StorageContainer>();
+					SNUtil.log("Worldgen Seabase "+seabaseID+" finding storages: "+storages.toDebugString(), SNUtil.diDLL);
 				}
 				if (chargers == null) {
 					chargers = gameObject.GetComponentsInChildren<Charger>();
+					SNUtil.log("Worldgen Seabase "+seabaseID+" finding chargers: "+chargers.toDebugString(), SNUtil.diDLL);
 				}
 				if (animations == null) {
 					animations = gameObject.GetComponentsInChildren<Animator>();
+					SNUtil.log("Worldgen Seabase "+seabaseID+" finding animations: "+animations.toDebugString(), SNUtil.diDLL);
 				}
-				foreach (Animator a in animations)
-					if (a)
-						a.enabled = false;
-				
-				foreach (StorageContainer p in storages) {
-					if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {
-						try {
-							foreach (Pickupable pp in p.GetComponentsInChildren<Pickupable>(true)) {
-								p.container.AddItem(pp);
+				if (time-lastModifyTime >= 5) {
+					lastModifyTime = time;
+					foreach (Animator a in animations)
+						if (a)
+							a.enabled = false;
+					
+					foreach (StorageContainer p in storages) {
+						if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {
+							SNUtil.log("Worldgen Seabase "+seabaseID+" rebuilding storage for "+p+": "+p.storageRoot.GetComponentsInChildren<Pickupable>().toDebugString(), SNUtil.diDLL);
+							try {
+								foreach (Pickupable pp in p.GetComponentsInChildren<Pickupable>(true)) {
+									p.container.AddItem(pp);
+								}
 							}
-						}
-						catch (Exception e) {
-							SNUtil.log("Exception initializing worldgen seabase inventory @ "+p.transform.position+": "+e, SNUtil.diDLL);
+							catch (Exception e) {
+								SNUtil.log("Exception initializing worldgen seabase inventory @ "+p.transform.position+": "+e, SNUtil.diDLL);
+							}
 						}
 					}
-				}
-				/*
-				foreach (Planter p in planters) {
-					if (p.grownPlantsRoot.childCount == 0 && p.storageContainer.storageRoot.transform.childCount > 0) {
-						try {
-							//p.InitPlantsDelayed();
-							foreach (Pickupable pp in p.storageContainer.GetComponentsInChildren<Pickupable>(true)) {
-								p.AddItem(new InventoryItem(pp));
+					/*
+					foreach (Planter p in planters) {
+						if (p.grownPlantsRoot.childCount == 0 && p.storageContainer.storageRoot.transform.childCount > 0) {
+							try {
+								//p.InitPlantsDelayed();
+								foreach (Pickupable pp in p.storageContainer.GetComponentsInChildren<Pickupable>(true)) {
+									p.AddItem(new InventoryItem(pp));
+								}
+							}
+							catch (Exception e) {
+								SNUtil.log("Exception initializing worldgen seabase planter @ "+p.transform.position+": "+e, SNUtil.diDLL);
 							}
 						}
-						catch (Exception e) {
-							SNUtil.log("Exception initializing worldgen seabase planter @ "+p.transform.position+": "+e, SNUtil.diDLL);
-						}
-					}
-				}*/
-				foreach (Charger p in chargers) {
-					//SNUtil.writeToChat(p+" @ "+p.transform.position+" : "+p.equipment.equippedCount.Count+" : "+p.equipmentRoot.transform.childCount);
-					if (p.equipment.equippedCount.Count == 0 && p.equipmentRoot.transform.childCount > 0) {
-						try {
-							int i = 0;
-							Pickupable[] pc = p.equipmentRoot.GetComponentsInChildren<Pickupable>(true);
-							//SNUtil.writeToChat("PC"+pc.Length+" > "+string.Join(",", p.slots.Keys));
-							foreach (string key in p.slots.Keys) {
-								p.equipment.AddItem(key, new InventoryItem(pc[i]), true);
-								i++;
-								if (i >= pc.Length)
-									break;
+					}*/
+					foreach (Charger p in chargers) {
+						//SNUtil.writeToChat(p+" @ "+p.transform.position+" : "+p.equipment.equippedCount.Count+" : "+p.equipmentRoot.transform.childCount);
+						if (p.equipment.equippedCount.Count == 0 && p.equipmentRoot.transform.childCount > 0) {
+							SNUtil.log("Worldgen Seabase "+seabaseID+" rebuilding storage for "+p+": "+p.equipmentRoot.GetComponentsInChildren<Pickupable>().toDebugString(), SNUtil.diDLL);
+							try {
+								int i = 0;
+								Pickupable[] pc = p.equipmentRoot.GetComponentsInChildren<Pickupable>(true);
+								//SNUtil.writeToChat("PC"+pc.Length+" > "+string.Join(",", p.slots.Keys));
+								foreach (string key in p.slots.Keys) {
+									p.equipment.AddItem(key, new InventoryItem(pc[i]), true);
+									i++;
+									if (i >= pc.Length)
+										break;
+								}
+								p.opened = true;
+								p.animator.SetBool(p.animParamOpen, true);
+								p.ToggleUI(true);
 							}
-							p.opened = true;
-							p.animator.SetBool(p.animParamOpen, true);
-							p.ToggleUI(true);
-						}
-						catch (Exception e) {
-							SNUtil.log("Exception initializing worldgen seabase charger @ "+p.transform.position+": "+e, SNUtil.diDLL);
+							catch (Exception e) {
+								SNUtil.log("Exception initializing worldgen seabase charger @ "+p.transform.position+": "+e, SNUtil.diDLL);
+							}
 						}
 					}
 				}

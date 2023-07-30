@@ -525,6 +525,27 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(Inventory))]
+	[HarmonyPatch("GetAltUseItemAction")]
+	public static class ItemDroppabilityHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "Inventory", "CanDropItemHere", false, new Type[]{typeof(Pickupable), typeof(bool)});
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isItemDroppable", false, typeof(Pickupable), typeof(bool));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	[HarmonyPatch(typeof(CraftData))]
 	[HarmonyPatch("IsInvUseable")]
 	public static class ItemUsabilityHook {
@@ -1633,6 +1654,28 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
+	
+	[HarmonyPatch(typeof(ResourceTracker))]
+	[HarmonyPatch("OnDestroy")]
+	public static class ResourceTrackerDestroyUnregisterFix {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new List<CodeInstruction>(){
+				                                     	new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ResourceTracker", "Unregister", true, new Type[0])
+				});
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
 	/*
 	[HarmonyPatch(typeof(Vehicle))]
 	[HarmonyPatch("set_docked")]
@@ -1683,6 +1726,28 @@ namespace ReikaKalseki.DIAlterra {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
 				InstructionHandlers.patchInitialHook(codes, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onMainMenuLoaded", false, new Type[0]));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(MapRoomFunctionality))]
+	[HarmonyPatch("UpdateBlips")]
+	public static class MapRoomUpdateHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new List<CodeInstruction>(){
+					new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onMapRoomTick", false, typeof(MapRoomFunctionality))
+				});
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
