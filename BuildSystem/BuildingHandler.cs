@@ -324,6 +324,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public void syncObjects() {
+			foreach (PlacedObject p in items.Values) {
+				if (p.isSelected)
+					p.sync();
+			}
+		}
+		
 		private PlacedObject getPlacement(GameObject go) {
 			if (go == null)
 				return null;

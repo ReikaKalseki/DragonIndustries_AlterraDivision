@@ -140,6 +140,7 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand<bool>("bden", BuildingHandler.instance.setEnabled);  
         BuildingHandler.instance.addCommand("bdsa", BuildingHandler.instance.selectAll);
         BuildingHandler.instance.addCommand("bdslp", BuildingHandler.instance.selectLastPlaced);
+        BuildingHandler.instance.addCommand("bdsync", BuildingHandler.instance.syncObjects);
         BuildingHandler.instance.addCommand<string>("bdexs", BuildingHandler.instance.saveSelection);
         BuildingHandler.instance.addCommand<string>("bdexa", BuildingHandler.instance.saveAll);
         BuildingHandler.instance.addCommand<string>("bdld", BuildingHandler.instance.loadFile);

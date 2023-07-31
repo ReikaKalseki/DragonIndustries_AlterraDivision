@@ -95,6 +95,12 @@ namespace ReikaKalseki.DIAlterra
 					throw new Exception("Error in bubbles", e);
 				}
 			}
+			
+			public void sync() {
+				position = obj.transform.position;
+				rotation = obj.transform.rotation;
+				scale = obj.transform.localScale;
+			}
 		
 			public sealed override void replaceObject(string pfb) {
 				base.replaceObject(pfb);

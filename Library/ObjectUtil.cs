@@ -293,6 +293,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static GameObject getChildObject(GameObject go, string name) {
+			if (name == "*")
+				return go.transform.childCount > 0 ? go.transform.GetChild(0).gameObject : null;
 			bool startWild = name[0] == '*';
 			bool endWild = name[name.Length-1] == '*';
 			if (startWild || endWild) {

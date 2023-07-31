@@ -34,8 +34,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void setEmissivity(Material m, float amt, float night) {
-			m.SetFloat("_GlowStregth", amt);
-			m.SetFloat("_GlowStregthNight", night);
+			m.SetFloat("_GlowStrength", amt);
+			m.SetFloat("_GlowStrengthNight", night);
 			m.EnableKeyword("MARMO_EMISSION");
 		}
 		

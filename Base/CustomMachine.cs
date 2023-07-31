@@ -314,14 +314,19 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		protected void addItemToInventory(TechType tt, int amt = 1) {
+		protected int addItemToInventory(TechType tt, int amt = 1) {
 			StorageContainer sc = getStorage();
+			if (!sc)
+				return 0;
+			int add = 0;
 			for (int i = 0; i < amt; i++) {
 				GameObject item = ObjectUtil.createWorldObject(CraftData.GetClassIdForTechType(tt), true, false);
 				SNUtil.log("Adding "+item+" to "+GetType().Name+" inventory");
 				item.SetActive(false);
-				sc.container.AddItem(item.GetComponent<Pickupable>());
+				if (sc.container.AddItem(item.GetComponent<Pickupable>()) != null)
+					add++;
 			}
+			return add;
 		}
 		
 		protected bool consumePower(float amt) {
@@ -349,7 +354,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private void findClosestSub() {
-			SNUtil.log("Custom machine "+this+" @ "+transform.position+" did not have proper parent component hierarchy: "+transform.parent);
+			SNUtil.log("Custom machine "+this+" @ "+transform.position+" did not have proper parent component hierarchy: "+transform.parent, SNUtil.diDLL);
 			foreach (SubRoot s in UnityEngine.Object.FindObjectsOfType<SubRoot>()) {
 				if (s.isCyclops || !s.isBase)
 					continue;

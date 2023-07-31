@@ -227,8 +227,8 @@ batch_id = (19, 17, 16)
 			return ret;
 		}
 		
-		public static RaycastHit? getTerrainVectorAt(Vector3 pos, float maxDown = 1) {
-			Ray ray = new Ray(pos, Vector3.down);
+		public static RaycastHit? getTerrainVectorAt(Vector3 pos, float maxDown = 1, Vector3? axis = null) {
+			Ray ray = new Ray(pos, axis.HasValue ? axis.Value : Vector3.down);
 			return UWE.Utils.RaycastIntoSharedBuffer(ray, maxDown, Voxeland.GetTerrainLayerMask()) > 0 ? UWE.Utils.sharedHitBuffer[0] : (RaycastHit?)null;
 		}
 		/*
