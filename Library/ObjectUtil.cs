@@ -390,19 +390,19 @@ namespace ReikaKalseki.DIAlterra
 			
 		public static GameObject createWorldObject(string id, bool clone = true, bool makeActive = true) {
 			GameObject prefab = lookupPrefab(id);
-			if (prefab != null) {
+			if (prefab) {
 				GameObject go = clone ? UnityEngine.Object.Instantiate(prefab) : prefab;
-				if (go != null) {
+				if (go) {
 					go.SetActive(makeActive);
 					return go;
 				}
 				else {
-					SNUtil.writeToChat("Prefab found and placed succeeeded but resulted in null?!");
+					SNUtil.writeToChat("Prefab found and placed but resulted in null?!");
 					return null;
 				}
 			}
 			else {
-				SNUtil.writeToChat("Prefab not found for id '"+id+"'.");
+				SNUtil.writeToChat("Prefab not found for id '"+id+"' ["+PrefabData.getPrefab(id)+"].");
 				return null;
 			}
 		}

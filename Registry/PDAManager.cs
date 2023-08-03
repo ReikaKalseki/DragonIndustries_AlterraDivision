@@ -110,16 +110,26 @@ namespace ReikaKalseki.DIAlterra
 				return text;
 			}
 			
-			public void append(string s) {
+			public void append(string s, bool force = false) {
 				text = text+s;
-				injectString();
+				injectString(force);
 			}
 			
-			private void injectString() {/*
-				if (DIHooks.isWorldLoaded())
+			public void update(string text, bool force = false) {
+				this.text = text;
+				injectString(force);
+			}
+			
+			private void injectString(bool force = false) {/*
+				if (force && DIHooks.isWorldLoaded())
 					Language.main.strings["EncyDesc_"+pageData.key] = text;
 				else*/
 					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
+					if (force && DIHooks.isWorldLoaded()) {
+						uGUI_EncyclopediaTab tab = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
+						if (tab.activeEntry.key == pageData.key)
+							tab.DisplayEntry(pageData.key);//.SetText(text);
+					}
 			}
 		
 			public bool unlock(bool doSound = true) {

@@ -26,6 +26,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public override GameObject GetGameObject() {
 			GameObject world = new GameObject();
 			world.EnsureComponent<ObjectDeleterTag>();
+			world.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.Medium;
 			return world;
 	    }
 	
