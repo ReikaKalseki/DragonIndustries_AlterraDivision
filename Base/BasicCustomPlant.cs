@@ -162,6 +162,10 @@ namespace ReikaKalseki.DIAlterra
 			
 		}*/
 		
+		public virtual void modifySeed(GameObject go) {
+			
+		}
+		
 		public static BasicCustomPlant getPlant(TechType tt) {
 			return plants.ContainsKey(tt) ? plants[tt] : null;
 		}
@@ -270,6 +274,8 @@ namespace ReikaKalseki.DIAlterra
 				cc.enabled = cu.enabled;
 				cc.isTrigger = cu.isTrigger;
 			}*/
+			
+			plant.modifySeed(go);
 			
 			return go;
 		}

@@ -78,7 +78,12 @@ namespace ReikaKalseki.DIAlterra {
 				SaveHandler sh = getHandler(pi, true);
 				if (sh != null) {
 					SNUtil.log("Found "+sh+" load handler for "+pi.ClassId, SNUtil.diDLL);
-					sh.load(pi);
+					try {
+						sh.load(pi);
+					}
+					catch (Exception e) {
+						SNUtil.log("Threw error loading object "+pi.ClassId+" "+pi.Id+": "+e, SNUtil.diDLL);
+					}
 				}
 			}
 		}

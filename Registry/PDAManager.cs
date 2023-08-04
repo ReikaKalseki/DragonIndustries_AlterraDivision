@@ -127,7 +127,7 @@ namespace ReikaKalseki.DIAlterra
 					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
 					if (force && DIHooks.isWorldLoaded()) {
 						uGUI_EncyclopediaTab tab = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
-						if (tab.activeEntry.key == pageData.key)
+						if (tab && tab.activeEntry && tab.activeEntry.key == pageData.key)
 							tab.DisplayEntry(pageData.key);//.SetText(text);
 					}
 			}

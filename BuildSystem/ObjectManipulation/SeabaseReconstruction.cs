@@ -86,6 +86,7 @@ namespace ReikaKalseki.DIAlterra
 						GameObject go2 = pfb.createWorldObject();
 						go2.transform.parent = gameObject.transform;
 						go2.EnsureComponent<WorldgenSeabasePart>();
+						ObjectUtil.removeComponent<CustomMachineLogic>(go2);
 						go2.EnsureComponent<PreventDeconstruction>();
 						baseCenter += go2.transform.position;
 						pieceCount++;
