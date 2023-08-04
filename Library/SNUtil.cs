@@ -5,6 +5,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Xml;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Handlers;
@@ -314,6 +315,28 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 		}*/
+		
+		public static void createPopupWarning(string msg) {
+/*
+				QModManager.Patching.Patcher.Dialogs.Add(new Dialog
+				{
+					message = text,
+					leftButton = Dialog.Button.SeeLog,
+					rightButton = Dialog.Button.Close,
+					color = Dialog.DialogColor.Red
+				});
+*/
+			Type patcher = InstructionHandlers.getTypeBySimpleName("QModManager.Patching.Patcher");
+			Type dlgType = InstructionHandlers.getTypeBySimpleName("QModManager.Utility.Dialog");
+			Type btnType = dlgType.GetNestedType("Button", BindingFlags.NonPublic);
+			IList dialogs = (IList)patcher.GetProperty("Dialogs", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+			object dlg = Activator.CreateInstance(dlgType);
+			dlgType.GetField("message", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, msg);
+			dlgType.GetField("color", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, 0);
+			dlgType.GetField("leftButton", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, btnType.GetField("SeeLog", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null));
+			dlgType.GetField("rightButton", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, btnType.GetField("Close", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null));
+			dialogs.Add(dlg);
+		}
 		
 	}
 }

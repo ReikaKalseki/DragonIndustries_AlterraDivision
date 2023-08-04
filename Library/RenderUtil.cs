@@ -240,6 +240,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 	    }
 		
+		public static Atlas.Sprite copySprite(Atlas.Sprite source) {
+			return ImageUtils.LoadSpriteFromTexture(source.texture);
+		}
+		
 		public static Texture2D duplicateTexture(Texture2D source) {
 		    RenderTexture renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);		
 		    Graphics.Blit(source, renderTex);
