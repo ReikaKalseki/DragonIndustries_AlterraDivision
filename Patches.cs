@@ -1655,6 +1655,30 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(Inventory))]
+	[HarmonyPatch("LoseItems")]
+	public static class ItemLossHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onItemsLost", false, new Type[0]));
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				int idx = InstructionHandlers.getFirstOpcode(codes, 0, OpCodes.Sub);
+				codes.RemoveAt(idx);
+				codes.RemoveAt(idx-1);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	[HarmonyPatch(typeof(ResourceTracker))]
 	[HarmonyPatch("OnDestroy")]
 	public static class ResourceTrackerDestroyUnregisterFix {

@@ -113,6 +113,10 @@ namespace ReikaKalseki.DIAlterra
 				TechnologyUnlockSystem.instance.registerPage(TechType, page);
 		}
 		
+		public PDAManager.PDAPage getPDAPage() {
+			return page;
+		}
+		
 		protected virtual bool isPowerGenerator() {
 			return false;
 		}

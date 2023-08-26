@@ -64,7 +64,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<PropulsibilityCheck> propulsibilityEvent;
 	    public static event Action<Drillable, Vector3, Exosuit> drillableDrillTickEvent;
 	    public static event Action<DroppabilityCheck> droppabilityEvent;
-	    public static event Action<MapRoomFunctionality> scannerRoomTickEvent;	    
+	    public static event Action<MapRoomFunctionality> scannerRoomTickEvent;	
+	    public static event Action itemsLostEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -1683,6 +1684,11 @@ namespace ReikaKalseki.DIAlterra {
 	   public static void onMapRoomTick(MapRoomFunctionality map) {
 	    	if (scannerRoomTickEvent != null && map)
 	    		scannerRoomTickEvent.Invoke(map);
+	   }
+	   
+	   public static void onItemsLost() {
+	   		if (itemsLostEvent != null)
+	    		itemsLostEvent.Invoke();
 	   }
 	}
 }
