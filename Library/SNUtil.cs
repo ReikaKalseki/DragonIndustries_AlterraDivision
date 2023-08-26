@@ -316,7 +316,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}*/
 		
-		public static void createPopupWarning(string msg) {
+		public static void createPopupWarning(string msg, bool makeBlue) {
 /*
 				QModManager.Patching.Patcher.Dialogs.Add(new Dialog
 				{
@@ -332,7 +332,7 @@ namespace ReikaKalseki.DIAlterra
 			IList dialogs = (IList)patcher.GetProperty("Dialogs", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
 			object dlg = Activator.CreateInstance(dlgType);
 			dlgType.GetField("message", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, msg);
-			dlgType.GetField("color", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, 0);
+			dlgType.GetField("color", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, makeBlue ? 1 : 0);
 			dlgType.GetField("leftButton", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, btnType.GetField("SeeLog", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null));
 			dlgType.GetField("rightButton", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dlg, btnType.GetField("Close", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null));
 			dialogs.Add(dlg);

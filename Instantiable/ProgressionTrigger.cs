@@ -78,16 +78,48 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
+	public class PositionTrigger : ProgressionTrigger {
+		
+		public readonly Vector3 position;
+		public readonly float radius;
+		
+		public PositionTrigger(Vector3 pos, float r = 10) : base(ep => (ep.transform.position-pos).sqrMagnitude <= r*r) {
+			position = pos;
+			radius = r;
+		}
+		
+		public override string ToString() {
+			return "Position "+position+" R="+radius;
+		}
+		
+	}
+	
+	public class BiomeTrigger : ProgressionTrigger {
+		
+		public readonly BiomeBase biome;
+		
+		public BiomeTrigger(BiomeBase b) : base(ep => BiomeBase.getBiome(ep.transform.position) == b) {
+			biome = b;
+		}
+		
+		public override string ToString() {
+			return "Biome "+biome;
+		}
+		
+	}
+	
 	public class DelayedProgressionEffect {
 		
 		public readonly Action fire;
 		public readonly Func<bool> isFired;
 		public readonly float chancePerTick;
+		public readonly float minDelay;
 		
-		public DelayedProgressionEffect(Action a, Func<bool> b, float f) {
+		public DelayedProgressionEffect(Action a, Func<bool> b, float f, float mind = 0) {
 			fire = a;
 			isFired = b;
 			chancePerTick = f;
+			minDelay = mind;
 		}
 		
 		public override string ToString() {
@@ -100,7 +132,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly TechType unlock;
 		
-		public TechUnlockEffect(TechType tt, float chance = 1) : base(() => unlockTech(tt), () => KnownTech.knownTech.Contains(tt), chance) {
+		public TechUnlockEffect(TechType tt, float chance = 1, float mind = 0) : base(() => unlockTech(tt), () => KnownTech.knownTech.Contains(tt), chance, mind) {
 			unlock = tt;
 		}
 		
@@ -120,7 +152,7 @@ namespace ReikaKalseki.DIAlterra
 		private readonly PDAManager.PDAPage page;
 		public readonly string pageKey;
 		
-		public DelayedEncyclopediaEffect(PDAManager.PDAPage g, float f, bool doSound = true) : base(() => g.unlock(doSound), g.isUnlocked, f) {
+		public DelayedEncyclopediaEffect(PDAManager.PDAPage g, float f, float mind = 0, bool doSound = true) : base(() => g.unlock(doSound), g.isUnlocked, f, mind) {
 			page = g;
 			pageKey = g.id;
 		}
@@ -136,7 +168,7 @@ namespace ReikaKalseki.DIAlterra
 		private readonly StoryGoal goal;
 		public readonly string goalKey;
 		
-		public DelayedStoryEffect(StoryGoal g, float f) : base(() => StoryGoal.Execute(g.key, g.goalType), () => StoryGoalManager.main.completedGoals.Contains(g.key), f) {
+		public DelayedStoryEffect(StoryGoal g, float f, float mind = 0) : base(() => StoryGoal.Execute(g.key, g.goalType), () => StoryGoalManager.main.completedGoals.Contains(g.key), f, mind) {
 			goal = g;
 			goalKey = g.key;
 		}
