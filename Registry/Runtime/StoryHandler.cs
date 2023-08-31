@@ -40,7 +40,8 @@ namespace ReikaKalseki.DIAlterra
 				if (kvp.Key.isReady(ep)) {
 					//SNUtil.writeToChat("Trigger "+kvp.Key+" is ready");
 					DelayedProgressionEffect dt = kvp.Value;
-					if (!dt.isFired() && UnityEngine.Random.Range(0, 1F) <= dt.chancePerTick*Time.timeScale) {
+					dt.time += Time.deltaTime;
+					if (!dt.isFired() && dt.time >= dt.minDelay && UnityEngine.Random.Range(0, 1F) <= dt.chancePerTick*Time.timeScale) {
 						//SNUtil.writeToChat("Firing "+dt);
 						dt.fire();
 					}

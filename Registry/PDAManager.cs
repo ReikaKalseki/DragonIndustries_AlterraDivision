@@ -150,7 +150,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public override string ToString() {
-				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}, Header={4}, Mod={5}]", id, name, text.Replace("\n", ""), category, pageData.image, ownerMod);
+				return string.Format("[PDAPage Id={0}, Name={1}, Text={2}, Category={3}, Header={4}, Mod={5}]", id, name, text.Replace("\n", ""), category, pageData.image, ownerMod.Location);
 			}
 			
 			public string getPDAClassID() {

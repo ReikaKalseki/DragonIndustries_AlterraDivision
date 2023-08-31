@@ -115,6 +115,8 @@ namespace ReikaKalseki.DIAlterra
 		public readonly float chancePerTick;
 		public readonly float minDelay;
 		
+		public float time;
+		
 		public DelayedProgressionEffect(Action a, Func<bool> b, float f, float mind = 0) {
 			fire = a;
 			isFired = b;

@@ -41,8 +41,8 @@ namespace ReikaKalseki.DIAlterra
 			    using (FileStream stream = File.OpenRead(mod.Location)) {
 					byte[] hash = md5.ComputeHash(stream);
 					string hashfile = Path.Combine(Path.GetDirectoryName(mod.Location), "mod.hash");
-					if (!File.Exists(hashfile))
-						File.WriteAllBytes(hashfile, hash);
+					//if (!File.Exists(hashfile))
+					//	File.WriteAllBytes(hashfile, hash);
 					byte[] stored = File.ReadAllBytes(hashfile);
 					if (stored.SequenceEqual(hash))
 						log("Mod "+mod.Location+" hash check passed with hash "+hash.toDebugString(), mod);
