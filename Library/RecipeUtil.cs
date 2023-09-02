@@ -122,6 +122,12 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 		
+		public static void clearIngredients(TechType recipe) {
+			TechData rec = getRecipe(recipe);
+			cacheOriginalRecipe(recipe, rec);
+			rec.Ingredients.Clear();
+		}
+		
 		public static TechData addRecipe(TechType item, TechGroup grp, TechCategory cat, int amt = 1, CraftTree.Type fab = CraftTree.Type.Fabricator, string[] path = null) {
 			TechData rec = new TechData
 			{

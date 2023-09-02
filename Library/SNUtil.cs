@@ -315,6 +315,16 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 		}*/
+	    
+	    public static int getFragmentScanCount(TechType tt) {
+	    	PDAScanner.Entry entry;
+	    	if (PDAScanner.GetPartialEntryByKey(tt, out entry)) {
+	    		return entry == null ? 0 : entry.unlocked;
+	    	}
+	    	else {
+	    		return 0;
+	    	}
+	    }
 		
 		public static void createPopupWarning(string msg, bool makeBlue) {
 /*
