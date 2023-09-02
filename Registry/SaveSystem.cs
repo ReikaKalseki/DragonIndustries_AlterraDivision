@@ -77,7 +77,7 @@ namespace ReikaKalseki.DIAlterra {
 			foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {
 				SaveHandler sh = getHandler(pi, true);
 				if (sh != null) {
-					SNUtil.log("Found "+sh+" load handler for "+pi.ClassId, SNUtil.diDLL);
+					SNUtil.log("Found "+sh+" load handler for "+pi.ClassId+" ["+pi.id+"]", SNUtil.diDLL);
 					try {
 						sh.load(pi);
 					}
@@ -173,21 +173,21 @@ namespace ReikaKalseki.DIAlterra {
 				foreach (string s in fields) {
 					FieldInfo fi = getField(s);
 					if (fi.FieldType == typeof(string))
-						fi.SetValue(com, data.getProperty(s));
+						fi.SetValue(com, data.getProperty(s, true));
 					else if (fi.FieldType == typeof(bool))
 						fi.SetValue(com, data.getBoolean(s));
 					else if (fi.FieldType == typeof(int))
-						fi.SetValue(com, data.getInt(s, 0, false));
+						fi.SetValue(com, data.getInt(s, 0, true));
 					else if (fi.FieldType == typeof(float))
-						fi.SetValue(com, (float)data.getFloat(s, float.NaN));
+						fi.SetValue(com, (float)data.getFloat(s, 0));
 					else if (fi.FieldType == typeof(double))
-						fi.SetValue(com, data.getFloat(s, double.NaN));
+						fi.SetValue(com, data.getFloat(s, 0));
 					else if (fi.FieldType == typeof(Vector3))
-						fi.SetValue(com, data.getVector(s));
+						fi.SetValue(com, data.getVector(s, true).GetValueOrDefault());
 					else if (fi.FieldType == typeof(Quaternion))
-						fi.SetValue(com, data.getQuaternion(s));
+						fi.SetValue(com, data.getQuaternion(s, true).GetValueOrDefault());
 					else if (fi.FieldType == typeof(Color))
-						fi.SetValue(com, data.getColor(s, true));
+						fi.SetValue(com, data.getColor(s, true, true).GetValueOrDefault());
 				}
 			}
 			

@@ -518,25 +518,28 @@ namespace ReikaKalseki.DIAlterra
 			
 			internal BulkheadDoor door;
 			
+			private float lastOpenerCheckTime = -1;
+			
 			//private float openTime;
 			
 			void Update() {
 				if (!door)
 					door = GetComponentInChildren<BulkheadDoor>();
 				
-				if (door && door.isOpen && !hasOpener()) {/*
+				if (door && door.isOpen && DayNightCycle.main.timePassedAsFloat-lastOpenerCheckTime >= 0.5F && !hasOpener()) {/*
 					if (openTime > 4)
 						GenUtil.OpenWorldgenSeabaseDoor.lockOpen(door);
 					else
 						openTime += Time.deltaTime;*/
+					lastOpenerCheckTime = DayNightCycle.main.timePassedAsFloat;
 					GameObject go = ObjectUtil.createWorldObject("SeabaseDoorOpener");
 					go.transform.position = transform.position;
 				}
 			}
 			
 			private bool hasOpener() {
-				SeabaseDoorOpenerTag bk = WorldUtil.getClosest<SeabaseDoorOpenerTag>(transform.position);
-				return bk && Vector3.Distance(bk.transform.position, transform.position) < 2;
+				SeabaseDoorOpenerTag bk = WorldUtil.getObjectsNearWithComponent<SeabaseDoorOpenerTag>(transform.position, 2).FirstOrFallback(null);
+				return bk != null && Vector3.Distance(bk.transform.position, transform.position) < 2;
 			}
 			
 		}
@@ -553,6 +556,10 @@ namespace ReikaKalseki.DIAlterra
 				go.EnsureComponent<TechTag>().type = TechType;
 				go.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.Near;
 				go.EnsureComponent<SeabaseDoorOpenerTag>();
+				SphereCollider s = go.EnsureComponent<SphereCollider>();
+				s.radius = 2;
+				s.center = Vector3.zero;
+				s.isTrigger = true;
 				return go;
 			}
 		}

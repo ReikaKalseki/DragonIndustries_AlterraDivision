@@ -10,6 +10,7 @@ using SMLHelper.V2.Assets;
 using SMLHelper.V2.Utility;
 
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ReikaKalseki.DIAlterra
 {
@@ -116,8 +117,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void update(string text, bool force = false) {
+				if (this.text == text)
+					return;
 				this.text = text;
-				injectString(force);
+					injectString(force);
 			}
 			
 			private void injectString(bool force = false) {/*
@@ -127,9 +130,32 @@ namespace ReikaKalseki.DIAlterra
 					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
 					if (force && DIHooks.isWorldLoaded()) {
 						uGUI_EncyclopediaTab tab = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
-						if (tab && tab.activeEntry && tab.activeEntry.key == pageData.key)
-							tab.DisplayEntry(pageData.key);//.SetText(text);
+						if (tab) {
+							if (tab.activeEntry && tab.activeEntry.key == pageData.key)
+								tab.DisplayEntry(pageData.key);//.SetText(text);
+						}
 					}
+					markUpdated(5);
+			}
+			
+			public void markUpdated(float duration = 3F) {
+				NotificationManager.main.Add(NotificationManager.Group.Encyclopedia, id, duration);
+			}
+			
+			public TreeNode getNode() {
+				List<string> li = new List<string>(tree);
+				li.Add(id);
+				return PDAEncyclopedia.tree.FindNodeByPath(li.ToArray());
+			}
+			
+			public uGUI_ListEntry getListEntry() {
+				uGUI_EncyclopediaTab tab = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
+				foreach (uGUI_ListEntry e in tab.GetComponentsInChildren<uGUI_ListEntry>()) {
+					if (e.GetComponentInChildren<Text>().text == name) {
+						return e;
+					}
+				}
+				return null;
 			}
 		
 			public bool unlock(bool doSound = true) {
