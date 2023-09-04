@@ -333,6 +333,12 @@ namespace ReikaKalseki.DIAlterra
 			return c.Count()+":[" + string.Join(",", c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
 		}
 		
+		public static E pop<E>(this IList<E> c) {
+			E ret = c[0];
+			c.RemoveAt(0);
+			return ret;
+		}
+		
 		public static bool overlaps<E>(this ICollection<E> c, ICollection<E> other) {
 			foreach (E e in c) {
 				if (other.Contains(e)) {

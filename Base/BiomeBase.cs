@@ -47,15 +47,15 @@ namespace ReikaKalseki.DIAlterra
 		protected BiomeBase(string d, params string[] ids) {
 			displayName = d;
 			foreach (string id in ids)
-				registerID(this, id);
+				registerID(this, id, SNUtil.tryGetModDLL(true));
 		}
 		
-		private static void registerID(BiomeBase b, string id) {
+		private static void registerID(BiomeBase b, string id, System.Reflection.Assembly a) {
 			foreach (string s in variants) {
 				string key = (id+s).ToLowerInvariant();
 				biomeList[key] = b;
 				b.internalNames.Add(key);
-				SNUtil.log("Registered biome "+b.displayName+" with id "+key);
+				SNUtil.log("Registered biome "+b.displayName+" with id "+key, a);
 			}
 		}
 		

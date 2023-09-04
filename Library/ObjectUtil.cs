@@ -345,20 +345,6 @@ namespace ReikaKalseki.DIAlterra
 			}
 			return null;
 		}
-    
-	    public static void setCrateItem(SupplyCrate c, TechType item) {
-			PrefabPlaceholdersGroup pre = c.gameObject.EnsureComponent<PrefabPlaceholdersGroup>();
-			pre.prefabPlaceholders[0].prefabClassId = CraftData.GetClassIdForTechType(item);
-	    }
-		
-		public static void setDatabox(BlueprintHandTarget bpt, TechType tech) {
-    		bpt.unlockTechType = tech;
-    	}
-		
-		public static void setPDAPage(StoryHandTarget tgt, PDAManager.PDAPage page) {
-			tgt.goal.goalType = Story.GoalType.Encyclopedia;
-			tgt.goal.key = page.id;
-		}
 		
 		public static bool objectCollidesPosition(GameObject go, Vector3 pos) {
 			if (go.transform != null) {

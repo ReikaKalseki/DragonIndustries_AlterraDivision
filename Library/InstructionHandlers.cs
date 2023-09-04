@@ -319,5 +319,10 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 		}
+		
+		public static HarmonyMethod clear() {
+        	Func<IEnumerable<CodeInstruction>, IEnumerable<CodeInstruction>> dele = codes => new List<CodeInstruction>{new CodeInstruction(OpCodes.Ret)};
+        	return new HarmonyMethod(dele.Method);
+		}
 	}
 }
