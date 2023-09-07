@@ -75,7 +75,7 @@ namespace ReikaKalseki.DIAlterra
 		public void load(bool force = false) {
 			if (loaded && !force)
 				return;
-			string folder = Path.GetDirectoryName(owner.Location);
+			string folder = Path.Combine(Path.GetDirectoryName(owner.Location), "Config");
 			Directory.CreateDirectory(folder);
 			string path = Path.Combine(folder, filename);
 			if (File.Exists(path)) {
