@@ -37,6 +37,8 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void addPlayerSaveCallback<O>(FieldInfo field, Func<O> instance) {
+			if (field == null)
+				throw new Exception("No such field!");
 			addPlayerSaveCallback((ep, e) => SaveSystem.saveToXML(e, field.Name, field.GetValue(instance.Invoke())), (ep, e) => SaveSystem.setField(e, field.Name, field, instance.Invoke()));
 		}
 		
@@ -62,10 +64,15 @@ namespace ReikaKalseki.DIAlterra {
 			XmlElement e = doc.CreateElement("player");
 			foreach (Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>> t in playerSaveHandler) {
 				if (t.Item1 == null) {
-					SNUtil.log("Could not run save handler "+t+" on player: no save hook");
+					SNUtil.log("Could not run save handler "+t+" on player: no save hook", SNUtil.diDLL);
 					continue;
 				}
-				t.Item1.Invoke(Player.main, e);
+				try {
+					t.Item1.Invoke(Player.main, e);
+				}
+				catch (Exception ex) {
+					SNUtil.log("Save handler "+t+" on player threw "+ex, SNUtil.diDLL);
+				}
 			}
 			doc.DocumentElement.AppendChild(e);
 			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
@@ -95,10 +102,15 @@ namespace ReikaKalseki.DIAlterra {
 			if (saveData.ContainsKey("player")) {
 				foreach (Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>> t in playerSaveHandler) {
 					if (t.Item2 == null) {
-						SNUtil.log("Could not run load handler "+t+" on player: no load hook");
+						SNUtil.log("Could not run load handler "+t+" on player: no load hook", SNUtil.diDLL);
 						continue;
+					}					
+					try {
+						t.Item2.Invoke(Player.main, saveData["player"]);
 					}
-					t.Item2.Invoke(Player.main, saveData["player"]);
+					catch (Exception ex) {
+						SNUtil.log("Save handler "+t+" on player threw "+ex, SNUtil.diDLL);
+					}
 				}
 			}
 			foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {
