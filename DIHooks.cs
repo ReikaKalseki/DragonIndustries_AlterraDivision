@@ -66,6 +66,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<DroppabilityCheck> droppabilityEvent;
 	    public static event Action<MapRoomFunctionality> scannerRoomTickEvent;	
 	    public static event Action itemsLostEvent;
+	    public static event Action<StorageContainer, GUIHand> storageHoverEvent;	
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -1689,6 +1690,11 @@ namespace ReikaKalseki.DIAlterra {
 	   public static void onItemsLost() {
 	   		if (itemsLostEvent != null)
 	    		itemsLostEvent.Invoke();
+	   }
+	   
+	   public static void onStorageContainerHover(StorageContainer sc, GUIHand hand) {
+	   		if (storageHoverEvent != null)
+	    		storageHoverEvent.Invoke(sc, hand);
 	   }
 	}
 }

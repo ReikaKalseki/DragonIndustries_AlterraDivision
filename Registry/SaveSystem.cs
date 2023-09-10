@@ -17,6 +17,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private static readonly Dictionary<string, SaveHandler> handlers = new Dictionary<string, SaveHandler>();
 		private static readonly Dictionary<string, XmlElement> saveData = new Dictionary<string, XmlElement>();
+		private static readonly List<Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>>> playerSaveHandler = new List<Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>>>();
 		private static readonly string xmlPathRoot;
 		private static bool loaded;
 		
@@ -35,6 +36,14 @@ namespace ReikaKalseki.DIAlterra {
 			handlers[classID] = h;
 		}
 		
+		public static void addPlayerSaveCallback<O>(FieldInfo field, Func<O> instance) {
+			addPlayerSaveCallback((ep, e) => SaveSystem.saveToXML(e, field.Name, field.GetValue(instance.Invoke())), (ep, e) => SaveSystem.setField(e, field.Name, field, instance.Invoke()));
+		}
+		
+		public static void addPlayerSaveCallback(Action<Player, XmlElement> save, Action<Player, XmlElement> load) {
+			playerSaveHandler.Add(new Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>>(save, load));
+		}
+		
 		public static void handleSave() {
 			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".dat");
 			XmlDocument doc = new XmlDocument();
@@ -50,6 +59,15 @@ namespace ReikaKalseki.DIAlterra {
 					doc.DocumentElement.AppendChild(sh.data);
 				}
 			}
+			XmlElement e = doc.CreateElement("player");
+			foreach (Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>> t in playerSaveHandler) {
+				if (t.Item1 == null) {
+					SNUtil.log("Could not run save handler "+t+" on player: no save hook");
+					continue;
+				}
+				t.Item1.Invoke(Player.main, e);
+			}
+			doc.DocumentElement.AppendChild(e);
 			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
 			Directory.CreateDirectory(xmlPathRoot);
 			doc.Save(path);
@@ -64,7 +82,7 @@ namespace ReikaKalseki.DIAlterra {
 				doc.Load(path);
 				saveData.Clear();
 				foreach (XmlElement e in doc.DocumentElement.ChildNodes)
-					saveData[e.GetAttribute("objectID")] = e;
+					saveData[e.Name == "player" ? "player" : e.GetAttribute("objectID")] = e;
 				SNUtil.log("Loaded "+saveData.Count+" object entries from disk", SNUtil.diDLL);
 			}
 		}
@@ -74,6 +92,15 @@ namespace ReikaKalseki.DIAlterra {
 				return;
 			loaded = true;
 			SNUtil.log("Applying saved object entries", SNUtil.diDLL);
+			if (saveData.ContainsKey("player")) {
+				foreach (Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>> t in playerSaveHandler) {
+					if (t.Item2 == null) {
+						SNUtil.log("Could not run load handler "+t+" on player: no load hook");
+						continue;
+					}
+					t.Item2.Invoke(Player.main, saveData["player"]);
+				}
+			}
 			foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {
 				SaveHandler sh = getHandler(pi, true);
 				if (sh != null) {
@@ -112,6 +139,44 @@ namespace ReikaKalseki.DIAlterra {
 			public abstract void load(PrefabIdentifier pi);
 			
 		}
+			
+		internal static void saveToXML(XmlElement e, string s, object val) {
+			if (val is string)
+				e.addProperty(s, (string)val);
+			else if (val is int)
+				e.addProperty(s, (int)val);
+			else if (val is bool)
+				e.addProperty(s, (bool)val);
+			if (val is float)
+				e.addProperty(s, (float)val);
+			if (val is double)
+				e.addProperty(s, (double)val);
+			else if (val is Vector3)
+				e.addProperty(s, (Vector3)val);
+			else if (val is Quaternion)
+				e.addProperty(s, (Quaternion)val);
+			else if (val is Color)
+				e.addProperty(s, (Color)val);
+		}
+		
+		internal static void setField(XmlElement e, string s, FieldInfo fi, object inst) {
+			if (fi.FieldType == typeof(string))
+				fi.SetValue(inst, e.getProperty(s, true));
+			else if (fi.FieldType == typeof(bool))
+				fi.SetValue(inst, e.getBoolean(s));
+			else if (fi.FieldType == typeof(int))
+				fi.SetValue(inst, e.getInt(s, 0, true));
+			else if (fi.FieldType == typeof(float))
+				fi.SetValue(inst, (float)e.getFloat(s, 0));
+			else if (fi.FieldType == typeof(double))
+				fi.SetValue(inst, e.getFloat(s, 0));
+			else if (fi.FieldType == typeof(Vector3))
+				fi.SetValue(inst, e.getVector(s, true).GetValueOrDefault());
+			else if (fi.FieldType == typeof(Quaternion))
+				fi.SetValue(inst, e.getQuaternion(s, true).GetValueOrDefault());
+			else if (fi.FieldType == typeof(Color))
+				fi.SetValue(inst, e.getColor(s, true, true).GetValueOrDefault());
+		}
 	
 		public sealed class ComponentFieldSaveHandler<C> : SaveHandler where C : MonoBehaviour {
 			
@@ -147,22 +212,7 @@ namespace ReikaKalseki.DIAlterra {
 					return;
 				foreach (string s in fields) {
 					object val = getField(s).GetValue(com);
-					if (val is string)
-						data.addProperty(s, (string)val);
-					else if (val is int)
-						data.addProperty(s, (int)val);
-					else if (val is bool)
-						data.addProperty(s, (bool)val);
-					if (val is float)
-						data.addProperty(s, (float)val);
-					if (val is double)
-						data.addProperty(s, (double)val);
-					else if (val is Vector3)
-						data.addProperty(s, (Vector3)val);
-					else if (val is Quaternion)
-						data.addProperty(s, (Quaternion)val);
-					else if (val is Color)
-						data.addProperty(s, (Color)val);
+					SaveSystem.saveToXML(data, s, val);
 				}
 			}
 			
@@ -172,22 +222,7 @@ namespace ReikaKalseki.DIAlterra {
 					return;
 				foreach (string s in fields) {
 					FieldInfo fi = getField(s);
-					if (fi.FieldType == typeof(string))
-						fi.SetValue(com, data.getProperty(s, true));
-					else if (fi.FieldType == typeof(bool))
-						fi.SetValue(com, data.getBoolean(s));
-					else if (fi.FieldType == typeof(int))
-						fi.SetValue(com, data.getInt(s, 0, true));
-					else if (fi.FieldType == typeof(float))
-						fi.SetValue(com, (float)data.getFloat(s, 0));
-					else if (fi.FieldType == typeof(double))
-						fi.SetValue(com, data.getFloat(s, 0));
-					else if (fi.FieldType == typeof(Vector3))
-						fi.SetValue(com, data.getVector(s, true).GetValueOrDefault());
-					else if (fi.FieldType == typeof(Quaternion))
-						fi.SetValue(com, data.getQuaternion(s, true).GetValueOrDefault());
-					else if (fi.FieldType == typeof(Color))
-						fi.SetValue(com, data.getColor(s, true, true).GetValueOrDefault());
+					SaveSystem.setField(data, s, fi, com);
 				}
 			}
 			

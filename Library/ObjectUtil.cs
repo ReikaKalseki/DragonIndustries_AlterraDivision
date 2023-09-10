@@ -715,6 +715,18 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static bool isRoom(GameObject go, bool allowTunnelConnections) {
+			return isPieceType(go, allowTunnelConnections, "BaseRoom");
+		}
+		
+		public static bool isMoonpool(GameObject go, bool allowTunnelConnections, bool allowRoof) {
+			if (!allowRoof) {
+				BaseExplicitFace face = go.GetComponentInParent<BaseExplicitFace>();
+				return face && face.gameObject.name.StartsWith("BaseMoonpoolCoverSide", StringComparison.InvariantCultureIgnoreCase);
+			}
+			return isPieceType(go, allowTunnelConnections, "BaseMoonpool");
+		}
+		
+		private static bool isPieceType(GameObject go, bool allowTunnelConnections, string type) {
 			if (!allowTunnelConnections) {
 				GameObject g2 = go;
 				while (g2.transform.parent && !g2.name.StartsWith("Base", StringComparison.InvariantCultureIgnoreCase))
@@ -723,7 +735,7 @@ namespace ReikaKalseki.DIAlterra
 					return false;
 			}
 			BaseCell bc = go.FindAncestor<BaseCell>();
-			return bc && getChildObject(bc.gameObject, "BaseRoom");
+			return bc && getChildObject(bc.gameObject, type);
 		}
 		
 	}

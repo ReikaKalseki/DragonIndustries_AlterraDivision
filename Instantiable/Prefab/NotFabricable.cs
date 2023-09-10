@@ -15,6 +15,10 @@ namespace ReikaKalseki.DIAlterra {
 	
 	public class NotFabricable : BasicCraftingItem {
 		
+		public NotFabricable(XMLLocale.LocaleEntry e, string template) : base(e, template) {
+			
+		}
+		
 		public NotFabricable(string id, string name, string desc, string template) : base(id, name, desc, template) {
 			
 		}
