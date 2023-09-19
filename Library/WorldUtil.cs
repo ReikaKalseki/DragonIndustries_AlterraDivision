@@ -81,15 +81,15 @@ batch_id = (19, 17, 16)
 		}
 		
 		public static C getClosest<C>(Vector3 pos) where C : Component {
-			double dist = -1;
+			double distsq = -1;
 			C ret = null;
 			foreach (C obj in UnityEngine.Object.FindObjectsOfType<C>()) {
 				if (!obj)
 					continue;
-				double dd = Vector3.Distance(pos, obj.transform.position);
-				if (dd < dist || ret == null) {
+				double dd = (pos-obj.transform.position).sqrMagnitude;
+				if (dd < distsq || ret == null) {
 					ret = obj;
-					dist = dd;
+					distsq = dd;
 				}
 			}
 			return ret;

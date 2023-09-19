@@ -65,7 +65,7 @@ namespace ReikaKalseki.DIAlterra {
 				return ModVersion.parse(text);
 	    	}
 	    	catch (Exception ex) {
-	    		SNUtil.log("Failed to get remote git version: "+ex.ToString());
+	    		SNUtil.log("Failed to get local git version: "+ex.ToString());
 	    		return ModVersion.ERROR;
 	    	}
 		}
@@ -77,7 +77,12 @@ namespace ReikaKalseki.DIAlterra {
 				return ModVersion.parse(text);
 	    	}
 	    	catch (Exception ex) {
-	    		SNUtil.log("Failed to get remote git version: "+ex.ToString());
+	    		string str = ex.ToString();
+	    		SNUtil.log("Failed to get remote git version: "+str);
+	    		if (str.StartsWith("System.Net.WebException", StringComparison.InvariantCultureIgnoreCase) && str.Contains("ConnectFailure")) {
+	    			SNUtil.log("Could not connect to server!");
+	    			SNUtil.createPopupWarning("Could not connect to "+repo+" GitHub for versions. Check your internet/firewall/proxy settings.", false);
+	    		}
 	    		return ModVersion.ERROR;
 	    	}
 		}

@@ -20,6 +20,8 @@ namespace ReikaKalseki.DIAlterra {
 		public static readonly UsableItemRegistry instance = new UsableItemRegistry();
 	    
 	    private readonly Dictionary<TechType, Func<Survival, GameObject, bool>> actions = new Dictionary<TechType, Func<Survival, GameObject, bool>>();
+	    
+	    private float lastUse = -1;
 		
 		private UsableItemRegistry() {/*
 	    	addUsableItem(TechType.Bladderfish, (s, go) => {
@@ -53,6 +55,11 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public bool use(TechType tt, Survival s, GameObject go) {
+	    	if (DayNightCycle.main.timePassedAsFloat-lastUse < 0.5) {
+	    		SNUtil.writeToChat("Prevented duplicate use of item "+tt);
+	    		return false;
+	    	}
+	    	lastUse = DayNightCycle.main.timePassedAsFloat;
 	    	bool ret = actions[tt](s, go);
 	    	if (ret)
 				Inventory.main.container.DestroyItem(tt);

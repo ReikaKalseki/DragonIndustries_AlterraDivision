@@ -67,6 +67,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<MapRoomFunctionality> scannerRoomTickEvent;	
 	    public static event Action itemsLostEvent;
 	    public static event Action<StorageContainer, GUIHand> storageHoverEvent;	
+	    public static event Action<ModuleFireCostCheck> moduleFireCostEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -385,6 +386,23 @@ namespace ReikaKalseki.DIAlterra {
 	    		defaultAllow = a;
 	    		allow = defaultAllow;
 	    	}
+	    }
+	    
+	    public class ModuleFireCostCheck {
+	    	
+	    	public readonly TechType module;
+	    	public readonly Vehicle vehicle;
+	    	public readonly float originalValue;
+	    	
+	    	public float value;
+	    	
+	    	internal ModuleFireCostCheck(Vehicle v, TechType item, float orig) {
+	    		originalValue = orig;
+	    		value = orig;
+	    		module = item;
+	    		vehicle = v;
+	    	}
+	    	
 	    }
     
 	    public static void onTick(DayNightCycle cyc) {
@@ -1695,6 +1713,15 @@ namespace ReikaKalseki.DIAlterra {
 	   public static void onStorageContainerHover(StorageContainer sc, GUIHand hand) {
 	   		if (storageHoverEvent != null)
 	    		storageHoverEvent.Invoke(sc, hand);
+	   }
+	   
+	   public static float getModuleFireCost(float cost, Vehicle v, TechType module) {
+	    	if (moduleFireCostEvent != null) {
+	    		ModuleFireCostCheck e = new ModuleFireCostCheck(v, module, cost);
+	    		moduleFireCostEvent.Invoke(e);
+	    		cost = e.value;
+	    	}
+	   		return cost;
 	   }
 	}
 }
