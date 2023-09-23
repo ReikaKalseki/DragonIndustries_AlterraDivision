@@ -68,6 +68,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action itemsLostEvent;
 	    public static event Action<StorageContainer, GUIHand> storageHoverEvent;	
 	    public static event Action<ModuleFireCostCheck> moduleFireCostEvent;
+	    public static event Action selfScanEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -1722,6 +1723,11 @@ namespace ReikaKalseki.DIAlterra {
 	    		cost = e.value;
 	    	}
 	   		return cost;
+	   }
+	   
+	   public static void onSelfScan() {
+	   		if (selfScanEvent != null)
+	    		selfScanEvent.Invoke();
 	   }
 	}
 }

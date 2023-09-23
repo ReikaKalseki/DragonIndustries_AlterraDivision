@@ -738,5 +738,14 @@ namespace ReikaKalseki.DIAlterra
 			return bc && getChildObject(bc.gameObject, type);
 		}
 		
+		public static bool isInWater(GameObject go) {
+			return go.transform.position.y <= Ocean.main.GetOceanLevel() && isLoose(go) && !WorldUtil.isPrecursorBiome(go.transform.position);
+		}
+		
+		public static bool isLoose(GameObject go) {
+			Transform t = go.transform.parent;
+			return !t || t.name == "SerializerEmptyGameObject" || t.name == "CellRoot(Clone)";
+		}
+		
 	}
 }

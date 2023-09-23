@@ -7,6 +7,8 @@ using System.Xml;
 using System.Linq;
 using System.Xml.Serialization;
 using System.IO.Compression;
+using System.Globalization;
+
 using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
@@ -125,11 +127,34 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public override bool tryParse(string s, out int val) {
-				return int.TryParse(s, out val);
+				if (!string.IsNullOrEmpty(s) && s[0] == '0' && s[1] == 'x')
+					return int.TryParse(s.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out val);
+				else
+					return int.TryParse(s, out val);
 			}
 			
 			public override string getSample() {
 				return "1";
+			}
+			
+		}
+		
+		public class FloatParser : ValueParser<float> {
+			
+			public static readonly FloatParser instance = new FloatParser();
+			
+			private FloatParser() {
+				
+			}
+			
+			public override bool tryParse(string s, out float val) {
+				if (!string.IsNullOrEmpty(s) && char.ToUpperInvariant(s[s.Length-1]) == 'F')
+					s = s.Substring(0, s.Length-1);
+				return float.TryParse(s, out val);
+			}
+			
+			public override string getSample() {
+				return "1.0";
 			}
 			
 		}

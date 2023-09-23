@@ -231,6 +231,11 @@ batch_id = (19, 17, 16)
 			Ray ray = new Ray(pos, axis.HasValue ? axis.Value : Vector3.down);
 			return UWE.Utils.RaycastIntoSharedBuffer(ray, maxDown, Voxeland.GetTerrainLayerMask()) > 0 ? UWE.Utils.sharedHitBuffer[0] : (RaycastHit?)null;
 		}
+		
+		public static bool isPrecursorBiome(Vector3 pos) {
+			string over = AtmosphereDirector.main.GetBiomeOverride();
+			return !string.IsNullOrEmpty(over) && over.ToLowerInvariant().Contains("precursor");
+		}
 		/*
 		public static bool isScannerRoomInRange(Vector3 position, bool needFunctional = true, float maxRange = 500, TechType scanningFor = TechType.None) {
 			foreach (MapRoomFunctionality room in getObjectsNearWithComponent<MapRoomFunctionality>(position, maxRange)) {
