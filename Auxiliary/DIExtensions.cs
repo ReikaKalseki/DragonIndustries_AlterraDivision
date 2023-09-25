@@ -339,6 +339,12 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
+		public static E[] addToArray<E>(this E[] arr, E add) {
+			List<E> li = new List<E>(arr.ToList());
+			li.Add(add);
+			return li.ToArray();
+		}
+		
 		public static bool overlaps<E>(this ICollection<E> c, ICollection<E> other) {
 			foreach (E e in c) {
 				if (other.Contains(e)) {

@@ -69,6 +69,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<StorageContainer, GUIHand> storageHoverEvent;	
 	    public static event Action<ModuleFireCostCheck> moduleFireCostEvent;
 	    public static event Action selfScanEvent;
+	    public static event Action<ScannerRoomTechTypeListingCheck> scannerRoomTechTypeListingEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -402,6 +403,20 @@ namespace ReikaKalseki.DIAlterra {
 	    		value = orig;
 	    		module = item;
 	    		vehicle = v;
+	    	}
+	    	
+	    }
+	    
+	    public class ScannerRoomTechTypeListingCheck {
+	    	
+	    	public readonly TechType find;
+	    	public readonly uGUI_MapRoomScanner gui;
+	    	
+	    	public bool canFind = true;
+	    	
+	    	internal ScannerRoomTechTypeListingCheck(TechType item, uGUI_MapRoomScanner g) {
+	    		find = item;
+	    		gui = g;
 	    	}
 	    	
 	    }
@@ -1728,6 +1743,19 @@ namespace ReikaKalseki.DIAlterra {
 	   public static void onSelfScan() {
 	   		if (selfScanEvent != null)
 	    		selfScanEvent.Invoke();
+	   }
+	    
+	    public static void filterScannerRoomResourceList(uGUI_MapRoomScanner gui) {
+	    	gui.availableTechTypes.RemoveWhere(item => !playerCanScanFor(item, gui));
+	    }
+	   
+	   private static bool playerCanScanFor(TechType tt, uGUI_MapRoomScanner gui) {
+	   	if (scannerRoomTechTypeListingEvent != null) {
+	   		ScannerRoomTechTypeListingCheck ch = new ScannerRoomTechTypeListingCheck(tt, gui);
+	    	scannerRoomTechTypeListingEvent.Invoke(ch);
+	    	return ch.canFind;
+	   	}
+	   	return true;
 	   }
 	}
 }
