@@ -64,6 +64,9 @@ namespace ReikaKalseki.DIAlterra
 			public PingType signalType {get; private set;}
 			internal SignalHolder signalHolder {get; private set;}
 			
+			internal PingInstance signalInstance;
+			internal SignalInitializer initializer;
+			
 			internal ModSignal(string id, string n, string desc, string pda, string prompt) {
 				this.id = "signal_"+id;
 				name = n;
@@ -75,17 +78,24 @@ namespace ReikaKalseki.DIAlterra
 				ownerMod = SNUtil.tryGetModDLL();
 			}
 			
-			public void addRadioTrigger(string soundPath) {
-				addRadioTrigger(SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "radio_"+id, soundPath).asset);
+			public ModSignal addRadioTrigger(string soundPath) {
+				return addRadioTrigger(SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "radio_"+id, soundPath).asset);
 			}
 			
-			public void addRadioTrigger(FMODAsset sound) {
+			public ModSignal addRadioTrigger(FMODAsset sound) {
 				setStoryGate("radio_"+id);
 				radioMessage = SNUtil.addRadioMessage(storyGate, radioText, sound);
+				return this;
 			}
 			
-			public void setStoryGate(string key) {
+			public ModSignal setStoryGate(string key) {
 				storyGate = key;
+				return this;
+			}
+			
+			public ModSignal move(Vector3 pos) {
+				initialPosition = pos;
+				return this;
 			}
 			
 			public void register(string pfb, Vector3 pos, float maxDist = -1) {
@@ -114,6 +124,39 @@ namespace ReikaKalseki.DIAlterra
 				GenUtil.registerWorldgen(signalHolder.ClassID, initialPosition, rot);
 			}
 			
+			public PingInstance attachToObject(GameObject go) {
+				LargeWorldEntity lw = go.EnsureComponent<LargeWorldEntity>();
+				lw.cellLevel = LargeWorldEntity.CellLevel.Global;
+				
+				go.SetActive(false);
+				go.transform.position = initialPosition;
+				
+				signalInstance = go.EnsureComponent<PingInstance>();
+				signalInstance.pingType = signalType;
+				signalInstance.colorIndex = 0;
+				signalInstance.origin = go.transform;
+				signalInstance.minDist = 18;
+				signalInstance.maxDist = maxDistance >= 0 ? maxDistance : signalInstance.minDist;
+				signalInstance.SetLabel(longName);
+				
+				bool flag = true;
+				if (storyGate != null)
+					flag = StoryGoalManager.main.completedGoals.Contains(storyGate);
+				
+				signalInstance.displayPingInManager = flag;
+				signalInstance.SetVisible(flag);
+				
+				initializer = go.EnsureComponent<SignalInitializer>();
+				initializer.ping = signalInstance;
+				initializer.signal = this;
+				
+				SNUtil.log("Initialized GO holder for signal "+id+" ["+flag+"]: "+go+" @ "+go.transform.position, SNUtil.diDLL);
+				
+				go.SetActive(true);
+				
+				return signalInstance;
+			}
+			
 			public void fireRadio() {
 				if (radioMessage != null)
 					StoryGoal.Execute(storyGate, radioMessage.goalType);//radioMessage.Trigger();
@@ -124,11 +167,14 @@ namespace ReikaKalseki.DIAlterra
 			}
 		
 			public void activate(int delay = 0) {
-				signalHolder.signalInstance.displayPingInManager = true;
-				signalHolder.signalInstance.enabled = true;
-				signalHolder.signalInstance.SetVisible(true);
+				signalInstance.displayPingInManager = true;
+				signalInstance.enabled = true;
+				signalInstance.SetVisible(true);
 				
-				signalHolder.activate(delay);				
+				if (delay > 0)
+					initializer.Invoke("triggerFX", delay);
+				else
+					initializer.triggerFX();		
 				
 				if (pdaEntry != null)
 					pdaEntry.unlock(false);
@@ -136,8 +182,8 @@ namespace ReikaKalseki.DIAlterra
 			
 			public void deactivate() { //Will not remove the PDA entry!
 				//signalInstance.displayPingInManager = false;
-				signalHolder.signalInstance.enabled = false;
-				signalHolder.signalInstance.SetVisible(false);
+				signalInstance.enabled = false;
+				signalInstance.SetVisible(false);
 			}
 			
 			public override string ToString()
@@ -163,8 +209,8 @@ namespace ReikaKalseki.DIAlterra
 					signal = SignalManager.getSignal(SignalManager.types[ping.pingType]);
 				}
 				SNUtil.log("Starting signal init of "+signal+" / "+ping, SNUtil.diDLL);
-				signal.signalHolder.signalInstance = ping;
-				signal.signalHolder.initializer = this;
+				signal.signalInstance = ping;
+				signal.initializer = this;
 		    	ping.SetLabel(signal.longName);
 		    	
 				bool available = signal.storyGate == null || StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
@@ -184,55 +230,18 @@ namespace ReikaKalseki.DIAlterra
 		internal class SignalHolder : GenUtil.CustomPrefabImpl {
 			
 			private readonly ModSignal signal;
-			
-			internal PingInstance signalInstance;
-			internal SignalInitializer initializer;
 	       
 			internal SignalHolder(string template, ModSignal s) : base("signalholder_"+s.id, template) {
 				signal = s;
 		    }
 	
 			public override void prepareGameObject(GameObject go, Renderer[] r) {
-				LargeWorldEntity lw = go.EnsureComponent<LargeWorldEntity>();
-				lw.cellLevel = LargeWorldEntity.CellLevel.Global;
-				
-				go.SetActive(false);
-				go.transform.position = signal.initialPosition;
-				
-				signalInstance = go.EnsureComponent<PingInstance>();
-				signalInstance.pingType = signal.signalType;
-				signalInstance.colorIndex = 0;
-				signalInstance.origin = go.transform;
-				signalInstance.minDist = 18;
-				signalInstance.maxDist = signal.maxDistance >= 0 ? signal.maxDistance : signalInstance.minDist;
-				signalInstance.SetLabel(signal.longName);
-				
-				bool flag = true;
-				if (signal.storyGate != null) {
-					flag = StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
-				}
-				signalInstance.displayPingInManager = flag;
-				signalInstance.SetVisible(flag);
-				
-				initializer = go.EnsureComponent<SignalInitializer>();
-				initializer.ping = signalInstance;
-				initializer.signal = signal;
-				
-				SNUtil.log("Initialized GO holder for signal "+signal.id+" ["+flag+"]: "+go+" @ "+go.transform.position, SNUtil.diDLL);
-				
-				go.SetActive(true);
+				signal.attachToObject(go);
 			}
 			
 			internal SignalHolder registerPrefab() {
 				Patch();
 				return this;
-			}
-			
-			internal void activate(int delay = 0) {
-				if (delay > 0)
-					initializer.Invoke("triggerFX", delay);
-				else
-					initializer.triggerFX();
 			}
 		}
 		
