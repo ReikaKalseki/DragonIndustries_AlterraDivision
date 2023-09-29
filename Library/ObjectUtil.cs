@@ -714,6 +714,10 @@ namespace ReikaKalseki.DIAlterra
 		          return false;
 		}
 		
+		public static bool isLookingAt(Transform looker, Vector3 pos, float maxAng) {
+			return Vector3.Angle(looker.forward, pos-looker.transform.position) <= maxAng;
+		}
+		
 		public static bool isRoom(GameObject go, bool allowTunnelConnections) {
 			return isPieceType(go, allowTunnelConnections, "BaseRoom");
 		}

@@ -167,6 +167,10 @@ namespace ReikaKalseki.DIAlterra
 			}
 		
 			public void activate(int delay = 0) {
+				if (!signalInstance) {
+					SNUtil.log("Cannot disable mod signal "+this+" because it has no object/instance!", ownerMod);
+					return;
+				}
 				signalInstance.displayPingInManager = true;
 				signalInstance.enabled = true;
 				signalInstance.SetVisible(true);
@@ -181,6 +185,8 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void deactivate() { //Will not remove the PDA entry!
+				if (!signalInstance)
+					return;
 				//signalInstance.displayPingInManager = false;
 				signalInstance.enabled = false;
 				signalInstance.SetVisible(false);

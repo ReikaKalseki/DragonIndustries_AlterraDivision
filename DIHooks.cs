@@ -1297,6 +1297,7 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void recomputeFog() {
+	     	SNUtil.log("Recomputing fog @ "+Camera.main.transform.position, SNUtil.diDLL);
 	    	WaterBiomeManager.main.Rebuild();
 	    	WaterBiomeManager.main.BuildSettingsTextures();
 	    }

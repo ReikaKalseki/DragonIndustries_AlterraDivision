@@ -19,6 +19,8 @@ namespace ReikaKalseki.DIAlterra
 		private readonly Dictionary<ProgressionTrigger, DelayedProgressionEffect> triggers = new Dictionary<ProgressionTrigger, DelayedProgressionEffect>();
 		private readonly List<IStoryGoalListener> listeners = new List<IStoryGoalListener>();
 		
+		public bool disableStoryHooks = false;
+		
 		private StoryHandler() {
 			
 		}
@@ -36,6 +38,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void tick(Player ep) {
+			if (disableStoryHooks || !DIHooks.isWorldLoaded())
+				return;
 			foreach (KeyValuePair<ProgressionTrigger, DelayedProgressionEffect> kvp in triggers) {
 				if (kvp.Key.isReady(ep)) {
 					//SNUtil.writeToChat("Trigger "+kvp.Key+" is ready");
