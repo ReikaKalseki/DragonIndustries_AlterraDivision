@@ -315,7 +315,7 @@ namespace ReikaKalseki.DIAlterra
 					lastModifyTime = time;
 					foreach (Animator a in animations)
 						if (a)
-							a.enabled = false;
+							a.enabled = a.gameObject.FindAncestor<SpikePlant>();
 					
 					foreach (StorageContainer p in storages) {
 						if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {
