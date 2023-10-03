@@ -76,6 +76,9 @@ namespace ReikaKalseki.DIAlterra {
 		private static bool hasLoadedAWorld = false;
 		
 		private static CustomBiome currentCustomBiome;
+		
+	    public static bool skipWorldForces = false;
+	    public static bool skipSkyApplier = false;
 	    
 	    static DIHooks() {
 	    	
@@ -487,7 +490,7 @@ namespace ReikaKalseki.DIAlterra {
 				li.Add("You should redownload and reinstall mods with local errors and contact Reika if remote versions are invalid.");
 	    	}
 			if (warnRestart)
-				li.Add("You have reloaded a save without exiting the game. This breaks mod loading and will damage your world. Restart your game when changing/reloading saves.");
+				li.Add("You have reloaded a save without exiting the game. This breaks mod loading and will damage your world. Restart your game when changing/reloading saves.\nExit the game now, and DO NOT SAVE before doing so.");
 			if (li.Count > 0)
 				updateNotice.ShowMessage(string.Join("\n", li));
 			else
@@ -1735,6 +1738,26 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void filterScannerRoomResourceList(uGUI_MapRoomScanner gui) {
 		   	if (scannerRoomTechTypeListingEvent != null)
 		    	scannerRoomTechTypeListingEvent.Invoke(gui);
+	    }
+	    
+	    public static void tickWorldForces(WorldForces wf) {
+	    	if (skipWorldForces)
+	    		return;
+	    	if (wf == null || wf.gameObject == null || !wf.gameObject.activeInHierarchy || !wf.enabled) {
+	    		//WorldForcesManager.instance.RemoveWorldForces(wf);
+	    		//SNUtil.log("Disabling invalid WF tick in "+wf);
+	    		return;
+	    	}
+	    	wf.DoFixedUpdate();
+	    }
+	    
+	    public static void updateSkyApplier(SkyApplier wf) {
+	    	if (skipSkyApplier)
+	    		return;
+	    	if (!wf || !wf.gameObject || !wf.transform) {
+	    		return;
+	    	}
+	    	wf.UpdateSkyIfNecessary();
 	    }
 	}
 }

@@ -1678,7 +1678,7 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	/* DO NOT ENABLE, CAUSES ALL GUI PINGS TO DISAPPEAR WHEN THEIR CAUSAL GO DERENDERS/UNLOADS AT DISTANCE
 	[HarmonyPatch(typeof(ResourceTracker))]
 	[HarmonyPatch("OnDestroy")]
 	public static class ResourceTrackerDestroyUnregisterFix {
@@ -1699,7 +1699,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			return codes.AsEnumerable();
 		}
-	}
+	}*/
 	/*
 	[HarmonyPatch(typeof(Vehicle))]
 	[HarmonyPatch("set_docked")]
@@ -1857,6 +1857,48 @@ namespace ReikaKalseki.DIAlterra {
 			try {
 				CodeInstruction call = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "filterScannerRoomResourceList", false, typeof(uGUI_MapRoomScanner));
 				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), call);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(WorldForcesManager))]
+	[HarmonyPatch("FixedUpdate")]
+	public static class CleanupWorldForcesManager {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "WorldForces", "DoFixedUpdate", true, new Type[0]);
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "tickWorldForces", false, typeof(WorldForces));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(SkyApplierUpdater))]
+	[HarmonyPatch("Update")]
+	public static class CleanupSkyApplierUpdater {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "SkyApplier", "UpdateSkyIfNecessary", true, new Type[0]);
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "updateSkyApplier", false, typeof(SkyApplier));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
