@@ -315,7 +315,7 @@ namespace ReikaKalseki.DIAlterra
 					lastModifyTime = time;
 					foreach (Animator a in animations)
 						if (a)
-							a.enabled = a.gameObject.FindAncestor<SpikePlant>();
+							a.enabled = keepAnimator(a);
 					
 					foreach (StorageContainer p in storages) {
 						if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {
@@ -368,6 +368,10 @@ namespace ReikaKalseki.DIAlterra
 						}
 					}
 				}
+			}
+			
+			private bool keepAnimator(Animator a) {
+				return a.gameObject.FindAncestor<SpikePlant>() || a.gameObject.FindAncestor<Aquarium>();
 			}
 			
 		}

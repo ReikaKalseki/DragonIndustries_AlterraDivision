@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
@@ -749,6 +750,14 @@ namespace ReikaKalseki.DIAlterra
 		public static bool isLoose(GameObject go) {
 			Transform t = go.transform.parent;
 			return !t || t.name == "SerializerEmptyGameObject" || t.name == "CellRoot(Clone)";
+		}
+		
+		public static bool isLODRenderer(Renderer r) {
+			return !r.name.Contains("LOD1") && !r.name.Contains("LOD2") && !r.name.Contains("LOD3");
+		}
+		
+		public static Renderer[] getNonLODRenderers(GameObject go) {
+			return go.GetComponentsInChildren<Renderer>().Where(r => !isLODRenderer(r)).ToArray();
 		}
 		
 	}

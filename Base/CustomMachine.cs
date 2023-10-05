@@ -208,6 +208,14 @@ namespace ReikaKalseki.DIAlterra
 				lgc.load(data);
 		}
 	}
+	
+	public abstract class DiscreteOperationalMachineLogic : CustomMachineLogic {
+				
+		public abstract bool isWorking();
+		
+		public abstract float getProgressScalar();
+		
+	}
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {
 		
@@ -371,7 +379,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			if (sub) {
 				transform.parent = sub.transform;
-				SNUtil.log("Custom machine "+this+" @ "+transform.position+" parented to sub: "+sub);
+				SNUtil.log("Custom machine "+this+" @ "+transform.position+" parented to sub: "+sub, SNUtil.diDLL);
 			}
 			
 			foreach (SkyApplier sky in gameObject.GetComponents<SkyApplier>()) {

@@ -1717,6 +1717,11 @@ namespace ReikaKalseki.DIAlterra {
 	   }
 	   
 	   public static void onStorageContainerHover(StorageContainer sc, GUIHand hand) {
+	    	DiscreteOperationalMachineLogic lgc = sc.GetComponentInParent<DiscreteOperationalMachineLogic>();
+	    	if (lgc && lgc.isWorking()) {
+	    		HandReticle.main.SetProgress(lgc.getProgressScalar());
+				HandReticle.main.SetIcon(HandReticle.IconType.Progress, 1f);
+	    	}
 	   		if (storageHoverEvent != null)
 	    		storageHoverEvent.Invoke(sc, hand);
 	   }
