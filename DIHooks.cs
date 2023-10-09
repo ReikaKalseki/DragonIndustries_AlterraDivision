@@ -1764,5 +1764,9 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	wf.UpdateSkyIfNecessary();
 	    }
+	   /*
+	   public static bool isRightHandDownForLightToggle(Player p) {
+	   	return p.GetRightHandDown();
+	   }*/
 	}
 }

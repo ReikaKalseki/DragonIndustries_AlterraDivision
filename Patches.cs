@@ -1911,6 +1911,29 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(ToggleLights))]
+	[HarmonyPatch("CheckLightToggle")]
+	public static class LightToggleRework {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				//int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "Player", "GetRightHandDown", true, new Type[0]);
+				//codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isRightHandDownForLightToggle", false, typeof(Player));
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Ldc_R4, 0.25F);
+				codes[idx].operand = -1F;
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
 		
 		internal static void patchPropulsability(List<CodeInstruction> codes, int idx, bool mass, CodeInstruction go = null) {

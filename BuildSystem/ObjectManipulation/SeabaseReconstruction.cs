@@ -542,8 +542,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			private bool hasOpener() {
-				SeabaseDoorOpenerTag bk = WorldUtil.getObjectsNearWithComponent<SeabaseDoorOpenerTag>(transform.position, 2).FirstOrFallback(null);
-				return bk != null && Vector3.Distance(bk.transform.position, transform.position) < 2;
+				return WorldUtil.areAnyObjectsNear(transform.position, 2, go => go.GetComponent<SeabaseDoorOpenerTag>());
 			}
 			
 		}

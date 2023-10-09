@@ -95,65 +95,66 @@ batch_id = (19, 17, 16)
 			return ret;
 		}
 		
+		/** 
+  			Will not find things without colliders!
+			Avoid using this with components that will result in many findings, as you then end up iterating a large list. Use the getter version instead.
+		 */
+		public static HashSet<C> getObjectsNearWithComponent<C>(Vector3 pos, float r) where C : MonoBehaviour {
+			return getObjectsNear(pos, r, go => go.GetComponentInChildren<C>());
+		}
+		
+		/** Will not find things without colliders! */
+		public static HashSet<GameObject> getObjectsNearMatching(Vector3 pos, float r, Predicate<GameObject> check) {
+			return getObjectsNear(pos, r, go => check(go) ? go : null);
+		}
+		
+		/** Will not find things without colliders! */
 		public static HashSet<GameObject> getObjectsNear(Vector3 pos, float r) {
-			HashSet<GameObject> set = new HashSet<GameObject>();
-			/*
-			Collider[] hit = Physics.OverlapSphere(pos, r);			
-			foreach (Collider rh in hit) {
-				if (rh) {
-					GameObject go = UWE.Utils.GetEntityRoot(rh.gameObject);
-					if (!go)
-						go = rh.gameObject;
-					set.Add(go);
-				}
-			}
-			*/
+			return getObjectsNear<GameObject>(pos, r, null);
+		}
+		
+		/** Will not find things without colliders! */
+		public static HashSet<R> getObjectsNear<R>(Vector3 pos, float r, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
+			HashSet<R> set = new HashSet<R>();
+			getObjectsNear(pos, r, obj => set.Add(obj), converter);
+			return set;
+		}
+		
+		/** Will not find things without colliders! */
+		public static void getGameObjectsNear(Vector3 pos, float r, Action<GameObject> getter) {
+			getObjectsNear<GameObject>(pos, r, getter, null);
+		}
+		
+		/** Will not find things without colliders! */
+		public static void getObjectsNear<R>(Vector3 pos, float r, Action<R> getter, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
+			getObjectsNear<R>(pos, r, obj => {getter(obj); return false;}, converter);
+		}
+		
+		/** Will not find things without colliders! */
+		public static void getObjectsNear<R>(Vector3 pos, float r, Func<R, bool> getter, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
 			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F)) {
 				if (hit.transform) {
 					GameObject go = UWE.Utils.GetEntityRoot(hit.transform.gameObject);
 					if (!go)
 						go = hit.transform.gameObject;
-					set.Add(go);
+					if (!go)
+						continue;
+					UnityEngine.Object obj = converter == null ? (UnityEngine.Object)go : converter(go);
+					if (obj) {
+						if (getter((R)obj))
+							return;
+					}
 				}
 			}
-			return set;
 		}
 		
 		/** Will not find things without colliders! */
-		public static HashSet<C> getObjectsNearWithComponent<C>(Vector3 pos, float r) where C : MonoBehaviour {
-			HashSet<C> set = new HashSet<C>();
-			/*
-			Collider[] hit = Physics.OverlapSphere(pos, r);
-			if (hit == null || hit.Length == 0)
-				return set;
-			foreach (Collider rh in hit) {
-				if (rh && rh.gameObject) {
-					GameObject go = UWE.Utils.GetEntityRoot(rh.gameObject);
-					if (!go)
-						go = rh.gameObject;
-					C com = go ? go.GetComponentInChildren<C>() : null;
-					if (com)
-						set.Add(com);
-				}
-			}
-			*/
-			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F, -5, QueryTriggerInteraction.Collide)) {
-				if (hit.transform) {
-					GameObject go = UWE.Utils.GetEntityRoot(hit.transform.gameObject);
-					if (!go)
-						go = hit.transform.gameObject;
-					C com = go ? go.GetComponentInChildren<C>() : null;
-					if (com)
-						set.Add(com);
-				}
-			}
-			return set;
+		public static GameObject areAnyObjectsNear(Vector3 pos, float r, Predicate<GameObject> check) {
+			GameObject ret = null;
+			getObjectsNear<GameObject>(pos, r, go => {ret = go; return true;}, go => check(go) ? go : null);
+			return ret;
 		}
-		/*
-		public static string getBiomeFriendlyName(string biome) {
-			return biomeNames.ContainsKey(biome) ? biomeNames[biome] : biome;
-		}
-	    */
+		
 	    public static bool isPlantInNativeBiome(GameObject go) {
 			if (!go)
 				return false;
