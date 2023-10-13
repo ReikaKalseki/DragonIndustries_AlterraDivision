@@ -192,6 +192,10 @@ namespace ReikaKalseki.DIAlterra
 				signalInstance.SetVisible(false);
 			}
 			
+			public bool isActive() {
+				return signalInstance && signalInstance.isActiveAndEnabled;
+			}
+			
 			public override string ToString()
 			{
 				return string.Format("[ModSignal Id={0}, Name={1}, LongName={2}, Radio={3}, PdaEntry={4}, Icon={5}, Mod={6}]", id, name, longName, radioText, pdaEntry, icon, ownerMod);

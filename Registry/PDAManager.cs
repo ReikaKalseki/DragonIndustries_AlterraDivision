@@ -116,14 +116,14 @@ namespace ReikaKalseki.DIAlterra
 				injectString(force);
 			}
 			
-			public void update(string text, bool force = false) {
+			public void update(string text, bool force = false, bool allowNotification = true) {
 				if (this.text == text)
 					return;
 				this.text = text;
-					injectString(force);
+				injectString(force, allowNotification);
 			}
 			
-			private void injectString(bool force = false) {/*
+			private void injectString(bool force = false, bool allowNotification = true) {/*
 				if (force && DIHooks.isWorldLoaded())
 					Language.main.strings["EncyDesc_"+pageData.key] = text;
 				else*/
@@ -135,7 +135,8 @@ namespace ReikaKalseki.DIAlterra
 								tab.DisplayEntry(pageData.key);//.SetText(text);
 						}
 					}
-					markUpdated(5);
+					if (allowNotification)
+						markUpdated(5);
 			}
 			
 			public void markUpdated(float duration = 3F) {
