@@ -31,7 +31,7 @@ namespace ReikaKalseki.DIAlterra
 			internal PlacedObject placement;
 			
 			void Start() {
-				SNUtil.log("Initialized builderplaced of "+placement);
+				SNUtil.log("Initialized builderplaced of "+placement, SNUtil.diDLL);
 			}
 			
 			void Update() {

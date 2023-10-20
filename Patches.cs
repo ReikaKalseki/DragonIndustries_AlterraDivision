@@ -1934,6 +1934,53 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(StasisSphere))]
+	[HarmonyPatch("LateUpdate")]
+	public static class StasisRifleHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "StasisSphere", "Freeze", true, new Type[]{typeof(Collider), typeof(Rigidbody).MakeByRefType()});
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onStasisFreeze", false, typeof(StasisSphere), typeof(Collider), typeof(Rigidbody).MakeByRefType());
+				
+				idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "StasisSphere", "Unfreeze", true, new Type[]{typeof(Rigidbody)});
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onStasisUnfreeze", false, typeof(StasisSphere), typeof(Rigidbody));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(StasisSphere))]
+	[HarmonyPatch("UnfreezeAll")]
+	public static class StasisRifleHook2 {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "StasisSphere", "Unfreeze", true, new Type[]{typeof(Rigidbody)});
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onStasisUnfreeze", false, typeof(StasisSphere), typeof(Rigidbody));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
 		
 		internal static void patchPropulsability(List<CodeInstruction> codes, int idx, bool mass, CodeInstruction go = null) {

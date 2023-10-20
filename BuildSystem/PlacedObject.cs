@@ -56,7 +56,7 @@ namespace ReikaKalseki.DIAlterra
 				if (go == null)
 					throw new Exception("Tried to make a place of a null obj!");
 				if (go.transform == null)
-					SNUtil.log("Place of obj "+go+" has null transform?!");
+					SNUtil.log("Place of obj "+go+" has null transform?!", SNUtil.diDLL);
 				position = go.transform.position;
 				rotation = go.transform.rotation;
 				scale = go.transform.localScale;
@@ -140,7 +140,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 				catch (Exception ex) {
 					SNUtil.writeToChat("Could not set enabled visual of "+this+" due to FX ("+fx+") GO error");
-					SNUtil.log("Could not set enabled visual of "+this+" due to FX ("+fx+") GO error: "+ex.ToString());
+					SNUtil.log("Could not set enabled visual of "+this+" due to FX ("+fx+") GO error: "+ex.ToString(), SNUtil.diDLL);
 				}
 			}
 			
@@ -227,7 +227,7 @@ namespace ReikaKalseki.DIAlterra
 			public override void saveToXML(XmlElement e) {
 				base.saveToXML(e);
 				
-				SNUtil.log("Serializing "+obj+" to xml as '"+prefabName+"':");
+				SNUtil.log("Serializing "+obj+" to xml as '"+prefabName+"':", SNUtil.diDLL);
 				
 				if (parent != null && parent.xmlID != null && parent.xmlID.HasValue) {
 					e.addProperty("parent", parent.xmlID.ToString());
@@ -237,7 +237,7 @@ namespace ReikaKalseki.DIAlterra
 						GameObject go2 = t.gameObject;
 						PlacedObject p2 = createNewObject(go2);
 						if (p2 == null) {
-							SNUtil.log("Could not find an identifier for "+t);
+							SNUtil.log("Could not find an identifier for "+t, SNUtil.diDLL);
 						}
 						else {
 							XmlElement cell = e.OwnerDocument.CreateElement("part");
@@ -250,7 +250,7 @@ namespace ReikaKalseki.DIAlterra
 								foreach (Transform t2 in t) {
 									PlacedObject p3 = createNewObject(t2.gameObject);
 									if (p3 == null) {
-										SNUtil.log("Could not find an identifier for "+t2);
+										SNUtil.log("Could not find an identifier for "+t2, SNUtil.diDLL);
 									}
 									else {
 										XmlElement e3 = e.OwnerDocument.CreateElement("component");
@@ -311,7 +311,7 @@ namespace ReikaKalseki.DIAlterra
 						e.AppendChild(e2);
 					}
 				}
-				SNUtil.log("Finished XML serialization of "+this.prefabName);
+				SNUtil.log("Finished XML serialization of "+this.prefabName, SNUtil.diDLL);
 			}
 			
 			public override void loadFromXML(XmlElement e) {
@@ -367,7 +367,7 @@ namespace ReikaKalseki.DIAlterra
 			public static PlacedObject fromXML(XmlElement e, bool readXML = true) {
 				CustomPrefab pfb = new CustomPrefab("");
 				pfb.loadFromXML(e);
-				SNUtil.log("Building placed object from custom prefab "+pfb+" > "+e.format());
+				SNUtil.log("Building placed object from custom prefab "+pfb+" > "+e.format(), SNUtil.diDLL);
 				PlacedObject b = createNewObject(pfb);
 				if (readXML)
 					b.loadFromXML(e);

@@ -122,7 +122,7 @@ namespace ReikaKalseki.DIAlterra
 			Vector3 position = transform.position;
 			Vector3 forward = transform.forward;
 			Ray ray = new Ray(position, forward);
-			if (UWE.Utils.RaycastIntoSharedBuffer(ray, 30) > 0) {
+			if (UWE.Utils.RaycastIntoSharedBuffer(ray, 30, -5, QueryTriggerInteraction.Ignore) > 0) {
 				RaycastHit hit = UWE.Utils.sharedHitBuffer[0];
 				if (hit.transform != null) {
 					if (isCtrl) {
@@ -469,7 +469,7 @@ namespace ReikaKalseki.DIAlterra
 			if (b != null) {
 				registerObject(b);
 				SNUtil.writeToChat("Registered a pre-existing "+b);
-				SNUtil.log("Registered a pre-existing "+b);
+				SNUtil.log("Registered a pre-existing "+b, SNUtil.diDLL);
 				if (withChildren) {
 					foreach (Transform t in go.transform) {
 						if (t.gameObject != go && t.gameObject != null) {

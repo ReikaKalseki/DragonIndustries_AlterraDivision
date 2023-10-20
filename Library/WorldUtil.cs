@@ -240,6 +240,18 @@ batch_id = (19, 17, 16)
 			string over = AtmosphereDirector.main.GetBiomeOverride();
 			return !string.IsNullOrEmpty(over) && over.ToLowerInvariant().Contains("precursor");
 		}
+		
+		public static bool isInDRF(Vector3 pos) {
+			return VanillaBiomes.LOSTRIVER.isInBiome(pos) && isPrecursorBiome(pos);
+		}
+		
+		public static bool isInLavaCastle(Player ep) {
+			return ep.IsInsideWalkable() && ep.precursorOutOfWater && isInLavaCastle(ep.transform.position);
+		}
+		
+		public static bool isInLavaCastle(Vector3 pos) {
+			return VanillaBiomes.ILZ.isInBiome(pos) && isPrecursorBiome(pos);
+		}
 		/*
 		public static bool isScannerRoomInRange(Vector3 position, bool needFunctional = true, float maxRange = 500, TechType scanningFor = TechType.None) {
 			foreach (MapRoomFunctionality room in getObjectsNearWithComponent<MapRoomFunctionality>(position, maxRange)) {

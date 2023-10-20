@@ -83,13 +83,15 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 		
-		public void setTexture(string tex) {
+		public CustomEgg setTexture(string tex) {
 			eggTexture = tex;
 			SpriteHandler.RegisterSprite(creatureToSpawn, TextureManager.getSprite(ownerMod, eggTexture+creatureID+"_Hatched"));
+			return this;
 		}
 		
-		public void modifyGO(Action<GameObject> a) {
+		public CustomEgg modifyGO(Action<GameObject> a) {
 			objectModify = a;
+			return this;
 		}
 		
 		protected sealed override Atlas.Sprite GetItemSprite() {

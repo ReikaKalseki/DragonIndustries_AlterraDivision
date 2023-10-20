@@ -70,6 +70,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<ModuleFireCostCheck> moduleFireCostEvent;
 	    public static event Action selfScanEvent;
 	    public static event Action<uGUI_MapRoomScanner> scannerRoomTechTypeListingEvent;
+	    public static event Action<StasisEffectCheck> onStasisRifleFreezeEvent;
+	    public static event Action<StasisEffectCheck> onStasisRifleUnfreezeEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -409,6 +411,23 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	
 	    }
+	    
+	    public class StasisEffectCheck {
+	    	
+	    	public readonly StasisSphere sphere;
+	    	public readonly Rigidbody body;
+	    	
+	    	public bool applyKinematicChange = true;
+	    	public bool addToTargetList = true;
+	    	public bool sendMessage = true;
+	    	public bool doFX = true;
+	    	
+	    	internal StasisEffectCheck(StasisSphere s, Rigidbody b) {
+	    		sphere = s;
+	    		body = b;
+	    	}
+	    	
+	    }
     
 	    public static void onTick(DayNightCycle cyc) {
 	    	if (BuildingHandler.instance.isEnabled) {
@@ -603,6 +622,9 @@ namespace ReikaKalseki.DIAlterra {
 		public static float recalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer) {
 	    	if (DIMod.config.getBoolean(DIConfig.ConfigEntries.INFITUBE) && ObjectUtil.isCoralTube(target))
 	    		return Mathf.Min(damage, target.FindAncestor<LiveMixin>().health-1);
+	    	PrefabIdentifier pi = target.GetComponent<PrefabIdentifier>();
+	    	if (pi && pi.ClassId == CustomEgg.getEgg(TechType.SpineEel).ClassID && (type == DamageType.Acid || type == DamageType.Poison))
+	    		return 0;
 	    	if (onDamageEvent != null) {
 	    		DamageToDeal deal = new DamageToDeal(damage, type, target, dealer);
 	    		onDamageEvent.Invoke(deal);
@@ -1768,5 +1790,47 @@ namespace ReikaKalseki.DIAlterra {
 	   public static bool isRightHandDownForLightToggle(Player p) {
 	   	return p.GetRightHandDown();
 	   }*/
+	    
+	    public static bool onStasisFreeze(StasisSphere s, Collider c, ref Rigidbody target) {
+			target = c.GetComponentInParent<Rigidbody>();
+			if (!target)
+				return false;
+			if (s.targets.Contains(target))
+				return true;
+			StasisEffectCheck ch = new StasisEffectCheck(s, target);
+			if (onStasisRifleFreezeEvent != null)
+				onStasisRifleFreezeEvent.Invoke(ch);
+			if (target.name.StartsWith("ExplorableWreck", StringComparison.InvariantCultureIgnoreCase))
+				return false;
+			if (target.name.Contains("Precursor") && (target.name.Contains("Room") || target.name.Contains("Base")))
+				return false;
+			if (c.GetComponentInParent<Player>() || c.GetComponentInParent<Vehicle>())
+				return false;
+			if (ch.addToTargetList)
+				s.targets.Add(target);
+			if (ch.applyKinematicChange)
+				target.isKinematic = true;
+			if (ch.sendMessage)
+				target.SendMessage("OnFreeze", SendMessageOptions.DontRequireReceiver);
+			if (ch.doFX) {
+				Utils.PlayOneShotPS(s.vfxFreeze, target.GetComponent<Transform>().position, Quaternion.identity, null);
+				FMODUWE.PlayOneShot(s.soundEnter, s.tr.position, 1f);
+			}
+			return !target.isKinematic;
+	    }
+	    
+	    public static void onStasisUnfreeze(StasisSphere s, Rigidbody target) {
+			if (!target)
+				return;
+			StasisEffectCheck ch = new StasisEffectCheck(s, target);
+			if (onStasisRifleUnfreezeEvent != null)
+				onStasisRifleUnfreezeEvent.Invoke(ch);
+			if (ch.doFX)
+				Utils.PlayOneShotPS(s.vfxUnfreeze, target.GetComponent<Transform>().position, Quaternion.identity, null);
+			if (ch.applyKinematicChange)
+				target.isKinematic = false;
+			if (ch.sendMessage)
+				target.SendMessage("OnUnfreeze", SendMessageOptions.DontRequireReceiver);
+	    }
 	}
 }
