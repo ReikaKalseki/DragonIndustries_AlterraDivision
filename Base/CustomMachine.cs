@@ -87,7 +87,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public void addFragments(int needed, float scanTime = 5, params TechnologyFragment[] fragments) {
-			SNUtil.log("Creating "+fragments.Length+" fragments for "+this, ownerMod);
+			SNUtil.log("Creating "+fragments.Length+" fragments for "+this+" from "+fragments.toDebugString(), ownerMod);
 			foreach (TechnologyFragment m in fragments) {
 				m.target = TechType;
 				m.fragmentPrefab = GenUtil.getOrCreateFragment(this, m.template, m.objectModify);
@@ -95,7 +95,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			SNUtil.addPDAEntry(fragments[0].fragmentPrefab, scanTime, null, null, null, e => {
 				e.blueprint = TechType;
-				e.destroyAfterScan = true;
+				e.destroyAfterScan = shouldDeleteFragments();
 				e.isFragment = true;
 				e.totalFragments = needed;
 				e.key = GenUtil.getFragment(TechType, 0).TechType;
@@ -119,6 +119,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected virtual bool isPowerGenerator() {
 			return false;
+		}
+		
+		protected virtual bool shouldDeleteFragments() {
+			return true;
 		}
 		
 		//protected abstract OrientedBounds[] GetBounds { get; }

@@ -1981,6 +1981,30 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(PDAScanner))]
+	[HarmonyPatch("Scan")]
+	public static class RedundantScanHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "CraftData", "AddToInventory", true, new Type[]{typeof(TechType), typeof(int), typeof(bool), typeof(bool)});
+				int idx0 = InstructionHandlers.getLastOpcodeBefore(codes, idx-1, OpCodes.Call);
+				codes.RemoveRange(idx0, idx-idx0+1);
+				codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRedundantFragmentScan", false, new Type[0]));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
 		
 		internal static void patchPropulsability(List<CodeInstruction> codes, int idx, bool mass, CodeInstruction go = null) {

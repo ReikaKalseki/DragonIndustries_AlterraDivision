@@ -118,6 +118,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 			public void OnHandClick(GUIHand hand) {
 				HolographicControl.actionData[GetComponentInParent<PrefabIdentifier>().ClassId].Invoke(this);
+				SoundManager.playSoundAt(SoundManager.buildSound("event:/sub_module/fabricator/fabricator_click"), gameObject.transform.position);
 			}
 			
 			public bool isStillValid() {

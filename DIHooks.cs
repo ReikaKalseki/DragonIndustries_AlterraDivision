@@ -72,6 +72,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<uGUI_MapRoomScanner> scannerRoomTechTypeListingEvent;
 	    public static event Action<StasisEffectCheck> onStasisRifleFreezeEvent;
 	    public static event Action<StasisEffectCheck> onStasisRifleUnfreezeEvent;
+	    public static event Action<RedundantScanEvent> onRedundantScanEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -426,6 +427,12 @@ namespace ReikaKalseki.DIAlterra {
 	    		sphere = s;
 	    		body = b;
 	    	}
+	    	
+	    }
+	    
+	    public class RedundantScanEvent {
+	    	
+	    	public bool preventNormalDrop = false;
 	    	
 	    }
     
@@ -1832,5 +1839,13 @@ namespace ReikaKalseki.DIAlterra {
 			if (ch.sendMessage)
 				target.SendMessage("OnUnfreeze", SendMessageOptions.DontRequireReceiver);
 	    }
+	   
+	   public static void onRedundantFragmentScan() {
+	   		RedundantScanEvent r = new RedundantScanEvent();
+	   		if (onRedundantScanEvent != null)
+	   			onRedundantScanEvent.Invoke(r);
+	   		if (!r.preventNormalDrop)
+	   			CraftData.AddToInventory(TechType.Titanium, 2, false, true);
+	   }
 	}
 }

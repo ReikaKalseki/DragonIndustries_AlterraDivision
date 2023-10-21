@@ -209,6 +209,10 @@ namespace ReikaKalseki.DIAlterra
 				return ObjectUtil.getModPrefabBaseObject<StringPrefabContainer>(this);
 	        }
 			
+			public void setDisplayName(string s) {
+				FriendlyName = s;
+			}
+			
 			public virtual bool isResource() {
 				return false;
 			}
@@ -299,6 +303,7 @@ namespace ReikaKalseki.DIAlterra
 				rt.overrideTechType = TechType.Fragment;
 				rt.prefabIdentifier = go.GetComponent<PrefabIdentifier>();
 				rt.pickupable = p;
+				p.isPickupable = false;
 				modifyObject(go);
 			}
 
