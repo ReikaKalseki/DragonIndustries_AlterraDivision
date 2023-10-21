@@ -21,7 +21,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal class WreckDoorSwaps : ManipulationBase {
+	public class WreckDoorSwaps : ManipulationBase {
 		
 		private List<DoorSwap> swaps = new List<DoorSwap>();
 		
@@ -79,12 +79,12 @@ namespace ReikaKalseki.DIAlterra
 				{"Delete", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
 			};
 			
-			internal DoorSwap(Vector3 pos, string t) {
+			public DoorSwap(Vector3 pos, string t) {
 				position = pos;
 				doorType = t;
 			}
 			
-			internal void applyTo(GameObject go) {
+			public void applyTo(GameObject go) {
 				Transform par = go.transform.parent;
 				GameObject put = ObjectUtil.createWorldObject(doorPrefabs[doorType], true, true);
 				if (put == null) {
