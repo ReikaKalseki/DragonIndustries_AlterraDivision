@@ -1994,7 +1994,7 @@ namespace ReikaKalseki.DIAlterra {
 				codes.RemoveRange(idx0+1, idx-idx0);
 				codes.Insert(idx0+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRedundantFragmentScan", false, new Type[0]));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
-				FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
 			}
 			catch (Exception e) {
 				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");

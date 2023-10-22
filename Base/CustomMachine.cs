@@ -255,10 +255,10 @@ namespace ReikaKalseki.DIAlterra
 			//data.addProperty("spawnTime", spawnTime);
 		}
 		
-		private void setupSky() {
+		protected void setupSky() {
 			if (prefab == null || !WaterBiomeManager.main || !MarmoSkies.main)
 				return;
-			mset.Sky baseSky = prefab.CategoryForPDA == TechCategory.ExteriorModule ? WaterBiomeManager.main.GetBiomeEnvironment(transform.position) : MarmoSkies.main.skyBaseInterior;
+			mset.Sky baseSky = isOutdoors() ? WaterBiomeManager.main.GetBiomeEnvironment(transform.position) : MarmoSkies.main.skyBaseInterior;
 			if (!baseSky)
 				return;
 			SkyApplier[] skies = gameObject.GetComponentsInChildren<SkyApplier>(true);
@@ -268,6 +268,10 @@ namespace ReikaKalseki.DIAlterra
 				sk.renderers = gameObject.GetComponentsInChildren<Renderer>();
 				ObjectUtil.setSky(gameObject, baseSky);
 			}
+		}
+		
+		protected virtual bool isOutdoors() {
+			return prefab.CategoryForPDA == TechCategory.ExteriorModule;
 		}
 		
 		void Update() {
