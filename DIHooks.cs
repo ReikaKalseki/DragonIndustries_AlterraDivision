@@ -1841,6 +1841,8 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	   
 	   public static void onRedundantFragmentScan() {
+	   		PDAScanner.ScanTarget tgt = PDAScanner.scanTarget;
+	   		SNUtil.writeToChat(Language.main.Get(PDAScanner.GetEntryData(tgt.techType).blueprint)+" already known");
 	   		RedundantScanEvent r = new RedundantScanEvent();
 	   		if (onRedundantScanEvent != null)
 	   			onRedundantScanEvent.Invoke(r);

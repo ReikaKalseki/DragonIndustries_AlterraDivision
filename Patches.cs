@@ -1990,11 +1990,11 @@ namespace ReikaKalseki.DIAlterra {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
 				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "CraftData", "AddToInventory", true, new Type[]{typeof(TechType), typeof(int), typeof(bool), typeof(bool)});
-				int idx0 = InstructionHandlers.getLastOpcodeBefore(codes, idx-1, OpCodes.Call)+1;
-				codes.RemoveRange(idx0+1, idx-idx0+1);
-				codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRedundantFragmentScan", false, new Type[0]));
+				int idx0 = InstructionHandlers.getLastOpcodeBefore(codes, idx-1, OpCodes.Call);
+				codes.RemoveRange(idx0+1, idx-idx0);
+				codes.Insert(idx0+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRedundantFragmentScan", false, new Type[0]));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
-				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
 			}
 			catch (Exception e) {
 				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
