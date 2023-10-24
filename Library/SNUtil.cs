@@ -326,6 +326,18 @@ namespace ReikaKalseki.DIAlterra
 	    	}
 	    }
 		
+		public static void addEncyNotification(string id, float duration = 3) {
+			NotificationManager.main.Add(NotificationManager.Group.Encyclopedia, id, duration);
+		}
+		
+		public static void addBlueprintNotification(TechType recipe, float duration = 3) {
+			NotificationManager.main.Add(NotificationManager.Group.Blueprints, recipe.EncodeKey(), duration);
+		}
+		
+		public static void addInventoryNotification(Pickupable item, float duration = 3) {
+			NotificationManager.main.Add(NotificationManager.Group.Inventory, item.GetComponent<UniqueIdentifier>().Id, duration);
+		}
+		
 		public static void createPopupWarning(string msg, bool makeBlue) {
 /*
 				QModManager.Patching.Patcher.Dialogs.Add(new Dialog

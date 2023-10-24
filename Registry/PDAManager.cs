@@ -140,7 +140,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 			public void markUpdated(float duration = 3F) {
-				NotificationManager.main.Add(NotificationManager.Group.Encyclopedia, id, duration);
+				SNUtil.addEncyNotification(id, duration);
 			}
 			
 			public TreeNode getNode() {
