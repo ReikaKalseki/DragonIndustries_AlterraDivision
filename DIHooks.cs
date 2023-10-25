@@ -77,6 +77,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<EquipmentTypeCheck> equipmentTypeCheckEvent;
 	    public static event Action<EatAttempt> tryEatEvent;
 	    public static event Action<Survival, GameObject> onEatEvent;
+	    public static event Action<SwimSpeedCalculation> getSwimSpeedEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -248,6 +249,37 @@ namespace ReikaKalseki.DIAlterra {
 	    		if (disallowFurtherChanges)
 	    			return;
 	    		temperature = amt;
+	    	}
+	    	
+	    }
+	    
+	    public class SwimSpeedCalculation {
+	    	
+	    	public readonly float originalValue;
+	    	
+	    	private bool disallowFurtherChanges;
+	    	
+	    	internal float speed;
+	    	
+	    	internal SwimSpeedCalculation(float amt) {
+	    		originalValue = amt;
+	    		speed = originalValue;
+	    		disallowFurtherChanges = false;
+	    	}
+	    	
+	    	public void lockValue() {
+	    		disallowFurtherChanges = true;
+	    	}
+	    	
+	    	public float getValue() {
+	    		return speed;
+	    	}
+	    	
+	    	public void setValue(float amt) {
+	    		//SNUtil.writeToChat("Setting water temp to "+amt);
+	    		if (disallowFurtherChanges)
+	    			return;
+	    		speed = amt;
 	    	}
 	    	
 	    }
@@ -1940,5 +1972,25 @@ namespace ReikaKalseki.DIAlterra {
 	   			return false;
 	   		}
 	   }
+	    
+	    public static float getSwimSpeed(float f) {
+			foreach (PlayerMovementSpeedModifier m in Player.main.gameObject.GetComponents<PlayerMovementSpeedModifier>())
+				f *= m.speedModifier;
+	    	if (getSwimSpeedEvent != null) {
+	    		SwimSpeedCalculation calc = new SwimSpeedCalculation(f);
+	    		getSwimSpeedEvent.Invoke(calc);
+	   			return calc.speed;
+	    	}
+	    	else {
+	    		return f;
+	    	}
+	    }
+	    
+	    public static float getWalkSpeed(float f) {
+			foreach (PlayerMovementSpeedModifier m in Player.main.gameObject.GetComponents<PlayerMovementSpeedModifier>())
+				f *= m.speedModifier;
+			//SNUtil.writeToChat("Walk speed is "+f.ToString("0.000"));
+			return f;
+	    }
 	}
 }

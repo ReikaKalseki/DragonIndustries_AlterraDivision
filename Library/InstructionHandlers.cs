@@ -130,7 +130,7 @@ namespace ReikaKalseki.DIAlterra
 					return i;
 				}
 			}
-			return -1;
+			throw new Exception("Instruction not found: "+opcode+"\nInstruction list:\n"+toString(li));
 		}
 		
 		public static int getLastOpcodeBefore(List<CodeInstruction> li, int before, OpCode opcode) {
@@ -142,7 +142,7 @@ namespace ReikaKalseki.DIAlterra
 					return i;
 				}
 			}
-			return -1;
+			throw new Exception("Instruction not found: "+opcode+"\nInstruction list:\n"+toString(li));
 		}
 		
 		public static int getLastInstructionBefore(List<CodeInstruction> li, int before, OpCode opcode, params object[] args) {
@@ -154,7 +154,7 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
-			return -1;
+			throw new Exception("Instruction not found: "+opcode+" #"+string.Join(",", args)+"\nInstruction list:\n"+toString(li));
 		}
 		
 		public static bool match(CodeInstruction a, CodeInstruction b) {
