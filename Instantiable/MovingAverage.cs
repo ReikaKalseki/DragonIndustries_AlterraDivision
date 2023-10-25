@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra {
 			return averageCache;
 		}
 	
-		public string ToString() {
+		public override string ToString() {
 			return this.getAverage()+"="+data.toDebugString();
 		}
 	

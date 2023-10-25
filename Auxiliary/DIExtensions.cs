@@ -54,6 +54,14 @@ namespace ReikaKalseki.DIAlterra
 			return new Vector4(c.r, c.g, c.b, c.a);
 		}
 		
+		public static int toARGB(this Color c) {
+			int a = Mathf.RoundToInt(c.a*255) & 0xFF;
+			int r = Mathf.RoundToInt(c.r*255) & 0xFF;
+			int g = Mathf.RoundToInt(c.g*255) & 0xFF;
+			int b = Mathf.RoundToInt(c.b*255) & 0xFF;
+			return (a << 24) | (r << 16) | (g << 8) | (b);
+		}
+		
 		public static Vector3 getXYZ(this Vector4 vec) {
 			return new Vector3(vec.x, vec.y, vec.z);
 		}

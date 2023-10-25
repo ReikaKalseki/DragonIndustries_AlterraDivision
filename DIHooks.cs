@@ -73,6 +73,10 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<StasisEffectCheck> onStasisRifleFreezeEvent;
 	    public static event Action<StasisEffectCheck> onStasisRifleUnfreezeEvent;
 	    public static event Action<RedundantScanEvent> onRedundantScanEvent;
+	   // public static event Action<EquipmentCompatibilityCheck> equipmentCompatibilityCheckEvent;
+	    public static event Action<EquipmentTypeCheck> equipmentTypeCheckEvent;
+	    public static event Action<EatAttempt> tryEatEvent;
+	    public static event Action<Survival, GameObject> onEatEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -269,6 +273,20 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    }
 	    
+	    public class EatAttempt {
+	    	
+	    	public readonly Survival survival;
+	    	public readonly GameObject food;
+	    	
+	    	public bool allowEat = true;
+	    	
+	    	internal EatAttempt(Survival s, GameObject go) {
+	    		survival = s;
+	    		food = go;
+	    	}
+	    	
+	    }
+	    
 	    public class BuildabilityCheck {
 	    	
 	    	public readonly bool originalValue;
@@ -281,6 +299,42 @@ namespace ReikaKalseki.DIAlterra {
 	    		originalValue = orig;
 	    		placeable = orig;
 	    		placeOn = pos;
+	    	}
+	    	
+	    }
+	    /*
+	    public class EquipmentCompatibilityCheck {
+	    	
+	    	public readonly bool originalValue;
+	    	public readonly Equipment container;
+	    	public readonly Pickupable item;
+	    	public readonly EquipmentType itemType;
+	    	public readonly EquipmentType slotType;
+	    	
+	    	public bool allow;
+	    	
+	    	internal EquipmentCompatibilityCheck(Equipment box, Pickupable pp, EquipmentType t1, EquipmentType t2, bool orig) {
+	    		originalValue = orig;
+	    		allow = orig;
+	    		container = box;
+	    		item = pp;
+	    		itemType = t1;
+	    		slotType = t2;
+	    	}
+	    	
+	    }*/
+	    
+	    public class EquipmentTypeCheck {
+	    	
+	    	public readonly EquipmentType originalValue;
+	    	public readonly TechType item;
+	    	
+	    	public EquipmentType type;
+	    	
+	    	internal EquipmentTypeCheck(TechType pp, EquipmentType orig) {
+	    		originalValue = orig;
+	    		type = orig;
+	    		item = pp;
 	    	}
 	    	
 	    }
@@ -1848,6 +1902,43 @@ namespace ReikaKalseki.DIAlterra {
 	   			onRedundantScanEvent.Invoke(r);
 	   		if (!r.preventNormalDrop)
 	   			CraftData.AddToInventory(TechType.Titanium, 2, false, true);
+	   }
+	   /*
+	   [Obsolete]
+	   public static bool isEquipmentApplicable(EquipmentType itemType, EquipmentType slotType, Equipment box, Pickupable item) {
+	   		bool ret = Equipment.IsCompatible(itemType, slotType);
+	   		if (equipmentCompatibilityCheckEvent != null) {
+	   			EquipmentCompatibilityCheck ch = new EquipmentCompatibilityCheck(box, item, itemType, slotType, ret);
+	   			equipmentCompatibilityCheckEvent.Invoke(ch);
+	   			ret = ch.allow;
+	   		}
+	   		return ret;
+	   }*/
+	   
+	   public static EquipmentType getOverriddenEquipmentType(EquipmentType ret, TechType item) {
+	   		if (equipmentTypeCheckEvent != null) {
+	   			EquipmentTypeCheck ch = new EquipmentTypeCheck(item, ret);
+	   			equipmentTypeCheckEvent.Invoke(ch);
+	   			ret = ch.type;
+	   		}
+	   		return ret;
+	   }
+	    
+	    public static bool tryEat(Survival s, GameObject go) {
+	   		EatAttempt ea = new EatAttempt(s, go);
+	    	if (tryEatEvent != null) {
+	   			tryEatEvent.Invoke(ea);
+	   		}
+	   	
+	   		if (ea.allowEat && s.Eat(go)) {
+	   			if (onEatEvent != null)
+		   			onEatEvent.Invoke(s, go);
+	   			return true;
+	   		}
+	   		else {
+	   			SoundManager.playSoundAt(SoundManager.buildSound("event:/interface/select"), Player.main.transform.position, false, -1, 1);
+	   			return false;
+	   		}
 	   }
 	}
 }
