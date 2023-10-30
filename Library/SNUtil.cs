@@ -360,5 +360,14 @@ namespace ReikaKalseki.DIAlterra
 			dialogs.Add(dlg);
 		}
 		
+		public static bool checkPiracy() {
+			HashSet<string> files = new HashSet<string> {"steam_api64.cdx", "steam_api64.ini", "steam_emu.ini", "valve.ini", "chuj.cdx", "SteamUserID.cfg", "Achievements.bin", "steam_settings", "user_steam_id.txt", "account_name.txt", "ScreamAPI.dll", "ScreamAPI32.dll", "ScreamAPI64.dll", "SmokeAPI.dll", "SmokeAPI32.dll", "SmokeAPI64.dll", "Free Steam Games Pre-installed for PC.url", "Torrent-Igruha.Org.URL", "oalinst.exe"};
+            foreach (string file in files) {
+                if (File.Exists(Path.Combine(Environment.CurrentDirectory, file)))
+                	return true;
+            }
+			return false;
+		}
+		
 	}
 }

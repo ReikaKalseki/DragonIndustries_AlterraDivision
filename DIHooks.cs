@@ -599,7 +599,13 @@ namespace ReikaKalseki.DIAlterra {
 				foreach (ModVersionCheck mv in vers) {
 					li.Add(mv.modName+": Installed version "+mv.currentVersion+", remote version "+mv.remoteVersion);
 				}
-				li.Add("You should redownload and reinstall mods with local errors and contact Reika if remote versions are invalid.");
+				if (SNUtil.checkPiracy()) {
+					li.Add("<color=#ff5050ff>This appears to be a result of pirating the game, which cuts its internet connection. There is nothing that can be done without buying Subnautica.</color>");
+				}
+				else {
+					li.Add("You should redownload and reinstall mods with local errors and contact Reika if remote versions are invalid.");
+					li.Add("This message can be temporarily hidden with /hideVersions");
+				}
 	    	}
 			if (warnRestart)
 				li.Add("You have reloaded a save without exiting the game. This breaks mod loading and will damage your world. Restart your game when changing/reloading saves.\nExit the game now, and DO NOT SAVE before doing so.");
@@ -866,6 +872,11 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static void onSkyApplierSpawn(SkyApplier pk) {
+	    	PrefabIdentifier pi = pk.GetComponent<PrefabIdentifier>();/*
+	    	if (pi) {
+	    		foreach (Collider c in pi.GetComponentsInChildren<Collider>())
+	    			c.gameObject.EnsureComponent<ColliderPrefabLink>().init(pi);
+	    	}*/
 	    	if (pk.GetComponent<Vehicle>()) {
 	    		pk.gameObject.EnsureComponent<FixedBounds>()._bounds = new Bounds(Vector3.zero, Vector3.one*5);
 	    		GameObject go = ObjectUtil.getChildObject(pk.gameObject, "LavaWarningTrigger");

@@ -760,5 +760,26 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentsInChildren<Renderer>().Where(r => !isLODRenderer(r)).ToArray();
 		}
 		
+		public static bool isPlayer(Component c, bool allowChildren = false) {
+			return allowChildren ? (bool)c.gameObject.FindAncestor<Player>() : c.gameObject == Player.main.gameObject;
+		}
+		
+		public static bool isPlayerOrCreature(Component c, bool allowChildren = false) {
+			return isPlayer(c, allowChildren) || (allowChildren ? (bool)c.gameObject.FindAncestor<Creature>() : (bool)c.gameObject.GetComponent<Creature>());
+		}/*
+		
+		public static GameObject getRootObjectFromCollider(Component c) {
+			ColliderPrefabLink cp = c.GetComponent<ColliderPrefabLink>();
+			if (cp)
+				return cp.root;
+			PrefabIdentifier pi = c.gameObject.FindAncestor<PrefabIdentifier>();
+			return pi.gameObject;
+		}
+		
+		public static C getRootComponentFromCollider<C>(Component c) where C : Component {
+			ColliderPrefabLink cp = c.GetComponent<ColliderPrefabLink>();
+			return cp && cp.root ? cp.root.GetComponent<C>() : c.gameObject.FindAncestor<C>();
+		}*/
+		
 	}
 }

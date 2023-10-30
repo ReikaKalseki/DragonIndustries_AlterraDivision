@@ -19,6 +19,13 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class DIExtensions {
 		
+		public static bool intersects(this SphereCollider sc, SphereCollider other) {
+			Vector3 pos1 = sc.transform.position+sc.center;
+			Vector3 pos2 = other.transform.position+other.center;
+			float r = Mathf.Min(sc.radius, other.radius);
+			return (pos2-pos1).sqrMagnitude <= r*r;
+		}
+		
 		public static Sprite setTexture(this Sprite s, Texture2D tex) {
 			return Sprite.Create(tex, s.textureRect, s.pivot, s.pixelsPerUnit, 0, SpriteMeshType.FullRect, s.border);
 		}
