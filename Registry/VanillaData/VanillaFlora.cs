@@ -57,9 +57,9 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora BRINE_LILY = new VanillaFlora("f97bf790-a5bd-4e7f-a5e8-9fca1b37f81c", 6.5, 0.8).addBiome(VanillaBiomes.LOSTRIVER);
 		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", 6.3).addBiome(VanillaBiomes.LOSTRIVER);
 		
-		public static readonly VanillaFlora MING = new VanillaFlora(6, "1d5877a7-bc56-46c8-a27c-f9d0ab99cc80", "ce650c66-355c-4b77-ad4e-a2bea7e36c95").markHarvestable();
+		public static readonly VanillaFlora MING = new VanillaFlora(6, "1d5877a7-bc56-46c8-a27c-f9d0ab99cc80", "ce650c66-355c-4b77-ad4e-a2bea7e36c95", "06456c0a-9283-42fa-918b-ab58607d5082").markHarvestable();
 		public static readonly VanillaFlora BULBO = new VanillaFlora("4626f3eb-23c3-4e04-b9df-829cb051758a", 5.9).markEdible();
-		public static readonly VanillaFlora JAFFA_CUP = new VanillaFlora("35056c71-5da7-4e73-be60-3c22c5c9e75c", 6, 0.3).markHarvestable();
+		public static readonly VanillaFlora JAFFA_CUP = new VanillaFlora(6, 0.3, "35056c71-5da7-4e73-be60-3c22c5c9e75c", "08c1c77c-6ca3-49d1-9e4f-608e87d6f90c", "8e4e640e-4c04-4168-a0cc-4ec86b709345").markHarvestable();
 		public static readonly VanillaFlora VOXEL = new VanillaFlora("28ec1137-da13-44f3-b76d-bac12ab766d1", 6.1).markHarvestable();
 		public static readonly VanillaFlora POTATO = new VanillaFlora("533d54b0-e54a-4aec-8dd0-a9eb89868c59", 5.9, 0.2).markEdible();
 		public static readonly VanillaFlora MARBLEMELON = new VanillaFlora("e9445fdf-fbae-49dc-a005-48c05bf9f401", 5.8, 0).markEdible();
@@ -67,7 +67,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora FERN_PALM = new VanillaFlora(6, 0.3, "1d6d89dd-3e49-48b7-90e4-b521fbc3d36f", "523879d5-3241-4a94-8588-cb3b38945119").markHarvestable();
 		public static readonly VanillaFlora GRUB_BASKET = new VanillaFlora("28c73640-a713-424a-91c6-2f5d4672aaea", 6).markHarvestable();
 		public static readonly VanillaFlora LANTERN = new VanillaFlora("8fa4a413-57fa-47a3-828d-de2255dbce4f", 6.1, 0.5).markEdible();
-		public static readonly VanillaFlora PINK_CAP = new VanillaFlora(5.9, "a7aef01f-0dc0-4d03-913d-d47d8d2ba407", "7f9a765d-0b4e-4b3f-81b9-38b38beedf55", "c7faff7e-d9ff-41b4-9782-98d2e09d29c1", "e88e7a23-2a99-41c5-aed9-a2bfaca3619d").markHarvestable();
+		public static readonly VanillaFlora PINK_CAP = new VanillaFlora(5.9, "a7aef01f-0dc0-4d03-913d-d47d8d2ba407", "7f9a765d-0b4e-4b3f-81b9-38b38beedf55", "c7faff7e-d9ff-41b4-9782-98d2e09d29c1", "e88e7a23-2a99-41c5-aed9-a2bfaca3619d", "b715508e-a7e4-47f0-a55b-bf6f65d24ac2").markHarvestable();
 		public static readonly VanillaFlora SPECKLED_RATTLER = new VanillaFlora(6, "98be0944-e0b3-4fba-8f08-ca5d322c22f6", "28818d8a-5e50-41f0-8e14-44cb89a0b611").markHarvestable();
 		
 		//blood kelp mini vines

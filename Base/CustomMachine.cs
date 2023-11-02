@@ -223,6 +223,8 @@ namespace ReikaKalseki.DIAlterra
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {
 		
+		public static float powerCostFactor = 1;
+		
 		internal Buildable prefab;
 		internal Constructable buildable;
 		private SubRoot sub;		
@@ -359,6 +361,7 @@ namespace ReikaKalseki.DIAlterra
 				return true;
 			//SNUtil.writeToChat(sc+" > "+amt);
 			if (amt > 0) {
+				amt *= powerCostFactor;
 				float trash;
 				sub.powerRelay.ConsumeEnergy(amt, out lastReceived);
 				//SNUtil.writeToChat("Got "+lastReceived);

@@ -1,4 +1,15 @@
 <Root>
+  <ItemNotDroppable>
+	<name>
+		
+	</name>
+	<desc>
+		This item cannot be dropped.
+	</desc>
+	<pda>
+		
+	</pda>
+  </ItemNotDroppable>
 	<SpineEelDesc>
 		<name>
 			

@@ -526,7 +526,7 @@ namespace ReikaKalseki.DIAlterra {
 	}
 	
 	[HarmonyPatch(typeof(Inventory))]
-	[HarmonyPatch("GetAltUseItemAction")]
+	[HarmonyPatch("InternalDropItem")]
 	public static class ItemDroppabilityHook {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
@@ -806,6 +806,28 @@ namespace ReikaKalseki.DIAlterra {
 				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "Utils", "PlayFMODAsset", false, new Type[]{typeof(FMODAsset), typeof(Transform), typeof(float)});
 				codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onKnifed", false, typeof(GameObject)));
 				codes.Insert(idx+1, new CodeInstruction(OpCodes.Ldloc_1));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(Knife))]
+	[HarmonyPatch("IsValidTarget")]
+	public static class KnifeabilityHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isObjectKnifeable", false, typeof(LiveMixin)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -2172,6 +2194,28 @@ namespace ReikaKalseki.DIAlterra {
 				int idx = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Ldloc_S, 11);
 				codes.Insert(idx+1, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getWalkSpeed", false, typeof(float)));
 				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(Vehicle))]
+	[HarmonyPatch("OnKill")]
+	public static class VehicleDeathHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new List<CodeInstruction>(){
+					new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onVehicleDestroyed", false, typeof(Vehicle))
+				});
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {

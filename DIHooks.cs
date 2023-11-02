@@ -36,6 +36,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<BiomeCheck> getBiomeEvent;
 	    public static event Action<WaterTemperatureCalculation> getTemperatureEvent;
 	    public static event Action<GameObject> onKnifedEvent;
+	    public static event Action<KnifeAttempt> knifeAttemptEvent;
 	    public static event Action<SeaMoth, int, TechType, bool> onSeamothModulesChangedEvent;
 	    public static event Action<SubRoot> onCyclopsModulesChangedEvent;
 	    public static event Action<Exosuit, int, TechType, bool> onPrawnModulesChangedEvent;
@@ -80,6 +81,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SwimSpeedCalculation> getSwimSpeedEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
+		
+	    public static readonly string itemNotDroppableLocaleKey = "ItemNotDroppable";
 		
 		private static bool hasLoadedAWorld = false;
 		
@@ -315,6 +318,20 @@ namespace ReikaKalseki.DIAlterra {
 	    	internal EatAttempt(Survival s, GameObject go) {
 	    		survival = s;
 	    		food = go;
+	    	}
+	    	
+	    }
+	    
+	    public class KnifeAttempt {
+	    	
+	    	public readonly LiveMixin target;
+	    	public readonly bool defaultValue;
+	    	
+	    	public bool allowKnife = true;
+	    	
+	    	internal KnifeAttempt(LiveMixin tgt, bool def) {
+	    		target = tgt;
+	    		defaultValue = def;
 	    	}
 	    	
 	    }
@@ -1125,6 +1142,11 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static bool isItemDroppable(Pickupable pp, bool notify) {
 	    	bool flag = Inventory.CanDropItemHere(pp, notify);
+	    	if (pp && IrreplaceableItemRegistry.instance.isIrreplaceable(pp.GetTechType())) {
+	    		if (notify)
+	    			ErrorMessage.AddError(DIMod.locale.getEntry(itemNotDroppableLocaleKey).desc);
+	    		return false;
+	    	}
 	    	if (pp && droppabilityEvent != null) {
 	    		DroppabilityCheck dropCheck = new DroppabilityCheck(pp, notify, flag);
 	    		droppabilityEvent.Invoke(dropCheck);
@@ -1232,6 +1254,15 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void onKnifed(GameObject go) {
 	    	if (go && onKnifedEvent != null)
 	    		onKnifedEvent.Invoke(go);
+	    }
+	    
+	    public static bool isObjectKnifeable(LiveMixin lv) {
+	    	if (!lv)
+	    		return true;
+	    	KnifeAttempt k = new KnifeAttempt(lv, !lv.weldable && lv.knifeable && !lv.GetComponent<EscapePod>());
+	    	if (knifeAttemptEvent != null)
+	    		knifeAttemptEvent.Invoke(k);
+	    	return k.allowKnife;
 	    }
 
 		public static void hoverSeamothTorpedoStorage(SeaMoth sm, HandTargetEventData data) {
@@ -2003,5 +2034,23 @@ namespace ReikaKalseki.DIAlterra {
 			//SNUtil.writeToChat("Walk speed is "+f.ToString("0.000"));
 			return f;
 	    }
+	   
+	   public static void onVehicleDestroyed(Vehicle v) {
+	   	List<IItemsContainer> li = new List<IItemsContainer>();
+	   	v.GetAllStorages(li);
+	   	foreach (ItemsContainer sc in li) {
+	   		foreach (TechType tt in sc.GetItemTypes()) {
+	   			if (IrreplaceableItemRegistry.instance.isIrreplaceable(tt)) {
+	   				foreach (InventoryItem ii in new List<InventoryItem>(sc.GetItems(tt))) {
+	   					if (ii != null && ii.item) {
+		   					Pickupable pp = ii.item;
+		   					pp.Drop();
+		   					pp.GetComponent<Rigidbody>().isKinematic = true;
+	   					}
+			   		}
+	   			}
+	   		}
+	   	}
+	   }
 	}
 }
