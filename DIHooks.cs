@@ -79,6 +79,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<EatAttempt> tryEatEvent;
 	    public static event Action<Survival, GameObject> onEatEvent;
 	    public static event Action<SwimSpeedCalculation> getSwimSpeedEvent;
+	    public static event Action<Bed> onSleepEvent;
+	    public static event Action<FoodRateCalculation> getFoodRateEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -283,6 +285,18 @@ namespace ReikaKalseki.DIAlterra {
 	    		if (disallowFurtherChanges)
 	    			return;
 	    		speed = amt;
+	    	}
+	    	
+	    }
+	    
+	    public class FoodRateCalculation {
+	    	
+	    	public readonly float originalValue;	    	
+	    	public float rate;
+	    	
+	    	internal FoodRateCalculation(float amt) {
+	    		originalValue = amt;
+	    		rate = originalValue;
 	    	}
 	    	
 	    }
@@ -2052,5 +2066,19 @@ namespace ReikaKalseki.DIAlterra {
 	   		}
 	   	}
 	   }
+	   
+	   public static void onSleep(Bed bed) {
+		   	if (onSleepEvent != null)
+		    	onSleepEvent.Invoke(bed);
+	   }
+	    
+	    public static float getFoodWaterConsumptionRate(float f) {
+	    	if (getFoodRateEvent != null) {
+	    		FoodRateCalculation calc = new FoodRateCalculation(f);
+	    		getFoodRateEvent.Invoke(calc);
+	   			return calc.rate;
+	    	}
+			return f;
+	    }
 	}
 }

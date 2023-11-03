@@ -781,5 +781,56 @@ namespace ReikaKalseki.DIAlterra
 			return cp && cp.root ? cp.root.GetComponent<C>() : c.gameObject.FindAncestor<C>();
 		}*/
 		
+		public static BaseCell getBaseRoom(BaseRoot bb, GameObject go) {
+			BaseCell par = go.transform.parent.GetComponent<BaseCell>();
+			if (par)
+				return par;
+			return getBaseRoom(bb, go.transform.position);
+		}
+		
+		public static BaseCell getBaseRoom(BaseRoot bb, Vector3 pos) {
+			foreach (BaseCell bc in bb.GetComponentsInChildren<BaseCell>()) {
+				GameObject room = ObjectUtil.getChildObject(bc.gameObject, "BaseRoom");
+				if (!room)
+					continue;
+				//Bounds box = new Bounds(room.transform.position, new Vector3(4.5F, 1.5F, 4.5F));
+				if (MathUtil.isPointInCylinder(room.transform.position, pos, 4.5, 1.5)) {
+				//if (box.Contains()) {
+					return bc;
+				}
+			}
+			return null;
+		}
+		
+		public static List<PrefabIdentifier> getBaseObjectsInRoom(BaseRoot bb, BaseCell room) { //automatically skips contents of inventories
+			List<PrefabIdentifier> li = new List<PrefabIdentifier>();
+			getBaseObjects(bb, pi => {
+				if (getBaseRoom(bb, pi.gameObject) == room)
+					li.Add(pi);
+				}
+			);
+			return li;
+		}
+		
+		public static void getBaseObjects(BaseRoot bb, Action<PrefabIdentifier> acceptor) { //automatically skips contents of inventories
+			iterateChildPrefabs(bb.transform, acceptor);
+		}
+		
+		private static void iterateChildPrefabs(Transform from, Action<PrefabIdentifier> acceptor) { //do not recurse into PIs inside other PIs (eg invs)
+			foreach (Transform t in from.transform) {
+				PrefabIdentifier at = t.GetComponent<PrefabIdentifier>();
+				if (at)
+					acceptor(at);
+				else
+					iterateChildPrefabs(t, acceptor);
+			}
+		}
+		
+		public static List<PrefabIdentifier> getBaseObjects(BaseRoot bb) {
+			List<PrefabIdentifier> li = new List<PrefabIdentifier>();
+			getBaseObjects(bb, li.Add);
+			return li;
+		}
+		
 	}
 }
