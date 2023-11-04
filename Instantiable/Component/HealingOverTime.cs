@@ -23,11 +23,12 @@ namespace ReikaKalseki.DIAlterra {
 		private float healRate;
 		private float startTime;
 		
-		public void setValues(float total, float seconds) {
+		public HealingOverTime setValues(float total, float seconds) {
 			totalToHeal = total;
 			totalDuration = seconds;
 			healingRemaining = total;
 			healRate = totalToHeal/seconds*TICK_RATE;
+			return this;
 		}
 		
 		public void activate() {

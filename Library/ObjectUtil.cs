@@ -794,7 +794,7 @@ namespace ReikaKalseki.DIAlterra
 				if (!room)
 					continue;
 				//Bounds box = new Bounds(room.transform.position, new Vector3(4.5F, 1.5F, 4.5F));
-				if (MathUtil.isPointInCylinder(room.transform.position, pos, 4.5, 1.5)) {
+				if (MathUtil.isPointInCylinder(room.transform.position, pos, 4.75, 1.75)) {
 				//if (box.Contains()) {
 					return bc;
 				}
@@ -830,6 +830,17 @@ namespace ReikaKalseki.DIAlterra
 			List<PrefabIdentifier> li = new List<PrefabIdentifier>();
 			getBaseObjects(bb, li.Add);
 			return li;
+		}
+		
+		public static bool isOnBase(BaseRoot bb, Component c) {
+			Transform baseObj = bb.transform;
+			Transform t = c.transform;
+			while (t != null) {
+				if (t == baseObj)
+					return true;
+				t = t.parent;
+			}
+			return false;
 		}
 		
 	}

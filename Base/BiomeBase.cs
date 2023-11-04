@@ -36,15 +36,17 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly UnknownBiome UNRECOGNIZED = new UnknownBiome();
 
 		public readonly string displayName;
+		public readonly float sceneryValue;
 		private readonly HashSet<string> internalNames = new HashSet<string>();
 		
-		public static readonly Dictionary<Vector3, BiomeBase> biomeHoles = new Dictionary<Vector3, BiomeBase>();
+		internal static readonly Dictionary<Vector3, BiomeBase> biomeHoles = new Dictionary<Vector3, BiomeBase>();
 		
-		public static void initializeBiomeHoles() {
+		internal static void initializeBiomeHoles() {
 			biomeHoles[new Vector3(1042.7F, -500F, 919.11F)] = VanillaBiomes.MOUNTAINS;
 		}
 		
-		protected BiomeBase(string d, params string[] ids) {
+		protected BiomeBase(string d, float deco, params string[] ids) {
+			sceneryValue = deco;
 			displayName = d;
 			foreach (string id in ids)
 				registerID(this, id, SNUtil.tryGetModDLL(true));
@@ -106,7 +108,7 @@ namespace ReikaKalseki.DIAlterra
 		
 	class UnknownBiome : BiomeBase {
 		
-		internal UnknownBiome() : base("[UNRECOGNIZED BIOME]") {
+		internal UnknownBiome() : base("[UNRECOGNIZED BIOME]", 0) {
 			
 		}
 		

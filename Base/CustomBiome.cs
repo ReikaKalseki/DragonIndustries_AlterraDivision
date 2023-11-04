@@ -18,7 +18,7 @@ namespace ReikaKalseki.DIAlterra
 		private static VanillaMusic currentMusic = null;
 		private static CustomBiome currentBiome = null;
 		
-		protected CustomBiome(string name) : base(name, name) {
+		protected CustomBiome(string name, float deco) : base(name, deco, name) {
 			
 		}
 		

@@ -225,6 +225,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static float powerCostFactor = 1;
 		
+		public static event Action<CustomMachinePowerCostFactorCheck> getMachinePowerCostFactorEvent;
+		
 		internal Buildable prefab;
 		internal Constructable buildable;
 		private SubRoot sub;		
@@ -361,7 +363,7 @@ namespace ReikaKalseki.DIAlterra
 				return true;
 			//SNUtil.writeToChat(sc+" > "+amt);
 			if (amt > 0) {
-				amt *= powerCostFactor;
+				amt *= getPowerCostFactor();
 				float trash;
 				sub.powerRelay.ConsumeEnergy(amt, out lastReceived);
 				//SNUtil.writeToChat("Got "+lastReceived);
@@ -374,6 +376,13 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			return false;
+		}
+		
+		private float getPowerCostFactor() {
+			CustomMachinePowerCostFactorCheck ch = new CustomMachinePowerCostFactorCheck(this);
+			if (getMachinePowerCostFactorEvent != null)
+				getMachinePowerCostFactorEvent.Invoke(ch);
+			return powerCostFactor*ch.value;
 		}
 		
 		private void findClosestSub() {
@@ -402,6 +411,17 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected abstract void updateEntity(float seconds);
+		
+	}
+	
+	public class CustomMachinePowerCostFactorCheck {
+		
+		public readonly CustomMachineLogic machine;
+		public float value = 1;
+		
+		internal CustomMachinePowerCostFactorCheck(CustomMachineLogic lgc) {
+			machine = lgc;
+		}
 		
 	}
 }
