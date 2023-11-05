@@ -198,5 +198,11 @@ namespace ReikaKalseki.DIAlterra
     		}
     	}
     }
+    
+    public static void restartGame() {
+    	PlatformServices svc = PlatformUtils.main.services;
+    	if (svc is PlatformServicesSteam)
+    		((PlatformServicesSteam)svc).RestartInSteam();
+    }
   }
 }

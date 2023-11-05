@@ -32,7 +32,10 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<Pickupable> onItemPickedUpEvent;
 	    public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
 	    public static event Action<SkyApplier> onSkyApplierSpawnEvent;
-	    public static event Action<TechType, Constructable> onConstructedEvent;
+	    public static event Action<Constructable, bool> onConstructedEvent;
+	    public static event Action<BaseRoot> onBaseLoadedEvent;
+	    public static event Action<StorageContainer> inventoryOpenedEvent;
+	    public static event Action<StorageContainer> inventoryClosedEvent;
 	    public static event Action<BiomeCheck> getBiomeEvent;
 	    public static event Action<WaterTemperatureCalculation> getTemperatureEvent;
 	    public static event Action<GameObject> onKnifedEvent;
@@ -623,6 +626,7 @@ namespace ReikaKalseki.DIAlterra {
 					li.Add(mv.modName+": Current version "+mv.currentVersion+", newest version "+mv.remoteVersion);
 				}
 				li.Add("Update your mods to remove this warning.");
+				//li.Add("Run the /autoUpdate command to download and install these updates automatically.");
 	    	}
 			vers = ModVersionCheck.getErroredVersions();
 	    	if (vers.Count > 0) {
@@ -1256,14 +1260,28 @@ namespace ReikaKalseki.DIAlterra {
 	   		return Player.main.IsInsideWalkable() && Player.main.currentWaterPark == null;
 	   	}
 	    
-	    public static void onConstructionComplete(TechType tt, Constructable c) {
-	    	Story.ItemGoalTracker.OnConstruct(tt);
-	    	
-	    	TechnologyUnlockSystem.instance.triggerDirectUnlock(tt);
+	    public static void onConstructionComplete(Constructable c, bool finished) {
+	    	if (finished)
+	    		TechnologyUnlockSystem.instance.triggerDirectUnlock(c.techType);
 	    	
 	    	if (onConstructedEvent != null)
-	    		onConstructedEvent.Invoke(tt, c);
+	    		onConstructedEvent.Invoke(c, finished);
 	    }
+	   
+	   public static void onBaseLoaded(BaseRoot root) {
+	    	if (onBaseLoadedEvent != null)
+	    		onBaseLoadedEvent.Invoke(root);
+	   }
+	   
+	   public static void onInvOpened(StorageContainer sc) {
+	    	if (inventoryOpenedEvent != null)
+	    		inventoryOpenedEvent.Invoke(sc);
+	   }
+	   
+	   public static void onInvClosed(StorageContainer sc) {
+	    	if (inventoryClosedEvent != null)
+	    		inventoryClosedEvent.Invoke(sc);
+	   }
 	    
 	    public static void onKnifed(GameObject go) {
 	    	if (go && onKnifedEvent != null)
