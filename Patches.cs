@@ -380,6 +380,53 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(ExosuitClawArm))]
+	[HarmonyPatch("OnPickup")]
+	public static class OnPrawnPickup {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "ItemsContainer", "UnsafeAdd", true, new Type[]{typeof(InventoryItem)});
+				codes.InsertRange(idx+1, new List<CodeInstruction>{new CodeInstruction(OpCodes.Ldloc_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onPrawnItemPickedUp", false, typeof(Pickupable))});
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(Player))]
+	[HarmonyPatch("CanBreathe")]
+	public static class PlayerBreathabilityHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, injectCallback);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	
+		private static void injectCallback(List<CodeInstruction> codes, int idx) {
+			codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "canPlayerBreathe", false, typeof(bool), typeof(Player)));
+			codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+		}
+	}
+	
 	[HarmonyPatch(typeof(DamageSystem))]
 	[HarmonyPatch("CalculateDamage")]
 	public static class DamageCalcHook {

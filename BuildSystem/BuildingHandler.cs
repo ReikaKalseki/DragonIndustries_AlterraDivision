@@ -102,6 +102,16 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public void setScale(float sc) {
+			Vector3 sc2 = Vector3.one*sc;
+			foreach (PlacedObject go in items.Values) {
+				if (go.isSelected) {
+					go.obj.transform.localScale = sc2;
+					go.scale = sc2;
+				}
+			}
+		}
+		
 		public void dumpTextures() {
 			foreach (PlacedObject go in items.Values) {
 				if (go.isSelected) {

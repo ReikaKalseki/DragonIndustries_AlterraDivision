@@ -29,7 +29,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<Exosuit> onPrawnTickEvent;
 	    public static event Action<SubRoot> onCyclopsTickEvent;
 	    public static event Action<DamageToDeal> onDamageEvent;
-	    public static event Action<Pickupable> onItemPickedUpEvent;
+	    public static event Action<Pickupable, Exosuit, bool> onItemPickedUpEvent;
 	    public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
 	    public static event Action<SkyApplier> onSkyApplierSpawnEvent;
 	    public static event Action<Constructable, bool> onConstructedEvent;
@@ -53,6 +53,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<StringBuilder, TechType, GameObject> itemTooltipEvent;
 	    //public static event Action<WaterFogValues> fogCalculateEvent;
 	    public static event Action<BuildabilityCheck> constructabilityEvent;
+	    public static event Action<BreathabilityCheck> breathabilityEvent;
 	    public static event Action<StoryHandCheck> storyHandEvent;
 	    public static event Action<RadiationCheck> radiationCheckEvent;
 	    public static event Action<BulkheadLaserCutterHoverCheck> bulkheadLaserHoverEvent;
@@ -91,6 +92,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private static bool hasLoadedAWorld = false;
 		
+		private static bool isKnifeHarvesting = false;		
 		private static CustomBiome currentCustomBiome;
 		
 	    public static bool skipWorldForces = false;
@@ -368,6 +370,21 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	
 	    }
+	    
+	    public class BreathabilityCheck {
+	    	
+	    	public readonly bool originalValue;
+	    	public readonly Player player;
+	    	
+	    	public bool breathable;
+	    	
+	    	internal BreathabilityCheck(bool orig, Player ep) {
+	    		originalValue = orig;
+	    		breathable = orig;
+	    		player = ep;
+	    	}
+	    	
+	    }
 	    /*
 	    public class EquipmentCompatibilityCheck {
 	    	
@@ -626,7 +643,7 @@ namespace ReikaKalseki.DIAlterra {
 					li.Add(mv.modName+": Current version "+mv.currentVersion+", newest version "+mv.remoteVersion);
 				}
 				li.Add("Update your mods to remove this warning.");
-				//li.Add("Run the /autoUpdate command to download and install these updates automatically.");
+				li.Add("Run the /autoUpdate command to download and install these updates automatically.");
 	    	}
 			vers = ModVersionCheck.getErroredVersions();
 	    	if (vers.Count > 0) {
@@ -653,7 +670,12 @@ namespace ReikaKalseki.DIAlterra {
 	    		onWorldLoadedEvent.Invoke();
 	    }
 	    
-	    public static void hideVersions() {
+	    internal static void autoUpdate() {
+	    	//https://github.com/ReikaKalseki/Reika_SubnauticaModsShared/releases/download/Downloads/AqueousEngineering.zip
+	    	//https://github.com/ReikaKalseki/Reika_SubnauticaModsShared/releases/download/Downloads/Dragon_Industries_-_Alterra_Division.zip
+	    }
+	    
+	    internal static void hideVersions() {
 	    	updateNotice.Hide();
 	    }
 	    
@@ -790,23 +812,45 @@ namespace ReikaKalseki.DIAlterra {
 			if (knifeHarvestEvent != null) {
 				knifeHarvestEvent.Invoke(harv);
 			}
+			isKnifeHarvesting = true;
 			foreach (KeyValuePair<TechType, int> kvp in harv.drops)
 				CraftData.AddToInventory(kvp.Key, kvp.Value, false, false);
+			isKnifeHarvesting = false;
+	    }
+	    
+	    public static void onPrawnItemPickedUp(Pickupable pp) {
+	    	if (pp)
+	    		onItemPickedUp(pp, Player.main.GetVehicle() as Exosuit);
+	    }
+	    
+	    public static void onItemPickedUp(Pickupable p) {
+	    	onItemPickedUp(p, null);
 	    }
     
-	    public static void onItemPickedUp(Pickupable p) {
+	    public static void onItemPickedUp(Pickupable p, Exosuit prawn) {
+	    	List<Pickupable> collected = new List<Pickupable>(){p};
 	    	TechType tt = p.GetTechType();
 	    	PickedUpAsOtherItem mapTo = PickedUpAsOtherItem.getPickedUpAsOther(tt);
+	    	//SNUtil.writeToChat("Pickup "+tt+" >> "+mapTo);
 	    	if (mapTo != null) {
-		    	Inventory.main.container.DestroyItem(tt);
-		    	UnityEngine.Object.DestroyImmediate(p.gameObject);
+	    		if (prawn)
+	    			prawn.storageContainer.container.DestroyItem(tt);
+	    		else
+		    		Inventory.main.container.DestroyItem(tt);
+	    		
+		    	UnityEngine.Object.Destroy(p.gameObject); //not immediate because prawn is animation
 	    		TechType tt2 = mapTo.getTemplate();
 	    		int n = mapTo.getNumberCollectedAs();
 		    	SNUtil.log("Converting pickup '"+p+"' to '"+tt2+"' x"+n, SNUtil.diDLL);
+		    	collected.Clear();
 	    		for (int i = 0; i < n; i++) {
-		    		GameObject go = ObjectUtil.createWorldObject(tt2);
+		    		GameObject go = ObjectUtil.createWorldObject(tt2, true, false);
 		    		p = go.GetComponent<Pickupable>();
-		    		Inventory.main.Pickup(p, false);
+		    		if (prawn)
+		    			prawn.storageContainer.container.UnsafeAdd(new InventoryItem(p));
+		    		else
+		    			Inventory.main.Pickup(p, false);
+		    		collected.Add(p);
 	    		}
 		    	SNUtil.log("Conversion complete", SNUtil.diDLL);
 	    		tt = tt2;
@@ -824,19 +868,32 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	if (tt != TechType.None)
 	    		TechnologyUnlockSystem.instance.triggerDirectUnlock(tt);
-	    	
+	    	/*
 	    	foreach (Renderer r in p.gameObject.GetComponentsInChildren<Renderer>()) {
 				foreach (Material m in r.materials) {
-					m.DisableKeyword("FX_BUILDING");
+					//m.DisableKeyword("FX_BUILDING"); //breaks items which use it for their appearance
 				}
 			}
-	    	
+	    	*/
 	    	GenUtil.CustomCrate cc = WorldUtil.getClosest<GenUtil.CustomCrate>(p.gameObject);
 	    	if (cc)
 	    		cc.onPickup(p);
 	    	
-	    	if (onItemPickedUpEvent != null)
-	    		onItemPickedUpEvent.Invoke(p);
+	    	if (onItemPickedUpEvent != null) {
+	    		foreach (Pickupable pp in collected)
+	    			onItemPickedUpEvent.Invoke(pp, prawn, isKnifeHarvesting);
+	    	}
+	    }
+	    
+	    public static bool canPlayerBreathe(bool orig, Player p) {
+	    	if (p.GetComponent<TemporaryBreathPrevention>())
+	    	    return false;
+	    	if (breathabilityEvent != null) {
+	    		BreathabilityCheck deal = new BreathabilityCheck(orig, p);
+	    		breathabilityEvent.Invoke(deal);
+	    		return deal.breathable;
+	    	}
+	    	return orig;
 	    }
     
 	    public static void onEntityRegister(CellManager cm, LargeWorldEntity lw) {

@@ -12,13 +12,10 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra {
 	
-	public class PlayerMovementSpeedModifier : SelfRemovingComponent {
+	public class TemporaryBreathPrevention : SelfRemovingComponent {
 		
-		public float speedModifier = 1;
-		
-		public static void add(float modifier, float duration) {
-			PlayerMovementSpeedModifier m = Player.main.gameObject.AddComponent<PlayerMovementSpeedModifier>();
-			m.speedModifier = modifier;
+		public static void add(float duration) {
+			TemporaryBreathPrevention m = Player.main.gameObject.AddComponent<TemporaryBreathPrevention>();
 			m.elapseWhen = DayNightCycle.main.timePassedAsFloat+duration;
 		}
 		

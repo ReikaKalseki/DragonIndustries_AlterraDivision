@@ -170,6 +170,7 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand("bdinfo", BuildingHandler.instance.selectedInfo);
         BuildingHandler.instance.addCommand("bdtex", BuildingHandler.instance.dumpTextures);
         BuildingHandler.instance.addCommand("bdact", BuildingHandler.instance.activateObject);
+        BuildingHandler.instance.addCommand<float>("bdsc", BuildingHandler.instance.setScale);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("dumpBiomeTex", DIHooks.dumpWaterscapeTextures);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
@@ -177,6 +178,7 @@ namespace ReikaKalseki.DIAlterra
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("clear000", clear000);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, float>>("particle", spawnParticle);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("autoUpdate", DIHooks.autoUpdate);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
     }
     

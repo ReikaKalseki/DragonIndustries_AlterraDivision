@@ -50,7 +50,7 @@ namespace ReikaKalseki.DIAlterra
 					set.Add(tt);
 				}
 	    	}
-			return set;
+	    	return set;
 		}
 		
 		public static bool cyclopsHasUpgrade(SubRoot sub, TechType tt) {
@@ -78,6 +78,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void addItem(TechType tt) {
 			GameObject obj = UnityEngine.Object.Instantiate(ObjectUtil.lookupPrefab(tt));
+			if (!obj) {
+				SNUtil.writeToChat("Could not spawn item "+tt+", no prefab");
+				return;
+			}
 			obj.SetActive(false);
 			Inventory.main.ForcePickup(obj.GetComponent<Pickupable>());
 		}

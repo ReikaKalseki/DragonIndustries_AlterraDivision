@@ -49,6 +49,12 @@ namespace ReikaKalseki.DIAlterra {
 			
 		}
 		
+		public override string ToString()
+		{
+			return string.Format("[PickedUpAsOtherItem Template={0}x{1}]", template, getNumberCollectedAs());
+		}
+
+		
 		public TechType getTemplate() {
 			return template;
 		}
