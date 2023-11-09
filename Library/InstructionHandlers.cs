@@ -324,5 +324,64 @@ namespace ReikaKalseki.DIAlterra
         	Func<IEnumerable<CodeInstruction>, IEnumerable<CodeInstruction>> dele = codes => new List<CodeInstruction>{new CodeInstruction(OpCodes.Ret)};
         	return new HarmonyMethod(dele.Method);
 		}
+		
+		public static void runPatchesIn(Harmony h, Type parent) {
+       		FileLog.logPath = Path.Combine(Path.GetDirectoryName(parent.Assembly.Location), "harmony-log.txt");
+			SNUtil.log("Running harmony patches in "+parent.Assembly+"::"+parent.Name);
+			FileLog.Log("Running harmony patches in "+parent.Assembly+"::"+parent.Name);
+			foreach (Type t in parent.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
+				FileLog.Log("Running harmony patches in "+t.Name);
+				h.PatchAll(t);
+			}
+		}
+		
+		public static void patchMethod(Harmony h, Type methodHolder, string name, Type patchHolder, string patchName) {
+       		FileLog.logPath = Path.Combine(Path.GetDirectoryName(patchHolder.Assembly.Location), "harmony-log.txt");
+			FileLog.Log("Running harmony patch in "+patchHolder.AssemblyQualifiedName+"::"+patchName+" on "+methodHolder.AssemblyQualifiedName+"::"+name);
+			MethodInfo m = methodHolder.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+			if (m == null)
+				throw new Exception("Method "+name+" not found in "+methodHolder.AssemblyQualifiedName);
+			patchMethod(h, m, new HarmonyMethod(AccessTools.Method(patchHolder, patchName, new Type[]{typeof(IEnumerable<CodeInstruction>)})));
+		}
+		
+		public static void patchMethod(Harmony h, Type methodHolder, string name, Assembly patchHolder, Action<List<CodeInstruction>> patch) {
+       		FileLog.logPath = Path.Combine(Path.GetDirectoryName(patchHolder.Location), "harmony-log.txt");
+			FileLog.Log("Running harmony patch from "+patchHolder.FullName+" on "+methodHolder.AssemblyQualifiedName+"::"+name);
+			MethodInfo m = methodHolder.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+			if (m == null)
+				throw new Exception("Method "+name+" not found in "+methodHolder.AssemblyQualifiedName);
+			currentPatch = patch;
+			patchMethod(h, m, new HarmonyMethod(AccessTools.Method(MethodBase.GetCurrentMethod().DeclaringType, "patchHook", new Type[]{typeof(IEnumerable<CodeInstruction>)})));
+			currentPatch = null;
+		}
+		
+		public static void patchMethod(Harmony h, MethodInfo m, Assembly patchHolder, Action<List<CodeInstruction>> patch) {
+       		FileLog.logPath = Path.Combine(Path.GetDirectoryName(patchHolder.Location), "harmony-log.txt");
+			FileLog.Log("Running harmony patch from "+patchHolder.FullName+" on "+m.DeclaringType.AssemblyQualifiedName+"::"+m.Name);
+			currentPatch = patch;
+			patchMethod(h, m, new HarmonyMethod(AccessTools.Method(MethodBase.GetCurrentMethod().DeclaringType, "patchHook", new Type[]{typeof(IEnumerable<CodeInstruction>)})));
+			currentPatch = null;
+		}
+		
+		private static Action<List<CodeInstruction>> currentPatch;
+		private static IEnumerable<CodeInstruction> patchHook(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			currentPatch.Invoke(codes);
+			//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			return codes.AsEnumerable();
+		}
+		
+		private static void patchMethod(Harmony h, MethodInfo m, HarmonyMethod patch) {
+			try {
+				h.Patch(m, null, null, patch, null, null);
+				FileLog.Log("Done patch");
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+		}
 	}
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Collections.Generic;
 
 using SMLHelper.V2.Assets;
@@ -21,12 +22,14 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public readonly string modName;
 		
-		public readonly ModVersion remoteVersion;
+		public readonly Func<ModVersion> remoteVersion;
 		public readonly ModVersion currentVersion;
+		
+		private ModVersion fetchedRemoteVersion;
 		
 	    private static readonly List<ModVersionCheck> modVersions = new List<ModVersionCheck>();
 		
-		public ModVersionCheck(string n, ModVersion cur, ModVersion rem) {
+		public ModVersionCheck(string n, ModVersion cur, Func<ModVersion> rem) {
 			modName = n;
 			remoteVersion = rem;
 			currentVersion = cur;
@@ -45,17 +48,23 @@ namespace ReikaKalseki.DIAlterra {
 		public override string ToString() {
 			return string.Format("[ModVersionCheck ModName={0}, RemoteVersion={1}, CurrentVersion={2}]", modName, remoteVersion, currentVersion);
 		}
+	    
+	    private void performRemoteCheck() {
+	    	fetchedRemoteVersion = remoteVersion.Invoke();
+	    }
 		
 		public bool isOutdated() {
-	    	return !hasVersionError() && remoteVersion.CompareTo(currentVersion) > 0;
+	    	if (fetchedRemoteVersion == null) //if not yet fetched for some reason block the thread until it is
+	    		fetchedRemoteVersion = remoteVersion.Invoke();
+	    	return !hasVersionError() && fetchedRemoteVersion.CompareTo(currentVersion) > 0;
 		}
 		
 		public bool hasVersionError() {
-			return remoteVersion == ModVersion.ERROR || currentVersion == ModVersion.ERROR;
+			return fetchedRemoteVersion == ModVersion.ERROR || currentVersion == ModVersion.ERROR;
 		}
 		
 		public static ModVersionCheck getFromGitVsInstall(string modName, Assembly a, string repo) {
-			return new ModVersionCheck(modName, getFromInstall(a), getModifiedTimeFromGitFile(repo));
+	    	return new ModVersionCheck(modName, getFromInstall(a), () => getModifiedTimeFromGitFile(repo));
 		}
 		
 		private static ModVersion getFromInstall(Assembly a) {
@@ -72,15 +81,20 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private static ModVersion getModifiedTimeFromGitFile(string repo) {
 	    	try {
+	    		DateTime prev = DateTime.Now;
+	    		SNUtil.log("Fetching remote version from "+repo, SNUtil.diDLL);
 				string url = "https://raw.githubusercontent.com/ReikaKalseki/"+repo+"/main/"+VERSION_FILE;
 				string text = new WebClient().DownloadString(url);
-				return ModVersion.parse(text);
+				ModVersion mv = ModVersion.parse(text);
+	    		DateTime after = DateTime.Now;
+	    		SNUtil.log("Version check for "+repo+" done in "+(after-prev).TotalSeconds.ToString("0.000")+" seconds; version = "+mv, SNUtil.diDLL);
+				return mv;
 	    	}
 	    	catch (Exception ex) {
 	    		string str = ex.ToString();
-	    		SNUtil.log("Failed to get remote git version: "+str);
+	    		SNUtil.log("Failed to get remote "+repo+" git version: "+str, SNUtil.diDLL);
 	    		if (str.StartsWith("System.Net.WebException", StringComparison.InvariantCultureIgnoreCase) && str.Contains("ConnectFailure")) {
-	    			SNUtil.log("Could not connect to server!");
+	    			SNUtil.log("Could not connect to server!", SNUtil.diDLL);
 	    			SNUtil.createPopupWarning("Could not connect to "+repo+" GitHub for versions. Check your internet/firewall/proxy settings.", false);
 	    		}
 	    		return ModVersion.ERROR;
@@ -93,6 +107,24 @@ namespace ReikaKalseki.DIAlterra {
 	    
 	    public static List<ModVersionCheck> getErroredVersions() {
 	    	return modVersions.FindAll(mv => mv.hasVersionError());
+	    }
+	    
+	    public static void fetchRemoteVersions() {
+	    	if (DIMod.config.getBoolean(DIConfig.ConfigEntries.THREADVER)) {
+		    	Thread t = new Thread(doFetchRemoteVersions);
+		    	t.Name = "Remote mod version checks";
+				t.Start();
+	    	}
+	    	else {
+	    		doFetchRemoteVersions();
+	    	}
+	    }
+	    
+	    private static void doFetchRemoteVersions() {
+	    	SNUtil.log("Fetching remote mod versions", SNUtil.diDLL);
+	    	foreach (ModVersionCheck mv in modVersions) {
+	    		mv.performRemoteCheck();
+	    	}
 	    }
 		
 	}

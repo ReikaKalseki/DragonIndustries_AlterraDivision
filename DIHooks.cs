@@ -6,6 +6,11 @@ using System.Text;
 
 using System.Collections.Generic;
 using System.Linq;
+//using System.Net.Http;
+//using System.Threading.Tasks;
+//using Oculus.Newtonsoft.Json;
+//using Oculus.Newtonsoft.Json.Linq;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Utility;
@@ -91,6 +96,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static readonly string itemNotDroppableLocaleKey = "ItemNotDroppable";
 		
 		private static bool hasLoadedAWorld = false;
+		private static bool outdatedMods = false;
 		
 		private static bool isKnifeHarvesting = false;		
 		private static CustomBiome currentCustomBiome;
@@ -637,13 +643,14 @@ namespace ReikaKalseki.DIAlterra {
 			updateNotice.SetSize(24);
 			updateNotice.SetColor(Color.yellow);
 			List<string> li = new List<string>();
-	    	if (vers.Count > 0) {
+			outdatedMods = vers.Count > 0;
+	    	if (outdatedMods) {
 				li.Add("Your versions of the following mods are out of date:");
 				foreach (ModVersionCheck mv in vers) {
 					li.Add(mv.modName+": Current version "+mv.currentVersion+", newest version "+mv.remoteVersion);
 				}
 				li.Add("Update your mods to remove this warning.");
-				li.Add("Run the /autoUpdate command to download and install these updates automatically.");
+				//li.Add("Run the /autoUpdate command to download and install these updates automatically.");
 	    	}
 			vers = ModVersionCheck.getErroredVersions();
 	    	if (vers.Count > 0) {
@@ -669,11 +676,46 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (onWorldLoadedEvent != null)
 	    		onWorldLoadedEvent.Invoke();
 	    }
-	    
-	    internal static void autoUpdate() {
+	    /*
+	    internal static void autoUpdate() { //TODO move to own class, and make msg prep and call its own method
+	    	if (outdatedMods | true) {
+	    		SNUtil.writeToChat("Downloading new versions of mods...");
+	    		string dirpath = Path.Combine(Environment.CurrentDirectory, "DIDownloads");
+	    		Directory.CreateDirectory(dirpath);
+	    		using(HttpClient client = new HttpClient()) {
+	    			HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/repos/ReikaKalseki/Reika_SubnauticaModsShared/releases/latest");
+					msg.Headers.Add("User-Agent", "Dragon Industries Autoupdate");
+					msg.Headers.Add("Accept", "application/vnd.github+json");
+					msg.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
+					Task<HttpResponseMessage> resp = client.SendAsync(msg);
+					resp.RunSynchronously();
+					Task<string> task = resp.Result.Content.ReadAsStringAsync();
+					task.RunSynchronously();
+					JObject json = JObject.Parse(task.Result);
+					int id = (int)json["id"];
+					msg = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/repos/ReikaKalseki/Reika_SubnauticaModsShared/releases/"+id+"/assets");
+					msg.Headers.Add("User-Agent", "Dragon Industries Autoupdate");
+					msg.Headers.Add("Accept", "application/vnd.github+json");
+					msg.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
+					resp = client.SendAsync(msg);
+					resp.RunSynchronously();
+					task = resp.Result.Content.ReadAsStringAsync();
+					task.RunSynchronously();
+					json = JObject.Parse(task.Result);
+					foreach (JObject mod in json.Values()) {
+						string url = ((string)json["browser_download_url"]).Replace("\"", "");
+						SNUtil.writeToChat("Downloading from "+url);
+						new System.Net.WebClient().DownloadFile(url, Path.Combine(dirpath, url.Substring(url.LastIndexOf('/')+1)));
+					}
+	    		}
+	    	}
+	    	else {
+	    		SNUtil.writeToChat("No outdated mods, no download will be performed.");
+	    	}
+	    		
 	    	//https://github.com/ReikaKalseki/Reika_SubnauticaModsShared/releases/download/Downloads/AqueousEngineering.zip
 	    	//https://github.com/ReikaKalseki/Reika_SubnauticaModsShared/releases/download/Downloads/Dragon_Industries_-_Alterra_Division.zip
-	    }
+	    }*/
 	    
 	    internal static void hideVersions() {
 	    	updateNotice.Hide();

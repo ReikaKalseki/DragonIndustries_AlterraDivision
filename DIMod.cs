@@ -149,6 +149,8 @@ namespace ReikaKalseki.DIAlterra
         //dispatchLoadPhase("loadModInteract");
         //dispatchLoadPhase("loadFinal");
         BiomeBase.initializeBiomeHoles();
+        
+        ModVersionCheck.fetchRemoteVersions();
     }
     
     private static void dispatchLoadPhase(string phase) {/*
@@ -178,7 +180,7 @@ namespace ReikaKalseki.DIAlterra
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("clear000", clear000);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, float>>("particle", spawnParticle);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
-	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("autoUpdate", DIHooks.autoUpdate);
+	    //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("autoUpdate", DIHooks.autoUpdate);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
     }
     

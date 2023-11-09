@@ -45,8 +45,8 @@ namespace ReikaKalseki.DIAlterra
 				 			Texture2D tex2 = getTexture(put, "main");
 			 				if (tex2 != null)
 				 				m.mainTexture = tex2;
-			 				else
-			 					SNUtil.writeToChat("Could not find texture "+put);
+			 				//else
+			 					//SNUtil.writeToChat("Could not find texture "+put);
 				 		}
 					}
 			 		foreach (string n in m.GetTexturePropertyNames()) {
