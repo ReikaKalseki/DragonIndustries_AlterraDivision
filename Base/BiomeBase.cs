@@ -102,6 +102,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public abstract bool isCaveBiome();
+		public abstract bool existsInSeveralPlaces();
 		
 		public abstract bool isInBiome(Vector3 pos);
 	}
@@ -113,6 +114,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public override bool isCaveBiome() {
+			return false;
+		}
+		
+		public override bool existsInSeveralPlaces() {
 			return false;
 		}
 		

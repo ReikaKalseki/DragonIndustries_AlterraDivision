@@ -24,11 +24,15 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
-	public interface DIPrefab<T> where T : PrefabReference {
-		
-		float glowIntensity {get; set;}
+	public interface DIPrefab<T> : DIPrefab where T : PrefabReference {
 		
 		T baseTemplate {get; set;}
+		
+	}
+	
+	public interface DIPrefab {
+		
+		float glowIntensity {get; set;}
 		
 		bool isResource();
 		

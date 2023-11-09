@@ -18,6 +18,9 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Int3 batchOffsetM = new Int3(32, 0, 32);
 		private static readonly int batchSize = 160;
 		
+		public static readonly Vector3 DUNES_METEOR = new Vector3(-1125, -380, 1130);
+		public static readonly Vector3 LAVA_DOME = new Vector3(-273, -1355, -152);
+		
 		//private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
 		
 		static WorldUtil() {
@@ -251,6 +254,48 @@ batch_id = (19, 17, 16)
 		
 		public static bool isInLavaCastle(Vector3 pos) {
 			return VanillaBiomes.ILZ.isInBiome(pos) && isPrecursorBiome(pos);
+		}
+		
+		public static string getRegionalDescription(Vector3 pos) {
+			if ((pos-LAVA_DOME).sqrMagnitude <= 6400)
+				return "Lava Dome";
+			if ((pos-DUNES_METEOR).sqrMagnitude <= 14400)
+				return "Meteor Crater";
+			BiomeBase bb = BiomeBase.getBiome(pos);
+			if (bb == VanillaBiomes.LOSTRIVER || bb == VanillaBiomes.CRASH) {
+				switch(DIHooks.getBiomeAt(WaterBiomeManager.main.GetBiome(pos), pos)) {
+					case "LostRiver_BonesField_Corridor":
+					case "LostRiver_BonesField_Corridor_Stream":
+					case "LostRiver_BonesField":	
+					case "LostRiver_BonesField_Lake":
+					case "LostRiver_BonesField_LakePit":
+						return "Bones Field";
+					case "LostRiver_GhostTree_Lower":
+					case "LostRiver_GhostTree":
+						return "Ghost Forest";
+					case "LostRiver_Junction":
+						return "Lost River Junction";
+					case "LostRiver_Canyon":
+					case "LostRiver_SkeletonCave":
+						return "Ghost Canyon";
+					case "Precursor_LostRiverBase":
+						return "Disease Research Facility";
+					case "LostRiver_Corridor":
+						return "Lost River Corridor";
+					case "crashZone_Mesa":
+						return "Crash Zone Mesas";
+				}
+			}
+			string biome = bb.displayName;
+			int depth = (int)(-pos.y);
+			string ew = pos.x < 0 ? "West" : "East";
+			string ns = pos.z > 0 ? "North" : "South";
+			if (!bb.existsInSeveralPlaces() || Math.Abs(pos.x) < 250 || Math.Abs(pos.x) < Math.Abs(pos.z)/2.5F)
+				ew = "";
+			if (!bb.existsInSeveralPlaces() || Math.Abs(pos.z) < 250 || Math.Abs(pos.z) < Math.Abs(pos.x)/2.5F)
+				ns = "";
+			bool pre = !string.IsNullOrEmpty(ew) || !string.IsNullOrEmpty(ns);
+			return ns+ew+(pre ? " " : "")+biome+" ("+depth+"m)";
 		}
 		/*
 		public static bool isScannerRoomInRange(Vector3 position, bool needFunctional = true, float maxRange = 500, TechType scanningFor = TechType.None) {
