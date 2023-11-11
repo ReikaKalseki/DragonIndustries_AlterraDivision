@@ -90,6 +90,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SwimSpeedCalculation> getSwimSpeedEvent;
 	    public static event Action<Bed> onSleepEvent;
 	    public static event Action<FoodRateCalculation> getFoodRateEvent;
+	    public static event Action<PlayerInput> getPlayerInputEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -105,6 +106,18 @@ namespace ReikaKalseki.DIAlterra {
 	    public static bool skipSkyApplier = false;
 	    
 	    static DIHooks() {
+	    	
+	    }
+	    
+	    public class PlayerInput {
+	    	
+	    	public readonly Vector3 originalInput;
+	    	public Vector3 selectedInput;
+	    	
+	    	internal PlayerInput(Vector3 vec) {
+	    		originalInput = vec;
+	    		selectedInput = vec;
+	    	}
 	    	
 	    }
 	    
@@ -2197,5 +2210,14 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 			return f;
 	    }
+	   
+	   public static Vector3 getPlayerMovementControl(Vector3 orig) { //used to override player controls
+	    	if (getPlayerInputEvent != null) {
+	    		PlayerInput calc = new PlayerInput(orig);
+	    		getPlayerInputEvent.Invoke(calc);
+	   			return calc.selectedInput;
+	    	}
+	   		return orig;
+	   }
 	}
 }

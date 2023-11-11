@@ -335,7 +335,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected virtual void initStorage(StorageContainer sc) {
-			
+			sc.preventDeconstructionIfNotEmpty = true;
 		}
 		
 		protected int addItemToInventory(TechType tt, int amt = 1) {

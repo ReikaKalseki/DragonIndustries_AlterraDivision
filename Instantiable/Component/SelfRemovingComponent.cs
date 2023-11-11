@@ -16,7 +16,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public float elapseWhen;
 			
-		void Update() {
+		protected virtual void Update() {
 			if (DayNightCycle.main.timePassedAsFloat >= elapseWhen) {
 				UnityEngine.Object.Destroy(this);
 			}

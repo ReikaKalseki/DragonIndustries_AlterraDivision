@@ -369,5 +369,13 @@ namespace ReikaKalseki.DIAlterra
 			return false;
 		}
 		
+		public static void vomit(Survival s, float food, float water) {
+			s.food = Mathf.Max(1, s.food-food);
+			s.water = Mathf.Max(1, s.water-water);
+			SoundManager.playSoundAt(SoundManager.buildSound(Player.main.IsUnderwater() ? "event:/player/Puke_underwater" : "event:/player/Puke"), Player.main.transform.position, false, 12);
+			PlayerMovementSpeedModifier.add(0.15F, 1.25F);
+			MainCameraControl.main.ShakeCamera(2F, 1.0F, MainCameraControl.ShakeMode.Linear, 0.25F);//SNUtil.shakeCamera(1.2F, 0.5F, 0.2F);
+		}
+		
 	}
 }
