@@ -46,7 +46,7 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
-	public interface MultiTexturePrefab<T> : DIPrefab<T> where T : PrefabReference {
+	public interface MultiTexturePrefab : DIPrefab {
 		
 		Dictionary<int,string> getTextureLayers(Renderer r);
 		

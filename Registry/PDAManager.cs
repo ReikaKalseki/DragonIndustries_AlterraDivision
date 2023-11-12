@@ -123,6 +123,10 @@ namespace ReikaKalseki.DIAlterra
 				injectString(force, allowNotification);
 			}
 			
+			public void setPlaceholderValues(string template, Dictionary<string, object> values, bool force = false, bool allowNotification = true) {
+				update(values.Aggregate(template, (placeholder, value) => placeholder.Replace("$"+value.Key, value.Value.ToString())), force, allowNotification);
+			}
+			
 			private void injectString(bool force = false, bool allowNotification = true) {/*
 				if (force && DIHooks.isWorldLoaded())
 					Language.main.strings["EncyDesc_"+pageData.key] = text;
@@ -157,6 +161,14 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 				return null;
+			}
+			
+			public void show() {
+				PDA pda = Player.main.GetPDA();
+				pda.Open(PDATab.Encyclopedia);
+				uGUI_EncyclopediaTab ency = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
+				CraftNode node = ency.ExpandTo(id);
+				ency.Activate(node);
 			}
 		
 			public bool unlock(bool doSound = true) {

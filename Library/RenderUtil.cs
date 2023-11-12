@@ -150,8 +150,8 @@ namespace ReikaKalseki.DIAlterra
 			string path = "Textures/"+pfb.getTextureFolder()+"/"+ObjectUtil.formatFileName((ModPrefab)pfb);
 			//SNUtil.log("Applying custom textures in '"+path+"' to mod prefab "+pfb+" renderer "+r, pfb.getOwnerMod());
 			Dictionary<int,string> dict = null;
-			if (pfb is MultiTexturePrefab<T>)
-				dict = ((MultiTexturePrefab<T>)pfb).getTextureLayers(r);
+			if (pfb is MultiTexturePrefab)
+				dict = ((MultiTexturePrefab)pfb).getTextureLayers(r);
 			if (!swapTextures(pfb.getOwnerMod(), r, path, dict))
 				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb, pfb.getOwnerMod());
 			
