@@ -46,7 +46,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	    
 		public override string ToString() {
-			return string.Format("[ModVersionCheck ModName={0}, RemoteVersion={1}, CurrentVersion={2}]", modName, remoteVersion, currentVersion);
+			return string.Format("[ModVersionCheck ModName={0}, RemoteVersion={1}, CurrentVersion={2}]", modName, fetchedRemoteVersion, currentVersion);
 		}
 	    
 	    private void performRemoteCheck() {

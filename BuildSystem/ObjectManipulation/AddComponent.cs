@@ -21,6 +21,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
+	[Obsolete]
 	internal sealed class AddComponent : ManipulationBase {
 		
 		private Type type;

@@ -29,6 +29,7 @@ namespace ReikaKalseki.DIAlterra
 		private readonly List<BiomeBase> nativeBiomesSurface = new List<BiomeBase>();
 		
 		private static readonly Dictionary<TechType, BasicCustomPlant> plants = new Dictionary<TechType, BasicCustomPlant>();
+		private static readonly Dictionary<string, BasicCustomPlant> plantIDs = new Dictionary<string, BasicCustomPlant>();
 		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, FloraPrefabFetch template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
 			
@@ -41,10 +42,11 @@ namespace ReikaKalseki.DIAlterra
 			seed = seedPfb == null ? null : new BasicCustomPlantSeed(this, seedPfb, seedName);
 			OnFinishedPatching += () => {
 				plants[TechType] = this;
+				plantIDs[ClassID] = this;
 				if (collectionMethod != HarvestType.None || generateSeed()) {
 					seed.Patch();
 					ItemRegistry.instance.addItem(seed);
-					setPlantSeed(seed.TechType, this);
+					setPlantSeed(seed, this);
 	        		CraftData.harvestTypeList[TechType] = collectionMethod;
 	        		CraftData.harvestOutputList[TechType] = seed.TechType;
 	        		CraftData.harvestFinalCutBonusList[TechType] = finalCutBonus;
@@ -53,8 +55,9 @@ namespace ReikaKalseki.DIAlterra
 			};
 		}
 		
-		public static void setPlantSeed(TechType seed, BasicCustomPlant plant) {
-			plants[seed] = plant;
+		public static void setPlantSeed(ModPrefab seed, BasicCustomPlant plant) {
+			plants[seed.TechType] = plant;
+			plantIDs[seed.ClassID] = plant;
 		}
 		
 		public BasicCustomPlant addNativeBiome(BiomeBase b, bool caveOnly = false) {
@@ -168,6 +171,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static BasicCustomPlant getPlant(TechType tt) {
 			return plants.ContainsKey(tt) ? plants[tt] : null;
+		}
+		
+		public static BasicCustomPlant getPlant(string id) {
+			return plantIDs.ContainsKey(id) ? plantIDs[id] : null;
 		}
 		
 	}

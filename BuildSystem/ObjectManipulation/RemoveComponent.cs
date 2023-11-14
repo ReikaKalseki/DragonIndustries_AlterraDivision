@@ -21,6 +21,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
+	[Obsolete]
 	public sealed class RemoveComponent : ManipulationBase {
 		
 		private Type type;
