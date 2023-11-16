@@ -134,10 +134,8 @@ namespace ReikaKalseki.DIAlterra
 					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
 					if (force && DIHooks.isWorldLoaded()) {
 						uGUI_EncyclopediaTab tab = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
-						if (tab) {
-							if (tab.activeEntry && tab.activeEntry.key == pageData.key)
-								tab.DisplayEntry(pageData.key);//.SetText(text);
-						}
+						if (tab && tab.activeEntry && tab.activeEntry.key == pageData.key)
+							tab.DisplayEntry(pageData.key);//.SetText(text);
 					}
 					if (allowNotification)
 						markUpdated(5);
@@ -163,9 +161,9 @@ namespace ReikaKalseki.DIAlterra
 				return null;
 			}
 			
-			public void show() {
+			public void show(Action<PDA> onClose = null) {
 				PDA pda = Player.main.GetPDA();
-				pda.Open(PDATab.Encyclopedia);
+				pda.Open(PDATab.Encyclopedia, null, onClose != null ? new PDA.OnClose(onClose) : null);
 				uGUI_EncyclopediaTab ency = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
 				CraftNode node = ency.ExpandTo(id);
 				ency.Activate(node);
@@ -183,6 +181,13 @@ namespace ReikaKalseki.DIAlterra
 				}
 				return false;
 			}
+			/*
+			public void relock() {
+				pageData.unlocked = false;
+				PDAEncyclopedia.NotifyRemove((CraftNode)getNode());
+				PDAEncyclopedia.entries.Remove(pageData.key);
+				//PDAEncyclopedia.mapping.Remove(pageData.key);
+			}*/
 			
 			public bool isUnlocked() {
 				return pageData.unlocked || PDAEncyclopedia.entries.ContainsKey(pageData.key);
