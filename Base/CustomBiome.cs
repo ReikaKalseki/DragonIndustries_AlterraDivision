@@ -32,6 +32,8 @@ namespace ReikaKalseki.DIAlterra
 			return 0;
 		}
 		
+		public abstract mset.Sky getSky();
+		
 		public abstract VanillaMusic[] getMusicOptions();
 		
 		public virtual float getMurkiness(float orig) {

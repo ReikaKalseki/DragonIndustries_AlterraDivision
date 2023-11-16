@@ -69,11 +69,16 @@ batch_id = (19, 17, 16)
 	    	}
 		}
 		
-		public static mset.Sky getSkybox(string biome) {
+		public static mset.Sky getSkybox(string biome, bool allowNotFoundError = true) {
+			BiomeBase bb = BiomeBase.getBiome(biome);
+			if (bb is CustomBiome)
+				return ((CustomBiome)bb).getSky();
 			int idx = WaterBiomeManager.main.GetBiomeIndex(biome);
 			if (idx < 0) {
-				SNUtil.writeToChat("Biome '"+biome+"' had no sky lookup. See log for biome table.");
-				SNUtil.log(WaterBiomeManager.main.biomeLookup.toDebugString());
+				if (allowNotFoundError) {
+					SNUtil.writeToChat("Biome '"+biome+"' had no sky lookup. See log for biome table.");
+					SNUtil.log(WaterBiomeManager.main.biomeLookup.toDebugString());
+				}
 				return null;
 			}
 			return idx < WaterBiomeManager.main.biomeSkies.Count ? WaterBiomeManager.main.biomeSkies[idx] : null;

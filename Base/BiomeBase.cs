@@ -96,7 +96,7 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
-		private static BiomeBase getBiome(string id) {
+		public static BiomeBase getBiome(string id) {
 			id = id.ToLowerInvariant();
 			return biomeList.ContainsKey(id) ? biomeList[id] : UNRECOGNIZED;
 		}
