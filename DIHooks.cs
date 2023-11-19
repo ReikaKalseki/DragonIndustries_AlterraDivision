@@ -91,6 +91,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<Bed> onSleepEvent;
 	    public static event Action<FoodRateCalculation> getFoodRateEvent;
 	    public static event Action<PlayerInput> getPlayerInputEvent;
+	    public static event Action<Bullet, Vehicle> onTorpedoFireEvent;
+	    public static event Action<SeamothTorpedo, Transform> onTorpedoExplodeEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 		
@@ -2219,5 +2221,19 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	   		return orig;
 	   }
+		
+		public static void doShootTorpedo(Bullet b, Vector3 position, Quaternion rotation, float speed, float lifeTime, Vehicle v) {
+	   		b.Shoot(position, rotation, speed, lifeTime);
+		   	if (onTorpedoFireEvent != null)
+		    	onTorpedoFireEvent.Invoke(b, v);
+		}
+		
+		public static Transform onTorpedoExploded(Transform result, SeamothTorpedo sm) {
+	   		result.position = sm.tr.position;
+	   		result.rotation = sm.tr.rotation;
+		   	if (onTorpedoExplodeEvent != null)
+		    	onTorpedoExplodeEvent.Invoke(sm, result);
+		   	return result;
+		}
 	}
 }

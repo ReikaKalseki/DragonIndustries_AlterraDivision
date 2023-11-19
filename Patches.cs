@@ -2396,6 +2396,49 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
+	[HarmonyPatch(typeof(SeamothTorpedo))]
+	[HarmonyPatch("Explode")]
+	public static class TorpedoExplodeHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getFirstOpcode(codes, 0, OpCodes.Callvirt);
+				codes.InsertRange(idx+1, new List<CodeInstruction>{new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onTorpedoExploded", false, new Type[]{typeof(Transform), typeof(SeamothTorpedo)})});
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(Vehicle))]
+	[HarmonyPatch("TorpedoShot")]
+	public static class TorpedoFireHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "Bullet", "Shoot", true, new Type[]{typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float)});
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "doShootTorpedo", false, new Type[]{typeof(Bullet), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(Vehicle)});
+				codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
 	static class PatchLib {
 		
 		internal static void addEquipmentAllowedHook(List<CodeInstruction> codes, params CodeInstruction[] getItem) {

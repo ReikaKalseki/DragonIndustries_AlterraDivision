@@ -336,6 +336,12 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			return ret;
 		}
+		/*
+		public static void moveRecipeTab(TechType item) {
+			TechData rec = getRecipe(item);
+	        CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, "Personal", "Equipment", "PrecursorKey_Purple");
+	        CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.PrecursorKey_Purple, "Machines");
+		}*/
 		
 		public static string toString(TechData rec) {
 			return string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => r.techType+" x"+r.amount).ToArray())+" = x"+rec.craftAmount+" & "+string.Join("+", rec.LinkedItems.ToArray());

@@ -36,7 +36,10 @@ namespace ReikaKalseki.DIAlterra
 		public static void setEmissivity(Material m, float amt, float night) {
 			m.SetFloat("_GlowStrength", amt);
 			m.SetFloat("_GlowStrengthNight", night);
-			m.EnableKeyword("MARMO_EMISSION");
+			if (amt > 0)
+				m.EnableKeyword("MARMO_EMISSION");
+			else
+				m.DisableKeyword("MARMO_EMISSION");
 		}
 		
 		public static void setGlossiness(Renderer r, float specular, float shininess, float fresnel, HashSet<int> matIndices = null) {
@@ -101,9 +104,9 @@ namespace ReikaKalseki.DIAlterra
 			//m.enableInstancing = true;
 		}
 		
-		public static void enableAlpha(Material m) {
+		public static void enableAlpha(Material m, float cutoff = 1) {
 			m.EnableKeyword("MARMO_ALPHA_CLIP");
-			m.SetInt("_Cutoff", 1);
+			m.SetFloat("_Cutoff", cutoff);
 		}
 		
 		public static Texture extractTexture(GameObject go, string texType) {
