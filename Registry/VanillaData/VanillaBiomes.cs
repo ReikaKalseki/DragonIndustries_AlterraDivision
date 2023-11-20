@@ -18,8 +18,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static readonly VanillaBiomes SHALLOWS = new VanillaBiomes("Safe Shallows", 0.25F, "safe", "safeShallows");
 		public static readonly VanillaBiomes KELP = new VanillaBiomes("Kelp Forest", 0.4F, "kelp", "kelpForest");
-		public static readonly VanillaBiomes REDGRASS = new VanillaBiomes("Grassy Plateaus", 0.25F, "grassy", "grassyPlateaus");
-		public static readonly VanillaBiomes MUSHROOM = new VanillaBiomes("Mushroom Forest", 0.5F, "mushroom", "mushroomForest", "tree");
+		public static readonly VanillaBiomes REDGRASS = new VanillaBiomes("Grassy Plateaus", 0.33F, "grassy", "grassyPlateaus");
+		public static readonly VanillaBiomes MUSHROOM = new VanillaBiomes("Mushroom Forest", 0.67F, "mushroom", "mushroomForest", "tree");
 		public static readonly VanillaBiomes JELLYSHROOM = new VanillaBiomes("Jellyshroom Caves", 1F, "jellyshroom", "JellyshroomCaves");
 		public static readonly VanillaBiomes GRANDREEF = new VanillaBiomes("Grand Reef", 0.75F, "grandReef", "smokers");
 		public static readonly VanillaBiomes DEEPGRAND = new VanillaBiomes("Deep Grand Reef", 0.75F, "deepgrand", "deepGrandReef");

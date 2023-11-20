@@ -256,7 +256,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public bool includes(string pfb) {
-			return prefabsLit.Contains(pfb) || prefabs.Contains(pfb);
+			return getFromID(pfb) == this;//prefabsLit.Contains(pfb) || prefabs.Contains(pfb);
 		}
 		
 		public string getPrefabID() {
