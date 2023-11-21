@@ -1772,7 +1772,7 @@ namespace ReikaKalseki.DIAlterra {
 		    		solarEfficiencyEvent.Invoke(ch);
 		    		eff = ch.value;
 		    	}
-	    		float gen = eff * DayNightCycle.main.deltaTime * 0.25f * 5f;
+		    	float gen = eff * DayNightCycle.main.deltaTime * 0.25f * 5f;
 	    		SubRoot sub = p.gameObject.FindAncestor<SubRoot>();
 	    		if (sub) {
 	    			float trash;

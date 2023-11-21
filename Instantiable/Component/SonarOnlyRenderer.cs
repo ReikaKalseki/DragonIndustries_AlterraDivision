@@ -20,14 +20,19 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private SonarScreenFX sonar;
 		
-		public List<Renderer> renderers = new List<Renderer>();
+		public List<SonarRender> renderers = new List<SonarRender>();
 		
 		protected virtual void Update() {
 			if (!sonar && Camera.main)
 				sonar = Camera.main.GetComponent<SonarScreenFX>();
 			float sonarDist = computeSonarDistance();
-			foreach (Renderer r in renderers) {
-				r.enabled = isBlobVisible(r, sonarDist);
+			float dT = Time.deltaTime;
+			foreach (SonarRender r in renderers) {
+				if (isBlobVisible(r.renderer, sonarDist))
+					r.intensity = Mathf.Min(1, r.intensity+dT*r.fadeInSpeed);
+				else
+					r.intensity = Mathf.Max(0, r.intensity-dT*r.fadeOutSpeed);
+				r.renderer.enabled = r.intensity > 0;//;
 			}
 		}
 		
@@ -41,6 +46,19 @@ namespace ReikaKalseki.DIAlterra {
 			float dist = Vector3.Distance(r.transform.position, sonar.transform.position);
 			bool near = dist > sonarDist;
 			return near ? dist-sonarDist <= 15*tolerance : sonarDist-dist <= 120*tolerance;
+		}
+		
+		public class SonarRender {
+			
+			public readonly Renderer renderer;
+			public float intensity = 0;
+			public float fadeInSpeed = 999;
+			public float fadeOutSpeed = 999;
+			
+			public SonarRender(Renderer r) {
+				renderer = r;
+			}
+			
 		}
 		
 	}
