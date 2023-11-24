@@ -28,6 +28,8 @@ namespace ReikaKalseki.DIAlterra {
 			float sonarDist = computeSonarDistance();
 			float dT = Time.deltaTime;
 			foreach (SonarRender r in renderers) {
+				if (!r.renderer)
+					continue;
 				if (isBlobVisible(r.renderer, sonarDist))
 					r.intensity = Mathf.Min(1, r.intensity+dT*r.fadeInSpeed);
 				else
@@ -41,7 +43,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public bool isBlobVisible(Renderer r, float sonarDist, float tolerance = 1) {
-			if (sonarDist < 0)
+			if (!sonar || sonarDist < 0)
 				return false;
 			float dist = Vector3.Distance(r.transform.position, sonar.transform.position);
 			bool near = dist > sonarDist;
