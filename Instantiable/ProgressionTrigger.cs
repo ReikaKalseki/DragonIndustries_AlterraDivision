@@ -98,7 +98,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public readonly BiomeBase biome;
 		
-		public BiomeTrigger(BiomeBase b) : base(ep => BiomeBase.getBiome(ep.transform.position) == b) {
+		public BiomeTrigger(BiomeBase b) : base(ep => ep.GetDepth() >= 2 && BiomeBase.getBiome(ep.transform.position) == b) {
 			biome = b;
 		}
 		

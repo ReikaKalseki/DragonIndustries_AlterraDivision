@@ -572,15 +572,16 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
-	[HarmonyPatch(typeof(Inventory))]
-	[HarmonyPatch("InternalDropItem")]
-	public static class ItemDroppabilityHook {
+	[HarmonyPatch(typeof(CraftData))]
+	[HarmonyPatch("IsInvUseable")]
+	public static class ItemUsabilityHook {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			List<CodeInstruction> codes = new List<CodeInstruction>();
 			try {
-				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "Inventory", "CanDropItemHere", false, new Type[]{typeof(Pickupable), typeof(bool)});
-				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isItemDroppable", false, typeof(Pickupable), typeof(bool));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isItemUsable", false, typeof(TechType)));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -593,16 +594,15 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	}
 	
-	[HarmonyPatch(typeof(CraftData))]
-	[HarmonyPatch("IsInvUseable")]
-	public static class ItemUsabilityHook {
+	[HarmonyPatch(typeof(Inventory))]
+	[HarmonyPatch("InternalDropItem")]
+	public static class ItemDroppabilityHook {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-			List<CodeInstruction> codes = new List<CodeInstruction>();
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
-				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isItemUsable", false, typeof(TechType)));
-				codes.Add(new CodeInstruction(OpCodes.Ret));
+				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "Inventory", "CanDropItemHere", false, new Type[]{typeof(Pickupable), typeof(bool)});
+				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "isItemDroppable", false, typeof(Pickupable), typeof(bool));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -1604,6 +1604,26 @@ namespace ReikaKalseki.DIAlterra {
 				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Stfld, "PropulsionCannon", "grabbedObjectCenter");
 				codes.Insert(idx, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getPropulsionTargetCenter", false, typeof(Vector3), typeof(GameObject)));
 				codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_1));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(PropulsionCannon))]
+	[HarmonyPatch("UpdateTargetPosition")]
+	public static class PropulsionGrabPositionFix3 {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchEveryReturnPre(codes, new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "getPropulsionMoveToPoint", false, typeof(Vector3), typeof(PropulsionCannon)));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {

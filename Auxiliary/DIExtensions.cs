@@ -19,6 +19,10 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class DIExtensions {
 		
+		public static string setLeadingCase(this string s, bool upper) {
+			return (upper ? char.ToUpperInvariant(s[0]) : char.ToLowerInvariant(s[0]))+s.Substring(1);
+		}
+		
 		public static bool intersects(this SphereCollider sc, SphereCollider other) {
 			Vector3 pos1 = sc.transform.position+sc.center;
 			Vector3 pos2 = other.transform.position+other.center;

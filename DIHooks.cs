@@ -45,6 +45,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<WaterTemperatureCalculation> getTemperatureEvent;
 	    public static event Action<GameObject> onKnifedEvent;
 	    public static event Action<KnifeAttempt> knifeAttemptEvent;
+	    public static event Action<GravTrapGrabAttempt> gravTrapAttemptEvent;
 	    public static event Action<SeaMoth, int, TechType, bool> onSeamothModulesChangedEvent;
 	    public static event Action<SubRoot> onCyclopsModulesChangedEvent;
 	    public static event Action<Exosuit, int, TechType, bool> onPrawnModulesChangedEvent;
@@ -372,6 +373,23 @@ namespace ReikaKalseki.DIAlterra {
 	    	internal KnifeAttempt(LiveMixin tgt, bool def) {
 	    		target = tgt;
 	    		defaultValue = def;
+	    	}
+	    	
+	    }
+	    
+	    public class GravTrapGrabAttempt {
+	    	
+	    	public readonly Gravsphere gravtrap;
+	    	public readonly Rigidbody target;
+	    	public readonly bool defaultValue;
+	    	
+	    	public bool allowGrab;
+	    	
+	    	internal GravTrapGrabAttempt(Gravsphere s, Rigidbody tgt, bool def) {
+	    		gravtrap = s;
+	    		target = tgt;
+	    		defaultValue = def;
+	    		allowGrab = def;
 	    	}
 	    	
 	    }
@@ -1410,6 +1428,15 @@ namespace ReikaKalseki.DIAlterra {
 	    		knifeAttemptEvent.Invoke(k);
 	    	return k.allowKnife;
 	    }
+	    
+	    public static bool canGravTrapGrab(Gravsphere s, Rigidbody rb, bool def) {
+	    	if (!s || !rb)
+	    		return false;
+	    	GravTrapGrabAttempt k = new GravTrapGrabAttempt(s, rb, def);
+	    	if (gravTrapAttemptEvent != null)
+	    		gravTrapAttemptEvent.Invoke(k);
+	    	return k.allowGrab;
+	    }
 
 		public static void hoverSeamothTorpedoStorage(SeaMoth sm, HandTargetEventData data) {
 			for (int i = 0; i < sm.slotIDs.Length; i++) {
@@ -1936,8 +1963,9 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	    
 	    public static float getMaxPropulsible(float orig, GameObject go, MonoBehaviour gun, bool isMass) {
-	    	if (go.FindAncestor<Constructable>() || go.FindAncestor<SubRoot>())
-	    		return 0;
+	    	//SNUtil.writeToChat("Testing "+gun.gameObject.GetFullHierarchyPath()+" grab of "+go.GetFullHierarchyPath());
+	    	if (go.FindAncestor<Constructable>() || go.FindAncestor<SubRoot>() || gun.gameObject.FindAncestor<Vehicle>() == go)
+	    		return -1;
 	    	float val = orig;
 	    	if (propulsibilityEvent != null) {
 	    		PropulsibilityCheck e = new PropulsibilityCheck(go, val, gun, isMass);
@@ -1961,6 +1989,14 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    	return orig;
 	    }
+	    
+	    public static Vector3 getPropulsionMoveToPoint(Vector3 orig, PropulsionCannon gun) {
+	    	Vehicle v = Player.main.GetVehicle();
+	    	if (v is SeaMoth && gun.gameObject.FindAncestor<Vehicle>() == v)
+	    		return v.transform.position;
+	    	return orig;
+	    }
+	    	
 	/*
 		public static void logDockingVehicle(Vehicle v, bool dock) {
 	    	string s = "Setting vehicle "+v+": dock state (path="+v.gameObject.GetFullHierarchyPath()+")"+" - "+dock;

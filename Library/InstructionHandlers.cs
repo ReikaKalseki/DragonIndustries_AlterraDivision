@@ -77,7 +77,7 @@ namespace ReikaKalseki.DIAlterra
 			MethodInfo ret = AccessTools.Method(container, name, args);
 			//ret.IsStatic = !instance;
 			if (ret == null) {
-				throw new Exception("Could not find a method named '"+name+"' with args "+string.Join(", ", (object[])args)+" in type '"+owner+"'!");
+				throw new Exception("Could not find a method named '"+name+"' with args "+args.toDebugString()+" in type '"+owner+"'!");
 			}
 			return ret;
 		}
@@ -121,6 +121,34 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			throw new Exception("Instruction not found: "+opcode+" #"+string.Join(",", args)+"\nInstruction list:\n"+toString(li));
+		}
+		
+		public static int getMethodCallByName(List<CodeInstruction> li, int start, int index, string owner, string name) {
+			int count = 0;
+			if (index < 0) {
+				index = (-index)-1;
+				for (int i = li.Count-1; i >= 0; i--) {
+					CodeInstruction insn = li[i];
+					if (isMethodCall(insn, owner, name)) {
+						if (count == index)
+							return i;
+						else
+							count++;
+					}
+				}
+			}
+			else {
+				for (int i = start; i < li.Count; i++) {
+					CodeInstruction insn = li[i];
+					if (isMethodCall(insn, owner, name)) {
+						if (count == index)
+							return i;
+						else
+							count++;
+					}
+				}
+			}
+			throw new Exception("Method call not found: "+owner+"::"+name+"\nInstruction list:\n"+toString(li));
 		}
 		
 		public static int getFirstOpcode(List<CodeInstruction> li, int after, OpCode opcode) {
@@ -170,6 +198,14 @@ namespace ReikaKalseki.DIAlterra
 				return ((LocalBuilder)o1).LocalIndex == ((LocalBuilder)o2).LocalIndex;
 			}
 			return o1.Equals(o2);
+		}
+		
+		public static bool isMethodCall(CodeInstruction insn, string owner, string name) {
+			if (insn.opcode != OpCodes.Call && insn.opcode != OpCodes.Callvirt && insn.opcode != OpCodes.Calli)
+				return false;
+			MethodInfo mi = (MethodInfo)insn.operand;
+			//FileLog.Log("Comparing "+mi.Name+" in "+mi.DeclaringType.FullName+" to "+owner+" & "+name);
+			return mi.Name == name && mi.DeclaringType.FullName == owner;
 		}
 		
 		public static bool match(CodeInstruction insn, params object[] args) {
