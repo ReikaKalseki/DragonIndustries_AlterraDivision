@@ -307,10 +307,10 @@ namespace ReikaKalseki.DIAlterra
 			 	Transform t = go.transform.Find(name);
 			 	if (t != null)
 			 		return t.gameObject;
-			 	t = go.transform.Find(name+"(Placeholder)");
+			 	t = go.transform.Find(name+"(Clone)");
 			 	if (t != null)
 			 		return t.gameObject;
-			 	t = go.transform.Find(name+"(Clone)");
+			 	t = go.transform.Find(name+"(Placeholder)");
 			 	return t != null ? t.gameObject : null;
 			}
 		}

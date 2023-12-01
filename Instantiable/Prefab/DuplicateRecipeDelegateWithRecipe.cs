@@ -58,8 +58,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		private void onPatched() {
 			if (ownerMod == null)
-				throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");
-			SNUtil.log("Constructed craftable delegate of "+basis+": "+TechType+" @ "+RecipeUtil.toString(recipe)+" @ "+string.Join("/", craftingMenuTree), ownerMod);
+				throw new Exception("Delegate item "+basis.AsString()+"/"+ClassID+" has no source mod!");
+			if (sprite == null)
+				throw new Exception("Delegate item "+basis+"/"+ClassID+" has no sprite!");
+			SNUtil.log("Constructed craftable delegate of "+basis.AsString()+": "+ClassID+" @ "+RecipeUtil.toString(recipe)+" @ "+string.Join("/", craftingMenuTree), ownerMod);
 			DuplicateRecipeDelegate.addDelegate(this);
 		}
 		
@@ -91,6 +93,12 @@ namespace ReikaKalseki.DIAlterra
 		public override bool UnlockedAtStart {
 			get {
 				return unlock == TechType.None;
+			}
+		}
+
+		public override Vector2int SizeInInventory {
+			get {
+				return CraftData.GetItemSize(basis);
 			}
 		}
 

@@ -21,7 +21,7 @@ namespace ReikaKalseki.DIAlterra
 			ownerMod = SNUtil.tryGetModDLL();
 		}
 		
-		public void load() {
+		public void load(Predicate<string> loadFile = null) {
 			string root = Path.GetDirectoryName(ownerMod.Location);
 			string folder = Path.Combine(root, "XML/WorldgenSets");
 			objects.Clear();
@@ -29,6 +29,10 @@ namespace ReikaKalseki.DIAlterra
 				IEnumerable<string> files = Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories).Where(isLoadableWorldgenXML);
 				SNUtil.log("Loading worldgen maps from folder '"+folder+"': "+string.Join(", ", files), ownerMod);
 				foreach (string file in files) {
+					if (loadFile != null && !loadFile.Invoke(file)) {
+						SNUtil.log("Skipping worldgen map file @ "+file, ownerMod);
+						continue;
+					}
 					loadXML(file);
 				}
 			}

@@ -344,7 +344,16 @@ namespace ReikaKalseki.DIAlterra {
 		}*/
 		
 		public static string toString(TechData rec) {
-			return string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => r.techType+" x"+r.amount).ToArray())+" = x"+rec.craftAmount+" & "+string.Join("+", rec.LinkedItems.ToArray());
+			return getTotalIngredientSlotCount(rec)+":"+string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => "["+r.techType.AsString()+" x"+r.amount+"]").ToArray())+" = x"+rec.craftAmount+" & "+string.Join("+", rec.LinkedItems.Select<TechType, string>(tt => tt.AsString()).ToArray());
+		}
+		
+		public static int getTotalIngredientSlotCount(TechData td) {
+			int ret = 0;
+			foreach (Ingredient i in td.Ingredients) {
+				Vector2int size = CraftData.GetItemSize(i.techType);
+				ret += size.x*size.y;
+			}
+			return ret;
 		}
 		
 		public class RecipeNode {

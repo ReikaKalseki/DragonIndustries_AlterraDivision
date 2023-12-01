@@ -50,7 +50,9 @@ namespace ReikaKalseki.DIAlterra
 		private void onPatched() {
 			addDelegate(this);
 			if (ownerMod == null)
-				throw new Exception("Delegate item "+basis+"/"+TechType+" has no source mod!");
+				throw new Exception("Delegate item "+basis+"/"+ClassID+" has no source mod!");
+			if (sprite == null)
+				throw new Exception("Delegate item "+basis+"/"+ClassID+" has no sprite!");
 		}
 		
 		private static string getIndexSuffix(TechType tt) {
@@ -60,11 +62,15 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void addDelegate(DuplicateItemDelegate d) {
 			TechType tt = d.getBasis();
+			FieldInfo fi = typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic);
+			ModPrefab pfb = SNUtil.getModPrefabByTechType(tt);
+			Assembly a = pfb == null ? SNUtil.gameDLL : (Assembly)fi.GetValue(pfb);
+			fi.SetValue(d, a);
 			List<DuplicateItemDelegate> li = delegates.ContainsKey(tt) ? delegates[tt] : new List<DuplicateItemDelegate>();
 			li.Add(d);
 			delegates[tt] = li;
 			delegateItems.Add(((Spawnable)d).TechType, d);
-			SNUtil.log("Registering delegate item "+d, d.getOwnerMod());
+			SNUtil.log("Registering delegate item "+d+" ref pfb="+pfb+" in "+a.GetName().Name, d.getOwnerMod());
 		}
 		
 		public static IEnumerable<DuplicateItemDelegate> getDelegates(TechType of) {
@@ -125,6 +131,12 @@ namespace ReikaKalseki.DIAlterra
 		
 		public override sealed string ToString() {
 			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName+" in "+GroupForPDA+"/"+CategoryForPDA;
+		}
+
+		public override sealed Vector2int SizeInInventory {
+			get {
+				return CraftData.GetItemSize(basis);
+			}
 		}
 		
 		public string getNameSuffix() {

@@ -1615,7 +1615,7 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	/*
 	[HarmonyPatch(typeof(PropulsionCannon))]
 	[HarmonyPatch("UpdateTargetPosition")]
 	public static class PropulsionGrabPositionFix3 {
@@ -1635,7 +1635,7 @@ namespace ReikaKalseki.DIAlterra {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	*/
 	[HarmonyPatch(typeof(RepulsionCannon))]
 	[HarmonyPatch("OnToolUseAnim")]
 	public static class RepulsabilityHook {
@@ -2447,6 +2447,29 @@ namespace ReikaKalseki.DIAlterra {
 				int idx = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "Bullet", "Shoot", true, new Type[]{typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float)});
 				codes[idx] = InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "doShootTorpedo", false, new Type[]{typeof(Bullet), typeof(Vector3), typeof(Quaternion), typeof(float), typeof(float), typeof(Vehicle)});
 				codes.Insert(idx, new CodeInstruction(OpCodes.Ldarg_0));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(Gravsphere))]
+	[HarmonyPatch("IsValidTarget")]
+	public static class GravTrapGrabbabilityHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "canGravTrapGrab", false, new Type[]{typeof(Gravsphere), typeof(GameObject)}));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {

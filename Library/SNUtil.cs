@@ -377,5 +377,10 @@ namespace ReikaKalseki.DIAlterra
 			MainCameraControl.main.ShakeCamera(2F, 1.0F, MainCameraControl.ShakeMode.Linear, 0.25F);//SNUtil.shakeCamera(1.2F, 0.5F, 0.2F);
 		}
 		
+		public static ModPrefab getModPrefabByTechType(TechType tt) {
+			Dictionary<string, ModPrefab> dict = (Dictionary<string, ModPrefab>)(typeof(ModPrefab).GetField("ClassIdDictionary", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null));
+			return dict.ContainsKey(tt.AsString()) ? dict[tt.AsString()] : null;
+		}
+		
 	}
 }

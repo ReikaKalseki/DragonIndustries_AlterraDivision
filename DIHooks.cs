@@ -380,12 +380,12 @@ namespace ReikaKalseki.DIAlterra {
 	    public class GravTrapGrabAttempt {
 	    	
 	    	public readonly Gravsphere gravtrap;
-	    	public readonly Rigidbody target;
+	    	public readonly GameObject target;
 	    	public readonly bool defaultValue;
 	    	
 	    	public bool allowGrab;
 	    	
-	    	internal GravTrapGrabAttempt(Gravsphere s, Rigidbody tgt, bool def) {
+	    	internal GravTrapGrabAttempt(Gravsphere s, GameObject tgt, bool def) {
 	    		gravtrap = s;
 	    		target = tgt;
 	    		defaultValue = def;
@@ -1429,10 +1429,14 @@ namespace ReikaKalseki.DIAlterra {
 	    	return k.allowKnife;
 	    }
 	    
-	    public static bool canGravTrapGrab(Gravsphere s, Rigidbody rb, bool def) {
-	    	if (!s || !rb)
+	    public static bool canGravTrapGrab(Gravsphere s, GameObject go) {
+	    	if (!s || !go)
 	    		return false;
-	    	GravTrapGrabAttempt k = new GravTrapGrabAttempt(s, rb, def);
+	    	
+	    	Pickupable pp = go.GetComponent<Pickupable>();
+	    	bool def = (pp == null || !pp.attached) && Array.IndexOf(Gravsphere.allowedTechTypes, CraftData.GetTechType(go)) >= 0;
+	    	
+	    	GravTrapGrabAttempt k = new GravTrapGrabAttempt(s, go, def);
 	    	if (gravTrapAttemptEvent != null)
 	    		gravTrapAttemptEvent.Invoke(k);
 	    	return k.allowGrab;
