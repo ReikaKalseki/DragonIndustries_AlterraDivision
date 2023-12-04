@@ -382,5 +382,10 @@ namespace ReikaKalseki.DIAlterra
 			return dict.ContainsKey(tt.AsString()) ? dict[tt.AsString()] : null;
 		}
 		
+		public static WaterParkCreatureParameters getModifiedACUParams(TechType basis, float initSizeScale, float maxSizeScale, float outsideSizeScale, float growTimeScale) {
+			WaterParkCreatureParameters baseP = WaterParkCreature.GetParameters(basis);
+			return new WaterParkCreatureParameters(baseP.initialSize*initSizeScale, baseP.maxSize*maxSizeScale, baseP.outsideSize*outsideSizeScale, baseP.growingPeriod*growTimeScale, baseP.isPickupableOutside);
+		}
+		
 	}
 }

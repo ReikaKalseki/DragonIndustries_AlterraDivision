@@ -21,6 +21,10 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly Vector3 DUNES_METEOR = new Vector3(-1125, -380, 1130);
 		public static readonly Vector3 LAVA_DOME = new Vector3(-273, -1355, -152);
 		
+		private static readonly Vector3 auroraPoint1 = new Vector3(746, 0, -362);
+		private static readonly Vector3 auroraPoint2 = new Vector3(1295, 0, 110);
+		private static readonly float auroraPointRadius = 275;
+		
 		//private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
 		
 		static WorldUtil() {
@@ -261,6 +265,10 @@ batch_id = (19, 17, 16)
 			return VanillaBiomes.ILZ.isInBiome(pos) && isPrecursorBiome(pos);
 		}
 		
+		public static bool isInsideAurora2D(Vector3 pos, float extra = 0) {
+			return MathUtil.getDistanceToLineSegment(pos, auroraPoint1, auroraPoint2) <= auroraPointRadius+extra;
+		}
+		
 		public static string getRegionalDescription(Vector3 pos) {
 			if ((pos-LAVA_DOME).sqrMagnitude <= 6400)
 				return "Lava Dome";
@@ -289,6 +297,21 @@ batch_id = (19, 17, 16)
 						return "Lost River Corridor";
 					case "crashZone_Mesa":
 						return "Crash Zone Mesas";
+				}
+			}
+			if (bb == VanillaBiomes.CRASH) {
+				if (isInsideAurora2D(pos, 50)) {
+					Vector3 ship = CrashedShipExploder.main.transform.position;
+					string ret = "The Aurora";
+					if (pos.x < ship.x-100)
+						ret += " (Rear)";
+					if (pos.x > ship.x+100)
+						ret += " (Front)";
+					if (pos.z < ship.z-50)
+						ret += " (Far Side)";
+					if (pos.z > ship.z+50)
+						ret += " (Near Side)";
+					return ret;
 				}
 			}
 			string biome = bb.displayName;
