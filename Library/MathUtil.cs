@@ -103,12 +103,25 @@ namespace ReikaKalseki.DIAlterra
 			return getDistanceToLineSegment(point, a.x, a.y, a.z, b.x, b.y, b.z);
 		}
 		
-		public static double getDistanceToLineSegment(Vector3 point, double x1, double y1, double z1, double x2, double y2, double z2) {
+		public static double getScalarOfClosestPointToLineSegment(Vector3 point, double x1, double y1, double z1, double x2, double y2, double z2) {
 			double dist = py3dS(x1, y1, z1, x2, y2, z2);
 			if (dist <= 0.001)
 				return py3d(point.x, point.y, point.z, x1, y1, z1);
 			double t = ((point.x-x1)*(x2-x1)+(point.y-y1)*(y2-y1)+(point.z-z1)*(z2-z1))/dist;
-			t = t.Clamp(0D, 1D);
+			return t.Clamp(0D, 1D);
+		}
+		
+		public static Vector3 getClosestPointToLineSegment(Vector3 point, Vector3 p1, Vector3 p2) {
+			return getClosestPointToLineSegment(point, p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+		}
+		
+		public static Vector3 getClosestPointToLineSegment(Vector3 point, double x1, double y1, double z1, double x2, double y2, double z2) {
+			float t = (float)getScalarOfClosestPointToLineSegment(point, x1, y1, z1, x2, y2, z2);
+			return Vector3.Lerp(new Vector3((float)x1, (float)y1, (float)z1), new Vector3((float)x2, (float)y2, (float)z2), t);
+		}
+		
+		public static double getDistanceToLineSegment(Vector3 point, double x1, double y1, double z1, double x2, double y2, double z2) {
+			double t = getScalarOfClosestPointToLineSegment(point, x1, y1, z1, x2, y2, z2);
 			return py3d(point.x, point.y, point.z, x1+t*(x2-x1), y1+t*(y2-y1), z1+t*(z2-z1));
 		}
 

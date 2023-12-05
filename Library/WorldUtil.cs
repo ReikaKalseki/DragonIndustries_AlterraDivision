@@ -21,8 +21,12 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly Vector3 DUNES_METEOR = new Vector3(-1125, -380, 1130);
 		public static readonly Vector3 LAVA_DOME = new Vector3(-273, -1355, -152);
 		
-		private static readonly Vector3 auroraPoint1 = new Vector3(746, 0, -362);
-		private static readonly Vector3 auroraPoint2 = new Vector3(1295, 0, 110);
+    	public readonly static Vector3 lavaCastleCenter = new Vector3(-49, -1242, 118);
+    	public readonly static float lavaCastleInnerRadius = 65;//75;
+    	public readonly static float lavaCastleRadius = Vector3.Distance(new Vector3(-116, -1194, 126), lavaCastleCenter)+32;
+		
+		private static readonly Vector3 auroraPoint1 = new Vector3(746, 0, -362-50);
+		private static readonly Vector3 auroraPoint2 = new Vector3(1295, 0, 110-50);
 		private static readonly float auroraPointRadius = 275;
 		
 		//private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
@@ -274,6 +278,11 @@ batch_id = (19, 17, 16)
 				return "Lava Dome";
 			if ((pos-DUNES_METEOR).sqrMagnitude <= 14400)
 				return "Meteor Crater";
+			float dist = (pos-lavaCastleCenter).sqrMagnitude;
+			if (dist <= lavaCastleInnerRadius*lavaCastleInnerRadius+225)
+				return "Lava Castle (Interior)";
+			if (dist <= lavaCastleRadius*lavaCastleRadius+900)
+				return "Lava Castle";
 			BiomeBase bb = BiomeBase.getBiome(pos);
 			if (bb == VanillaBiomes.LOSTRIVER || bb == VanillaBiomes.CRASH) {
 				switch(DIHooks.getBiomeAt(WaterBiomeManager.main.GetBiome(pos), pos)) {
@@ -300,17 +309,25 @@ batch_id = (19, 17, 16)
 				}
 			}
 			if (bb == VanillaBiomes.CRASH) {
-				if (isInsideAurora2D(pos, 50)) {
-					Vector3 ship = CrashedShipExploder.main.transform.position;
+				if (isInsideAurora2D(pos, 100)) {
 					string ret = "The Aurora";
-					if (pos.x < ship.x-100)
-						ret += " (Rear)";
-					if (pos.x > ship.x+100)
-						ret += " (Front)";
-					if (pos.z < ship.z-50)
-						ret += " (Far Side)";
-					if (pos.z > ship.z+50)
-						ret += " (Near Side)";
+					if (pos.y >= 5 && CrashedShipExploder.main.IsExploded()) {
+						ret += " (Inside)";
+					}
+					else {
+						//Vector3 ship = (auroraPoint1+auroraPoint2)*0.5F;//CrashedShipExploder.main.transform.position;
+						Vector3 point = MathUtil.getClosestPointToLineSegment(pos, auroraPoint1, auroraPoint2);
+						float angle = Vector3.SignedAngle(auroraPoint2-auroraPoint1, pos-point, Vector3.up);
+						angle = (angle+360)%360;
+						if (Mathf.Abs(angle) <= 30)
+							ret += " (Front)";
+						if (Mathf.Abs(angle-180) <= 30)
+							ret += " (Rear)";
+						if (Mathf.Abs(angle-90) <= 45)
+							ret += " (Far Side)";
+						if (Mathf.Abs(angle-270) <= 45)
+							ret += " (Near Side)";
+					}
 					return ret;
 				}
 			}

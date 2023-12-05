@@ -243,6 +243,11 @@ namespace ReikaKalseki.DIAlterra
 			setupSky();
 		}
 		
+		//For things which can be built away from a base and should not count as part of it, eg a remote power source. Do note this breaks base-related functions like "get other pieces" and "consume power"
+		protected virtual bool needsAttachedBase() {
+			return true;
+		}
+		
 		protected virtual float getTickRate() {
 			return 0;
 		}
@@ -299,14 +304,16 @@ namespace ReikaKalseki.DIAlterra
 				if (storage)
 					initStorage(storage);
 			}
-			Transform par = transform.parent;
-			if (!par || !par.GetComponent<SubRoot>()) {
-				findClosestSub();
-			}
-			if (!sub) {
-				sub = gameObject.GetComponentInParent<SubRoot>();
-				if (!sub) {
+			if (needsAttachedBase()) {
+				Transform par = transform.parent;
+				if (!par || !par.GetComponent<SubRoot>()) {
 					findClosestSub();
+				}
+				if (!sub) {
+					sub = gameObject.GetComponentInParent<SubRoot>();
+					if (!sub) {
+						findClosestSub();
+					}
 				}
 			}
 		}
@@ -388,6 +395,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		private void findClosestSub() {
+			if (!needsAttachedBase())
+				return;
 			SNUtil.log("Custom machine "+this+" @ "+transform.position+" did not have proper parent component hierarchy: "+transform.parent, SNUtil.diDLL);
 			foreach (SubRoot s in UnityEngine.Object.FindObjectsOfType<SubRoot>()) {
 				if (s.isCyclops || !s.isBase)

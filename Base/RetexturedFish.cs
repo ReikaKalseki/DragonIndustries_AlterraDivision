@@ -12,6 +12,7 @@ using ReikaKalseki.DIAlterra;
 using ReikaKalseki.SeaToSea;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Assets;
 
 namespace ReikaKalseki.SeaToSea {
@@ -30,6 +31,7 @@ namespace ReikaKalseki.SeaToSea {
 		private static readonly Dictionary<string, RetexturedFish> creatureIDs = new Dictionary<string, RetexturedFish>();
 		
 		public float scanTime = 2;
+		public int cookableIntoBase = 0;
 		private XMLLocale.LocaleEntry locale;
 		public TechType eggBase = TechType.None;
 		public float eggScale = 1;
@@ -61,7 +63,46 @@ namespace ReikaKalseki.SeaToSea {
 		   		
 		   		BehaviourData.behaviourTypeList[TechType] = getBehavior();
 		   		
-		   		BioReactorHandler.SetBioReactorCharge(TechType, BaseBioReactor.charge[CraftData.entClassTechTable[baseTemplate.prefab]]);
+		   		TechType basis = CraftData.entClassTechTable[baseTemplate.prefab];
+		   		BioReactorHandler.SetBioReactorCharge(TechType, BaseBioReactor.charge[basis]);
+		   		
+		   		if (cookableIntoBase > 0) {
+		   			TechType cooked = CraftData.cookedCreatureList[basis];
+		   			TechType cured = SNUtil.getTechType(("Cured"+cooked).Replace("Cooked", ""));
+					CraftDataHandler.SetCookedVariant(TechType, cooked);
+					SNUtil.log("Adding delegate cooking/curing of "+this+" into "+cooked+" & "+cured);
+					
+			       	TechData rec = new TechData();
+			        rec.Ingredients.Add(new Ingredient(TechType, 1));
+			       	DuplicateRecipeDelegateWithRecipe alt = new DuplicateRecipeDelegateWithRecipe(cooked, rec);
+			       	alt.category = TechCategory.CookedFood;
+			       	alt.group = TechGroup.Survival;
+			       	alt.craftingType = CraftTree.Type.Fabricator;
+			       	alt.craftingMenuTree = new string[]{"Survival", "CookedFood"};
+			       	alt.ownerMod = ownerMod;
+			       	alt.craftTime = 2; //time not fetchable, not in dict(?!)
+			       	alt.setRecipe(cookableIntoBase);
+			       	alt.unlock = TechType;
+			       	alt.allowUnlockPopups = true;
+			       	alt.Patch();
+			       	TechnologyUnlockSystem.instance.addDirectUnlock(TechType, alt.TechType);
+			       	
+					rec = new TechData();
+			        rec.Ingredients.Add(new Ingredient(TechType, 1));
+			        rec.Ingredients.Add(new Ingredient(TechType.Salt, 1));
+			       	alt = new DuplicateRecipeDelegateWithRecipe(cured, rec);
+			       	alt.category = TechCategory.CuredFood;
+			       	alt.group = TechGroup.Survival;
+			       	alt.craftingType = CraftTree.Type.Fabricator;
+			       	alt.craftingMenuTree = new string[]{"Survival", "CuredFood"};
+			       	alt.ownerMod = ownerMod;
+			       	alt.craftTime = 2;
+			       	alt.setRecipe(cookableIntoBase);
+			       	alt.unlock = TechType;
+			       	alt.allowUnlockPopups = true;
+			       	alt.Patch();
+			       	TechnologyUnlockSystem.instance.addDirectUnlock(TechType, alt.TechType);
+		   		}
 			};
 	    }
 		

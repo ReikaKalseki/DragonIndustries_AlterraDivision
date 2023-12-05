@@ -1120,7 +1120,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    }
 	    
-	    public class LavaWarningTriggerDetector : MonoBehaviour {
+	    public class LavaWarningTriggerDetector : IgnoreTrigger {
 	    	
 	    	private TemperatureDamage damage;
 	    	private Vehicle vehicle;
@@ -1418,6 +1418,21 @@ namespace ReikaKalseki.DIAlterra {
 	    public static void onKnifed(GameObject go) {
 	    	if (go && onKnifedEvent != null)
 	    		onKnifedEvent.Invoke(go);
+	    	if (go && Inventory.main.GetHeld().GetTechType() == TechType.HeatBlade) { //allow thermoblade to cook dead fish
+	    		TechType tt = CraftData.GetTechType(go);
+	    		if (tt != TechType.None && CraftData.cookedCreatureList.ContainsKey(tt)) {
+	    			LiveMixin lv = go.GetComponent<LiveMixin>();
+	    			if (lv && !lv.IsAlive()) {
+	    				GameObject put = ObjectUtil.createWorldObject(CraftData.cookedCreatureList[tt]);
+	    				if (put) {
+	    					put.transform.position = go.transform.position;
+	    					put.transform.rotation = go.transform.rotation;
+	    					put.transform.localScale = go.transform.localScale;
+	    					UnityEngine.Object.Destroy(go);
+	    				}
+	    			}	    				
+	    		}
+	    	}
 	    }
 	    
 	    public static bool isObjectKnifeable(LiveMixin lv) {

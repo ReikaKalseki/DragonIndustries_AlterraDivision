@@ -25,7 +25,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaBiomes DEEPGRAND = new VanillaBiomes("Deep Grand Reef", 0.75F, "deepgrand", "deepGrandReef");
 		public static readonly VanillaBiomes KOOSH = new VanillaBiomes("Bulb Zone", 0.33F, "koosh", "kooshZone");
 		public static readonly VanillaBiomes DUNES = new VanillaBiomes("Dunes", 0.25F, "dunes", "Dunes_ThermalVents");
-		public static readonly VanillaBiomes CRASH = new VanillaBiomes("Crash Zone", -0.5F, "crash", "crashZone", "crashZone_Mesa");
+		public static readonly VanillaBiomes CRASH = new VanillaBiomes("Crash Zone", -0.5F, "crash", "crashZone", "crashZone_Mesa", "CrashZone_Trench", "CrashZone_NoLoot");
 		public static readonly VanillaBiomes CRAG = new VanillaBiomes("Crag Field", 0.25F, "crag", "cragField");
 		public static readonly VanillaBiomes SPARSE = new VanillaBiomes("Sparse Reef", 0F, "sparse", "sparseReef", "sparseReef_Deep", "sparseReef_spike");
 		public static readonly VanillaBiomes MOUNTAINS = new VanillaBiomes("Mountains", 0F, "mountains");
