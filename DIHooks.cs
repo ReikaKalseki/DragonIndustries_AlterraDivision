@@ -109,7 +109,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static bool skipSkyApplier = false;
 	    
 	    static DIHooks() {
-	    	
+			SNUtil.log("Initializing DIHooks");	    	
 	    }
 	    
 	    public class PlayerInput {

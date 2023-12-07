@@ -66,10 +66,14 @@ namespace ReikaKalseki.DIAlterra
 			ModPrefab pfb = SNUtil.getModPrefabByTechType(tt);
 			Assembly a = pfb == null ? SNUtil.gameDLL : (Assembly)fi.GetValue(pfb);
 			fi.SetValue(d, a);
+			fi = typeof(TechTypeHandler).GetField("TechTypesAddedBy", BindingFlags.Static | BindingFlags.NonPublic);
+			Dictionary<TechType, Assembly> dict = (Dictionary<TechType, Assembly>)fi.GetValue(null);
+			TechType ttsrc = ((Spawnable)d).TechType;
+			dict[ttsrc] = a;
 			List<DuplicateItemDelegate> li = delegates.ContainsKey(tt) ? delegates[tt] : new List<DuplicateItemDelegate>();
 			li.Add(d);
 			delegates[tt] = li;
-			delegateItems.Add(((Spawnable)d).TechType, d);
+			delegateItems.Add(ttsrc, d);
 			SNUtil.log("Registering delegate item "+d+" ref pfb="+pfb+" in "+a.GetName().Name, d.getOwnerMod());
 		}
 		

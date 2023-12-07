@@ -63,6 +63,13 @@ namespace ReikaKalseki.DIAlterra
 			private StorageContainer[] storages = null;
 			private Charger[] chargers = null;
 			
+			public static event Action<WorldgenSeabaseController> onWorldgenSeabaseLoad;
+			
+			void Awake() {
+				if (onWorldgenSeabaseLoad != null)
+					onWorldgenSeabaseLoad.Invoke(this);
+			}
+			
 			void rebuild(float time) {
 				SNUtil.log("Seabase '"+seabaseID+"' undergoing reconstruction", SNUtil.diDLL);
 				if (reconstructionData == null) {
