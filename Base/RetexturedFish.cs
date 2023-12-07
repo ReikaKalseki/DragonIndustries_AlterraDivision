@@ -167,5 +167,13 @@ namespace ReikaKalseki.SeaToSea {
 		
 		public abstract BehaviourType getBehavior();
 		
+		public static RetexturedFish getFish(string id) {
+			return creatureIDs.ContainsKey(id) ? creatureIDs[id] : null;
+		}
+		
+		public static RetexturedFish getFish(TechType tt) {
+			return creatures.ContainsKey(tt) ? creatures[tt] : null;
+		}
+		
 	}
 }

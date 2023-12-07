@@ -128,7 +128,7 @@ namespace ReikaKalseki.DIAlterra {
 			rec.Ingredients.Clear();
 		}
 		
-		public static TechData addRecipe(TechType item, TechGroup grp, TechCategory cat, int amt = 1, CraftTree.Type fab = CraftTree.Type.Fabricator, string[] path = null) {
+		public static TechData addRecipe(TechType item, TechGroup grp, TechCategory cat, string[] path = null, int amt = 1, CraftTree.Type fab = CraftTree.Type.Fabricator) {
 			TechData rec = new TechData
 			{
 				Ingredients = new List<Ingredient>(),
@@ -146,11 +146,12 @@ namespace ReikaKalseki.DIAlterra {
 			return CraftDataHandler.GetTechData(item) != null;
 		}
 		
-		public static TechData getRecipe(TechType item) {
+		public static TechData getRecipe(TechType item, bool errorIfNone = true) {
 			TechData rec = CraftDataHandler.GetTechData(item);
-			if (rec == null)
+			if (rec == null && errorIfNone)
 				throw new Exception("No such recipe '"+item+"'!");
-			CraftDataHandler.SetTechData(item, rec);
+			if (rec != null)
+				CraftDataHandler.SetTechData(item, rec);
 			return rec;
 		}
 		
