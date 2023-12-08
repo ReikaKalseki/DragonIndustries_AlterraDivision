@@ -65,6 +65,8 @@ namespace ReikaKalseki.DIAlterra
 			FieldInfo fi = typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic);
 			ModPrefab pfb = SNUtil.getModPrefabByTechType(tt);
 			Assembly a = pfb == null ? SNUtil.gameDLL : (Assembly)fi.GetValue(pfb);
+			if (a == null)
+				a = d.getOwnerMod();
 			fi.SetValue(d, a);
 			fi = typeof(TechTypeHandler).GetField("TechTypesAddedBy", BindingFlags.Static | BindingFlags.NonPublic);
 			Dictionary<TechType, Assembly> dict = (Dictionary<TechType, Assembly>)fi.GetValue(null);
