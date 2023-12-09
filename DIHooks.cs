@@ -96,6 +96,8 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<SeamothTorpedo, Transform> onTorpedoExplodeEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
+	    
+	    private static readonly HashSet<TechType> gravTrapTechSet = new HashSet<TechType>();
 		
 	    public static readonly string itemNotDroppableLocaleKey = "ItemNotDroppable";
 		
@@ -1448,12 +1450,16 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (!s || !go)
 	    		return false;
 	    	
+	    	if (gravTrapTechSet.Count == 0)
+	    		gravTrapTechSet.AddRange(Gravsphere.allowedTechTypes);
+	    	
 	    	Pickupable pp = go.GetComponent<Pickupable>();
-	    	bool def = (pp == null || !pp.attached) && Array.IndexOf(Gravsphere.allowedTechTypes, CraftData.GetTechType(go)) >= 0;
+	    	bool def = (pp == null || !pp.attached) && gravTrapTechSet.Contains(CraftData.GetTechType(go));
 	    	
 	    	GravTrapGrabAttempt k = new GravTrapGrabAttempt(s, go, def);
 	    	if (gravTrapAttemptEvent != null)
 	    		gravTrapAttemptEvent.Invoke(k);
+	    	//SNUtil.writeToChat("Gravsphre "+s+" tried to grab "+go+": "+def+" > "+k.allowGrab);
 	    	return k.allowGrab;
 	    }
 
@@ -2131,14 +2137,19 @@ namespace ReikaKalseki.DIAlterra {
 			target = c.GetComponentInParent<Rigidbody>();
 			if (!target)
 				return false;
+			if (target.GetComponent<BlueprintHandTarget>())
+				return false;
 			if (s.targets.Contains(target))
 				return true;
 			StasisEffectCheck ch = new StasisEffectCheck(s, target);
 			if (onStasisRifleFreezeEvent != null)
 				onStasisRifleFreezeEvent.Invoke(ch);
-			if (target.name.StartsWith("ExplorableWreck", StringComparison.InvariantCultureIgnoreCase))
+			string name = target.name.ToLowerInvariant();
+			if (name.StartsWith("explorablewreck", StringComparison.InvariantCultureIgnoreCase))
 				return false;
-			if (target.name.Contains("Precursor") && (target.name.Contains("Room") || target.name.Contains("Base")))
+			if (name.Contains("biodome"))
+				return false;
+			if (name.Contains("precursor") && (name.Contains("room") || name.Contains("base")))
 				return false;
 			if (c.GetComponentInParent<Player>() || c.GetComponentInParent<Vehicle>())
 				return false;

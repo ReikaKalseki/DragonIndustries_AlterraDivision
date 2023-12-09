@@ -357,6 +357,22 @@ namespace ReikaKalseki.DIAlterra {
 			return ret;
 		}
 		
+		public static List<Ingredient> combineIngredients(IEnumerable<Ingredient> list, IEnumerable<Ingredient> add) {
+			Dictionary<TechType, int> amt = new Dictionary<TechType, int>();
+			foreach (Ingredient i in list) {
+				amt[i.techType] = i.amount;
+			}
+			foreach (Ingredient i in add) {
+				int has = amt.ContainsKey(i.techType) ? amt[i.techType] : 0;
+				amt[i.techType] = has+i.amount;
+			}
+			List<Ingredient> ret = new List<Ingredient>();
+			foreach (KeyValuePair<TechType, int> kvp in amt) {
+				ret.Add(new Ingredient(kvp.Key, kvp.Value));
+			}
+			return ret;
+		}
+		
 		public class RecipeNode {
 			
 			public readonly TechType item;

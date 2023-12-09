@@ -171,9 +171,13 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.log("Cannot disable mod signal "+this+" because it has no object/instance!", ownerMod);
 					return;
 				}
+				bool already = signalInstance.enabled;
 				signalInstance.displayPingInManager = true;
 				signalInstance.enabled = true;
 				signalInstance.SetVisible(true);
+				
+				if (already)
+					return;
 				
 				if (delay > 0)
 					initializer.Invoke("triggerFX", delay);

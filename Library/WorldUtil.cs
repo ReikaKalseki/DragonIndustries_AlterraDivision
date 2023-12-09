@@ -29,6 +29,10 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Vector3 auroraPoint2 = new Vector3(1295, 0, 110-50);
 		private static readonly float auroraPointRadius = 275;
 		
+		private static readonly Vector3[] geysers = new Vector3[]{
+		
+		};
+		
 		//private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
 		
 		static WorldUtil() {
@@ -341,6 +345,15 @@ batch_id = (19, 17, 16)
 				ns = "";
 			bool pre = !string.IsNullOrEmpty(ew) || !string.IsNullOrEmpty(ns);
 			return ns+ew+(pre ? " " : "")+biome+" ("+depth+"m)";
+		}
+		
+		public static Vector3 getNearestGeyserPosition(Vector3 pos) {
+			Vector3 nearest = new Vector3(0, 8000, 0);
+			foreach (Vector3 at in geysers) {
+				if ((at-pos).sqrMagnitude < (nearest-pos).sqrMagnitude)
+					nearest = at;
+			}
+			return nearest;
 		}
 		/*
 		public static bool isScannerRoomInRange(Vector3 position, bool needFunctional = true, float maxRange = 500, TechType scanningFor = TechType.None) {

@@ -7,6 +7,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Linq;
 using Story;
 using ReikaKalseki.DIAlterra;
 using SMLHelper.V2.Handlers;
@@ -38,6 +39,24 @@ namespace ReikaKalseki.DIAlterra
 		
 		public override string ToString() {
 			return "Tech "+tech;
+		}
+		
+	}
+	
+	public class MultiTechTrigger : ProgressionTrigger {
+		
+		public readonly IEnumerable<TechType> techs;
+		
+		public MultiTechTrigger(params TechType[] tt) : this((IEnumerable<TechType>)tt.ToArray()) {
+			
+		}
+		
+		public MultiTechTrigger(IEnumerable<TechType> tt) : base(ep => tt.All(KnownTech.knownTech.Contains)) {
+			techs = tt;
+		}
+		
+		public override string ToString() {
+			return "Techs "+techs.toDebugString();
 		}
 		
 	}
