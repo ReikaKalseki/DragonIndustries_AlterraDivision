@@ -90,5 +90,13 @@ namespace ReikaKalseki.DIAlterra
 			return sc.container.DestroyItem(ii.item.GetTechType());
 		}
 		
+		public static bool forceRemoveItem(StorageContainer sc, InventoryItem ii) {
+			if (sc.container.RemoveItem(ii.item, true)) {
+				UnityEngine.Object.Destroy(ii.item.gameObject);
+				return true;
+			}
+			return false;
+		}
+		
 	}
 }

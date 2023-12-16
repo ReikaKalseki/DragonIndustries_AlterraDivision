@@ -117,6 +117,7 @@ namespace ReikaKalseki.DIAlterra
 	    
 	    SpriteHandler.RegisterSprite(TechType.PDA, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/PDA"));
 	    SpriteHandler.RegisterSprite(TechType.Databox, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Databox"));
+	    SpriteHandler.RegisterSprite(TechType.ReaperLeviathan, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Reaper"));
 	    
     	SNUtil.log("Finish DI Main Init", SNUtil.diDLL);
     }
@@ -182,6 +183,32 @@ namespace ReikaKalseki.DIAlterra
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
 	    //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("autoUpdate", DIHooks.autoUpdate);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("vehicleToMe", bringVehicleToPlayer);
+    }
+    
+    private static void bringVehicleToPlayer(string type) {
+    	MonoBehaviour v = null;
+    	switch(type.ToLowerInvariant()) {
+    		case "seamoth":
+    			v = WorldUtil.getClosest<SeaMoth>(Player.main.transform.position);
+    			break;
+    		case "prawn":
+    		case "exosuit":
+    			v = WorldUtil.getClosest<Exosuit>(Player.main.transform.position);
+    			break;
+    		case "cyclops":
+    			v = WorldUtil.getClosest<SubRoot>(Player.main.transform.position);
+    			break;
+    	}
+    	if (v) {
+    		Vector3 pos = Camera.main.transform.position+Camera.main.transform.forward*10;
+    		if (v is Vehicle) {
+    			((Vehicle)v).TeleportVehicle(pos, v.transform.rotation);
+    		}
+    		else if (v is SubRoot && ((SubRoot)v).isCyclops) {
+    			v.transform.position = pos;
+    		}
+    	}
     }
     
     private static void printBiomeData() {

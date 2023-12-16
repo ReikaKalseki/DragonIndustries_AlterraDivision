@@ -111,7 +111,10 @@ namespace ReikaKalseki.DIAlterra {
 	    public static bool skipSkyApplier = false;
 	    
 	    static DIHooks() {
-			SNUtil.log("Initializing DIHooks");	    	
+			SNUtil.log("Initializing DIHooks");	   
+			
+			PrecursorTeleporter.TeleportEventStart += startTeleport;
+			PrecursorTeleporter.TeleportEventEnd += stopTeleport;			
 	    }
 	    
 	    public class PlayerInput {
@@ -895,6 +898,17 @@ namespace ReikaKalseki.DIAlterra {
 			isKnifeHarvesting = false;
 	    }
 	    
+	    public static void fireKnifeHarvest(GameObject target, Dictionary<TechType, int> drops) {
+			KnifeHarvest harv = new KnifeHarvest(target, CraftData.GetTechType(target), false, false);
+			harv.drops.Clear();
+			drops.ForEach(kvp => harv.drops[kvp.Key] = kvp.Value);
+			if (knifeHarvestEvent != null) {
+				knifeHarvestEvent.Invoke(harv);
+			}
+			foreach (KeyValuePair<TechType, int> kvp in harv.drops)
+				CraftData.AddToInventory(kvp.Key, kvp.Value, false, false);
+	    }
+	    
 	    public static void onPrawnItemPickedUp(Pickupable pp) {
 	    	if (pp)
 	    		onItemPickedUp(pp, Player.main.GetVehicle() as Exosuit);
@@ -1400,6 +1414,12 @@ namespace ReikaKalseki.DIAlterra {
 	    	
 	    	if (onConstructedEvent != null)
 	    		onConstructedEvent.Invoke(c, finished);
+	    }
+	    
+	    public static void onVehicleBayFinish(Constructor c, GameObject go) {
+	    	TechType tt = CraftData.GetTechType(go);
+	    	if (tt != TechType.None)
+	    		TechnologyUnlockSystem.instance.triggerDirectUnlock(tt);
 	    }
 	   
 	   public static void onBaseLoaded(BaseRoot root) {
@@ -2301,5 +2321,44 @@ namespace ReikaKalseki.DIAlterra {
 		    	onTorpedoExplodeEvent.Invoke(sm, result);
 		   	return result;
 		}
+	   
+	   private static GameObject teleportWithPlayer;
+	   private static PropulsionCannon activePropulsionGun;
+	   private static Vector3 relativeGrabPosition;
+	   private static int selectedSlot;
+	   
+	   private static void startTeleport() {
+	   	if (!Player.main.GetVehicle() && !Player.main.currentSub) {
+	   		Pickupable pp = Inventory.main.GetHeld();
+	   		if (pp) {
+	   			PropulsionCannon pc = pp.GetComponent<PropulsionCannon>();
+	   			if (pc && pc.grabbedObject) {
+	   				selectedSlot = Inventory.main.quickSlots.activeSlot;
+	   				activePropulsionGun = pc;
+	   				teleportWithPlayer = pc.grabbedObject;
+	   				relativeGrabPosition = teleportWithPlayer.transform.position-Player.main.transform.position;
+	   				teleportWithPlayer.transform.position = WorldUtil.getClosest<PrecursorTeleporter>(Player.main.transform.position).warpToPos;
+	   				//SNUtil.writeToChat("Teleporting "+teleportWithPlayer+" with player, pre");
+	   			}
+	   		}
+	   	}
+	   }
+	   
+	   private static void stopTeleport() {
+	   	if (activePropulsionGun) {
+	   		if (teleportWithPlayer) {
+		   		//InventoryItem ii = Inventory.main.container.GetItems(activePropulsionGun.GetComponent<Pickupable>().GetTechType()).First();
+		   		Inventory.main.quickSlots.SelectImmediate(selectedSlot);
+		   		teleportWithPlayer.transform.position = Player.main.transform.position+relativeGrabPosition;
+		   		activePropulsionGun.GrabObject(teleportWithPlayer);
+		   		//SNUtil.writeToChat("Teleporting "+teleportWithPlayer+" with player, post");
+	   		}
+	   		else {
+	   			//SNUtil.writeToChat("Object to teleport with player does not yet exist");
+	   		}
+	   	}
+	   	teleportWithPlayer = null;
+	   	activePropulsionGun = null;
+	   }
 	}
 }

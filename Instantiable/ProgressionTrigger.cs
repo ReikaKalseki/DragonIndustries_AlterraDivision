@@ -29,6 +29,20 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
+	public class ScanTrigger : ProgressionTrigger {
+		
+		public readonly TechType tech;
+		
+		public ScanTrigger(TechType tt) : base(ep => PDAScanner.complete.Contains(tt)) {
+			tech = tt;
+		}
+		
+		public override string ToString() {
+			return "Scan "+tech;
+		}
+		
+	}
+	
 	public class TechTrigger : ProgressionTrigger {
 		
 		public readonly TechType tech;
