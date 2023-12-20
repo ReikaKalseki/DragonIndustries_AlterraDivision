@@ -277,7 +277,7 @@ batch_id = (19, 17, 16)
 			return MathUtil.getDistanceToLineSegment(pos, auroraPoint1, auroraPoint2) <= auroraPointRadius+extra;
 		}
 		
-		public static string getRegionalDescription(Vector3 pos) {
+		public static string getRegionalDescription(Vector3 pos, bool includeDepth) {
 			if ((pos-LAVA_DOME).sqrMagnitude <= 6400)
 				return "Lava Dome";
 			if ((pos-DUNES_METEOR).sqrMagnitude <= 14400)
@@ -288,6 +288,8 @@ batch_id = (19, 17, 16)
 			if (dist <= lavaCastleRadius*lavaCastleRadius+900)
 				return "Lava Castle";
 			BiomeBase bb = BiomeBase.getBiome(pos);
+			if (BiomeBase.isUnrecognized(bb))
+				return "Unknown Biome @ "+pos;
 			if (bb == VanillaBiomes.LOSTRIVER || bb == VanillaBiomes.CRASH) {
 				switch(DIHooks.getBiomeAt(WaterBiomeManager.main.GetBiome(pos), pos)) {
 					case "LostRiver_BonesField_Corridor":
@@ -344,7 +346,10 @@ batch_id = (19, 17, 16)
 			if (!bb.existsInSeveralPlaces() || Math.Abs(pos.z) < 250 || Math.Abs(pos.z) < Math.Abs(pos.x)/2.5F)
 				ns = "";
 			bool pre = !string.IsNullOrEmpty(ew) || !string.IsNullOrEmpty(ns);
-			return ns+ew+(pre ? " " : "")+biome+" ("+depth+"m)";
+			string loc = ns+ew+(pre ? " " : "")+biome;
+			if (includeDepth)
+				loc += " ("+depth+"m)";
+			return loc;
 		}
 		
 		public static Vector3 getNearestGeyserPosition(Vector3 pos) {

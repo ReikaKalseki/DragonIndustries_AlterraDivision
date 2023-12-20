@@ -715,6 +715,10 @@ namespace ReikaKalseki.DIAlterra
 		          return false;
 		}
 		
+		public static bool isVisible(GameObject go) {
+			return WorldUtil.lineOfSight(go, Player.main.gameObject, r => !r.collider.gameObject.FindAncestor<Vehicle>()) && isOnScreen(go, Camera.main);
+		}
+		
 		public static bool isLookingAt(Transform looker, Vector3 pos, float maxAng) {
 			return Vector3.Angle(looker.forward, pos-looker.transform.position) <= maxAng;
 		}

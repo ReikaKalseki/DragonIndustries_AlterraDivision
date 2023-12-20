@@ -15,7 +15,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public abstract class BiomeBase {
+	public abstract class BiomeBase : IComparable<BiomeBase> {
 		
 		private static readonly List<string> variants = new List<string>(){
 			"",
@@ -50,6 +50,10 @@ namespace ReikaKalseki.DIAlterra
 			displayName = d;
 			foreach (string id in ids)
 				registerID(this, id, SNUtil.tryGetModDLL(true));
+		}
+		
+		public static bool isUnrecognized(BiomeBase bb) {
+			return bb == UNRECOGNIZED;
 		}
 		
 		private static void registerID(BiomeBase b, string id, System.Reflection.Assembly a) {
@@ -105,6 +109,21 @@ namespace ReikaKalseki.DIAlterra
 		public abstract bool existsInSeveralPlaces();
 		
 		public abstract bool isInBiome(Vector3 pos);
+		
+		public int CompareTo(BiomeBase ro) {
+			if (this is VanillaBiomes && ro is VanillaBiomes) {
+				return VanillaBiomes.compare((VanillaBiomes)this, (VanillaBiomes)ro);
+			}
+			else if (this is VanillaBiomes) {
+				return -1;
+			}
+			else if (ro is VanillaBiomes) {
+				return 1;
+			}
+			else {
+				return String.Compare(displayName, ro.displayName, StringComparison.InvariantCultureIgnoreCase);
+			}
+		}
 	}
 		
 	class UnknownBiome : BiomeBase {

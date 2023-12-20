@@ -391,5 +391,13 @@ namespace ReikaKalseki.DIAlterra
 			return new WaterParkCreatureParameters(baseP.initialSize*initSizeScale, baseP.maxSize*maxSizeScale, baseP.outsideSize*outsideSizeScale, baseP.growingPeriod*growTimeScale, baseP.isPickupableOutside);
 		}
 		
+		public static string getDescriptiveEncyPageCategoryName(PDAEncyclopedia.EntryData data) {
+			bool lifeform = data.nodes.Length >= 2 && data.nodes[0] == "Lifeforms";
+			if (lifeform)
+				return Language.main.Get("EncyPath_"+data.nodes[0]+"/"+data.nodes[1]);
+			else
+				return Language.main.Get("EncyPath_"+data.nodes[0]);
+		}
+		
 	}
 }

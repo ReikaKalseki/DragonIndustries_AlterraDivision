@@ -79,6 +79,7 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action itemsLostEvent;
 	    public static event Action<StorageContainer, GUIHand> storageHoverEvent;	
 	    public static event Action<ModuleFireCostCheck> moduleFireCostEvent;
+	    public static event Action<PDAScanner.EntryData> scanCompleteEvent;
 	    public static event Action selfScanEvent;
 	    public static event Action<uGUI_MapRoomScanner> scannerRoomTechTypeListingEvent;
 	    public static event Action<StasisEffectCheck> onStasisRifleFreezeEvent;
@@ -1325,8 +1326,11 @@ namespace ReikaKalseki.DIAlterra {
 	    }
 	   
 		public static void onScanComplete(PDAScanner.EntryData data) {
-		   	if (data != null)
+	    	if (data != null) {
 	   			TechnologyUnlockSystem.instance.triggerDirectUnlock(data.key);
+	   			if (scanCompleteEvent != null)
+	   				scanCompleteEvent.Invoke(data);
+	    	}
 		}
 	    
 	    public static void tickLaserCutting(Sealed s, float amt) {
