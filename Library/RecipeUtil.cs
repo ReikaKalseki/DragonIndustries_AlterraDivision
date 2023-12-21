@@ -327,13 +327,12 @@ namespace ReikaKalseki.DIAlterra {
 				}
 			}
 			ret.Ingredients.Add(new Ingredient(item, rec.craftAmount));
-			Dictionary<TechType, int> counts = new Dictionary<TechType, int>();
+			CountMap<TechType> counts = new CountMap<TechType>();
 			foreach (TechType tt in rec.LinkedItems) {
-				int has = counts.ContainsKey(tt) ? counts[tt] : 0;
-				counts[tt] = has+1;
+				counts.add(tt);
 			}
-			foreach (KeyValuePair<TechType, int> kvp in counts) {
-				rec.Ingredients.Add(new Ingredient(kvp.Key, kvp.Value));
+			foreach (TechType tt in counts.getItems()) {
+				rec.Ingredients.Add(new Ingredient(tt, counts.getCount(tt)));
 			}
 			return ret;
 		}
@@ -358,17 +357,14 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static List<Ingredient> combineIngredients(IEnumerable<Ingredient> list, IEnumerable<Ingredient> add) {
-			Dictionary<TechType, int> amt = new Dictionary<TechType, int>();
-			foreach (Ingredient i in list) {
-				amt[i.techType] = i.amount;
-			}
-			foreach (Ingredient i in add) {
-				int has = amt.ContainsKey(i.techType) ? amt[i.techType] : 0;
-				amt[i.techType] = has+i.amount;
-			}
+			CountMap<TechType> amt = new CountMap<TechType>();
+			foreach (Ingredient i in list)
+				amt.add(i.techType, i.amount);
+			foreach (Ingredient i in add)
+				amt.add(i.techType, i.amount);
 			List<Ingredient> ret = new List<Ingredient>();
-			foreach (KeyValuePair<TechType, int> kvp in amt) {
-				ret.Add(new Ingredient(kvp.Key, kvp.Value));
+			foreach (TechType tt in amt.getItems()) {
+				ret.Add(new Ingredient(tt, amt.getCount(tt)));
 			}
 			return ret;
 		}
