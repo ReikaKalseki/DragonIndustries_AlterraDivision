@@ -399,5 +399,13 @@ namespace ReikaKalseki.DIAlterra
 				return Language.main.Get("EncyPath_"+data.nodes[0]);
 		}
 		
+		public static MapRoomCamera getControllingCamera(Player ep) {
+			foreach (MapRoomCamera cam in MapRoomCamera.cameras) {
+				if (cam && cam.controllingPlayer == ep)
+					return cam;
+			}
+			return null;
+		}
+		
 	}
 }
