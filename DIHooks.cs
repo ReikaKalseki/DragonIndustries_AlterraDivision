@@ -686,7 +686,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (outdatedMods) {
 				li.Add("Your versions of the following mods are out of date:");
 				foreach (ModVersionCheck mv in vers) {
-					li.Add(mv.modName+": Current version "+mv.currentVersion+", newest version "+mv.remoteVersion);
+					li.Add(mv.modName+": Current version "+mv.currentVersion+", newest version "+mv.remoteVersion.Invoke());
 				}
 				li.Add("Update your mods to remove this warning.");
 				//li.Add("Run the /autoUpdate command to download and install these updates automatically.");
@@ -695,7 +695,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (vers.Count > 0) {
 				li.Add("Several mods failed to fetch version information:");
 				foreach (ModVersionCheck mv in vers) {
-					li.Add(mv.modName+": Installed version "+mv.currentVersion+", remote version "+mv.remoteVersion);
+					li.Add(mv.modName+": Installed version "+mv.currentVersion+", remote version "+mv.remoteVersion.Invoke());
 				}
 				if (SNUtil.checkPiracy()) {
 					li.Add("<color=#ff5050ff>This appears to be a result of pirating the game, which cuts its internet connection. There is nothing that can be done without buying Subnautica.</color>");
