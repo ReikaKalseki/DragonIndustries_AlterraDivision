@@ -65,9 +65,18 @@ namespace ReikaKalseki.DIAlterra
         ModVersionCheck.getFromGitVsInstall("Dragon Industries", SNUtil.diDLL, "DragonIndustries_AlterraDivision").register();
         SNUtil.checkModHash(SNUtil.diDLL);
         
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SaveSystem).TypeHandle);
+        
         new ObjectDeleter().Patch();
         
         locale.load();
+        
+        CustomLocaleKeyDatabase.registerKey(locale.getEntry("ItemNotDroppable"));
+        CustomLocaleKeyDatabase.registerKey(locale.getEntry("BulkheadInoperable"));
+        CustomLocaleKeyDatabase.registerKey(locale.getEntry("PrecursorCraftPrompt"));
+        CustomLocaleKeyDatabase.registerKey(locale.getEntry("PrecursorCraftNoIngredients"));
+        
+        KnownTech.onAdd += (tt, vb) => TechUnlockTracker.onUnlock(tt);
         
         CustomEgg spineEel = createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground).modifyGO(e => 
 		{
@@ -166,6 +175,7 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand<bool>("bden", BuildingHandler.instance.setEnabled);  
         BuildingHandler.instance.addCommand("bdsa", BuildingHandler.instance.selectAll);
         BuildingHandler.instance.addCommand("bdslp", BuildingHandler.instance.selectLastPlaced);
+        BuildingHandler.instance.addCommand<string>("bdspid", BuildingHandler.instance.selectOfID);
         BuildingHandler.instance.addCommand("bdsync", BuildingHandler.instance.syncObjects);
         BuildingHandler.instance.addCommand<string>("bdexs", BuildingHandler.instance.saveSelection);
         BuildingHandler.instance.addCommand<string>("bdexa", BuildingHandler.instance.saveAll);
@@ -174,16 +184,18 @@ namespace ReikaKalseki.DIAlterra
         BuildingHandler.instance.addCommand("bdtex", BuildingHandler.instance.dumpTextures);
         BuildingHandler.instance.addCommand("bdact", BuildingHandler.instance.activateObject);
         BuildingHandler.instance.addCommand<float>("bdsc", BuildingHandler.instance.setScale);
+        BuildingHandler.instance.addCommand<float, float, float>("bdscxyz", BuildingHandler.instance.setScaleXYZ);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, bool>>("sound", SoundManager.playSound);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("dumpBiomeTex", DIHooks.dumpWaterscapeTextures);
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("clear000", clear000);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, float>>("particle", spawnParticle);
-	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
+	    //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
 	    //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("autoUpdate", DIHooks.autoUpdate);
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("vehicleToMe", bringVehicleToPlayer);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("savePhysProps", PhysicsSettlingProp.export);
     }
     
     private static void bringVehicleToPlayer(string type) {

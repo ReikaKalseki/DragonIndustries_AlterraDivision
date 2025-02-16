@@ -17,9 +17,9 @@ namespace ReikaKalseki.DIAlterra
 {	
 	public class ProgressionTrigger {
 		
-		public readonly Func<Player, bool> isReady;
+		public readonly Predicate<Player> isReady;
 		
-		public ProgressionTrigger(Func<Player, bool> b) {
+		public ProgressionTrigger(Predicate<Player> b) {
 			isReady = b;
 		}
 		

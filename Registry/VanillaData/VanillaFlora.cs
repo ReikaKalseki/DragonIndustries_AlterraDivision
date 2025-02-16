@@ -56,6 +56,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora GABE_FEATHER = new VanillaFlora(6, 0.2, "79134868-2f8e-4f43-a99f-a6fb8ce60b48", "8409a079-a96c-43d3-a891-af500b04e0af").markHarvestable().addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.TREADER, true);
 		public static readonly VanillaFlora BRINE_LILY = new VanillaFlora("f97bf790-a5bd-4e7f-a5e8-9fca1b37f81c", 6.5, 0.8).addBiome(VanillaBiomes.LOSTRIVER);
 		public static readonly VanillaFlora AMOEBOID = new VanillaFlora("375a4ade-a7d9-401d-9ecf-08e1dce38d6b", 6.3).addBiome(VanillaBiomes.LOSTRIVER);
+		public static readonly VanillaFlora BRAIN_CORAL = new VanillaFlora(6, "171c6a5b-879b-4785-be7a-6584b2c8c442").addBiome(VanillaBiomes.SHALLOWS).addBiome(VanillaBiomes.KELP).markHarvestable();
 		
 		public static readonly VanillaFlora MING = new VanillaFlora(6, "1d5877a7-bc56-46c8-a27c-f9d0ab99cc80", "ce650c66-355c-4b77-ad4e-a2bea7e36c95", "06456c0a-9283-42fa-918b-ab58607d5082").markHarvestable();
 		public static readonly VanillaFlora BULBO = new VanillaFlora("4626f3eb-23c3-4e04-b9df-829cb051758a", 5.9).markEdible();
@@ -69,12 +70,6 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora LANTERN = new VanillaFlora("8fa4a413-57fa-47a3-828d-de2255dbce4f", 6.1, 0.5).markEdible();
 		public static readonly VanillaFlora PINK_CAP = new VanillaFlora(5.9, "a7aef01f-0dc0-4d03-913d-d47d8d2ba407", "7f9a765d-0b4e-4b3f-81b9-38b38beedf55", "c7faff7e-d9ff-41b4-9782-98d2e09d29c1", "e88e7a23-2a99-41c5-aed9-a2bfaca3619d", "b715508e-a7e4-47f0-a55b-bf6f65d24ac2").markHarvestable();
 		public static readonly VanillaFlora SPECKLED_RATTLER = new VanillaFlora(6, "98be0944-e0b3-4fba-8f08-ca5d322c22f6", "28818d8a-5e50-41f0-8e14-44cb89a0b611").markHarvestable();
-		
-		//blood kelp mini vines
-		//2ab96dc4-5201-4a41-aa5c-908f0a9a0da8
-		//2bfcbaf4-1ae6-4628-9816-28a6a26ff340
-		//7bfe0629-a008-43b8-bd16-d69ad056769f
-		//e291d076-bf95-4cdd-9dd9-6acd37566cf6
 		
 		//kelp grass tuft
 		//880b59b7-8fd6-412f-bbcb-a4260b263124
@@ -93,6 +88,8 @@ namespace ReikaKalseki.DIAlterra
 		//yellow leafy thing 7ce83863-b4f2-4d46-9f46-1830799f3e5f 4d0c8cbd-6127-4681-9d86-d9175e6df722
 		
 		//red tipped leaf bush, land 559fe0c7-1754-40f5-9453-b537900b3ac4 83f68b50-b037-4654-91db-2b378b67adeb
+		
+		//real brain coral, could be useful if retextured, as a stromatolite or something "062bd45e-7348-4495-84ee-71f08706a168", "9f80ba8e-fafc-4dfc-aaad-c855fee34c42"
 		
 		//big land leaf clump 6eae94e5-8fc8-4aef-ae41-ad8c081bcf4b
 		//75ab087f-9934-4e2a-b025-02fc333a5c99
@@ -127,6 +124,26 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaFlora STINGERS = new VanillaFlora(9, "46d0473e-d366-4644-8c9c-5fdb65cbacb8", "7935a15e-a9ab-4fc6-90ef-58a65b30a4bd", "8914acde-168e-438f-9b2b-6b9332d8c1a1").addBiome(VanillaBiomes.KELP, true).addBiome(VanillaBiomes.REDGRASS, true).addBiome(VanillaBiomes.JELLYSHROOM);
 		public static readonly VanillaFlora GRUE_CLUSTER = new VanillaFlora(6, "71498905-2ce2-4622-8d6f-40212f6202df", "6f5c4850-b8bd-461a-999d-1c49d69ffe3a", "94d7ed83-abb8-49af-9f27-10771dcd1485", "82287160-87eb-4fdd-ae33-945ba666ae60").addBiome(VanillaBiomes.MUSHROOM).addBiome(VanillaBiomes.TREADER, true);
 		public static readonly VanillaFlora MUSHROOM_BUMP = new VanillaFlora(0, "5086a02a-ea6d-41ba-90c3-ea74d97cf6b5", "961194a9-e88b-40d7-900d-a48c5b739352", "a1f8e7cf-83ae-438c-9197-3321374eca56", "f3de21af-550b-4901-a6e8-e45e31c1509d", "fe145621-5b25-4000-a3dd-74c1aaa961e2").addBiome(VanillaBiomes.MUSHROOM);
+		
+		public static readonly VanillaFlora BLOODVINE_MINI = new VanillaFlora(0, "2ab96dc4-5201-4a41-aa5c-908f0a9a0da8", "2bfcbaf4-1ae6-4628-9816-28a6a26ff340", "7bfe0629-a008-43b8-bd16-d69ad056769f", "e291d076-bf95-4cdd-9dd9-6acd37566cf6").addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH);
+		
+		public static readonly List<string> BLOOD_ROOT_PROP = new List<string>{
+			"4bfe1877-1b83-4d5d-9470-3bb2d5f389cc",
+			"a0c5b949-22a4-4899-9c51-64ccce6956bc",
+			"a0cbac2e-f86d-4ab0-a090-8115f5196f7c",
+			"cd004d89-f798-40d0-bf65-ee4c1c48700c",
+			"d8efe522-5355-48b8-b4fb-4d077bbc621d",
+		};
+		public static readonly List<string> BLOOD_ROOT_FERTILE = new List<string>{
+			"5beba896-bccf-4993-8bcb-1cdabb68e706", //lit
+			"abe572e9-126b-43eb-bf5c-4edf9ec365c1", //faint lit, has", //feet"
+			"b0cae640-b155-4bac-9ed5-29ba64a1ee9f", //lit
+			"da7341c3-e6a3-4cd3-ad57-49a4dc732ac9", //lit, has feet
+			"db79ee0b-65e9-4ea1-8b8b-948bbae128f7", //lit
+			"e3fd373d-6ecc-497a-b396-816f3cb5f9b6", //faint lit
+			"e40daa31-8eb8-463a-b91a-d3aedb631744", //faint lit
+			"f0a54d9a-7717-473f-8450-5ff24824ed7e", //lit, same as other one with arch
+		};
 		
 		public static readonly VanillaFlora TABLECORAL_ORANGE = new VanillaFlora(0, "f0713f3d-586b-4c71-88a3-18dd6c3dd2a4", "9a643563-9278-4c77-8bd2-f9b4b1a1053a", "70eb6270-bf5e-4d6a-8182-484ffcfd8de6", "4e31161e-c812-4c8c-bfd4-00cf4b743884").addBiome(VanillaBiomes.SHALLOWS);
 		public static readonly VanillaFlora TABLECORAL_BLUE = new VanillaFlora(0, "e0608e57-e9df-4f43-bb3a-8c56a42d2c1f", "48d6184a-320e-41d2-abca-5b96a94e72e0", "3d4d3892-e43a-45b1-85b8-4a6462257c79", "1edd7411-8f1d-4e7a-8378-0ce7ccb6ea82").addBiome(VanillaBiomes.MUSHROOM);

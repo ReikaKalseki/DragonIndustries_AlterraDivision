@@ -21,12 +21,25 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra
 {		
-	internal class ChangePrecursorDoor : ManipulationBase {
+	public class ChangePrecursorDoor : ManipulationBase {
 		
 		private PrecursorKeyTerminal.PrecursorKeyType targetType; 
 		
 		static ChangePrecursorDoor() {
 			
+		}
+		
+		internal ChangePrecursorDoor() {
+			
+		}
+		
+		public ChangePrecursorDoor(PrecursorKeyTerminal.PrecursorKeyType t) {
+			targetType = t;
+		}
+		
+		public void applyToObject(PrecursorKeyTerminal pk) {
+			pk.acceptKeyType = targetType;
+			pk.keyFace.material = pk.keyMats[(int)pk.acceptKeyType];
 		}
 		
 		public override void applyToObject(GameObject go) {
@@ -36,7 +49,7 @@ namespace ReikaKalseki.DIAlterra
 					SNUtil.log("extra Component "+c+"/"+c.GetType()+" in "+c.gameObject);
 				}
 			}
-			pk.acceptKeyType = targetType;
+			applyToObject(pk);
 		}
 		
 		public override void applyToObject(PlacedObject go) {

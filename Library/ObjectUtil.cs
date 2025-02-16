@@ -110,30 +110,35 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static void removeComponent(GameObject go, Type tt) {
+		public static void removeComponent(GameObject go, Type tt, bool immediate = true) {
 			foreach (Component c in go.GetComponentsInChildren(tt)) {
 				if (c is MonoBehaviour)
 					((MonoBehaviour)c).enabled = false;
-				UnityEngine.Object.DestroyImmediate(c);
+				if (immediate)
+					UnityEngine.Object.DestroyImmediate(c);
+				else
+					UnityEngine.Object.Destroy(c);
 			}
 		}
 		
-		public static void removeComponent<C>(GameObject go) where C : Component {
-			applyToComponents<C>(go, true, true, true);
+		public static void removeComponent<C>(GameObject go, bool immediate = true) where C : Component {
+			applyToComponents<C>(go, immediate ? 2 : 1, true, true);
 		}
 		
 		public static void setActive<C>(GameObject go, bool active) where C : Component {
-			applyToComponents<C>(go, false, true, active);
+			applyToComponents<C>(go, 0, true, active);
 		}
 		
-		private static void applyToComponents<C>(GameObject go, bool destroy, bool setA, bool setTo) where C : Component {
+		private static void applyToComponents<C>(GameObject go, int destroy, bool setA, bool setTo) where C : Component {
 			foreach (Component c in go.GetComponentsInChildren<C>(true)) {
 				if (debugMode)
-					SNUtil.log("Affecting component "+c+" in "+go+" @ "+go.transform.position+": "+destroy+"/"+setTo+"("+setA+")", SNUtil.diDLL);
+					SNUtil.log("Affecting component "+c+" in "+go+" @ "+go.transform.position+": D="+destroy+"/"+setTo+"("+setA+")", SNUtil.diDLL);
 				if (c is MonoBehaviour && setA)
 					((MonoBehaviour)c).enabled = setTo;
-				if (destroy)
+				if (destroy == 2)
 					UnityEngine.Object.DestroyImmediate(c);
+				else if (destroy == 1)
+					UnityEngine.Object.Destroy(c);
 			}
 		}
 		
@@ -248,16 +253,24 @@ namespace ReikaKalseki.DIAlterra
 			return gameObject;
 		}
 		
-		public static int removeChildObject(GameObject go, string name) {
-			GameObject find = getChildObject(go, name);
-			int found = 0;
-			while (find != null) {
+		public static int removeChildObject(GameObject go, string name, bool immediate = true) {
+			List<GameObject> li = getChildObjects(go, name);
+			foreach (GameObject find in li) {
 				find.SetActive(false);
-				UnityEngine.Object.DestroyImmediate(find);
-				find = getChildObject(go, name);
-				found++;
+				if (immediate)
+					UnityEngine.Object.DestroyImmediate(find);
+				else
+					UnityEngine.Object.Destroy(find);
 			}
-			return found;
+			return li.Count;
+		}
+		
+		public static List<GameObject> getChildObjects(GameObject go) {
+			List<GameObject> ret = new List<GameObject>();
+			foreach (Transform t in go.transform) {
+				ret.Add(t.gameObject);
+			}
+			return ret;
 		}
 		
 		public static List<GameObject> getChildObjects(GameObject go, string name) {
@@ -376,6 +389,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 			
 		public static GameObject createWorldObject(string id, bool clone = true, bool makeActive = true) {
+			if (string.IsNullOrEmpty(id))
+				throw new Exception("Cannot spawn prefab from null/empty classID!");
 			GameObject prefab = lookupPrefab(id);
 			if (prefab) {
 				GameObject go = clone ? UnityEngine.Object.Instantiate(prefab) : prefab;
@@ -845,6 +860,28 @@ namespace ReikaKalseki.DIAlterra
 				t = t.parent;
 			}
 			return false;
+		}
+		
+		public static void reparentTo(GameObject go, GameObject child) {
+			Vector3 pos = child.transform.position;
+			Quaternion rot = child.transform.rotation;
+			child.transform.SetParent(go.transform);
+			child.transform.position = pos;
+			child.transform.rotation = rot;
+		}
+		
+		public static bool isPrecursor(GameObject go) {
+			//if (go.name.ToLowerInvariant().Contains("precursor"))
+			//	return true;
+			PrefabIdentifier pi = go.GetComponent<PrefabIdentifier>();
+			if (pi == null)
+				return false;
+			string pfb = PrefabData.getPrefab(pi.ClassId);
+			return pfb != null && pfb.Contains("/Precursor/");
+		}
+		
+		public static bool isRootObject(GameObject go) {
+			return (bool)go.GetComponent<LargeWorldEntity>() && !(go.transform.parent && go.transform.parent.gameObject.FindAncestor<LargeWorldEntity>());
 		}
 		
 	}

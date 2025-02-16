@@ -20,6 +20,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static readonly Vector3 DUNES_METEOR = new Vector3(-1125, -380, 1130);
 		public static readonly Vector3 LAVA_DOME = new Vector3(-273, -1355, -152);
+		public static readonly Vector3 SUNBEAM_SITE = new Vector3(301, 15, 1086);
+		public static readonly Vector3 DEGASI_FLOATING_BASE = new Vector3(-763, 20, -1104);
 		
     	public readonly static Vector3 lavaCastleCenter = new Vector3(-49, -1242, 118);
     	public readonly static float lavaCastleInnerRadius = 65;//75;
@@ -152,6 +154,7 @@ batch_id = (19, 17, 16)
 		
 		/** Will not find things without colliders! */
 		public static void getObjectsNear<R>(Vector3 pos, float r, Func<R, bool> getter, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
+			HashSet<GameObject> found = new HashSet<GameObject>();
 			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F)) {
 				if (hit.transform) {
 					GameObject go = UWE.Utils.GetEntityRoot(hit.transform.gameObject);
@@ -159,6 +162,9 @@ batch_id = (19, 17, 16)
 						go = hit.transform.gameObject;
 					if (!go)
 						continue;
+					if (found.Contains(go)) //prevent duplicates
+						continue;
+					found.Add(go);
 					UnityEngine.Object obj = converter == null ? (UnityEngine.Object)go : converter(go);
 					if (obj) {
 						if (getter((R)obj))
@@ -277,6 +283,10 @@ batch_id = (19, 17, 16)
 			return MathUtil.getDistanceToLineSegment(pos, auroraPoint1, auroraPoint2) <= auroraPointRadius+extra;
 		}
 		
+		public static bool isMountainIsland(Vector3 pos) {
+			return pos.y > 0 && ((pos-SUNBEAM_SITE).sqrMagnitude <= 2500 || VanillaBiomes.MOUNTAINS.isInBiome(pos));
+		}
+		
 		public static string getRegionalDescription(Vector3 pos, bool includeDepth) {
 			if ((pos-LAVA_DOME).sqrMagnitude <= 6400)
 				return "Lava Dome";
@@ -392,6 +402,23 @@ batch_id = (19, 17, 16)
 			ParticleSystem p = particle.GetComponent<ParticleSystem>();
 			setParticlesTemporary(p, dur, killOffset);
 			return p;
+		}
+		
+		public static GameObject reparentAllNearTo(string name, Vector3 pos, float r, Predicate<GameObject> check) {
+			GameObject ctr = new GameObject(name);
+			ctr.transform.position = pos;
+			WorldUtil.getObjectsNear<GameObject>(pos, r, go => ObjectUtil.reparentTo(ctr, go), go => ObjectUtil.isRootObject(go) && check.Invoke(go) ? go : null);
+			return ctr;
+		}
+		
+		public static void reparentAllNearTo(GameObject ctr, Vector3 pos, float r, Predicate<GameObject> check) {
+			ctr.transform.position = pos;
+			WorldUtil.getObjectsNear<GameObject>(pos, r, go => ObjectUtil.reparentTo(ctr, go), go => ObjectUtil.isRootObject(go) && check.Invoke(go) ? go : null);
+		}
+		
+		public static GameObject getBatch(int x, int y, int z) {
+			Transform root = LargeWorld.main.transform.parent;
+			return ObjectUtil.getChildObject(root.gameObject, "Batches/Batch "+x+","+y+","+z+" objects");
 		}
 		
 		class TransientParticleTag : MonoBehaviour {

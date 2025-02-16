@@ -85,17 +85,41 @@ namespace ReikaKalseki.DIAlterra
 			obj.SetActive(false);
 			Inventory.main.ForcePickup(obj.GetComponent<Pickupable>());
 		}
-		
-		public static bool removeItem(StorageContainer sc, InventoryItem ii) {
-			return sc.container.DestroyItem(ii.item.GetTechType());
-		}
+		/*
+		public static bool removeItem(ItemsContainer sc, InventoryItem ii) {
+			return sc.DestroyItem(ii.item.GetTechType());
+		}*/
 		
 		public static bool forceRemoveItem(StorageContainer sc, InventoryItem ii) {
-			if (sc.container.RemoveItem(ii.item, true)) {
+			return forceRemoveItem(sc.container, ii);
+		}
+		
+		public static bool forceRemoveItem(ItemsContainer sc, InventoryItem ii) {
+			if (sc.RemoveItem(ii.item, true)) {
 				UnityEngine.Object.Destroy(ii.item.gameObject);
 				return true;
 			}
 			return false;
+		}
+		
+		public static void forEachOfType(ItemsContainer sc, TechType tt, Action<InventoryItem> act) {
+			IList<InventoryItem> il = sc.GetItems(tt);
+			if (il == null || il.Count == 0)
+				return;
+			List<InventoryItem> li = new List<InventoryItem>(il); //recache since may be removing
+			foreach (InventoryItem ii in li) {
+				if (ii != null && ii.item)
+					act.Invoke(ii);
+			}
+		}
+		
+		public static void forEach(ItemsContainer sc, Action<InventoryItem> act) {
+			foreach (KeyValuePair<TechType, ItemsContainer.ItemGroup> kvp in sc._items) {
+				foreach (InventoryItem ii in kvp.Value.items) {
+					if (ii != null && ii.item)
+						act.Invoke(ii);
+				}
+			}
 		}
 		
 	}

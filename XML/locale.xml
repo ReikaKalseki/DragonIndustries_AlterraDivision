@@ -10,6 +10,39 @@
 		
 	</pda>
   </ItemNotDroppable>
+  <BulkheadInoperable>
+	<name>
+		
+	</name>
+	<desc>
+		Bulkhead is inoperable
+	</desc>
+	<pda>
+		
+	</pda>
+  </BulkheadInoperable>
+  <PrecursorCraftPrompt>
+	<name>
+		
+	</name>
+	<desc>
+		Craft
+	</desc>
+	<pda>
+		
+	</pda>
+  </PrecursorCraftPrompt>
+  <PrecursorCraftNoIngredients>
+	<name>
+		
+	</name>
+	<desc>
+		Insufficient Ingredients
+	</desc>
+	<pda>
+		
+	</pda>
+  </PrecursorCraftNoIngredients>
 	<SpineEelDesc>
 		<name>
 			

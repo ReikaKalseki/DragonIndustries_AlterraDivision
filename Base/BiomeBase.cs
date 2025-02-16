@@ -31,9 +31,11 @@ namespace ReikaKalseki.DIAlterra
 			"_Water",
 		};
 		
-		private static readonly Dictionary<string, BiomeBase> biomeList = new Dictionary<string, BiomeBase>();
+		private static readonly Dictionary<string, BiomeBase> biomeMap = new Dictionary<string, BiomeBase>();
+		private static readonly List<BiomeBase> biomeList = new List<BiomeBase>();
+		private static readonly List<CustomBiome> customBiomes = new List<CustomBiome>();
 		
-		private static readonly UnknownBiome UNRECOGNIZED = new UnknownBiome();
+		public static readonly UnknownBiome UNRECOGNIZED = new UnknownBiome();
 
 		public readonly string displayName;
 		public readonly float sceneryValue;
@@ -45,23 +47,34 @@ namespace ReikaKalseki.DIAlterra
 			biomeHoles[new Vector3(1042.7F, -500F, 919.11F)] = VanillaBiomes.MOUNTAINS;
 		}
 		
+		public static IEnumerable<BiomeBase> getAllBiomes() {
+			return new ReadOnlyCollection<BiomeBase>(biomeList);
+		}
+		
+		public static IEnumerable<CustomBiome> getCustomBiomes() {
+			return new ReadOnlyCollection<CustomBiome>(customBiomes);
+		}
+		
 		protected BiomeBase(string d, float deco, params string[] ids) {
 			sceneryValue = deco;
 			displayName = d;
 			foreach (string id in ids)
-				registerID(this, id, SNUtil.tryGetModDLL(true));
+				registerID(this, id);
+			biomeList.Add(this);
+			if (this is CustomBiome)
+				customBiomes.Add((CustomBiome)this);
+			SNUtil.log("Registered biome "+displayName+" with ids "+string.Join(", ", ids), SNUtil.tryGetModDLL(true));
 		}
 		
 		public static bool isUnrecognized(BiomeBase bb) {
 			return bb == UNRECOGNIZED;
 		}
 		
-		private static void registerID(BiomeBase b, string id, System.Reflection.Assembly a) {
+		private static void registerID(BiomeBase b, string id) {
 			foreach (string s in variants) {
 				string key = (id+s).ToLowerInvariant();
-				biomeList[key] = b;
+				biomeMap[key] = b;
 				b.internalNames.Add(key);
-				SNUtil.log("Registered biome "+b.displayName+" with id "+key, a);
 			}
 		}
 		
@@ -102,7 +115,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static BiomeBase getBiome(string id) {
 			id = id.ToLowerInvariant();
-			return biomeList.ContainsKey(id) ? biomeList[id] : UNRECOGNIZED;
+			return biomeMap.ContainsKey(id) ? biomeMap[id] : UNRECOGNIZED;
 		}
 		
 		public abstract bool isCaveBiome();
@@ -126,7 +139,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 	}
 		
-	class UnknownBiome : BiomeBase {
+	public class UnknownBiome : BiomeBase {
 		
 		internal UnknownBiome() : base("[UNRECOGNIZED BIOME]", 0) {
 			

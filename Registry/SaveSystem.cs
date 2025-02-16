@@ -18,14 +18,44 @@ namespace ReikaKalseki.DIAlterra {
 		private static readonly Dictionary<string, SaveHandler> handlers = new Dictionary<string, SaveHandler>();
 		private static readonly Dictionary<string, XmlElement> saveData = new Dictionary<string, XmlElement>();
 		private static readonly List<Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>>> playerSaveHandler = new List<Tuple<Action<Player, XmlElement>, Action<Player, XmlElement>>>();
-		private static readonly string xmlPathRoot;
+		private static readonly string oldSaveDir;
+		private static readonly string saveFileName = "ModData.dat";
 		private static bool loaded;
 		
 		static SaveSystem() {
 			IngameMenuHandler.Main.RegisterOnLoadEvent(handleLoad);
 			IngameMenuHandler.Main.RegisterOnSaveEvent(handleSave);
 			
-			xmlPathRoot = Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "persistentData");
+			oldSaveDir = Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "persistentData");
+			if (Directory.Exists(oldSaveDir) && Directory.Exists(SNUtil.savesDir)) {
+				migrateSaveData();
+			}
+		}
+		
+		private static void migrateSaveData() {
+			SNUtil.log("Migrating save data from "+oldSaveDir+" to "+SNUtil.savesDir);
+			bool all = true;
+			foreach (string dat in Directory.GetFiles(oldSaveDir)) {
+				if (dat.EndsWith(".dat", StringComparison.InvariantCultureIgnoreCase)) {
+					string save = Path.Combine(SNUtil.savesDir, Path.GetFileNameWithoutExtension(dat));
+					if (Directory.Exists(save)) {
+						SNUtil.log("Moving save data "+dat+" to "+save);
+						File.Move(dat, Path.Combine(save, saveFileName));
+					}
+					else {
+						SNUtil.log("No save found for '"+dat+", skipping");
+						all = false;
+					}
+				}
+			}
+			SNUtil.log("Migration complete.");
+			if (all) {
+				SNUtil.log("All files moved, deleting old folder.");
+				Directory.Delete(oldSaveDir);
+			}
+			else {
+				SNUtil.log("Some files could not be moved so the old folder will not be deleted.");
+			}
 		}
 		
 		public static void addSaveHandler(ModPrefab pfb, SaveHandler h) {
@@ -47,7 +77,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void handleSave() {
-			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".dat");
+			string path = Path.Combine(SNUtil.getCurrentSaveDir(), saveFileName);
 			XmlDocument doc = new XmlDocument();
 			XmlElement rootnode = doc.CreateElement("Root");
 			doc.AppendChild(rootnode);
@@ -76,14 +106,14 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			doc.DocumentElement.AppendChild(e);
 			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
-			Directory.CreateDirectory(xmlPathRoot);
 			doc.Save(path);
 		}
 		
 		public static void handleLoad() {
-			string path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".dat");
+			string dir = SNUtil.getCurrentSaveDir();
+			string path = Path.Combine(dir, saveFileName);
 			if (!File.Exists(path))
-				path = Path.Combine(xmlPathRoot, SaveLoadManager.main.currentSlot+".xml");
+				path = Path.Combine(dir, saveFileName.Replace(".dat", ".xml"));
 			if (File.Exists(path)) {
 				XmlDocument doc = new XmlDocument();
 				doc.Load(path);

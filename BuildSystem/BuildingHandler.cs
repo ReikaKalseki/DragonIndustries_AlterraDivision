@@ -9,6 +9,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -68,6 +69,11 @@ namespace ReikaKalseki.DIAlterra
 			addText("/"+key+": "+call.Method.Name);
 		}
 		
+		public void addCommand<T1, T2, T3>(string key, Action<T1, T2, T3> call) {
+			ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<T1, T2, T3>>(key, call);
+			addText("/"+key+": "+call.Method.Name);
+		}
+		
 		public void setEnabled(bool on) {
 			isEnabled = on;
 			foreach (PlacedObject go in items.Values) {
@@ -104,6 +110,16 @@ namespace ReikaKalseki.DIAlterra
 		
 		public void setScale(float sc) {
 			Vector3 sc2 = Vector3.one*sc;
+			foreach (PlacedObject go in items.Values) {
+				if (go.isSelected) {
+					go.obj.transform.localScale = sc2;
+					go.scale = sc2;
+				}
+			}
+		}
+		
+		public void setScaleXYZ(float x, float y, float z) {
+			Vector3 sc2 = new Vector3(x, y, z);
 			foreach (PlacedObject go in items.Values) {
 				if (go.isSelected) {
 					go.obj.transform.localScale = sc2;
@@ -196,6 +212,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public void selectOfID(string id) {
+			foreach (PlacedObject go in items.Values) {
+				if (go.prefabName == id)
+					select(go);
+			}
+		}
+		
 		public void saveSelection(string file) {
 			dumpSome(file, s => s.isSelected);
 		}
@@ -204,10 +227,11 @@ namespace ReikaKalseki.DIAlterra
 			dumpSome(file, s => true);
 		}
 		
-		private void dumpSome(string file, Func<PlacedObject, bool> flag) {
+		private string dumpSome(string file, Func<PlacedObject, bool> flag) {
 			string path = getDumpFile(file);
 			XmlDocument doc = new XmlDocument();
 			XmlElement rootnode = doc.CreateElement("Root");
+			int added = 0;
 			doc.AppendChild(rootnode);
 			SNUtil.log("=================================");
 			SNUtil.log("Building Handler has "+items.Count+" items: ");
@@ -219,6 +243,7 @@ namespace ReikaKalseki.DIAlterra
 						XmlElement e = doc.CreateElement(go.getTagName());
 						go.saveToXML(e);
 						doc.DocumentElement.AppendChild(e);
+						added++;
 					}
 				}
 				catch (Exception e) {
@@ -227,6 +252,46 @@ namespace ReikaKalseki.DIAlterra
 			}
 			SNUtil.log("=================================");
 			doc.Save(path);
+			SNUtil.writeToChat("Saved "+added+" objects to "+path);
+			return path;
+		}
+		
+		public string dumpObjectChildren(string file, GameObject go) {
+			return dumpObjects(file, ObjectUtil.getChildObjects(go));
+		}
+		
+		public string dumpObjects(string file, IEnumerable<GameObject> li) {
+			return dumpPIs(file, li.Select(go => go.GetComponent<PrefabIdentifier>()));
+		}
+		
+		public string dumpNear(string file, float r) {
+			return dumpPIs(file, WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(Player.main.transform.position, r));
+		}
+		
+		public string dumpPIs(string file, IEnumerable<PrefabIdentifier> li) {
+			return dumpPrefabs(file, li.Where(pi => (bool)pi).Select(pi => new PositionedPrefab(pi)));
+		}
+		
+		public string dumpPrefabs(string file, IEnumerable<PositionedPrefab> li) {
+			string path = getDumpFile(file);
+			XmlDocument doc = new XmlDocument();
+			XmlElement rootnode = doc.CreateElement("Root");
+			doc.AppendChild(rootnode);
+			SNUtil.log("=================================");
+			SNUtil.log("Exporting "+li.Count()+" PositionedPrefabs: ");
+			foreach (PositionedPrefab pfb in li) {
+				try {
+					XmlElement e = doc.CreateElement(pfb.getTagName());
+					pfb.saveToXML(e);
+					doc.DocumentElement.AppendChild(e);
+				}
+				catch (Exception e) {
+					throw new Exception(pfb.ToString(), e);
+				}
+			}
+			SNUtil.log("=================================");
+			doc.Save(path);
+			return path;
 		}
 		
 		public void loadFile(string file) {
@@ -264,6 +329,20 @@ namespace ReikaKalseki.DIAlterra
 							SNUtil.log("Applying global "+mb+" to "+b);
 							mb.applyToObject(b);
 							SNUtil.log("Is now "+b.ToString());
+						}
+					break;
+					case "customprefab":
+					case "basicprefab":
+						PositionedPrefab p = (PositionedPrefab)ot;
+						GameObject go0 = p.createWorldObject();
+						PlacedObject p2 = new PlacedObject(go0, ObjectUtil.getPrefabID(go0));
+						addObject(p2);
+						BuilderPlaced sel0 = go0.AddComponent<BuilderPlaced>();
+						sel0.placement = p2;
+						foreach (ManipulationBase mb in globalTransforms) {
+							SNUtil.log("Applying global "+mb+" to "+p2);
+							mb.applyToObject(p2);
+							SNUtil.log("Is now "+p2.ToString());
 						}
 					break;
 					case "generator":
@@ -463,6 +542,30 @@ namespace ReikaKalseki.DIAlterra
 			}
 			return b;
 	    }
+    /*
+	    internal void createFromCachedGo(IEnumerable<GameObject> li) {
+			if (!isEnabled)
+				return;
+			foreach (GameObject go in li) {
+		    	Transform transform = MainCamera.camera.transform;
+				Vector3 position = transform.position;
+				Vector3 forward = transform.forward;
+				Vector3 pos = position+(forward.normalized*7.5F);
+				string id = getPrefabKeyFromID(arg);
+				PlacedObject b = PlacedObject.createNewObject(id);
+				if (b != null) {
+					b.obj.transform.SetPositionAndRotation(pos, Quaternion.identity);
+					registerObject(b);
+					SNUtil.writeToChat("Spawned a "+b);
+					SNUtil.log("Spawned a "+b);
+				}
+			}
+	    }*/
+		
+		public void addRealObjects(IEnumerable<GameObject> li, bool withChildren = false) {
+    		foreach (GameObject go in li)
+				addRealObject(go, withChildren);
+		}
 		
 		public void addRealObject_External(GameObject go, bool withChildren = false) {
 			addRealObject(go, withChildren);

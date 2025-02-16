@@ -20,10 +20,14 @@ namespace ReikaKalseki.DIAlterra {
 		public readonly StoryGoal goal;
 		
 		public Color renderColor = new Color(229/255F, 133/255F, 0); //avali aerogel color
+		public bool showOnScannerRoom = true;
 		
 		private readonly System.Reflection.Assembly ownerMod;
 		
 		private static readonly Dictionary<string, SNUtil.PopupData> popupData = new Dictionary<string, SNUtil.PopupData>();
+		
+		private static bool registeredCommonTechType;
+		public static TechType scannerRoomChitType { get; private set; }
 		
 		public DataChit(string goalKey, string name, string desc, Action<SNUtil.PopupData> a = null) : this(new StoryGoal(goalKey, Story.GoalType.Story, 0), name, desc, a) {
 			
@@ -33,9 +37,16 @@ namespace ReikaKalseki.DIAlterra {
 			goal = g;
 			ownerMod = SNUtil.tryGetModDLL();
 			
+			if (!registeredCommonTechType) {
+				scannerRoomChitType = TechTypeHandler.Main.AddTechType("DataChit", "Data Card", "");
+				SpriteHandler.RegisterSprite(scannerRoomChitType, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/DataChit"));
+				registeredCommonTechType = true;
+			}
+			
 			OnFinishedPatching += () => {
 				SNUtil.PopupData data = new SNUtil.PopupData("Digital Data Downloaded", desc);
 				data.sound = "event:/tools/scanner/scan_complete";
+				data.onUnlock = () => {SNUtil.triggerUnlockPopup(data);};
 				if (a != null)
 					a(data);
 				popupData[ClassID] = data;
@@ -51,7 +62,10 @@ namespace ReikaKalseki.DIAlterra {
 			tgt.goal = goal;
 			tgt.primaryTooltip = FriendlyName;
 			tgt.informGameObject = world;
-			ObjectUtil.removeComponent<ResourceTracker>(world);
+			if (showOnScannerRoom)
+				ObjectUtil.makeMapRoomScannable(world, scannerRoomChitType);
+			else
+				ObjectUtil.removeComponent<ResourceTracker>(world);
 			world.EnsureComponent<DataChitTag>();
 			ObjectUtil.removeChildObject(world, "PDALight");
 			Renderer r = world.GetComponentInChildren<Renderer>();
@@ -74,7 +88,9 @@ namespace ReikaKalseki.DIAlterra {
 		class DataChitTag : MonoBehaviour {
 			
 			void OnStoryHandTarget() {
-				SNUtil.triggerUnlockPopup(popupData[GetComponent<PrefabIdentifier>().ClassId]);
+				SNUtil.PopupData popup = popupData[GetComponent<PrefabIdentifier>().ClassId];
+				if (popup.onUnlock != null)
+					popup.onUnlock.Invoke();
 			}
 			
 		}

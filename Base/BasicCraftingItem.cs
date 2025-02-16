@@ -81,6 +81,13 @@ namespace ReikaKalseki.DIAlterra
 			recipe.Add(new PlannedIngredient(item, amt));
 			return this;
 		}
+		
+		public BasicCraftingItem scaleRecipe(float amt) {
+			numberCrafted = (int)Mathf.Max(1, numberCrafted*amt);
+			foreach (PlannedIngredient pi in recipe)
+				pi.amount = (int)Mathf.Max(1, pi.amount*amt);
+			return this;
+		}
 
 		public sealed override TechType RequiredForUnlock {
 			get {

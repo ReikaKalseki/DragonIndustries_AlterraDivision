@@ -49,12 +49,24 @@ namespace ReikaKalseki.DIAlterra
 			return new Vector4(xyz.x, xyz.y, xyz.z, vec.w);
 		}
 		
+		public static Color exponent(this Color c, float exp) {
+			return new Color(Mathf.Pow(c.r, exp), Mathf.Pow(c.g, exp), Mathf.Pow(c.b, exp), Mathf.Pow(c.a, exp));
+		}
+		
 		public static Color asColor(this Vector3 c) {
 			return new Color(c.x, c.y, c.z);
 		}
 		
+		public static Vector3 exponent(this Vector3 c, float exp) {
+			return new Vector3(Mathf.Pow(c.x, exp), Mathf.Pow(c.y, exp), Mathf.Pow(c.z, exp));
+		}
+		
 		public static Color asColor(this Vector4 c) {
 			return new Color(c.x, c.y, c.z, c.w);
+		}
+		
+		public static Vector4 exponent(this Vector4 c, float exp) {
+			return new Vector4(Mathf.Pow(c.x, exp), Mathf.Pow(c.y, exp), Mathf.Pow(c.z, exp), Mathf.Pow(c.w, exp));
 		}
 		
 		public static Vector3 toVector(this Color c) {
@@ -376,9 +388,9 @@ namespace ReikaKalseki.DIAlterra
 		public static string stringify(object obj) {
 			if (obj == null)
 				return "null";
-			if (obj.isDictionary())
+			else if (obj.isDictionary())
 				return "dict:"+((IDictionary<object, object>)obj).toDebugString();
-			if (obj.isEnumerable())
+			else if (obj.isEnumerable())
 				return "enumerable:"+((IEnumerable<object>)obj).toDebugString();
 			return obj.ToString();
 		}

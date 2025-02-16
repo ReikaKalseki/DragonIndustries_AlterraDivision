@@ -37,6 +37,9 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaBiomes COVE = new VanillaBiomes(900, "Tree Cove", 1F, "LostRiver_TreeCove");
 		public static readonly VanillaBiomes ILZ = new VanillaBiomes(1200, "Inactive Lava Zone", 0.5F, "ILZCorridor", "ILZCorridorDeep", "ILZChamber", "ILZChamber_Dragon", "LavaPit", "LavaFalls", "LavaCastle", "ilzLava");
 		public static readonly VanillaBiomes ALZ = new VanillaBiomes(1400, "Active Lava Zone", 0.4F, "LavaLakes");
+		public static readonly VanillaBiomes AURORA = new VanillaBiomes(0, "Aurora", 0F, "crashedShip"); //not a distinct biome
+		public static readonly VanillaBiomes FLOATISLAND = new VanillaBiomes(0, "Floating Island", 0F, "FloatingIsland");
+		public static readonly VanillaBiomes MOUNTISLAND = new VanillaBiomes(0, "Mountain Island", 0F, "MountainIsland"); //not a distinct biome
 		public static readonly VanillaBiomes VOID = new VanillaBiomes(8192, "Crater Edge", 0F, "void"/*, ""*/);
 		
 		public readonly float averageDepth;

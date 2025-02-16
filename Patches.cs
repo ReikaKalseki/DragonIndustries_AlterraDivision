@@ -1239,6 +1239,10 @@ namespace ReikaKalseki.DIAlterra {
 		
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			if (codes.Count == 1 && codes[0].opcode == OpCodes.Ret) {
+				FileLog.Log("Skipping patch "+MethodBase.GetCurrentMethod().DeclaringType+", Update() was cleared");
+				return codes;
+			}
 			try {
 				PatchLib.redirectPowerHook(codes);
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
@@ -1429,6 +1433,26 @@ namespace ReikaKalseki.DIAlterra {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
 				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onReaperGrabVehicle", false, typeof(ReaperLeviathan), typeof(Vehicle)));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(SubRoot))]
+	[HarmonyPatch("OnTakeDamage")]
+	public static class CyclopsDamageHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onCyclopsDamaged", false, typeof(SubRoot), typeof(DamageInfo)));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {
@@ -1751,6 +1775,8 @@ namespace ReikaKalseki.DIAlterra {
 			try {
 				InstructionHandlers.patchInitialHook(codes, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onItemsLost", false, new Type[0]));
 				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+				
+				//this is a bugfix, they stop at second last item for some reason
 				int idx = InstructionHandlers.getFirstOpcode(codes, 0, OpCodes.Sub);
 				codes.RemoveAt(idx);
 				codes.RemoveAt(idx-1);
@@ -2530,6 +2556,51 @@ namespace ReikaKalseki.DIAlterra {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
 				InstructionHandlers.patchInitialHook(codes, new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onVehicleBayFinish", false, new Type[]{typeof(Constructor), typeof(GameObject)}));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(Creature))]
+	[HarmonyPatch("GetCanSeeObject")]
+	public static class VisibilityToCreatureHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_1));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "canSeeObject", false, new Type[]{typeof(Creature), typeof(GameObject)}));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(AggressiveToPilotingVehicle))]
+	[HarmonyPatch("UpdateAggression")]
+	public static class VehicleVisibilityToCreatureHook1 {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>();
+			try {
+				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "tickPilotedVehicleAggression", false, new Type[]{typeof(AggressiveToPilotingVehicle)}));
+				codes.Add(new CodeInstruction(OpCodes.Ret));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
 			catch (Exception e) {

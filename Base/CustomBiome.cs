@@ -16,16 +16,42 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static float nextMusicChoiceTime = -1;
 		private static VanillaMusic currentMusic = null;
-		private static CustomBiome currentBiome = null;
+		private static CustomBiome currentBiomeForMusic = null;
+		
+		public readonly string biomeName;
+		private readonly System.Reflection.Assembly ownerMod;
+		
+		public Story.BiomeGoal discoveryGoal { get; private set; }
 		
 		protected CustomBiome(string name, float deco) : base(name, deco, name) {
-			
+			biomeName = name;
+			ownerMod = SNUtil.tryGetModDLL();
 		}
 		
 		public abstract double getDistanceToBiome(Vector3 vec);
 		
-		public virtual void register() {
-			
+		public abstract void register();
+		
+		public void onLoad() {
+
+		}
+		
+		public void createDiscoveryStoryGoal(float minStayTime, XMLLocale.LocaleEntry e) {
+			if (e.pda == "#NULL")
+				SNUtil.log("Error - XML entry '"+e.key+"' is missing a sound field: "+e.dump());
+			createDiscoveryStoryGoal(minStayTime, e.desc, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "BiomeGoal_"+biomeName, e.pda).asset);
+		}
+		
+		public void createDiscoveryStoryGoal(float minStayTime, string text, FMODAsset sound) {
+			discoveryGoal = new Story.BiomeGoal();
+			discoveryGoal.key = "Goal_Biome"+biomeName;
+			discoveryGoal.goalType = Story.GoalType.PDA;
+			discoveryGoal.delay = 0;
+			discoveryGoal.biome = biomeName;
+			discoveryGoal.minStayDuration = minStayTime;
+			SNUtil.addVOLine(discoveryGoal, text, sound);
+			StoryHandler.instance.registerTickedGoal(discoveryGoal);
+			SNUtil.log("Created BiomeGoal for "+this);
 		}
 		
 		public virtual float getNextMusicSilencePadding() {
@@ -74,8 +100,8 @@ namespace ReikaKalseki.DIAlterra
 				if (ep) {
 					Vector3 pos = ep.transform.position;
 					CustomBiome b = getBiome(pos) as CustomBiome;
-					bool changed = b != currentBiome;
-					currentBiome = b;
+					bool changed = b != currentBiomeForMusic;
+					currentBiomeForMusic = b;
 					if (changed) {
 						if (currentMusic != null)
 							currentMusic.stop();

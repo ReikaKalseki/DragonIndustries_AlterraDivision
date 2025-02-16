@@ -67,6 +67,7 @@ namespace ReikaKalseki.DIAlterra {
 	    //public static event Action<MusicSelectionCheck> musicBiomeChoiceEvent;
 	    public static event Action<FruitPlantTag> onFruitPlantTickEvent;
 	    public static event Action<ReaperLeviathan, Vehicle> reaperGrabVehicleEvent;
+	    public static event Action<SubRoot, DamageInfo> cyclopsDamageEvent;
 	    public static event Action<FMOD_CustomEmitter> onSoundPlayedEvent;
 	    public static event Action<SolarEfficiencyCheck> solarEfficiencyEvent;
 	    public static event Action<Vehicle, Player> vehicleEnterEvent;
@@ -95,12 +96,12 @@ namespace ReikaKalseki.DIAlterra {
 	    public static event Action<PlayerInput> getPlayerInputEvent;
 	    public static event Action<Bullet, Vehicle> onTorpedoFireEvent;
 	    public static event Action<SeamothTorpedo, Transform> onTorpedoExplodeEvent;
+	    public static event Action<CreatureSeeObjectCheck> canCreatureSeeObjectEvent;
+	    public static event Action<AggressiveToPilotingVehicleCheck> aggressiveToPilotingEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 	    
 	    private static readonly HashSet<TechType> gravTrapTechSet = new HashSet<TechType>();
-		
-	    public static readonly string itemNotDroppableLocaleKey = "ItemNotDroppable";
 		
 		private static bool hasLoadedAWorld = false;
 		private static bool outdatedMods = false;
@@ -617,6 +618,42 @@ namespace ReikaKalseki.DIAlterra {
 	    	public bool preventNormalDrop = false;
 	    	
 	    }
+	    
+	    public class CreatureSeeObjectCheck {
+	    	
+	    	public readonly Creature creature;
+	    	public readonly GameObject target;
+	    	public readonly bool defaultValue;
+	    	public readonly float atDistance;
+	    	
+	    	public bool canSee;
+	    	
+	    	internal CreatureSeeObjectCheck(Creature c, GameObject tgt, bool def, float dist) {
+	    		creature = c;
+	    		target = tgt;
+	    		defaultValue = def;
+	    		atDistance = dist;
+	    		canSee = def;
+	    	}
+	    	
+	    }
+	    
+	    public class AggressiveToPilotingVehicleCheck {
+	    	
+	    	public readonly AggressiveToPilotingVehicle ai;
+	    	public readonly Vehicle vehicle;
+	    	public readonly bool defaultVisiblity;
+	    	
+	    	public bool canTarget;
+	    	
+	    	internal AggressiveToPilotingVehicleCheck(AggressiveToPilotingVehicle ai, Vehicle v, bool def) {
+	    		this.ai = ai;
+	    		vehicle = v;
+	    		defaultVisiblity = def;
+	    		canTarget = def;
+	    	}
+	    	
+	    }
     
 	    public static void onTick(DayNightCycle cyc) {
 	    	if (BuildingHandler.instance.isEnabled) {
@@ -659,6 +696,13 @@ namespace ReikaKalseki.DIAlterra {
 	    	CustomEgg.updateLocale();
 	    	PickedUpAsOtherItem.updateLocale();
 	    	SeamothModule.updateLocale();
+	    	
+	    	StoryHandler.instance.onLoad();
+	    	CustomLocaleKeyDatabase.onLoad();
+	    	
+	    	foreach (CustomBiome cb in BiomeBase.getCustomBiomes())
+	    		cb.onLoad();
+	    	
 	    	/*
     		SNUtil.log("Item goals:", SNUtil.diDLL);
 	    	foreach (Story.ItemGoal g in Story.StoryGoalManager.main.itemGoalTracker.goals)
@@ -673,7 +717,6 @@ namespace ReikaKalseki.DIAlterra {
 	    	foreach (Story.CompoundGoal g in Story.StoryGoalManager.main.compoundGoalTracker.goals)
 	    		SNUtil.log(g.key+" of ["+string.Join(", ",g.preconditions)+"]", SNUtil.diDLL);
 	    	*/
-	    	LanguageHandler.SetLanguageLine("BulkheadInoperable", "Bulkhead is inoperable");
 	    	
 	    	//SaveSystem.populateLoad();
 	    	
@@ -778,6 +821,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	updateNotice.SetColor(Color.yellow);
 	    	
 	    	StoryHandler.instance.tick(ep);
+	    	ScreenFXManager.instance.tick();
 	    	
 	    	if (onPlayerTickEvent != null)
 	    		onPlayerTickEvent.Invoke(ep);
@@ -1080,8 +1124,14 @@ namespace ReikaKalseki.DIAlterra {
 	    	if (fp) {
 	    		fp.gameObject.EnsureComponent<FruitPlantTag>().setPlant(fp);
 	    	}
-	    	if (onSkyApplierSpawnEvent != null)
-	    		onSkyApplierSpawnEvent.Invoke(pk);
+	    	if (onSkyApplierSpawnEvent != null) {
+	    		try {
+	    			onSkyApplierSpawnEvent.Invoke(pk);
+	    		}
+	    		catch (Exception ex) {
+	    			SNUtil.log("Threw error when processing SkyApplier spawn of "+pk.gameObject.GetFullHierarchyPath()+": "+ex.ToString());
+	    		}
+	    	}
 	    }
 	    
 	    //private static bool needsLavaDump = true;
@@ -1311,7 +1361,7 @@ namespace ReikaKalseki.DIAlterra {
 	    	bool flag = Inventory.CanDropItemHere(pp, notify);
 	    	if (pp && IrreplaceableItemRegistry.instance.isIrreplaceable(pp.GetTechType())) {
 	    		if (notify)
-	    			ErrorMessage.AddError(DIMod.locale.getEntry(itemNotDroppableLocaleKey).desc);
+	    			ErrorMessage.AddError(Language.main.Get("ItemNotDroppable"));
 	    		return false;
 	    	}
 	    	if (pp && droppabilityEvent != null) {
@@ -1328,6 +1378,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static void onScanComplete(PDAScanner.EntryData data) {
 	    	if (data != null) {
 	   			TechnologyUnlockSystem.instance.triggerDirectUnlock(data.key);
+	   			TechUnlockTracker.onScan(data);
 	   			if (scanCompleteEvent != null)
 	   				scanCompleteEvent.Invoke(data);
 	    	}
@@ -1911,6 +1962,12 @@ namespace ReikaKalseki.DIAlterra {
 	    	}
 	    }
 	    
+	    public static void onCyclopsDamaged(SubRoot r, DamageInfo d) {
+	    	if (cyclopsDamageEvent != null) {
+	    		cyclopsDamageEvent.Invoke(r, d);
+	    	}
+	    }
+	    
 	    public static void onDockingTriggerCollided(VehicleDockingBay v, Collider other) {
 	    	if (other.isTrigger)
 	    		return;
@@ -2206,7 +2263,7 @@ namespace ReikaKalseki.DIAlterra {
 	   
 	   public static void onRedundantFragmentScan() {
 	   		PDAScanner.ScanTarget tgt = PDAScanner.scanTarget;
-	   		SNUtil.writeToChat(Language.main.Get(PDAScanner.GetEntryData(tgt.techType).blueprint)+" already known");
+	   		SNUtil.writeToChat(Language.main.Get(PDAScanner.GetEntryData(tgt.techType).blueprint)+" already known"); //Language.main.Get("ScannerRedundantScanned")
 	   		RedundantScanEvent r = new RedundantScanEvent();
 	   		if (onRedundantScanEvent != null)
 	   			onRedundantScanEvent.Invoke(r);
@@ -2277,13 +2334,11 @@ namespace ReikaKalseki.DIAlterra {
 	   	foreach (ItemsContainer sc in li) {
 	   		foreach (TechType tt in sc.GetItemTypes()) {
 	   			if (IrreplaceableItemRegistry.instance.isIrreplaceable(tt)) {
-	   				foreach (InventoryItem ii in new List<InventoryItem>(sc.GetItems(tt))) {
-	   					if (ii != null && ii.item) {
-		   					Pickupable pp = ii.item;
-		   					pp.Drop();
-		   					pp.GetComponent<Rigidbody>().isKinematic = true;
-	   					}
-			   		}
+	   				InventoryUtil.forEachOfType(Inventory.main.container, tt, ii => {
+		   				Pickupable pp = ii.item;
+		   				pp.Drop();
+		   				pp.GetComponent<Rigidbody>().isKinematic = true;
+					});
 	   			}
 	   		}
 	   	}
@@ -2325,6 +2380,38 @@ namespace ReikaKalseki.DIAlterra {
 		    	onTorpedoExplodeEvent.Invoke(sm, result);
 		   	return result;
 		}
+	   
+	   public static bool canSeeObject(Creature c, GameObject go) {
+	   		float dist = 0;
+	   		bool ret = c.hasEyes && c.IsInFieldOfView(go, out dist);
+	    	if (canCreatureSeeObjectEvent != null) {
+	    		CreatureSeeObjectCheck e = new CreatureSeeObjectCheck(c, go, ret, dist);
+	    		canCreatureSeeObjectEvent.Invoke(e);
+	    		ret = e.canSee;
+	    	}
+	   		return ret;
+	   }
+	   
+	   public static void tickPilotedVehicleAggression(AggressiveToPilotingVehicle ai) {
+			Player main = Player.main;
+			if (main == null || main.GetMode() != Player.Mode.LockedPiloting) {
+				return;
+			}
+			Vehicle vehicle = main.GetVehicle();
+			if (vehicle == null) {
+				return;
+			}
+			bool can = Vector3.Distance(vehicle.transform.position, ai.transform.position) <= ai.range;
+	    	if (aggressiveToPilotingEvent != null) {
+	    		AggressiveToPilotingVehicleCheck e = new AggressiveToPilotingVehicleCheck(ai, vehicle, can);
+	    		aggressiveToPilotingEvent.Invoke(e);	    		
+	    		can = e.canTarget;
+	    	}
+			if (can) {
+				ai.lastTarget.target = vehicle.gameObject;
+				ai.creature.Aggression.Add(ai.aggressionPerSecond * ai.updateAggressionInterval);
+			}
+	   }
 	   
 	   private static GameObject teleportWithPlayer;
 	   private static PropulsionCannon activePropulsionGun;

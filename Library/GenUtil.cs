@@ -28,11 +28,19 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
-			registerOreWorldgen(ore, ore.isLargeResource, biome, amt, chance);
+			registerPrefabWorldgen(ore, ore.isLargeResource, biome, amt, chance);
 		}
 		
-		public static void registerOreWorldgen(Spawnable sp, bool large, BiomeType biome, int amt, float chance) {
-			registerSlotWorldgen(sp.ClassID, sp.PrefabFileName, sp.TechType, large ? EntitySlot.Type.Medium : EntitySlot.Type.Small, large ? LargeWorldEntity.CellLevel.Medium : LargeWorldEntity.CellLevel.Near, biome, amt, chance);
+		public static void registerPlantWorldgen(BasicCustomPlant ore, BiomeType biome, int amt, float chance) {
+			registerPrefabWorldgen(ore, ore.getSize() == Plantable.PlantSize.Large, biome, amt, chance);
+		}
+		
+		public static void registerPrefabWorldgen(Spawnable sp, bool large, BiomeType biome, int amt, float chance) {
+			registerPrefabWorldgen(sp, large ? EntitySlot.Type.Medium : EntitySlot.Type.Small, large ? LargeWorldEntity.CellLevel.Medium : LargeWorldEntity.CellLevel.Near, biome, amt, chance);
+		}
+		
+		public static void registerPrefabWorldgen(Spawnable sp, EntitySlot.Type type, LargeWorldEntity.CellLevel size, BiomeType biome, int amt, float chance) {
+			registerSlotWorldgen(sp.ClassID, sp.PrefabFileName, sp.TechType, type, size, biome, amt, chance);
 		}
 		
 		public static void registerSlotWorldgen(string id, string file, TechType tech, EntitySlot.Type type, LargeWorldEntity.CellLevel size, BiomeType biome, int amt, float chance) {

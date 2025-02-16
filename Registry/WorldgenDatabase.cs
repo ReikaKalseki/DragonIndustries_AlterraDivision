@@ -29,7 +29,7 @@ namespace ReikaKalseki.DIAlterra
 				IEnumerable<string> files = Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories).Where(isLoadableWorldgenXML);
 				SNUtil.log("Loading worldgen maps from folder '"+folder+"': "+string.Join(", ", files), ownerMod);
 				foreach (string file in files) {
-					if (loadFile != null && !loadFile.Invoke(file)) {
+					if (loadFile != null && !loadFile.Invoke(Path.GetFileNameWithoutExtension(file))) {
 						SNUtil.log("Skipping worldgen map file @ "+file, ownerMod);
 						continue;
 					}
@@ -134,6 +134,17 @@ namespace ReikaKalseki.DIAlterra
 				if (pfb.prefabName == classID) {
 					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
 						ret++;
+				}
+			}
+			return ret;
+		}
+		
+		public List<PositionedPrefab> getPositions(string classID, Vector3? near = null, float dist = -1) {
+			List<PositionedPrefab> ret = new List<PositionedPrefab>();
+			foreach (PositionedPrefab pfb in objects) {
+				if (pfb.prefabName == classID) {
+					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
+						ret.Add(pfb);
 				}
 			}
 			return ret;

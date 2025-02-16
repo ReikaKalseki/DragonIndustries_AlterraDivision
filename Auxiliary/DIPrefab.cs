@@ -66,6 +66,20 @@ namespace ReikaKalseki.DIAlterra
 		
 	}
 	
+	public sealed class ModPrefabContainer : PrefabReference {
+		
+		public readonly ModPrefab prefab;
+		
+		public ModPrefabContainer(ModPrefab s) {
+			prefab = s;
+		}
+		
+		public string getPrefabID() {
+			return prefab.ClassID;
+		}
+		
+	}
+	
 	public sealed class TechTypePrefabContainer : PrefabReference {
 		
 		public readonly TechType tech;
@@ -117,7 +131,7 @@ namespace ReikaKalseki.DIAlterra
 	public sealed class PlannedIngredient {
 		
 		public readonly TechTypeReference item;
-		public readonly int amount;
+		public int amount;
 		
 		public PlannedIngredient(TechTypeReference item, int amt) {
 			this.item = item;

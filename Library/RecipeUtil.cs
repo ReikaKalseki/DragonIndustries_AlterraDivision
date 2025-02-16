@@ -90,6 +90,17 @@ namespace ReikaKalseki.DIAlterra {
 			rec.Ingredients.Add(new Ingredient(add, amt));
 		}
 		
+		public static void addIngredient(TechData rec, TechType add, int amt) {
+			SNUtil.log("Adding "+add+"x"+amt+" to recipe "+rec);
+			foreach (Ingredient i in rec.Ingredients) {
+				if (i.techType == add) {
+					i.amount += amt;
+					return;
+				}
+			}
+			rec.Ingredients.Add(new Ingredient(add, amt));
+		}
+		
 		public static void ensureIngredient(TechType recipe, TechType item, int amt) {
 			TechData rec = getRecipe(recipe);
 			cacheOriginalRecipe(recipe, rec);
@@ -203,7 +214,7 @@ namespace ReikaKalseki.DIAlterra {
 					cacheRecipeNode(getRootNode(t), t);
 				}
 			}
-			return nodes[item];
+			return nodes.ContainsKey(item) ? nodes[item] : null;
 		}
 		
 		private static void cacheRecipeNode(CraftNode node, CraftTree.Type type) {
@@ -365,6 +376,15 @@ namespace ReikaKalseki.DIAlterra {
 			List<Ingredient> ret = new List<Ingredient>();
 			foreach (TechType tt in amt.getItems()) {
 				ret.Add(new Ingredient(tt, amt.getCount(tt)));
+			}
+			return ret;
+		}
+		
+		public static Dictionary<TechType, int> getIngredientsDict(TechData td) {
+			Dictionary<TechType, int> ret = new Dictionary<TechType, int>();
+			foreach (Ingredient i in td.Ingredients) {
+				int has = ret.ContainsKey(i.techType) ? ret[i.techType] : 0;
+				ret[i.techType] = has+i.amount;
 			}
 			return ret;
 		}

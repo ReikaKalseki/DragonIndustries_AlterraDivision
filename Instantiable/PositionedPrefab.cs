@@ -136,5 +136,39 @@ namespace ReikaKalseki.DIAlterra
 		protected virtual void setPrefabName(string name) {
 			prefabName = name;
 		}
+		
+		#region Equals and GetHashCode implementation
+		public override int GetHashCode() {
+			int hashCode = 0;
+				unchecked {
+					if (prefabName != null)
+						hashCode += 1000000007 * prefabName.GetHashCode();
+					hashCode += 1000000009 * position.GetHashCode();
+					hashCode += 1000000021 * rotation.GetHashCode();
+					hashCode += 1000000033 * scale.GetHashCode();
+				}
+					return hashCode;
+		}
+
+		public override bool Equals(object obj) {
+			PositionedPrefab other = obj as PositionedPrefab;
+			if (other == null)
+				return false;
+			return this.prefabName == other.prefabName && (position-other.position).sqrMagnitude < 0.0001 && (rotation == other.rotation) && (scale-other.scale).sqrMagnitude < 0.0001;
+		}
+
+		public static bool operator ==(PositionedPrefab lhs, PositionedPrefab rhs) {
+			if (ReferenceEquals(lhs, rhs))
+				return true;
+			if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null))
+				return false;
+			return lhs.Equals(rhs);
+		}
+
+		public static bool operator !=(PositionedPrefab lhs, PositionedPrefab rhs) {
+			return !(lhs == rhs);
+		}
+
+		#endregion
 	}
 }

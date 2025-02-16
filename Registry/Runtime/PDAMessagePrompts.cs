@@ -21,14 +21,16 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		public void addPDAMessage(XMLLocale.LocaleEntry e) {
-			addPDAMessage(e.key, e.desc, e.pda);
+		public StoryGoal addPDAMessage(XMLLocale.LocaleEntry e) {
+			return addPDAMessage(e.key, e.desc, e.pda);
 		}
 		
-		public void addPDAMessage(string key, string text, string soundFile) {
+		public StoryGoal addPDAMessage(string key, string text, string soundFile) {
 			SNUtil.log("Constructing PDA message "+key);
-			StoryGoal item = SNUtil.addVOLine(key, Story.GoalType.PDA, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "prompt_"+key, soundFile).asset);
+			StoryGoal item = new StoryGoal(key, Story.GoalType.PDA, 0);
+			SNUtil.addVOLine(item, text, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "prompt_"+key, soundFile).asset);
 			mappings[key] = item;
+			return item;
 		}
 		
 		public StoryGoal getMessage(string key) {
