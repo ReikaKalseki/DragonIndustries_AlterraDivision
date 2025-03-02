@@ -21,37 +21,49 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private Sprite[] spr = null;
 		
-		internal static readonly Dictionary<string, Action<HolographicControlTag>> actionData = new Dictionary<string, Action<HolographicControlTag>>();
-		internal static readonly Dictionary<string, Func<HolographicControlTag, bool>> validityData = new Dictionary<string, Func<HolographicControlTag, bool>>();
-		internal static readonly Dictionary<string, Sprite[]> icons = new Dictionary<string, Sprite[]>();
+		internal static readonly Dictionary<string, HolographicControl> controlTypes = new Dictionary<string, HolographicControl>();
+		
+		internal readonly Action<HolographicControlTag> actionData;
+		internal readonly Func<HolographicControlTag, bool> validityData;
+		internal readonly bool isToggleable;
+		internal Sprite[] icons;
 		internal static readonly Sprite defaultOffIcon = Sprite.Create(TextureManager.getTexture(SNUtil.diDLL, "Textures/HoloButton_false"), new Rect(0, 0, 200, 200), new Vector2(0, 0));
 		internal static readonly Sprite defaultOnIcon = Sprite.Create(TextureManager.getTexture(SNUtil.diDLL, "Textures/HoloButton_true"), new Rect(0, 0, 200, 200), new Vector2(0, 0));
 	        
-		public HolographicControl(string name, string desc, Action<HolographicControlTag> a, Func<HolographicControlTag, bool> f) : base("HoloControl_"+name, "Holographic Control - "+name, desc) {
+		public HolographicControl(string name, string desc, bool tg, Action<HolographicControlTag> a, Func<HolographicControlTag, bool> f) : base("HoloControl_"+name, "Holographic Control - "+name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
 			
+			isToggleable = tg;
+			actionData = a;
+			validityData = f;
+			if (spr != null) {
+				icons = spr;
+			}
+			else {
+				icons = isToggleable ? new Sprite[]{ defaultOffIcon, defaultOnIcon } : new Sprite[]{ defaultOffIcon };
+			}
+			
 			OnFinishedPatching += () => {
+				controlTypes[ClassID] = this;
 				LanguageHandler.Main.SetLanguageLine("holocontrol_"+ClassID, desc);
-				actionData[ClassID] = a;
-				validityData[ClassID] = f;
-				if (spr != null) {
-					icons[ClassID] = spr;
-				}
-				else {
-					icons[ClassID] = new Sprite[]{defaultOffIcon, defaultOnIcon};
-				}
 				SaveSystem.addSaveHandler(ClassID, new SaveSystem.ComponentFieldSaveHandler<HolographicControlTag>().addField("isToggled"));
 			};
 	    }
 		
 		public HolographicControl setIcons(string pathAndName, int size) {
-			Sprite off = Sprite.Create(TextureManager.getTexture(ownerMod, pathAndName+"_false"), new Rect(0, 0, size, size), new Vector2(0, 0));
-			Sprite on = Sprite.Create(TextureManager.getTexture(ownerMod, pathAndName+"_true"), new Rect(0, 0, size, size), new Vector2(0, 0));
-			return setIcons(off, on);
+			if (isToggleable) {
+				Sprite off = Sprite.Create(TextureManager.getTexture(ownerMod, pathAndName+"_false"), new Rect(0, 0, size, size), new Vector2(0, 0));
+				Sprite on = Sprite.Create(TextureManager.getTexture(ownerMod, pathAndName+"_true"), new Rect(0, 0, size, size), new Vector2(0, 0));
+				return setIcons(off, on);
+			}
+			else {
+				icons = new Sprite[]{Sprite.Create(TextureManager.getTexture(ownerMod, pathAndName), new Rect(0, 0, size, size), new Vector2(0, 0))};
+				return this;
+			}
 		}
 		
 		public HolographicControl setIcons(Sprite off, Sprite on) {
-			spr = new Sprite[]{off, on};
+			icons = new Sprite[]{off, on};
 			return this;
 		}
 			
@@ -76,7 +88,7 @@ namespace ReikaKalseki.DIAlterra {
 			gph.transform.SetParent(world.transform);
 			gph.transform.localScale = new Vector3(0.0025F, 0.0025F, 1F);
 			Image img = gph.EnsureComponent<Image>();
-			img.sprite = icons[ClassID][0];
+			img.sprite = icons[0];
 			SphereCollider box = gph.EnsureComponent<SphereCollider>();
 			box.center = Vector3.zero;
 			box.radius = 0.5F;
@@ -86,16 +98,53 @@ namespace ReikaKalseki.DIAlterra {
 			gph.EnsureComponent<HolographicControlTag>();
 			return world;
 	    }
+		
+		public override string ToString() {
+			return "Button_"+ClassID;
+		}
+
+		
+		public static HolographicControlTag addButton(GameObject box, HolographicControl control) {
+			foreach (PrefabIdentifier pi in box.transform.GetComponentsInChildren<PrefabIdentifier>()) {
+				if (pi && pi.classId == control.ClassID) {
+					HolographicControlTag tag = pi.GetComponentInChildren<HolographicControlTag>();
+					if (tag)
+						return tag;
+					else
+						UnityEngine.Object.Destroy(pi.gameObject);
+				}
+			}
+			GameObject btn = ObjectUtil.createWorldObject(control.ClassID);
+			HolographicControlTag com = btn.GetComponentInChildren<HolographicControl.HolographicControlTag>();
+			btn.transform.SetParent(box.transform);
+			return com;
+		}
+		
+		public static HolographicControlTag[] addButtons(GameObject box, params HolographicControl[] control) {
+			HolographicControlTag[] add = new HolographicControlTag[control.Length];
+			for (int i = 0; i < add.Length; i++) {
+				add[i] = addButton(box, control[i]);
+			}
+			return add;
+		}
 	
 		public class HolographicControlTag : MonoBehaviour, IHandTarget {
 			
 			private bool isToggled;
 			
+			public HolographicControl controlRef { get; private set; }
+			
 			public void setState(bool toggle) {
+				if (!controlRef.isToggleable)
+					return;
 				if (toggle != isToggled)
-					GetComponent<Image>().sprite = HolographicControl.icons[GetComponentInParent<PrefabIdentifier>().ClassId][toggle ? 1 : 0];
+					GetComponent<Image>().sprite = controlRef.icons[toggle ? 1 : 0];
 				isToggled = toggle;
 				base.SendMessageUpwards("SetHolographicControlState", this, SendMessageOptions.DontRequireReceiver);
+			}
+			
+			void Start() {
+				controlRef = HolographicControl.controlTypes[GetComponentInParent<PrefabIdentifier>().ClassId];
 			}
 			
 			public bool getState() {
@@ -112,17 +161,17 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			
 			public void OnHandHover(GUIHand hand) {
-				HandReticle.main.SetInteractText("holocontrol_"+GetComponentInParent<PrefabIdentifier>().ClassId);
+				HandReticle.main.SetInteractText("holocontrol_"+controlRef.ClassID);
 				HandReticle.main.SetIcon(HandReticle.IconType.Interact, 1f);
 			}
 		
 			public void OnHandClick(GUIHand hand) {
-				HolographicControl.actionData[GetComponentInParent<PrefabIdentifier>().ClassId].Invoke(this);
-				SoundManager.playSoundAt(SoundManager.buildSound("event:/sub_module/fabricator/fabricator_click"), gameObject.transform.position);
+				controlRef.actionData.Invoke(this);
+				SoundManager.playSoundAt(SoundManager.buildSound("event:/sub_module/fabricator/fabricator_click"), transform.position);
 			}
 			
 			public bool isStillValid() {
-				return HolographicControl.validityData[GetComponentInParent<PrefabIdentifier>().ClassId].Invoke(this);
+				return controlRef.validityData.Invoke(this);
 			}
 			
 			public void destroy() {

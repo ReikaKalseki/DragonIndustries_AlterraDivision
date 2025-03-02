@@ -635,6 +635,15 @@ namespace ReikaKalseki.DIAlterra
 					return null;
 				}
 			}
+			if (id.StartsWith("deco_", StringComparison.InvariantCultureIgnoreCase)) {
+				try {
+					return ((DecoPlants)typeof(DecoPlants).GetField(id.Substring(5).ToUpper()).GetValue(null)).prefab;
+				}
+				catch (Exception ex) {
+					SNUtil.log("Unable to fetch deco flora field '"+id+"': "+ex);
+					return null;
+				}
+			}
 			if (id.StartsWith("fauna_", StringComparison.InvariantCultureIgnoreCase)) {
 				try {
 					return ((VanillaCreatures)typeof(VanillaCreatures).GetField(id.Substring(6).ToUpper()).GetValue(null)).prefab;

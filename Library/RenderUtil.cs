@@ -15,6 +15,7 @@ namespace ReikaKalseki.DIAlterra
 	public static class RenderUtil {
 		
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
+		private static readonly HashSet<string> warnNoTextures = new HashSet<string>();
 		
 		public static void setEmissivity(Renderer r, float amt, HashSet<int> matIndices = null) {
 			setEmissivity(r, amt, amt, matIndices);
@@ -155,8 +156,12 @@ namespace ReikaKalseki.DIAlterra
 			Dictionary<int,string> dict = null;
 			if (pfb is MultiTexturePrefab)
 				dict = ((MultiTexturePrefab)pfb).getTextureLayers(r);
-			if (!swapTextures(pfb.getOwnerMod(), r, path, dict))
-				SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb, pfb.getOwnerMod());
+			if (!swapTextures(pfb.getOwnerMod(), r, path, dict)) {
+				if (!warnNoTextures.Contains(pfb.ClassID)) {
+					SNUtil.log("NO CUSTOM TEXTURES FOUND in "+path+": "+pfb, pfb.getOwnerMod());
+					warnNoTextures.Add(pfb.ClassID);
+				}
+			}
 			
 			if (pfb.glowIntensity > 0) {
 				setEmissivity(r, pfb.glowIntensity);

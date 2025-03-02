@@ -74,6 +74,7 @@ namespace ReikaKalseki.DIAlterra {
 			    	addShader<WarpScreenFX, WarpScreenFXController>(out warpShader, out warpController);
 			    	addShader<EndSequenceWarpScreenFX, EndSequenceWarpScreenFXController>(out endSequenceShader, out endSequenceController);
 			    	addShader<TeleportScreenFX, TeleportScreenFXController>(out teleportShader, out teleportController);
+			    	addShader<RadialBlurScreenFX, RadialBlurScreenFXController>(out radialShader, out radialController);
 			    	
 			    	shaders[mesmerShader].onStopOverride = () => {if (mesmerShader.mat) mesmerShader.mat.SetVector("_ColorStrength", defaultMesmerShaderColors);};
 			    	shaders[smokeShader].onStopOverride = () => {if (smokeShader.mat) smokeShader.mat.color = defaultSmokeShaderColors;};

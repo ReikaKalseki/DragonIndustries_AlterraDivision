@@ -31,8 +31,6 @@ namespace ReikaKalseki.DIAlterra
 		
 		protected readonly Assembly ownerMod;
 		
-		private static readonly Dictionary<string, BasicCraftingItem> registry = new Dictionary<string, BasicCraftingItem>();
-		
 		public BasicCraftingItem(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
 			
 		}

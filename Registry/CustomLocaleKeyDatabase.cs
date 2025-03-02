@@ -24,12 +24,12 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void registerKey(XMLLocale.LocaleEntry e) {
-			localeKeys[e.key] = e.desc;
-			SNUtil.log("Mapped locale key '"+e.key+"' to \""+e.desc+"\"");
+			registerKey(e.key, e.desc);
 		}
 		
 		public static void registerKey(string key, string text) {
 			localeKeys[key] = text;
+			SNUtil.log("Mapped locale key '"+key+"' to \""+text+"\"", SNUtil.diDLL);
 		}
 		
 		public static void onLoad() {

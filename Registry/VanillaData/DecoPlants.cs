@@ -32,6 +32,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly DecoPlants BRANCHING_BUSH_2 = new DecoPlants("aa1abbb9-716c-44b8-a2b8-cb4d9d0f22bb");
 		public static readonly DecoPlants SEASHELL_FAN = new DecoPlants("be8b0e66-0cde-428b-be78-9d6bf06eaef4");
 		public static readonly DecoPlants TANGLE_BUSH = new DecoPlants("c87e584c-7e38-4589-b408-8eca51f474c1"); //blue with forked spiraling red ends
+		public static readonly DecoPlants MUSHROOM_VASE_STRANDS = new DecoPlants("898efb6d-b57b-41a3-9d3e-753fdc537651"); //https://i.imgur.com/3l00bw4.jpeg
 		
 		public static readonly DecoPlants CORAL_BRANCH = new DecoPlants(""); //forking flat branch with a "border"
 		

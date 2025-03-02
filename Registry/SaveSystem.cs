@@ -84,7 +84,7 @@ namespace ReikaKalseki.DIAlterra {
 			foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {	
 				SaveHandler sh = getHandler(pi, false);
 				if (sh != null) {
-					SNUtil.log("Found "+sh+" save handler for "+pi.ClassId, SNUtil.diDLL);
+					//SNUtil.log("Found "+sh+" save handler for "+pi.ClassId, SNUtil.diDLL);
 					sh.data = doc.CreateElement("object");
 					sh.data.SetAttribute("objectID", pi.Id);
 					sh.save(pi);
@@ -106,6 +106,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			doc.DocumentElement.AppendChild(e);
 			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
+			Directory.GetParent(path).Create();
 			doc.Save(path);
 		}
 		

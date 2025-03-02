@@ -63,6 +63,7 @@ namespace ReikaKalseki.DIAlterra
 		
 			public PingType signalType {get; private set;}
 			internal SignalHolder signalHolder {get; private set;}
+			internal GenericSignalHolder genericSignalHolder {get; private set;}
 			
 			internal PingInstance signalInstance;
 			internal SignalInitializer initializer;
@@ -114,10 +115,24 @@ namespace ReikaKalseki.DIAlterra
 				maxDistance = maxDist;
 				
 				signalHolder = new SignalHolder(pfb, this).registerPrefab();
+				genericSignalHolder = new GenericSignalHolder(this);
+				genericSignalHolder.Patch();
 				
 				if (pdaEntry != null)
 					pdaEntry.register();
 				SNUtil.log("Registered signal "+this);
+			}
+			
+			public GameObject spawnGenericSignalHolder(Vector3 pos) {
+				GameObject go = genericSignalHolder.GetGameObject();
+				go.SetActive(true);
+				
+				go.transform.position = pos;
+				PingInstance pi = go.GetComponent<PingInstance>();
+				pi.origin = go.transform;
+				pi.displayPingInManager = true;
+				pi.SetVisible(true);
+				return go;
 			}
 			
 			public void addWorldgen(Quaternion? rot = null) {
@@ -256,6 +271,63 @@ namespace ReikaKalseki.DIAlterra
 			internal SignalHolder registerPrefab() {
 				Patch();
 				return this;
+			}
+		}
+		
+		internal class GenericSignalHolder : Spawnable {
+			
+			private readonly ModSignal signal;
+	       
+			internal GenericSignalHolder(ModSignal s) : base("genericsignalholder_"+s.id, "", "") {
+				signal = s;
+		    }
+	
+			public override GameObject GetGameObject() {
+				GameObject go = new GameObject("Signal_"+signal.id+"(Clone)");
+				go.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
+				go.EnsureComponent<TechTag>().type = TechType;
+				go.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.Global;
+				
+				PingInstance ping = go.EnsureComponent<PingInstance>();
+				ping.pingType = signal.signalType;//PingType.Beacon;
+				PingHandler.RegisterNewPingType("", null);
+				//ping.displayPingInManager = false;
+				ping.colorIndex = 0;
+				ping.origin = go.transform;
+				ping.minDist = 18f;
+				ping.maxDist = 1;
+				
+				GenericSignalInitializer si = go.EnsureComponent<GenericSignalInitializer>();
+				si.ping = ping;
+				si.signal = signal;
+				
+				return go;
+			}
+		}
+		
+		internal class GenericSignalInitializer : MonoBehaviour {
+		  
+			internal PingInstance ping;
+			
+			internal ModSignal signal;
+		  
+			private void Start() {
+				if (ping == null) {
+					//SNUtil.log("Ping was null, refetch");
+					ping = gameObject.FindAncestor<PingInstance>();
+					//SNUtil.log("TT is now "+ping.pingType);
+				}
+				if (ping != null && signal == null) {
+					//SNUtil.log("Signal was null, refetch");
+					signal = SignalManager.getSignal(SignalManager.types[ping.pingType]);
+				}
+				SNUtil.log("Starting signal init of "+signal+" / "+ping, SNUtil.diDLL);
+		    	ping.SetLabel(signal.longName);
+		    	
+				bool available = signal.storyGate == null || StoryGoalManager.main.completedGoals.Contains(signal.storyGate);
+				ping.displayPingInManager = available;
+				if (!available)
+					ping.SetVisible(false);
 			}
 		}
 		

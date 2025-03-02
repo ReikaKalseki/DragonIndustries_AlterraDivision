@@ -90,8 +90,10 @@ namespace ReikaKalseki.DIAlterra
 			validateCoords(gen.position);
 			Action<GameObject> call = go => {
 				UnityEngine.Object.Destroy(go);
-				SNUtil.log("Running world generator "+gen);
-				gen.generate(new List<GameObject>());
+				SNUtil.log("Running world generator "+gen, SNUtil.diDLL);
+				List<GameObject> li = new List<GameObject>();
+				gen.generate(li);
+				SNUtil.log("Generated approximately "+li.Count+" objects.", SNUtil.diDLL);
 			};
 			SpawnInfo info = new SpawnInfo(VanillaResources.LIMESTONE.prefab, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);

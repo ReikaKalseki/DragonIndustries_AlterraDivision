@@ -478,6 +478,8 @@ namespace ReikaKalseki.DIAlterra
 			if (!PDAScanner.GetPartialEntryByKey(entryData.key, out entry)) {
 				entry = PDAScanner.Add(entryData.key, 0);
 			}
+			if (entry == null)
+				return;
 			entry.unlocked = steps;
 			if (entry.unlocked >= entryData.totalFragments) {
 				PDAScanner.partial.Remove(entry);
@@ -487,6 +489,26 @@ namespace ReikaKalseki.DIAlterra
 			else {
 				PDAScanner.NotifyProgress(entry);
 			}
+		}
+		
+		public static bool match(string s, string seek) {
+			return s == seek || (!string.IsNullOrEmpty(s) && !string.IsNullOrEmpty(seek) && (seek[0] == '*' && s.EndsWith(seek.Substring(1), StringComparison.InvariantCulture)) || (seek[seek.Length-1] == '*' && s.StartsWith(seek.Substring(0, seek.Length-1), StringComparison.InvariantCulture)));
+		}
+		
+		public static bool match(PrefabIdentifier pi, string id) {
+			return pi && match(pi.ClassId, id);
+		}
+		
+		public static bool match(GameObject go, TechType tt) {
+			return CraftData.GetTechType(go) == tt;
+		}
+		
+		public static bool match(GameObject go, params TechType[] tts) {
+			TechType has = CraftData.GetTechType(go);
+			foreach (TechType tt in tts)
+				if (has == tt)
+					return true;
+			return false;
 		}
 		
 	}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
+using System.Linq;
 using System.Reflection;
 
 using System.Collections.Generic;
@@ -153,6 +154,14 @@ namespace ReikaKalseki.DIAlterra
 					return (T)Convert.ChangeType(element.getFloat(key, fall), t);
 				}
 				throw new Exception("Undefined data type '"+t+"'");
+			}
+			
+			public IEnumerable<KeyValuePair<string, string>> getFields() {
+				List<KeyValuePair<string, string>> li = new List<KeyValuePair<string, string>>();
+				foreach (XmlElement e in element.ChildNodes) {
+					li.Add(new KeyValuePair<string, string>(e.Name, e.InnerText.Trim()));
+				}
+				return li;
 			}
 			
 		}

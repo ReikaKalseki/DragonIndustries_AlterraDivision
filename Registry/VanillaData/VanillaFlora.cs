@@ -85,6 +85,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		//clover 3b332e41-8d1b-4c7d-a132-3c98ab41c63d
 		
+		//blue illum trios 99a721b1-819e-485a-af9f-1dbbe9507e5b
+		
 		//yellow leafy thing 7ce83863-b4f2-4d46-9f46-1830799f3e5f 4d0c8cbd-6127-4681-9d86-d9175e6df722
 		
 		//red tipped leaf bush, land 559fe0c7-1754-40f5-9453-b537900b3ac4 83f68b50-b037-4654-91db-2b378b67adeb

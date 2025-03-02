@@ -122,7 +122,7 @@ batch_id = (19, 17, 16)
 			Avoid using this with components that will result in many findings, as you then end up iterating a large list. Use the getter version instead.
 		 */
 		public static HashSet<C> getObjectsNearWithComponent<C>(Vector3 pos, float r) where C : MonoBehaviour {
-			return getObjectsNear(pos, r, go => go.GetComponentInChildren<C>());
+			return getObjectsNear(pos, r, go => UWE.Utils.GetComponentInHierarchy<C>(go));
 		}
 		
 		/** Will not find things without colliders! */
@@ -138,7 +138,7 @@ batch_id = (19, 17, 16)
 		/** Will not find things without colliders! */
 		public static HashSet<R> getObjectsNear<R>(Vector3 pos, float r, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
 			HashSet<R> set = new HashSet<R>();
-			getObjectsNear(pos, r, obj => set.Add(obj), converter);
+			getObjectsNear(pos, r, go => {set.Add(go); return false;}, converter);
 			return set;
 		}
 		

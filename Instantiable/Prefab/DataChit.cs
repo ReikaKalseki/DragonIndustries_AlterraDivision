@@ -87,6 +87,11 @@ namespace ReikaKalseki.DIAlterra {
 	
 		class DataChitTag : MonoBehaviour {
 			
+			void Start() {
+				if (GetComponent<ResourceTracker>())
+					ObjectUtil.makeMapRoomScannable(gameObject, DataChit.scannerRoomChitType).Register();
+			}
+			
 			void OnStoryHandTarget() {
 				SNUtil.PopupData popup = popupData[GetComponent<PrefabIdentifier>().ClassId];
 				if (popup.onUnlock != null)

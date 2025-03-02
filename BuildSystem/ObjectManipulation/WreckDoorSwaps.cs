@@ -109,7 +109,8 @@ namespace ReikaKalseki.DIAlterra
 						panel.transform.position = put.transform.position;
 						panel.transform.rotation = put.transform.rotation;
 						WeldableWallPanelGeneric weld = panel.EnsureComponent<WeldableWallPanelGeneric>();
-						//FIXME finish
+						LiveMixin lv = weld.GetComponentInChildren<LiveMixin>();
+						lv.data.canResurrect = true;
 					}
 				}
 			}

@@ -370,6 +370,19 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
+		public static Vector3 getClosest(this IEnumerable<Vector3> li, Vector3 pos) {
+			Vector3 ret = Vector3.zero;
+			float distSq = float.PositiveInfinity;
+			foreach (Vector3 v in li) {
+				float dd = (v-pos).sqrMagnitude;
+				if (dd < distSq) {
+					distSq = dd;
+					ret = v;
+				}
+			}
+			return ret;
+		}
+		
 		public static E[] addToArray<E>(this E[] arr, E add) {
 			List<E> li = new List<E>(arr.ToList());
 			li.Add(add);

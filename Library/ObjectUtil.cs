@@ -70,7 +70,7 @@ namespace ReikaKalseki.DIAlterra
 	    	return go;
 	    }
 		
-		public static void makeMapRoomScannable(GameObject go, TechType tt, bool moving = false) {
+		public static ResourceTracker makeMapRoomScannable(GameObject go, TechType tt, bool moving = false) {
 			ResourceTracker res = go.EnsureComponent<ResourceTracker>();
 			res.prefabIdentifier = go.GetComponent<PrefabIdentifier>();
 			res.techType = tt;
@@ -79,6 +79,7 @@ namespace ReikaKalseki.DIAlterra
 			res.rb = go.GetComponentInChildren<Rigidbody>();
 			if (moving)
 				res.gameObject.EnsureComponent<ResourceTrackerUpdater>().tracker = res;
+			return res;
 		}
 		
 		public static bool isPDA(GameObject go) {
@@ -107,6 +108,15 @@ namespace ReikaKalseki.DIAlterra
 					return includeFoundations;
 				default:
 					return false;
+			}
+		}
+		
+		public static void stripAllExcept(GameObject go, params Type[] except) {
+			HashSet<Type> li = except.ToSet();
+			foreach (Component c in go.GetComponentsInChildren<Component>()) {
+				if (c is Transform || li.Contains(c.GetType()))
+					continue;
+				UnityEngine.Object.DestroyImmediate(c);
 			}
 		}
 		
@@ -142,11 +152,11 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public static void dumpObjectData(GameObject go) {
-			dumpObjectData(go, 0);
+		public static void dumpObjectData(GameObject go, bool includeChildren = true) {
+			dumpObjectData(go, 0, includeChildren);
 		}
 		
-		private static void dumpObjectData(GameObject go, int indent) {
+		private static void dumpObjectData(GameObject go, int indent, bool includeChildren = true) {
 			if (!go) {
 				SNUtil.log("null object");
 				return;
@@ -189,8 +199,10 @@ namespace ReikaKalseki.DIAlterra
 				SNUtil.log("position: "+go.transform.position, SNUtil.diDLL, indent);
 				SNUtil.log("transform object: "+go.transform.gameObject, SNUtil.diDLL, indent);
 				for (int i = 0; i < go.transform.childCount; i++) {
-					SNUtil.log("child object #"+i+": ", SNUtil.diDLL, indent);
-					dumpObjectData(go.transform.GetChild(i).gameObject, indent+3);
+					GameObject ch = go.transform.GetChild(i).gameObject;
+					SNUtil.log("child object #"+i+": "+(includeChildren ? "" : ch.name), SNUtil.diDLL, indent);
+					if (includeChildren)
+						dumpObjectData(ch, indent+3);
 				}
 			}
 		}
@@ -253,8 +265,8 @@ namespace ReikaKalseki.DIAlterra
 			return gameObject;
 		}
 		
-		public static int removeChildObject(GameObject go, string name, bool immediate = true) {
-			List<GameObject> li = getChildObjects(go, name);
+		public static int removeChildObject(GameObject go, string name, bool immediate = true, bool recursive = true) {
+			List<GameObject> li = getChildObjects(go, name, recursive);
 			foreach (GameObject find in li) {
 				find.SetActive(false);
 				if (immediate)
@@ -273,7 +285,7 @@ namespace ReikaKalseki.DIAlterra
 			return ret;
 		}
 		
-		public static List<GameObject> getChildObjects(GameObject go, string name) {
+		public static List<GameObject> getChildObjects(GameObject go, string name, bool recursive = false) {
 			bool startWild = name[0] == '*';
 			bool endWild = name[name.Length-1] == '*';
 			string seek = name;
@@ -285,6 +297,8 @@ namespace ReikaKalseki.DIAlterra
 			List<GameObject> ret = new List<GameObject>();
 			foreach (Transform t in go.transform) {
 				string n = t.gameObject.name;
+				n = n.Replace("(Placeholder)", "");
+				n = n.Replace("(Clone)", "");
 				bool match = false;
 				if (startWild && endWild) {
 					match = n.Contains(seek);
@@ -302,11 +316,16 @@ namespace ReikaKalseki.DIAlterra
 				if (match) {
 					ret.Add(t.gameObject);
 				}
+				if (recursive && (startWild || endWild)) {
+					ret.AddRange(getChildObjects(t.gameObject, name, true));
+				}
 			}
 			return ret;
 		}
 		
 		public static GameObject getChildObject(GameObject go, string name) {
+			if (!go)
+				return null;
 			if (name == "*")
 				return go.transform.childCount > 0 ? go.transform.GetChild(0).gameObject : null;
 			bool startWild = name[0] == '*';
@@ -783,6 +802,10 @@ namespace ReikaKalseki.DIAlterra
 			return allowChildren ? (bool)c.gameObject.FindAncestor<Player>() : c.gameObject == Player.main.gameObject;
 		}
 		
+		public static bool isPlayer(GameObject c, bool allowChildren = false) {
+			return allowChildren ? (bool)c.FindAncestor<Player>() : c == Player.main.gameObject;
+		}
+		
 		public static bool isPlayerOrCreature(Component c, bool allowChildren = false) {
 			return isPlayer(c, allowChildren) || (allowChildren ? (bool)c.gameObject.FindAncestor<Creature>() : (bool)c.gameObject.GetComponent<Creature>());
 		}/*
@@ -882,6 +905,11 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static bool isRootObject(GameObject go) {
 			return (bool)go.GetComponent<LargeWorldEntity>() && !(go.transform.parent && go.transform.parent.gameObject.FindAncestor<LargeWorldEntity>());
+		}
+		
+		public static void cleanUpOriginObjects(Component c) {
+			if (c.transform.position.sqrMagnitude < 0.01)
+				UnityEngine.Object.Destroy(c.gameObject);
 		}
 		
 	}

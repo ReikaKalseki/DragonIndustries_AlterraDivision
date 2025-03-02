@@ -31,6 +31,8 @@ namespace ReikaKalseki.DIAlterra
     public static readonly Config<DIConfig.ConfigEntries> config = new Config<DIConfig.ConfigEntries>(SNUtil.diDLL);
 		
 	internal static readonly Dictionary<TechType, Buildable> machineList = new Dictionary<TechType, Buildable>();
+	
+	public static SignalManager.ModSignal areaOfInterestMarker { get; private set; }
 
     [QModPrePatch]
     public static void PreLoad()
@@ -127,6 +129,12 @@ namespace ReikaKalseki.DIAlterra
 	    SpriteHandler.RegisterSprite(TechType.PDA, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/PDA"));
 	    SpriteHandler.RegisterSprite(TechType.Databox, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Databox"));
 	    SpriteHandler.RegisterSprite(TechType.ReaperLeviathan, TextureManager.getSprite(SNUtil.diDLL, "Textures/ScannerSprites/Reaper"));
+		
+	    XMLLocale.LocaleEntry le = locale.getEntry("AreaOfInterest");
+	    SNUtil.allowDIDLL = true;
+	    areaOfInterestMarker = SignalManager.createSignal("AreaOfInterest", le.desc, le.desc, "", "");
+		areaOfInterestMarker.register(null, TextureManager.getSprite(SNUtil.diDLL, "Textures/AreaOfInterestMarker"), Vector3.zero);
+	    SNUtil.allowDIDLL = false;
 	    
     	SNUtil.log("Finish DI Main Init", SNUtil.diDLL);
     }
@@ -196,6 +204,15 @@ namespace ReikaKalseki.DIAlterra
         //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("vehicleToMe", bringVehicleToPlayer);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("savePhysProps", PhysicsSettlingProp.export);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<float, string>>("deleteNear", deletePrefabNear);
+    }
+    
+    private static void deletePrefabNear(float r, string id) {
+    	foreach (PrefabIdentifier pi in WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(Player.main.transform.position, r)) {
+    		if (SNUtil.match(pi, id)) {
+    			UnityEngine.Object.Destroy(pi.gameObject);
+    		}
+    	}
     }
     
     private static void bringVehicleToPlayer(string type) {

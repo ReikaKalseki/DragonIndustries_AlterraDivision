@@ -10,6 +10,17 @@
 		
 	</pda>
   </ItemNotDroppable>
+  <AreaOfInterest>
+	<name>
+		
+	</name>
+	<desc>
+		Area Of Interest
+	</desc>
+	<pda>
+		
+	</pda>
+  </AreaOfInterest>
   <BulkheadInoperable>
 	<name>
 		

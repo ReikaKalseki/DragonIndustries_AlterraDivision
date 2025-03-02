@@ -63,13 +63,14 @@ namespace ReikaKalseki.SeaToSea {
 		   		
 		   		BehaviourData.behaviourTypeList[TechType] = getBehavior();
 		   		
-		   		TechType basis = CraftData.entClassTechTable[baseTemplate.prefab];
-		   		BioReactorHandler.SetBioReactorCharge(TechType, BaseBioReactor.charge[basis]);
+		   		TechType basis = CraftData.entClassTechTable.ContainsKey(baseTemplate.prefab) ? CraftData.entClassTechTable[baseTemplate.prefab] : TechType.None;
+		   		if (basis != TechType.None && BaseBioReactor.charge.ContainsKey(basis))
+		   			BioReactorHandler.SetBioReactorCharge(TechType, BaseBioReactor.charge[basis]);
 		   		
-		   		if (CraftData.equipmentTypes.ContainsKey(basis) && CraftData.equipmentTypes[basis] == EquipmentType.Hand)
+		   		if (basis != TechType.None && CraftData.equipmentTypes.ContainsKey(basis) && CraftData.equipmentTypes[basis] == EquipmentType.Hand)
 		   			CraftData.equipmentTypes[TechType] = EquipmentType.Hand;
 		   		
-		   		if (cookableIntoBase > 0) {
+		   		if (basis != TechType.None && cookableIntoBase > 0 && CraftData.cookedCreatureList.ContainsKey(basis)) {
 		   			TechType cooked = CraftData.cookedCreatureList[basis];
 		   			TechType cured = SNUtil.getTechType(("Cured"+cooked).Replace("Cooked", ""));
 					CraftDataHandler.SetCookedVariant(TechType, cooked);

@@ -36,6 +36,7 @@ namespace ReikaKalseki.DIAlterra {
 			tgt.techType = markerType;
 			tgt.overrideTechType = markerType;
 			tgt.prefabIdentifier = pi;
+			world.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.Global;
 			return world;
 	    }
 			

@@ -34,6 +34,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		float glowIntensity {get; set;}
 		
+		string ClassID {get;}
+		
 		bool isResource();
 		
 		string getTextureFolder();
