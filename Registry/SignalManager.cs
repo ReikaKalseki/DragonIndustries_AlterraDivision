@@ -108,7 +108,7 @@ namespace ReikaKalseki.DIAlterra
 					throw new Exception("Null icon is not allowed");
 				signalType = PingHandler.RegisterNewPingType(id, icon);
 				SignalManager.types[signalType] = id;
-				LanguageHandler.SetLanguageLine(id, "Signal");
+				CustomLocaleKeyDatabase.registerKey(id, "Signal");
 				this.icon = icon;
 				
 				initialPosition = pos;

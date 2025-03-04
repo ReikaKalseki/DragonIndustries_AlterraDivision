@@ -97,8 +97,8 @@ namespace ReikaKalseki.DIAlterra
 					if (d.getPrefab() == null || !string.IsNullOrEmpty(d.getNameSuffix())) {
 						TechType tt = d.getBasis();
 						TechType dt = ((ModPrefab)d).TechType;
-						LanguageHandler.SetLanguageLine(dt.AsString(), Language.main.Get(tt)+d.getNameSuffix());
-						LanguageHandler.SetLanguageLine("Tooltip_"+dt.AsString(), d.getTooltip());
+						CustomLocaleKeyDatabase.registerKey(dt.AsString(), Language.main.Get(tt)+d.getNameSuffix());
+						CustomLocaleKeyDatabase.registerKey("Tooltip_"+dt.AsString(), d.getTooltip());
 						SNUtil.log("Relocalized "+d+" > "+dt.AsString()+" > "+Language.main.Get(dt), d.getOwnerMod());
 					}
 				}

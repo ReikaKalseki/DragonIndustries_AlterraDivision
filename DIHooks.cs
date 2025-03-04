@@ -847,6 +847,10 @@ namespace ReikaKalseki.DIAlterra {
 			return worldLoadTime > 0;
 		}
 	    
+		public static bool hasWorldLoadStarted() {
+			return hasLoadedAWorld;
+		}
+	    
 		public static void tickPlayer(Player ep) {
 			CustomBiome b = BiomeBase.getBiome(Camera.main.transform.position) as CustomBiome;
 			if (currentCustomBiome != b)
@@ -935,6 +939,8 @@ namespace ReikaKalseki.DIAlterra {
 				return ret;
 			}
 		}
+		
+		public static int damageDebugLevel = 0;
    
 		public static float recalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer) {
 			if (DIMod.config.getBoolean(DIConfig.ConfigEntries.INFITUBE) && ObjectUtil.isCoralTube(target))
@@ -950,9 +956,13 @@ namespace ReikaKalseki.DIAlterra {
 			if (onDamageEvent != null) {
 				DamageToDeal deal = new DamageToDeal(damage, type, target, dealer);
 				onDamageEvent.Invoke(deal);
+				if (damageDebugLevel > 1 || (damageDebugLevel == 1 && !Mathf.Approximately(deal.originalAmount, deal.amount)))
+					SNUtil.writeToChat("Adjusting damage type "+type+" yield from "+deal.originalAmount+" to "+deal.amount);
 				return deal.amount;
 			}
 			else {
+				if (damageDebugLevel > 2)
+					SNUtil.writeToChat("Applying unchanged damage amount "+damage);
 				return damage;
 			}
 		}
@@ -1495,12 +1505,10 @@ namespace ReikaKalseki.DIAlterra {
 			if (s != null && s.IsSealed()) {
 				
 			}
-			else
-			if (componentInParent != null && !componentInParent.isReady) {
+			else if (componentInParent != null && !componentInParent.isReady) {
 				bk.ToggleImmediately();
 			}
-			else
-			if (bk.enabled && bk.state == BulkheadDoor.State.Zero) {
+			else if (bk.enabled && bk.state == BulkheadDoor.State.Zero) {
 				if (GameOptions.GetVrAnimationMode()) {
 					bk.ToggleImmediately();
 					return;
@@ -1711,12 +1719,10 @@ namespace ReikaKalseki.DIAlterra {
 				if (amt >= 0.75) {
 					return "This creature is severely infected.";
 				}
-				else
-				if (amt >= 0.5) {
+				else if (amt >= 0.5) {
 					return "Exhibiting symptoms of significant systemic infection.";
 				}
-				else
-				if (amt >= 0.25) {
+				else if (amt >= 0.25) {
 					return "Showing signs of infection.";
 				}
 				else {
@@ -1800,8 +1806,7 @@ namespace ReikaKalseki.DIAlterra {
 					SNUtil.writeToChat("Dumping RenderTexture WaterBiomeManager::" + f.Name);
 					RenderUtil.dumpTexture(SNUtil.diDLL, f.Name, (RenderTexture)get);
 				}
-				else
-				if (get is Texture2D) {
+				else if (get is Texture2D) {
 					SNUtil.writeToChat("Dumping Texture2D WaterBiomeManager::" + f.Name);
 					RenderUtil.dumpTexture(SNUtil.diDLL, f.Name, (Texture2D)get);
 				}
@@ -2486,6 +2491,17 @@ namespace ReikaKalseki.DIAlterra {
 				}
 				catch (Exception e) {
 					SNUtil.log(e.ToString());
+				}
+			}
+			else {
+				InfectedMixin im = ii.item.GetComponent<InfectedMixin>();
+				if (im && im.IsInfected()) {
+					try {
+						ico.background.material.color = new Color(0.2F, 1.5F, 0.2F, 1);
+					}
+					catch (Exception e) {
+						SNUtil.log(e.ToString());
+					}
 				}
 			}
 		}

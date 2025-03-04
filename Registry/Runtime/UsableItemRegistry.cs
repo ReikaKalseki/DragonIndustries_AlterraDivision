@@ -60,9 +60,9 @@ namespace ReikaKalseki.DIAlterra {
 	    		return false;
 	    	}
 	    	lastUse = DayNightCycle.main.timePassedAsFloat;
-	    	bool ret = actions[tt](s, go);
+	    	bool ret = actions[tt].Invoke(s, go);
 	    	if (ret)
-				Inventory.main.container.DestroyItem(tt);
+	    		Inventory.main.container.RemoveItem(go.GetComponent<Pickupable>(), true);
 	    	return ret;
 	    }
 	}

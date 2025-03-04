@@ -70,8 +70,8 @@ namespace ReikaKalseki.DIAlterra {
 		public static void updateLocale() {
 			foreach (List<PickedUpAsOtherItem> li in items.Values) {
 				foreach (PickedUpAsOtherItem d in li) {
-					LanguageHandler.SetLanguageLine(d.TechType.AsString(), Language.main.Get(d.template));
-					LanguageHandler.SetLanguageLine("Tooltip_"+d.TechType.AsString(), Language.main.Get("Tooltip_"+d.template.AsString()));
+					CustomLocaleKeyDatabase.registerKey(d.TechType.AsString(), Language.main.Get(d.template));
+					CustomLocaleKeyDatabase.registerKey("Tooltip_"+d.TechType.AsString(), Language.main.Get("Tooltip_"+d.template.AsString()));
 					SNUtil.log("Relocalized otherpickup "+d+" > "+d.TechType.AsString()+" > "+Language.main.Get(d.TechType), SNUtil.diDLL);
 				}
 			}

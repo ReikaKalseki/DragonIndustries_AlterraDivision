@@ -28,8 +28,11 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void registerKey(string key, string text) {
-			localeKeys[key] = text;
 			SNUtil.log("Mapped locale key '"+key+"' to \""+text+"\"", SNUtil.diDLL);
+			if (DIHooks.hasWorldLoadStarted())
+				LanguageHandler.SetLanguageLine(key, text);
+			else
+				localeKeys[key] = text;
 		}
 		
 		public static void onLoad() {

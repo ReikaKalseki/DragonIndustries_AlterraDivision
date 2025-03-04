@@ -101,7 +101,7 @@ namespace ReikaKalseki.DIAlterra
 				pageData.nodes = tree.ToArray();
 				pageData.path = string.Join("/", tree);
 				PDAEncyclopediaHandler.AddCustomEntry(pageData);
-				LanguageHandler.SetLanguageLine("Ency_"+pageData.key, name);
+				CustomLocaleKeyDatabase.registerKey("Ency_"+pageData.key, name);
 				injectString();
 				
 				prefabID.Patch();
@@ -131,7 +131,7 @@ namespace ReikaKalseki.DIAlterra
 				if (force && DIHooks.isWorldLoaded())
 					Language.main.strings["EncyDesc_"+pageData.key] = text;
 				else*/
-					LanguageHandler.SetLanguageLine("EncyDesc_"+pageData.key, text);
+					CustomLocaleKeyDatabase.registerKey("EncyDesc_"+pageData.key, text);
 					if (force && DIHooks.isWorldLoaded()) {
 						uGUI_EncyclopediaTab tab = ((uGUI_EncyclopediaTab)Player.main.GetPDA().ui.tabs[PDATab.Encyclopedia]);
 						if (tab && tab.activeEntry && tab.activeEntry.key == pageData.key)

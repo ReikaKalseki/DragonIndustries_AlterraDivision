@@ -171,6 +171,8 @@ namespace ReikaKalseki.DIAlterra {
 			CraftData.techData.Remove(item);
 			RecipeNode node = getRecipeNode(item);
 			if (node == null)
+				buildRecipeNodeCache(); //try rebuild first
+			if (node == null)
 				throw new Exception("No node found for recipe "+item+"\n\n"+nodes.toDebugString());
 			if (node.path == null)
 				throw new Exception("Invalid pathless node "+node);
@@ -189,14 +191,20 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static void changeRecipePath(TechType item, params string[] path) {
+			changeRecipePath(item, CraftTree.Type.None, path);
+		}
+		
+		public static void changeRecipePath(TechType item, CraftTree.Type cat, params string[] path) {
 			RecipeNode node = getRecipeNode(item);
+			if (node == null)
+				buildRecipeNodeCache(); //try rebuild first
 			if (node == null)
 				throw new Exception("No node found for recipe "+item+"\n\n"+nodes.toDebugString());
 			if (node.path == null)
 				throw new Exception("Invalid pathless node "+node);
 			CraftTreeHandler.Main.RemoveNode(node.recipeType, node.path.Split('\\'));
 			nodes.Remove(item);
-			CraftTreeHandler.AddCraftingNode(node.recipeType, item, path);
+			CraftTreeHandler.AddCraftingNode(cat == CraftTree.Type.None ? node.recipeType : cat, item, path);
 			SNUtil.log("Repathing recipe "+item+": "+node.path+" > "+string.Join("\\", path));
 		}
 		
@@ -209,12 +217,16 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static RecipeNode getRecipeNode(TechType item) {
-			if (nodes.Count == 0) {
-				foreach (CraftTree.Type t in Enum.GetValues(typeof(CraftTree.Type))) {
-					cacheRecipeNode(getRootNode(t), t);
-				}
-			}
+			if (nodes.Count == 0)
+				buildRecipeNodeCache();
 			return nodes.ContainsKey(item) ? nodes[item] : null;
+		}
+		
+		public static void buildRecipeNodeCache() {
+			nodes.Clear();
+			foreach (CraftTree.Type t in Enum.GetValues(typeof(CraftTree.Type))) {
+				cacheRecipeNode(getRootNode(t), t);
+			}
 		}
 		
 		private static void cacheRecipeNode(CraftNode node, CraftTree.Type type) {
@@ -263,18 +275,18 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private static void dumpCraftTreeFromNode(CraftNode root, List<string> prefix) {
 			if (root == null) {
-				SNUtil.log(string.Join("/", prefix)+" -> null @ root");
+				SNUtil.log(string.Join("/", prefix)+" -> null @ root", SNUtil.diDLL);
 				return;
 			}
 			List<TreeNode> nodes = root.nodes;
 			for (int i = 0; i < nodes.Count; i++) {
 				TreeNode node = nodes[i];
 				if (node == null) {
-					SNUtil.log(string.Join("/", prefix)+" -> null @ "+i);
+					SNUtil.log(string.Join("/", prefix)+" -> null @ "+i, SNUtil.diDLL);
 				}
 				else {
 					try {
-						SNUtil.log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id);
+						SNUtil.log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id, SNUtil.diDLL);
 						prefix.Add(node.id);
 						dumpCraftTreeFromNode((CraftNode)node, prefix);
 						prefix.RemoveAt(prefix.Count-1);
@@ -288,7 +300,7 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public static void dumpPDATree() {
 			foreach (var kvp in PDAEncyclopedia.entries) {
-				SNUtil.log("PDA entry '"+kvp.Key+"': "+kvp.Value);
+				SNUtil.log("PDA entry '"+kvp.Key+"': "+kvp.Value, SNUtil.diDLL);
 			}
 			dumpCraftTreeFromNode(PDAEncyclopedia.tree);
 		}

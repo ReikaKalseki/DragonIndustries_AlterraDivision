@@ -215,7 +215,7 @@ namespace ReikaKalseki.DIAlterra
 		
 	    public static void addVOLine<G>(G goal, string text, FMODAsset sound) where G : Story.StoryGoal {
 	    	PDALogHandler.AddCustomEntry(goal.key, goal.key, null, sound);
-			LanguageHandler.SetLanguageLine(goal.key, text);
+			CustomLocaleKeyDatabase.registerKey(goal.key, text);
 		}
 		
 		public static void teleportPlayer(Player ep, Vector3 to) {
@@ -509,6 +509,39 @@ namespace ReikaKalseki.DIAlterra
 				if (has == tt)
 					return true;
 			return false;
+		}
+		
+		public static UnityEngine.UI.Button createPDAUIButtonUnderTab<T>(Texture2D ico, Action onClick) where T : uGUI_PDATab {
+			return createPDAUIButton(ico, onClick, uGUI_PDA.main ? uGUI_PDA.main.GetComponentInChildren<T>() : null);
+		}
+		
+		public static UnityEngine.UI.Button createPDAUIButton(Texture2D ico, Action onClick, uGUI_PDATab tab = null) {
+			if (!uGUI_PDA.main)
+				return null;
+			GameObject go = ObjectUtil.getChildObject(uGUI_PDA.main.gameObject, "Content/PingManagerTab/Content/ButtonAll");
+			GameObject go2 = UnityEngine.Object.Instantiate(go);
+			Transform t = uGUI_PDA.main.transform;
+			if (tab) {
+				GameObject content = ObjectUtil.getChildObject(tab.gameObject, "Content");
+				t = content ? content.transform : tab.transform;
+			}
+			go2.transform.SetParent(t, false);
+			UnityEngine.UI.Toggle tg = go2.GetComponent<UnityEngine.UI.Toggle>();
+			UnityEngine.UI.SpriteState sprs = tg.spriteState;
+			Sprite hover = sprs.highlightedSprite;
+			UnityEngine.Object.DestroyImmediate(tg);
+			UnityEngine.UI.Image img = go2.GetComponent<UnityEngine.UI.Image>();
+			UnityEngine.UI.Image icon = img.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
+			if (ico != null)
+				icon.sprite = Sprite.Create(ico, new Rect(0, 0, ico.width, ico.height), Vector2.zero);
+			UnityEngine.UI.Button b = go2.EnsureComponent<UnityEngine.UI.Button>();
+			b.image = img;
+			b.onClick.AddListener(() => onClick.Invoke());
+			UnityEngine.UI.SpriteState sprs2 = b.spriteState;
+			sprs2.highlightedSprite = hover;
+			RectTransform rt = b.GetComponent<RectTransform>();
+			rt.sizeDelta = new Vector2(ico.width, ico.height);
+			return b;
 		}
 		
 	}

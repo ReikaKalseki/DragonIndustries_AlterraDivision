@@ -26,7 +26,7 @@ namespace ReikaKalseki.DIAlterra
 		internal static void updateLocale() {
 			foreach (KeyValuePair<TechType, SeamothModuleStorage> kvp in storageHandlers) {
 				if (!string.IsNullOrEmpty(kvp.Value.localeKey) && !string.IsNullOrEmpty(kvp.Value.localizedHoverText)) {
-					LanguageHandler.SetLanguageLine(kvp.Value.localeKey, kvp.Value.localizedHoverText);
+					CustomLocaleKeyDatabase.registerKey(kvp.Value.localeKey, kvp.Value.localizedHoverText);
 					SNUtil.log("Relocalized seamoth module tooltip "+kvp.Value.localeKey+" > "+kvp.Value.localizedHoverText, SNUtil.diDLL);
 				}
 			}

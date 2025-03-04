@@ -122,5 +122,16 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static InventoryItem getItem(ItemsContainer sc, Pickupable pp) {
+			IList<InventoryItem> il = sc.GetItems(pp.GetTechType());
+			if (il == null || il.Count == 0)
+				return null;
+			foreach (InventoryItem ii in il) {
+				if (ii != null && ii.item == pp)
+					return ii;
+			}
+			return null;
+		}
+		
 	}
 }

@@ -198,6 +198,7 @@ namespace ReikaKalseki.DIAlterra
         ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("biomeAt", printBiomeData);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("killSelf", killSelf);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("clear000", clear000);
+	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("clearLoose", clearUnparentedItem);
 	    ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, float>>("particle", spawnParticle);
 	    //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("hideVersions", DIHooks.hideVersions);
 	    //ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action>("autoUpdate", DIHooks.autoUpdate);
@@ -257,6 +258,17 @@ namespace ReikaKalseki.DIAlterra
     				UnityEngine.Object.Destroy(pi.gameObject);
     		}
     	}
+    }
+    
+    private static void clearUnparentedItem(string id) {
+    	int found = 0;
+    	foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {
+    		if (pi.ClassId == id && !pi.gameObject.FindAncestor<StorageContainer>()) {
+    			UnityEngine.Object.Destroy(pi.gameObject);
+    			found++;
+    		}
+    	}
+    	SNUtil.writeToChat("Destroyed "+found+" items of type '"+id+"' not in StorageContainers.");
     }
     
     public static void restartGame() {
