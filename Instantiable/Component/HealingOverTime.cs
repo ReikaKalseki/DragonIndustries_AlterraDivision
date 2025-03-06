@@ -12,7 +12,7 @@ using SMLHelper.V2.Utility;
 
 namespace ReikaKalseki.DIAlterra {
 	
-	public class HealingOverTime : MonoBehaviour {
+	public class HealingOverTime : MonoBehaviour, CustomSerializedComponent {
 		
 		private static readonly float TICK_RATE = 0.25F;
 		
@@ -47,6 +47,23 @@ namespace ReikaKalseki.DIAlterra {
 		
 		private void OnKill() {
 			UnityEngine.Object.Destroy(this);
+		}
+		
+		public virtual void saveToXML(XmlElement e) {
+			e.addProperty("total", totalToHeal);
+			e.addProperty("remaining", healingRemaining);
+			e.addProperty("duration", totalDuration);
+			e.addProperty("rate", healRate);
+			e.addProperty("time", startTime);
+		}
+		
+		public virtual void readFromXML(XmlElement e) {
+			totalToHeal = (float)e.getFloat("total", 0);
+			healingRemaining = (float)e.getFloat("remaining", 0);
+			totalDuration = (float)e.getFloat("duration", 0);
+			healRate = (float)e.getFloat("rate", 0);
+			activate();
+			startTime = (float)e.getFloat("time", 0);
 		}
 		
 	}

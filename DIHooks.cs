@@ -114,6 +114,8 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public static bool skipWorldForces = false;
 		public static bool skipSkyApplier = false;
+		
+		private static bool skipZeroedDeserialization = DIMod.config.getBoolean(DIConfig.ConfigEntries.SKIPZEROEDIDOVERWRITE);
 	    
 		static DIHooks() {
 			SNUtil.log("Initializing DIHooks");	   
@@ -2531,6 +2533,43 @@ namespace ReikaKalseki.DIAlterra {
 			if (surfaceTypeDebugLevel > 1 || (surfaceTypeDebugLevel == 1 && s != SurfaceType.Ceiling && s != SurfaceType.Wall && s != SurfaceType.Ground))
 				SNUtil.writeToChat("Returning surface type "+s+" from "+vec);
 			return s;
+		}
+		
+		public static void registerUID(UniqueIdentifier uid) {
+			string id = uid.id;
+			if (string.IsNullOrEmpty(id)) {
+				SNUtil.log("Skipping register of UID with null ID: "+uid.name+" @ "+uid.transform.position, SNUtil.diDLL);
+				return;
+			}
+			UniqueIdentifier has;
+			if (UniqueIdentifier.identifiers.TryGetValue(id, out has)) {
+				if (has != uid) {
+					if (has) {
+						if (skipZeroedDeserialization && has.transform.position.sqrMagnitude > 0.01 && uid.transform.position.sqrMagnitude < 0.01) {
+							SNUtil.log("Skipping setup of UID at origin: "+uid.name+" in favor of "+has.name+" @ "+has.transform.position, SNUtil.diDLL);
+							UnityEngine.Object.Destroy(uid.gameObject);
+						}
+						else {
+							Debug.LogErrorFormat(uid, "Overwriting id '{0}' (old class '{1}', new class '{2}'), used to be '{3}' at {4} now '{5}' at {6}", new object[] {
+								id,
+								has.classId,
+								uid.classId,
+								has.name,
+								has.transform.position,
+								uid.name,
+								uid.transform.position
+							});
+							UniqueIdentifier.identifiers[id] = uid;
+						}
+						return;
+					}
+					UniqueIdentifier.identifiers[id] = uid;
+					return;
+				}
+			}
+			else {
+				UniqueIdentifier.identifiers.Add(id, uid);
+			}
 		}
 	   
 		private static GameObject teleportWithPlayer;

@@ -529,6 +529,7 @@ namespace ReikaKalseki.DIAlterra
 			UnityEngine.UI.Toggle tg = go2.GetComponent<UnityEngine.UI.Toggle>();
 			UnityEngine.UI.SpriteState sprs = tg.spriteState;
 			Sprite hover = sprs.highlightedSprite;
+			UnityEngine.UI.Selectable.Transition tr = tg.transition;
 			UnityEngine.Object.DestroyImmediate(tg);
 			UnityEngine.UI.Image img = go2.GetComponent<UnityEngine.UI.Image>();
 			UnityEngine.UI.Image icon = img.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>();
@@ -539,7 +540,12 @@ namespace ReikaKalseki.DIAlterra
 			b.onClick.AddListener(() => onClick.Invoke());
 			UnityEngine.UI.SpriteState sprs2 = b.spriteState;
 			sprs2.highlightedSprite = hover;
+			sprs2.selectedSprite = hover;
+			b.spriteState = sprs2;
+			b.transition = tr;
 			RectTransform rt = b.GetComponent<RectTransform>();
+			rt.sizeDelta = new Vector2(ico.width, ico.height);
+			rt = icon.GetComponent<RectTransform>();
 			rt.sizeDelta = new Vector2(ico.width, ico.height);
 			return b;
 		}
