@@ -102,6 +102,34 @@ namespace ReikaKalseki.DIAlterra {
 				SNUtil.log("Attached spawn tag callback "+entry, SNUtil.diDLL);
 			}
 			
+			void OnDestroy() {
+				SNUtil.log("Destroying gameobject bearing spawn tag callback "+entry, SNUtil.diDLL);
+				SpawnTagSearchCallback s = Player.main.gameObject.EnsureComponent<SpawnTagSearchCallback>();
+				s.entry = this.entry;
+				s.Invoke("register", 0.5F);
+			}
+			
+		}
+		
+		private class SpawnTagSearchCallback : MonoBehaviour {
+			
+			internal SpawnedItemEvent entry;
+			
+			public void register() {
+				IList<InventoryItem> li = Inventory.main.container.GetItems(entry.itemType);
+				if (li == null || li.Count == 0) {
+					SNUtil.log("Skipping spawn search tag callback, no matching items for "+entry, SNUtil.diDLL);
+					return;
+				}
+				PrefabIdentifier prefab = li[li.Count-1].item.GetComponent<PrefabIdentifier>();
+				if (!prefab || string.IsNullOrEmpty(prefab.Id)) {
+					SNUtil.log("Skipping spawn search tag callback for nulled ID: "+prefab+"; entry = "+entry, SNUtil.diDLL);
+					return;
+				}
+				entry.attach(prefab);
+				SNUtil.log("Attached spawn search tag callback "+entry, SNUtil.diDLL);
+			}
+			
 		}
 		
 		public class SpawnedItemEvent : IComparable<SpawnedItemEvent> {
