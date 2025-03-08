@@ -893,44 +893,6 @@ namespace ReikaKalseki.DIAlterra {
 				onCyclopsTickEvent.Invoke(sub);
 		}
 	    
-		public static void updateSeamothModules(SeaMoth sm, int slotID, TechType techType, bool added) {
-			for (int i = 0; i < sm.slotIDs.Length; i++) {
-				string slot = sm.slotIDs[i];
-				TechType techTypeInSlot = sm.modules.GetTechTypeInSlot(slot);
-				if (techTypeInSlot != TechType.None) {
-					Spawnable sp = ItemRegistry.instance.getItem(techTypeInSlot, false);
-					if (sp is SeamothDepthModule) {
-						sm.crushDamage.SetExtraCrushDepth(Mathf.Max(((SeamothDepthModule)sp).depthBonus, sm.crushDamage.extraCrushDepth));
-					}
-				}
-			}
-	    	
-			if (onSeamothModulesChangedEvent != null)
-				onSeamothModulesChangedEvent.Invoke(sm, slotID, techType, added);
-		}
-	    
-		public static void updateCyclopsModules(SubRoot sm) {	    	
-			if (onCyclopsModulesChangedEvent != null)
-				onCyclopsModulesChangedEvent.Invoke(sm);
-		}
-	    
-		public static void updatePrawnModules(Exosuit sm, int slotID, TechType techType, bool added) {
-			if (onPrawnModulesChangedEvent != null)
-				onPrawnModulesChangedEvent.Invoke(sm, slotID, techType, added);
-		}
-	    
-		public static void useSeamothModule(SeaMoth sm, TechType techType, int slotID) {
-			Spawnable sp = ItemRegistry.instance.getItem(techType, false);
-			if (sp is SeamothModule) {
-				SeamothModule smm = (SeamothModule)sp;
-				smm.onFired(sm, slotID, sm.GetSlotCharge(slotID));
-				sm.quickSlotTimeUsed[slotID] = Time.time;
-				sm.quickSlotCooldown[slotID] = smm.getUsageCooldown();
-			}
-			if (onSeamothModuleUsedEvent != null)
-				onSeamothModuleUsedEvent.Invoke(sm, techType, slotID);
-		}
-	    
 		public static float getWaterTemperature(float ret, WaterTemperatureSimulation sim, Vector3 pos) {
 			if (getTemperatureEvent != null) {
 				WaterTemperatureCalculation calc = new WaterTemperatureCalculation(ret, sim, pos);
@@ -1606,7 +1568,7 @@ namespace ReikaKalseki.DIAlterra {
 				InventoryItem ii = sm.GetSlotItem(i);
 				if (ii != null && ii.item) {
 					SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(ii.item.GetTechType());
-					if (storage != null) {
+					if (storage != null && storage.storageType == SeamothModule.StorageAccessType.TORPEDO) {
 						SeamothStorageContainer component = ii.item.GetComponent<SeamothStorageContainer>();
 						//SNUtil.writeToChat("Found "+component+" ["+storage.title+"] for "+ii.item.GetTechType());
 						if (component) {
@@ -1627,7 +1589,7 @@ namespace ReikaKalseki.DIAlterra {
 					TechType tt = ii.item.GetTechType();
 					if (foundMatch == tt || foundMatch == TechType.None) {
 						SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(tt);
-						if (storage != null) {
+						if (storage != null && storage.storageType == SeamothModule.StorageAccessType.TORPEDO) {
 							SeamothStorageContainer component = ii.item.GetComponent<SeamothStorageContainer>();
 							if (component) {
 								foundMatch = tt;
@@ -1642,6 +1604,82 @@ namespace ReikaKalseki.DIAlterra {
 				//SNUtil.writeToChat("Opening "+SeamothModule.getStorageHandler(foundMatch).title+" for "+foundMatch);
 				Player.main.GetPDA().Open(PDATab.Inventory, transf, null, -1f);
 			}
+		}
+		
+		public static ItemsContainer getVehicleStorageInSlot(Vehicle sm, int slotID, TechType seek) {
+			InventoryItem slotItem = sm.GetSlotItem(slotID);
+			if (slotItem == null)
+				return null;
+			Pickupable item = slotItem.item;
+			if (!item)
+				return null;
+			TechType tt = item.GetTechType();
+			if (tt == seek) {
+				SeamothStorageContainer ssc = item.GetComponent<SeamothStorageContainer>();
+				return ssc ? ssc.container : null;
+			}
+			if (sm is SeaMoth) {
+				SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(tt);
+				if (storage != null && storage.storageType == SeamothModule.StorageAccessType.BOX) {
+					SeamothStorageContainer ssc = item.GetComponent<SeamothStorageContainer>();
+					if (ssc) {
+						storage.apply(ssc);
+						return ssc.container;
+					}
+				}
+			}
+			return null;
+		}
+	    
+		public static void updateSeamothModules(SeaMoth sm, int slotID, TechType techType, bool added) {
+			if (added) {
+				SeamothModule.SeamothModuleStorage storage = SeamothModule.getStorageHandler(techType);
+				if (storage != null) {
+					if (storage.storageType == SeamothModule.StorageAccessType.TORPEDO) {
+						if (sm.torpedoSilos != null && slotID < sm.torpedoSilos.Length)
+							sm.torpedoSilos[slotID].SetActive(true);
+					}
+					else if (storage.storageType == SeamothModule.StorageAccessType.BOX) {
+						if (sm.storageInputs != null && slotID < sm.storageInputs.Length)
+							sm.storageInputs[slotID].SetEnabled(true);
+					}
+				}
+			}
+			for (int i = 0; i < sm.slotIDs.Length; i++) {
+				string slot = sm.slotIDs[i];
+				TechType techTypeInSlot = sm.modules.GetTechTypeInSlot(slot);
+				if (techTypeInSlot != TechType.None) {
+					Spawnable sp = ItemRegistry.instance.getItem(techTypeInSlot, false);
+					if (sp is SeamothDepthModule) {
+						sm.crushDamage.SetExtraCrushDepth(Mathf.Max(((SeamothDepthModule)sp).depthBonus, sm.crushDamage.extraCrushDepth));
+					}
+				}
+			}
+	    	
+			if (onSeamothModulesChangedEvent != null)
+				onSeamothModulesChangedEvent.Invoke(sm, slotID, techType, added);
+		}
+	    
+		public static void updateCyclopsModules(SubRoot sm) {	    	
+			if (onCyclopsModulesChangedEvent != null)
+				onCyclopsModulesChangedEvent.Invoke(sm);
+		}
+	    
+		public static void updatePrawnModules(Exosuit sm, int slotID, TechType techType, bool added) {
+			if (onPrawnModulesChangedEvent != null)
+				onPrawnModulesChangedEvent.Invoke(sm, slotID, techType, added);
+		}
+	    
+		public static void useSeamothModule(SeaMoth sm, TechType techType, int slotID) {
+			Spawnable sp = ItemRegistry.instance.getItem(techType, false);
+			if (sp is SeamothModule) {
+				SeamothModule smm = (SeamothModule)sp;
+				smm.onFired(sm, slotID, sm.GetSlotCharge(slotID));
+				sm.quickSlotTimeUsed[slotID] = Time.time;
+				sm.quickSlotCooldown[slotID] = smm.getUsageCooldown();
+			}
+			if (onSeamothModuleUsedEvent != null)
+				onSeamothModuleUsedEvent.Invoke(sm, techType, slotID);
 		}
 	    
 		public static float getTemperatureForDamage(TemperatureDamage dmg) {
@@ -1712,6 +1750,9 @@ namespace ReikaKalseki.DIAlterra {
 			if (itemTooltipEvent != null) {
 				itemTooltipEvent.Invoke(sb, tt, obj);
 			}
+			SpawnedItemTracker.SpawnedItemEvent e = SpawnedItemTracker.getSpawnEvent(obj);
+			if (e != null)
+				TooltipFactory.WriteDescription(sb, e.tooltip);
 		}
 	    
 		private static string getInfectionTooltip(InfectedMixin mix) {
@@ -2298,6 +2339,8 @@ namespace ReikaKalseki.DIAlterra {
 				return false;
 			if (name.Contains("precursor") && (name.Contains("room") || name.Contains("base")))
 				return false;
+			if (ObjectUtil.isFossilPrefab(target.gameObject))
+				return false;
 			if (c.GetComponentInParent<Player>() || c.GetComponentInParent<Vehicle>())
 				return false;
 			if (ch.addToTargetList)
@@ -2570,6 +2613,22 @@ namespace ReikaKalseki.DIAlterra {
 			else {
 				UniqueIdentifier.identifiers.Add(id, uid);
 			}
+		}
+		
+		public static GameObject createSpawnedItem(TechType tt, bool customOnly) {
+			SpawnedItemTracker.SpawnedItemEvent e = SpawnedItemTracker.addSpawn(tt);
+			GameObject ret = CraftData.InstantiateFromPrefab(tt, customOnly);
+			if (ret) {
+				PrefabIdentifier pi = ret.GetComponentInChildren<PrefabIdentifier>();
+				if (pi)
+					e.setObject(pi);
+				else
+					SNUtil.log("No PrefabIdentifier to attach to spawn event "+e);
+			}
+			else {
+				SNUtil.log("No object at all for spawn event "+e);
+			}
+			return ret;
 		}
 	   
 		private static GameObject teleportWithPlayer;

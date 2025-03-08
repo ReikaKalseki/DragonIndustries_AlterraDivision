@@ -68,6 +68,7 @@ namespace ReikaKalseki.DIAlterra
         SNUtil.checkModHash(SNUtil.diDLL);
         
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SaveSystem).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SpawnedItemTracker).TypeHandle);
         
         new ObjectDeleter().Patch();
         

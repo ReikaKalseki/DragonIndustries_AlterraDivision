@@ -37,6 +37,27 @@ namespace ReikaKalseki.DIAlterra
 		   	"691723cf-d5e9-482f-b5af-8491b2a318b1",
 		   	"f0295655-8f4f-4b18-b67d-925982a472d7",
 		};
+	    
+		private static readonly HashSet<string> fossilPrefabs = new HashSet<string>() {
+		   	"29bcd3d7-48bf-4fd7-955a-23a9523aec47",
+		   	"50031120-ab7a-4f10-b497-3a97f63b4de1",
+		   	"b250309e-5ad0-43ca-9297-f79e22915db6",
+		   	"0010bf17-15be-4350-955b-b4ac023815f3",
+		   	"0552b196-d09a-45dd-b064-878966476179",
+		   	"0b6ea118-1c0b-4039-afdb-2d9b26401ad2",
+		   	"e10ff9a1-5f1e-4c4d-bf5f-170dba9e321b",
+		   	"358012ab-6be8-412d-85ee-263a733c88ba",
+		   	"71bf71c2-ecfb-47c0-aafe-040030d5954f",
+		   	"8fe779a5-e907-4e9e-b748-1eee25589b34",
+		   	"18042762-9460-44ca-a2d7-c4932d7d8193",
+		   	"33c31a89-9d3b-4717-ad26-4cc8106a1f24",
+		   	"4404f4f2-3d65-4338-adb3-a1a2e1f8fac5",
+		   	"6e37459e-d880-4da8-8dad-0cc10ff07f00",
+		   	"ee1807bf-6744-4fee-a66f-c71edc9e7fb6",
+		   	"",
+		   	"",
+		   	"",
+		};
 		
 		public static bool isAnchorPod(GameObject go) {
 			return isObjectInSet(go, anchorPods);
@@ -48,6 +69,10 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static bool isDragonRepellent(GameObject go) {
 			return isObjectInSet(go, containmentDragonRepellents);
+		}
+		
+		public static bool isFossilPrefab(GameObject go) {
+			return isObjectInSet(go, fossilPrefabs);
 		}
 		
 		public static bool isObjectInSet(GameObject go, HashSet<string> prefabs) {

@@ -16,7 +16,7 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Dictionary<TechType, SeamothModuleStorage> storageHandlers = new Dictionary<TechType, SeamothModuleStorage>();
 		
 		static SeamothModule() {
-			storageHandlers[TechType.SeamothTorpedoModule] = new SeamothModuleStorage(null, -1, -1){localeKey = "SeamothTorpedoStorage"};
+			storageHandlers[TechType.SeamothTorpedoModule] = new SeamothModuleStorage(null, StorageAccessType.BOX, -1, -1){localeKey = "SeamothTorpedoStorage"};
 		}
 		
 		internal static SeamothModuleStorage getStorageHandler(TechType item) {
@@ -120,16 +120,18 @@ namespace ReikaKalseki.DIAlterra
 			public readonly int height;
 			private readonly Action<SeamothStorageContainer> additionalModifications;
 			public readonly List<TechType> allowedAmmo = new List<TechType>();
+			public StorageAccessType storageType;
 			
 			public string localeKey {get; internal set;}
 			public string localizedHoverText {get; internal set;}
 			
-			public SeamothModuleStorage(string s, int w, int h) : this(s, w, h, null) {
+			public SeamothModuleStorage(string s, StorageAccessType t, int w, int h) : this(s, t, w, h, null) {
 				
 			}
 			
-			public SeamothModuleStorage(string s, int w, int h, Action<SeamothStorageContainer> a) {
+			public SeamothModuleStorage(string s, StorageAccessType t, int w, int h, Action<SeamothStorageContainer> a) {
 				title = s;
+				storageType = t;
 				width = w;
 				height = h;
 				additionalModifications = a;
@@ -166,6 +168,11 @@ namespace ReikaKalseki.DIAlterra
 				allowedAmmo.Add(tt);
 				return this;
 			}
+		}
+		
+		public enum StorageAccessType {
+			BOX,
+			TORPEDO,
 		}
 	}
 }

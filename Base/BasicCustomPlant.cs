@@ -31,6 +31,8 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Dictionary<TechType, BasicCustomPlant> plants = new Dictionary<TechType, BasicCustomPlant>();
 		private static readonly Dictionary<string, BasicCustomPlant> plantIDs = new Dictionary<string, BasicCustomPlant>();
 		
+		public PDAManager.PDAPage pdaPage { get; private set; }
+		
 		public BasicCustomPlant(XMLLocale.LocaleEntry e, FloraPrefabFetch template, string seedPfb, string seedName = "Seed") : this(e.key, e.name, e.desc, template, seedPfb, seedName) {
 			
 		}
@@ -84,12 +86,12 @@ namespace ReikaKalseki.DIAlterra
 			e.key = TechType;
 			e.scanTime = scanTime;
 			e.locked = true;
-			PDAManager.PDAPage page = PDAManager.createPage("ency_"+ClassID, FriendlyName, text, "Lifeforms");
-			page.addSubcategory("Flora").addSubcategory(isExploitable() ? "Exploitable" : "Sea");
+			pdaPage = PDAManager.createPage("ency_"+ClassID, FriendlyName, text, "Lifeforms");
+			pdaPage.addSubcategory("Flora").addSubcategory(isExploitable() ? "Exploitable" : "Sea");
 			if (header != null)
-				page.setHeaderImage(TextureManager.getTexture(ownerMod, "Textures/PDA/"+header));
-			page.register();
-			e.encyclopedia = page.id;
+				pdaPage.setHeaderImage(TextureManager.getTexture(ownerMod, "Textures/PDA/"+header));
+			pdaPage.register();
+			e.encyclopedia = pdaPage.id;
 			PDAHandler.AddCustomScannerEntry(e);
 		}
 		
