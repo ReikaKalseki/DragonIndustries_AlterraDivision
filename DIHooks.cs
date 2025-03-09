@@ -34,7 +34,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static event Action<Exosuit> onPrawnTickEvent;
 		public static event Action<SubRoot> onCyclopsTickEvent;
 		public static event Action<DamageToDeal> onDamageEvent;
-		public static event Action<Pickupable, Exosuit, bool> onItemPickedUpEvent;
+		public static event Action<ItemPickup> onItemPickedUpEvent;
 		public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
 		public static event Action<SkyApplier> onSkyApplierSpawnEvent;
 		public static event Action<Constructable, bool> onConstructedEvent;
@@ -116,6 +116,8 @@ namespace ReikaKalseki.DIAlterra {
 		public static bool skipSkyApplier = false;
 		
 		private static bool skipZeroedDeserialization = DIMod.config.getBoolean(DIConfig.ConfigEntries.SKIPZEROEDIDOVERWRITE);
+		
+		private static readonly List<Pickupable> collectedItemsToDestroy = new List<Pickupable>();
 	    
 		static DIHooks() {
 			SNUtil.log("Initializing DIHooks");	   
@@ -172,6 +174,22 @@ namespace ReikaKalseki.DIAlterra {
 				return amount;
 			}
 	    	
+	    	
+		}
+	    
+		public class ItemPickup {
+	    	
+			public readonly Pickupable item;
+			public readonly Exosuit prawn;
+			public readonly bool isKnife;
+			
+			public bool destroy = false;
+	    	
+			internal ItemPickup(Pickupable pp, Exosuit exo, bool knife) {
+				item = pp;
+				prawn = exo;
+				isKnife = knife;
+			}	    	
 	    	
 		}
 	    
@@ -862,6 +880,16 @@ namespace ReikaKalseki.DIAlterra {
 				return;
 			updateNotice.SetColor(Color.yellow);
 	    	
+			if (collectedItemsToDestroy.Count > 0) {
+				foreach (Pickupable pp in collectedItemsToDestroy) {
+					if (!pp)
+						continue;
+					Inventory.main.container.RemoveItem(pp, true);
+					UnityEngine.Object.Destroy(pp.gameObject);
+				}
+				collectedItemsToDestroy.Clear();
+			}
+	    	
 			StoryHandler.instance.tick(ep);
 			ScreenFXManager.instance.tick();
 	    	
@@ -1031,8 +1059,12 @@ namespace ReikaKalseki.DIAlterra {
 				cc.onPickup(p);
 	    	
 			if (onItemPickedUpEvent != null) {
-				foreach (Pickupable pp in collected)
-					onItemPickedUpEvent.Invoke(pp, prawn, isKnifeHarvesting);
+				foreach (Pickupable pp in collected) {
+					ItemPickup ip = new ItemPickup(pp, prawn, isKnifeHarvesting);
+					onItemPickedUpEvent.Invoke(ip);
+					if (ip.destroy)
+						collectedItemsToDestroy.Add(pp); //need to delegate until later because this is called before it is actually added to the inv
+				}
 			}
 		}
 	    
@@ -2254,6 +2286,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 	   
 		public static void onDrillableDrilled(Drillable dr, Vector3 pos, Exosuit driller) {
+	   		//SNUtil.writeToChat("Drilling "+dr+" @ "+pos+" by "+driller);
 			if (drillableDrillTickEvent != null && dr)
 				drillableDrillTickEvent.Invoke(dr, pos, driller);
 		}

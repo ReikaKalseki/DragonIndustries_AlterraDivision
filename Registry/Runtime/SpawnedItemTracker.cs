@@ -103,9 +103,11 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			
 			void OnDestroy() {
+				if (!Player.main)
+					return;
 				SNUtil.log("Destroying gameobject bearing spawn tag callback "+entry, SNUtil.diDLL);
 				SpawnTagSearchCallback s = Player.main.gameObject.EnsureComponent<SpawnTagSearchCallback>();
-				s.entry = this.entry;
+				s.entry = entry;
 				s.Invoke("register", 0.5F);
 			}
 			
