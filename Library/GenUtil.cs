@@ -18,13 +18,14 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Dictionary<TechType, Databox> databoxes = new Dictionary<TechType, Databox>();
 		private static readonly Dictionary<TechType, Crate>[] crates = new Dictionary<TechType, Crate>[2];
 		private static readonly Dictionary<TechType, FragmentGroup> fragments = new Dictionary<TechType, FragmentGroup>();
+		//private static readonly EmptyCrate emptyCrate;
 		
-		static GenUtil() {
+		static GenUtil() {	
 			crates[0] = new Dictionary<TechType, Crate>();
 			crates[1] = new Dictionary<TechType, Crate>();
 			
-			new EmptyCrate().Patch();
-			//new OpenWorldgenSeabaseDoor().Patch();
+			//emptyCrate = new EmptyCrate();
+			//emptyCrate.Patch();
 		}
 		
 		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
@@ -77,6 +78,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static SpawnInfo registerWorldgen(string prefab, Vector3 pos, Quaternion? rot = null, Action<GameObject> call = null) {
+			if (string.IsNullOrEmpty(prefab))
+				throw new Exception("Tried to register worldgen of null!");
 			validateCoords(pos);
 			SpawnInfo info = new SpawnInfo(prefab, pos, getOrIdentity(rot), call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
@@ -117,14 +120,6 @@ namespace ReikaKalseki.DIAlterra
 			return registerWorldgen(page.getPDAClassID(), pos, rot);
 		}
 		
-		public static SpawnInfo spawnItemCrate(Vector3 pos, TechType item, Vector3? rot = null) {
-			return spawnItemCrate(pos, item, Quaternion.Euler(getOrZero(rot)));
-		}
-		
-		public static SpawnInfo spawnItemCrate(Vector3 pos, TechType item, Quaternion? rot = null) {
-			return registerWorldgen(getOrCreateCrate(item).ClassID, pos, rot);
-		}
-		
 		public static SpawnInfo spawnFragment(Vector3 pos, TechnologyFragment mf, Quaternion? rot = null) {
 			return registerWorldgen(mf.fragmentPrefab.ClassID, pos, rot);
 		}
@@ -157,11 +152,11 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static ContainerPrefab getOrCreateCrate(TechType tech, bool needsCutter = false, Action<GameObject> modify = null) {
+		public static Spawnable getOrCreateCrate(TechType tech, bool needsCutter = false) {
 			int idx = needsCutter ? 1 : 0;
 			Crate box = crates[idx].ContainsKey(tech) ? crates[idx][tech] : null;
 			if (box == null) {
-				box = new Crate(tech, "580154dd-b2a3-4da1-be14-9a22e20385c8", needsCutter, modify); //battery
+				box = new Crate(tech, needsCutter);
 				crates[idx][tech] = box;
 				box.Patch();
 			}
@@ -348,193 +343,174 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		class Crate : ContainerPrefab {
+		class Crate : Spawnable {
 			
 			private readonly bool needsCutter;
+			private readonly TechType containedItem;
 	        
-	        internal Crate(TechType tech, string template, bool c, Action<GameObject> modify) : base(tech, template, modify) {
+			internal Crate(TechType tech, bool c = false) : base("Crate_"+tech.AsString()+"_"+c, "Supply Crate", "") {
+				containedItem = tech;
 				needsCutter = c;
+				
+				//SNUtil.log("Creating Crate_"+tech.AsString()+"_"+c);
+				//SNUtil.log(new System.Diagnostics.StackTrace().ToString());
+				
+				OnFinishedPatching += () => {
+					SaveSystem.addSaveHandler(ClassID, new SaveSystem.ComponentFieldSaveHandler<CrateManagement>().addField("isOpened").addField("itemGrabbed"));
+				};
 	        }
 			
-			public override void prepareGameObject(GameObject go, Renderer[] r) {
-				PrefabPlaceholdersGroup pre = go.EnsureComponent<PrefabPlaceholdersGroup>();
-				if (pre.prefabPlaceholders.Length != 1) {
-					GameObject pp = null;
-					foreach (Transform t in go.transform) {
-						if (t.gameObject && t.gameObject != go && t.gameObject.name != "Crate_treasure_chest") {
-							pp = t.gameObject;
-							break;
-						}
-					}
-					if (pp == null) {
-						pp = new GameObject();
-						pp.name = containedTech.AsString();
-						pp.transform.parent = go.transform;
-					}
-					pre.prefabPlaceholders = new PrefabPlaceholder[1];
-					pre.prefabPlaceholders[0] = pp.AddComponent<PrefabPlaceholder>();
-				}
-				string id = CraftData.GetClassIdForTechType(containedTech);
-				if (string.IsNullOrEmpty(id)) {
-					SNUtil.writeToChat("Could not find class id for techtype for crate: "+containedTech);
-					id = CraftData.GetClassIdForTechType(TechType.Titanium);
-				}
-				pre.prefabPlaceholders[0].prefabClassId = id;
-				pre.prefabPlaceholders[0].highPriority = true;
-				pre.prefabPlaceholders[0].name = containedTech.AsString();
+			public override GameObject GetGameObject() {
+				GameObject pfb = ObjectUtil.lookupPrefab("580154dd-b2a3-4da1-be14-9a22e20385c8");
+				GameObject go = new GameObject(ClassID+"(Clone)");
+				go.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
+				go.EnsureComponent<TechTag>().type = TechType;
+				go.EnsureComponent<LargeWorldEntity>().cellLevel = pfb.GetComponent<LargeWorldEntity>().cellLevel;
+				Animation a = pfb.GetComponentInChildren<Animation>();
+				GameObject mdl = UnityEngine.Object.Instantiate(a.gameObject);
+				mdl.transform.SetParent(go.transform);
+				mdl.transform.localRotation = Quaternion.identity;
+				mdl.transform.localPosition = new Vector3(0, 0.36F, 0.02F);
+				mdl.transform.localScale = Vector3.one*5.5F;
+				CrateManagement mgr = go.EnsureComponent<CrateManagement>();
+				mgr.itemToSpawn = containedItem;
+				
 				if (needsCutter) {
 					go.EnsureComponent<Sealed>()._sealed = true;
 				}
-				
-				SupplyCrate sp = go.EnsureComponent<SupplyCrate>();
-				go.EnsureComponent<CustomCrate>();
-				modifyObject(go);
-			}
-			
-		}
-		
-		internal class EmptyCrate : CustomPrefabImpl {
-	        
-	        internal EmptyCrate() : base("EmptyCrate", "580154dd-b2a3-4da1-be14-9a22e20385c8") {
-				
-	        }
-			
-			public override void prepareGameObject(GameObject go, Renderer[] r) {
-				go.GetComponentInChildren<Animation>().Play(go.GetComponent<SupplyCrate>().snapOpenOnLoad);
-				ObjectUtil.removeComponent<PrefabPlaceholdersGroup>(go);
-				ObjectUtil.removeComponent<CustomCrate>(go);
-				ObjectUtil.removeComponent<SupplyCrate>(go);
-				ObjectUtil.removeComponent<PrefabPlaceholder>(go);
-				go.EnsureComponent<EmptyCrateTag>();
-			}
-			
-		}
-		
-		class EmptyCrateTag : MonoBehaviour {
-			
-			private Animation animator;
-			
-			void Update() {
-				if (!animator)
-					animator = GetComponentInChildren<Animation>();
-				
-				if (animator)
-					animator.Play("crate_treasure_chest_open_static");
-			}
-		}
-		
-		internal class CustomCrate : MonoBehaviour {
-			
-			private PrefabPlaceholder reference;
-			private SupplyCrate crate;
-			
-			private Pickupable item;
-			private bool spawnedItem = false;
-			
-			void Update() {
-				if (!reference)
-					reference = GetComponentInChildren<PrefabPlaceholder>();
-				if (!crate)
-					crate = GetComponent<SupplyCrate>();
-				if (reference && !item && !spawnedItem) {
-					GameObject go = ObjectUtil.createWorldObject(reference.prefabClassId, true, false);
-					go.transform.parent = transform;
-					go.SetActive(true);
-					go.transform.localPosition = Vector3.zero;
-					go.transform.localRotation = Quaternion.identity;
-					go.GetComponent<Rigidbody>().isKinematic = true;
-					item = go.GetComponent<Pickupable>();
-					spawnedItem = true;
-				}
-				cleanDuplicateInternalItems();
-				if (reference && crate && crate.open) {
-					foreach (PrefabIdentifier pi in GetComponentsInChildren<PrefabIdentifier>()) {
-						if (pi && pi.classId == reference.prefabClassId) {
-							pi.gameObject.SetActive(true);
-							pi.transform.localPosition = Vector3.up*0.22F;
-						}
-					}
-				}
-			}
-			
-			internal void onPickup(Pickupable pp) {
-				if (pp == item) {/*
-					UnityEngine.Object.DestroyImmediate(reference);
-					UnityEngine.Object.DestroyImmediate(GetComponent<PrefabPlaceholdersGroup>());
-					UnityEngine.Object.DestroyImmediate(crate);
-					*/
-					GameObject put = ObjectUtil.createWorldObject("EmptyCrate");
-					put.transform.position = transform.position;
-					put.transform.rotation = transform.rotation;
-					put.transform.localScale = transform.localScale;
-					put.GetComponentInChildren<Animation>().Play(crate.snapOpenOnLoad);
-					UnityEngine.Object.Destroy(gameObject, 1.5F);
-				}
-			}
-			
-			private void cleanDuplicateInternalItems() {
-				if (reference && !string.IsNullOrEmpty(reference.prefabClassId)) {
-					bool found = false;
-					foreach (PrefabIdentifier pi in gameObject.GetComponentsInChildren<PrefabIdentifier>()) {
-						if (pi && pi.classId == reference.prefabClassId) {
-							if (found)
-								UnityEngine.Object.DestroyImmediate(pi.gameObject);
-							else
-								found = true;
-						}
-					}
-				}
+				return go;
 			}
 			
 		}
 		/*
-		internal class OpenWorldgenSeabaseDoor : Spawnable {
+		internal class EmptyCrate : Spawnable {
 	        
-			internal OpenWorldgenSeabaseDoor() : base("OpenWorldgenSeabaseDoor", "", "") {
+	        internal EmptyCrate() : base("EmptyCrate", "Empty Crate", "") {
 				
 	        }
 			
 			public override GameObject GetGameObject() {
-				GameObject go = ObjectUtil.getBasePiece(Base.Piece.CorridorBulkhead);
-				go.GetComponentInChildren<BulkheadDoor>().gameObject.EnsureComponent<OpenBaseDoorTag>();
+				GameObject pfb = ObjectUtil.lookupPrefab("580154dd-b2a3-4da1-be14-9a22e20385c8");
+				GameObject go = new GameObject("EmptyCrate(Clone)");
+				go.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
+				go.EnsureComponent<TechTag>().type = TechType;
+				go.EnsureComponent<LargeWorldEntity>().cellLevel = pfb.GetComponent<LargeWorldEntity>().cellLevel;
+				Animation a = pfb.GetComponentInChildren<Animation>();
+				GameObject mdl = UnityEngine.Object.Instantiate(a.gameObject);
+				mdl.transform.SetParent(go.transform);
+				mdl.transform.localRotation = Quaternion.identity;
+				mdl.transform.localPosition = new Vector3(0, 0.36F, 0.02F);
+				mdl.transform.localScale = Vector3.one*5.5F;
+				CrateManagement mgr = go.EnsureComponent<CrateManagement>();
+				mgr.autoOpen = true;
 				return go;
 			}
 			
-			internal static void lockOpen(BulkheadDoor door) {
-				GameObject put = ObjectUtil.createWorldObject("OpenWorldgenSeabaseDoor");
-				GameObject obj = door.gameObject.FindAncestor<SeabaseReconstruction.WorldgenBulkhead>().gameObject;
-				put.transform.position = obj.transform.position;
-				put.transform.rotation = obj.transform.rotation;
-				put.transform.localScale = obj.transform.localScale;
-				UnityEngine.Object.DestroyImmediate(obj);
-				//SNUtil.writeToChat("Created replacement door");
+		}
+		*/
+		internal class CrateManagement : MonoBehaviour, IHandTarget {
+			
+			public bool isOpened;
+			public bool itemGrabbed;
+			public TechType itemToSpawn;
+			
+			private string openAnimation = "Open_SupplyCrate";
+			private string openText = "Open_SupplyCrate";
+			private string snapOpenAnimation;
+			private FMODAsset openSound;
+			
+			private Sealed laserSeal;
+			
+			private Pickupable itemInside;
+			
+			void Start() {
+				laserSeal = GetComponent<Sealed>();
+				SupplyCrate sc = ObjectUtil.lookupPrefab("580154dd-b2a3-4da1-be14-9a22e20385c8").GetComponent<SupplyCrate>();
+				openText = sc.openText;
+				openSound = sc.openSound;
+				openAnimation = sc.openClipName;
+				snapOpenAnimation = sc.snapOpenOnLoad;
+				Invoke("delayedStart", 0.5F);
+			}
+			
+			void delayedStart() {
+				if (isOpened && !GetComponentInChildren<Animation>().Play(snapOpenAnimation)) {
+					Invoke("delayedStart", 0.5F);
+					return;
+				}
+				if (itemToSpawn != TechType.None) {
+					cacheItem();
+					if (!itemInside && !itemGrabbed) {
+						itemInside = ObjectUtil.createWorldObject(itemToSpawn).GetComponent<Pickupable>();
+						SNUtil.log("Filling crate @ "+transform.position+" with "+itemInside);
+						itemInside.transform.SetParent(transform);
+						itemInside.transform.localPosition = new Vector3(0, 0.33F, 0);
+						itemInside.transform.localRotation = Quaternion.identity;
+						itemInside.transform.localScale = Vector3.one;
+						itemInside.GetComponent<Rigidbody>().isKinematic = true;
+					}
+				}
+			}
+			
+			void Update() {
+				if (itemInside)
+					itemInside.isPickupable = isOpened;
+			}
+
+			private void cacheItem() {
+				this.itemInside = GetComponentInChildren<Pickupable>();
+			}
+
+			public void OnHandHover(GUIHand h) {
+				this.cacheItem();
+				bool flag = false;
+				if (!this.isOpened) {
+					if (!this.laserSeal || !this.laserSeal.IsSealed()) {
+						HandReticle.main.SetInteractText(this.openText);
+					}
+					else {
+						HandReticle.main.SetInteractText("Sealed_SupplyCrate", "SealedInstructions");
+					}
+					flag = true;
+				}
+				else
+				if (this.itemInside) {
+					HandReticle.main.SetInteractText("TakeItem_SupplyCrate");
+					flag = true;
+				}
+				if (flag) {
+					HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
+				}
+			}
+
+			public void OnHandClick(GUIHand h) {
+				this.cacheItem();
+				if (!this.laserSeal || !this.laserSeal.IsSealed()) {
+					if (!this.isOpened) {
+						this.isOpened = true;
+						Utils.PlayFMODAsset(this.openSound, transform, 20f);
+						Animation a = GetComponentInChildren<Animation>();
+						if (a) {
+							a.Play(openAnimation);
+						}
+						return;
+					}
+					if (this.itemInside) {
+						Inventory.main.Pickup(this.itemInside, false);
+						itemGrabbed = true;
+						this.itemInside = null;
+					}
+				}
+			}
+			
+			public void onPickup(Pickupable p) {
+				if (p && p.GetTechType() == itemToSpawn) {
+					itemGrabbed = true;
+					itemInside = null;
+				}
 			}
 			
 		}
-		
-		class OpenBaseDoorTag : MonoBehaviour {
-			
-			private BulkheadDoor door;
-			
-			void Update() {
-				if (!door)
-					door = GetComponent<BulkheadDoor>();
-				
-				if (door && !door.isOpen) {
-					door.targetState = true;
-					door.SetClips();
-					door.ResetAnimations();
-					door.animState = door.SetAnimationState(door.doorClipName);
-					door.animState.normalizedTime = 1f;
-					door.doorAnimation.Sample();
-					door.doorClipName = null;
-					door.viewClipName = null;
-					door.sound = null;
-					door.NotifyStateChange();
-					UnityEngine.Object.DestroyImmediate(door);
-				}
-			}
-		}*/
 		
 	}
 }

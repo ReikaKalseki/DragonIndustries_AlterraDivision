@@ -1054,8 +1054,8 @@ namespace ReikaKalseki.DIAlterra {
 				}
 			}
 	    	*/
-			GenUtil.CustomCrate cc = WorldUtil.getClosest<GenUtil.CustomCrate>(p.gameObject);
-			if (cc)
+			GenUtil.CrateManagement cc = WorldUtil.getClosest<GenUtil.CrateManagement>(p.gameObject);
+			if (cc && Vector3.Distance(p.transform.position, cc.transform.position) < 1.5F)
 				cc.onPickup(p);
 	    	
 			if (onItemPickedUpEvent != null) {
@@ -1162,6 +1162,8 @@ namespace ReikaKalseki.DIAlterra {
 	    		foreach (Collider c in pi.GetComponentsInChildren<Collider>())
 	    			c.gameObject.EnsureComponent<ColliderPrefabLink>().init(pi);
 	    	}*/
+			if (ObjectUtil.isPlayer(pk))
+				pk.gameObject.EnsureComponent<AoERadiationTracker>();
 			if (pk.GetComponent<Vehicle>()) {
 				pk.gameObject.EnsureComponent<FixedBounds>()._bounds = new Bounds(Vector3.zero, Vector3.one * 5);
 				GameObject go = ObjectUtil.getChildObject(pk.gameObject, "LavaWarningTrigger");
@@ -1180,6 +1182,9 @@ namespace ReikaKalseki.DIAlterra {
 			FruitPlant fp = pk.GetComponent<FruitPlant>();
 			if (fp) {
 				fp.gameObject.EnsureComponent<FruitPlantTag>().setPlant(fp);
+			}
+			if (pi && pi.ClassId == "bb16d2bf-bc85-4bfa-a90e-ddc7343b0ac2") {
+				WreckDoorSwaps.setupRepairableDoor(pk.gameObject);
 			}
 			if (onSkyApplierSpawnEvent != null) {
 				try {
@@ -2086,12 +2091,15 @@ namespace ReikaKalseki.DIAlterra {
 	    
 		public static float getRadiationLevel(Player p, float orig) {
 			float ret = orig;
+			ret = Mathf.Max(ret, p.GetComponent<AoERadiationTracker>().getRadiationIntensity());
+			//SNUtil.writeToChat("Rad "+ret.ToString());
 			//SNUtil.writeToChat((radiationCheckEvent != null)+" # "+orig);
 			if (radiationCheckEvent != null) {
-				RadiationCheck ch = new RadiationCheck(p.transform.position, orig);
+				RadiationCheck ch = new RadiationCheck(p.transform.position, ret);
 				radiationCheckEvent.Invoke(ch);
 				ret = ch.value;
 			}
+			//SNUtil.writeToChat("PRad "+ret.ToString());
 			return ret;
 		}
 	    
@@ -2614,7 +2622,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static void registerUID(UniqueIdentifier uid) {
 			string id = uid.id;
 			if (string.IsNullOrEmpty(id)) {
-				SNUtil.log("Skipping register of UID with null ID: "+uid.name+" @ "+uid.transform.position, SNUtil.diDLL);
+				//SNUtil.log("Skipping register of UID with null ID: "+uid.name+" @ "+uid.transform.position, SNUtil.diDLL);
 				return;
 			}
 			UniqueIdentifier has;

@@ -65,6 +65,12 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static void setupRepairableDoor(GameObject panel) {
+			WeldableWallPanelGeneric weld = panel.EnsureComponent<WeldableWallPanelGeneric>();
+			LiveMixin lv = weld.GetComponentInChildren<LiveMixin>();
+			lv.data.canResurrect = true;
+		}
+		
 		public class DoorSwap {
 			
 			internal readonly Vector3 position;
@@ -108,9 +114,7 @@ namespace ReikaKalseki.DIAlterra
 						GameObject panel = ObjectUtil.createWorldObject("bb16d2bf-bc85-4bfa-a90e-ddc7343b0ac2", true, true);
 						panel.transform.position = put.transform.position;
 						panel.transform.rotation = put.transform.rotation;
-						WeldableWallPanelGeneric weld = panel.EnsureComponent<WeldableWallPanelGeneric>();
-						LiveMixin lv = weld.GetComponentInChildren<LiveMixin>();
-						lv.data.canResurrect = true;
+						setupRepairableDoor(panel);
 					}
 				}
 			}

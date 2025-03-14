@@ -286,7 +286,10 @@ namespace ReikaKalseki.DIAlterra {
 				}
 				else {
 					try {
-						SNUtil.log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id, SNUtil.diDLL);
+						string s = string.Join("/", prefix)+" -> Node #"+i+": "+node.id;
+						if (Language.main)
+							s += " ("+Language.main.Get("Ency_"+node.id)+")";
+						SNUtil.log(s, SNUtil.diDLL);
 						prefix.Add(node.id);
 						dumpCraftTreeFromNode((CraftNode)node, prefix);
 						prefix.RemoveAt(prefix.Count-1);
@@ -400,6 +403,26 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			return ret;
 		}
+		/*
+		public static bool areAnyRecipesOfTypeKnown(CraftTree.Type tree) {
+			return areAnyRecipesUnderNodeKnown(getRootNode(tree));
+		}
+		
+		public static bool areAnyRecipesUnderNodeKnown(CraftNode root) {
+			if (root == null)
+				return false;
+			List<TreeNode> nodes = root.nodes;
+			for (int i = 0; i < nodes.Count; i++) {
+				TreeNode node = nodes[i];
+				if (node != null) {
+					if (node.
+						SNUtil.log(string.Join("/", prefix)+" -> Node #"+i+": "+node.id, SNUtil.diDLL);
+						prefix.Add(node.id);
+						dumpCraftTreeFromNode((CraftNode)node, prefix);
+						prefix.RemoveAt(prefix.Count-1);
+				}
+			}
+		}*/
 		
 		public class RecipeNode {
 			

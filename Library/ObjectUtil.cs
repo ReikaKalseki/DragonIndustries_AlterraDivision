@@ -290,16 +290,23 @@ namespace ReikaKalseki.DIAlterra
 			return gameObject;
 		}
 		
-		public static int removeChildObject(GameObject go, string name, bool immediate = true, bool recursive = true) {
-			List<GameObject> li = getChildObjects(go, name, recursive);
-			foreach (GameObject find in li) {
+		public static int removeChildObject(GameObject go, string name, bool immediate = true) {
+			GameObject find = getChildObject(go, name);
+			int found = 0;
+			while (go && find) {
 				find.SetActive(false);
 				if (immediate)
 					UnityEngine.Object.DestroyImmediate(find);
 				else
 					UnityEngine.Object.Destroy(find);
+				find = getChildObject(go, name);
+				found++;
+				if (found > 500) {
+					SNUtil.log("REMOVING CHILD OBJECT STUCK IN INFINITE LOOP INSIDE "+go.GetFullHierarchyPath()+"!");
+					return found;
+				}
 			}
-			return li.Count;
+			return found;
 		}
 		
 		public static List<GameObject> getChildObjects(GameObject go) {
@@ -824,10 +831,12 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public static bool isPlayer(Component c, bool allowChildren = false) {
-			return allowChildren ? (bool)c.gameObject.FindAncestor<Player>() : c.gameObject == Player.main.gameObject;
+			return isPlayer(c.gameObject, allowChildren);
 		}
 		
 		public static bool isPlayer(GameObject c, bool allowChildren = false) {
+			if (!Player.main)
+				return false;
 			return allowChildren ? (bool)c.FindAncestor<Player>() : c == Player.main.gameObject;
 		}
 		

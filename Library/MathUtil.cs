@@ -167,5 +167,9 @@ namespace ReikaKalseki.DIAlterra
 			return Quaternion.AngleAxis(angle, axis) * input;
 		}
 		
+		public static Vector3 getRandomPointAtSetDistance(Vector3 pos, float dist) {
+			return pos+new Vector3(UnityEngine.Random.Range(-1F, 1F), UnityEngine.Random.Range(-1F, 1F), UnityEngine.Random.Range(-1F, 1F)).setLength(dist);
+		}
+		
 	}
 }

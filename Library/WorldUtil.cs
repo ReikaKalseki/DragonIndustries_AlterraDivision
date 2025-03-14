@@ -3,6 +3,7 @@ using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
@@ -22,6 +23,8 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly Vector3 LAVA_DOME = new Vector3(-273, -1355, -152);
 		public static readonly Vector3 SUNBEAM_SITE = new Vector3(301, 15, 1086);
 		public static readonly Vector3 DEGASI_FLOATING_BASE = new Vector3(-763, 20, -1104);
+		public static readonly Vector3 DEGASI_JELLY_BASE = new Vector3(85, -260, -356);
+		public static readonly Vector3 DEGASI_DGR_BASE = new Vector3(-643, -505, -944.5F);
 		
     	public readonly static Vector3 lavaCastleCenter = new Vector3(-49, -1242, 118);
     	public readonly static float lavaCastleInnerRadius = 65;//75;
@@ -31,14 +34,61 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Vector3 auroraPoint2 = new Vector3(1295, 0, 110-50);
 		private static readonly float auroraPointRadius = 275;
 		
-		private static readonly Vector3[] geysers = new Vector3[]{
+		//public static HashSet<PositionedPrefab> registeredGeysers = new HashSet<PositionedPrefab>();
 		
+		private static readonly HashSet<Vector3> geysers = new HashSet<Vector3>();
+		/*
+		public static void dumpGeysers() {
+			string file = BuildingHandler.instance.dumpPrefabs("geysers", registeredGeysers);
+			SNUtil.writeToChat("Exported "+registeredGeysers.Count+" geysers to "+file);
+		}
+		*/
+		public enum CompassDirection {
+			NORTH,
+			EAST,
+			SOUTH,
+			WEST,
+		}
+		
+		public static CompassDirection getOpposite(CompassDirection dir) {
+			switch(dir) {
+				case CompassDirection.NORTH:
+					return CompassDirection.SOUTH;
+				case CompassDirection.EAST:
+					return CompassDirection.WEST;
+				case CompassDirection.SOUTH:
+					return CompassDirection.NORTH;
+				case CompassDirection.WEST:
+					return CompassDirection.EAST;
+			}
+			throw new Exception("Unrecognized direction");
+		}
+		
+		public static readonly Dictionary<CompassDirection, Vector3> compassAxes = new Dictionary<CompassDirection, Vector3>(){
+			{CompassDirection.NORTH, new Vector3(0, 0, 1)},
+			{CompassDirection.EAST, new Vector3(1, 0, 0)},
+			{CompassDirection.SOUTH, new Vector3(0, 0, -1)},
+			{CompassDirection.WEST, new Vector3(-1, 0, 0)},
 		};
 		
 		//private static readonly Dictionary<string, string> biomeNames = new Dictionary<string, string>();
 		
 		static WorldUtil() {
-			
+			string file = Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "geysers.xml");
+			if (File.Exists(file)) {
+				XmlDocument doc = new XmlDocument();
+				doc.Load(file);
+				foreach (XmlElement e in doc.DocumentElement.ChildNodes) {
+					try {
+						PositionedPrefab pfb = (PositionedPrefab)ObjectTemplate.construct(e);
+						geysers.Add(pfb.position);
+					}
+					catch (Exception ex) {
+						SNUtil.log(ex.ToString());
+						SNUtil.writeToChat("Could not load XML block, threw exception: " + ex.ToString() + " from " + e.format());
+					}
+				}
+			}
 		}
 		/*
 		private static void mapBiomeName(string name, params string[] keys) {
@@ -284,7 +334,7 @@ batch_id = (19, 17, 16)
 		}
 		
 		public static bool isMountainIsland(Vector3 pos) {
-			return pos.y > 0 && ((pos-SUNBEAM_SITE).sqrMagnitude <= 2500 || VanillaBiomes.MOUNTAINS.isInBiome(pos));
+			return pos.y > 1 && ((pos-SUNBEAM_SITE).sqrMagnitude <= 2500 || VanillaBiomes.MOUNTAINS.isInBiome(pos));
 		}
 		
 		public static string getRegionalDescription(Vector3 pos, bool includeDepth) {
@@ -292,6 +342,8 @@ batch_id = (19, 17, 16)
 				return "Lava Dome";
 			if ((pos-DUNES_METEOR).sqrMagnitude <= 14400)
 				return "Meteor Crater";
+			if (isMountainIsland(pos))
+				return "Mountain Island";
 			float dist = (pos-lavaCastleCenter).sqrMagnitude;
 			if (dist <= lavaCastleInnerRadius*lavaCastleInnerRadius+225)
 				return "Lava Castle (Interior)";
@@ -355,6 +407,11 @@ batch_id = (19, 17, 16)
 				ew = "";
 			if (!bb.existsInSeveralPlaces() || Math.Abs(pos.z) < 250 || Math.Abs(pos.z) < Math.Abs(pos.x)/2.5F)
 				ns = "";
+			if (Vector3.Distance(pos, getNearestGeyserPosition(pos)) <= 50) {
+				ew = "";
+				ns = "";
+				biome += " Geyser";
+			}
 			bool pre = !string.IsNullOrEmpty(ew) || !string.IsNullOrEmpty(ns);
 			string loc = ns+ew+(pre ? " " : "")+biome;
 			if (includeDepth)

@@ -74,6 +74,8 @@ namespace ReikaKalseki.DIAlterra {
 		public static void handleLoad() {
 			string dir = SNUtil.getCurrentSaveDir();
 			string path = Path.Combine(dir, saveFileName);
+			if (!File.Exists(path))
+				return;
 			spawns.Clear();
 			spawnedIDs.Clear();
 			string[] content = File.ReadAllLines(path);

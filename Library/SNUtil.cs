@@ -550,5 +550,9 @@ namespace ReikaKalseki.DIAlterra
 			return b;
 		}
 		
+		public static bool isPlayerCured() {
+			return Story.StoryGoalManager.main.completedGoals.Contains("Infection_Progress5");
+		}
+		
 	}
 }

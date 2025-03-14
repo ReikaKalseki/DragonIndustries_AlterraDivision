@@ -90,11 +90,14 @@ namespace ReikaKalseki.DIAlterra
 							}
 							else if (ot is CustomPrefab) {
 								CustomPrefab pfb = (CustomPrefab)ot;
+								/*
 								if (pfb.isCrate) {
-									GenUtil.spawnItemCrate(pfb.position, pfb.tech, pfb.rotation);
+									//GenUtil.spawnItemCrate(pfb.position, pfb.tech, pfb.rotation);
+									GenUtil.registerWorldgen(pfb.prefabName, )
+										
 							    	//CrateFillMap.instance.addValue(gen.position, gen.tech);
 								}
-								else if (pfb.isDatabox) {
+								else */if (pfb.isDatabox) {
 							        GenUtil.spawnDatabox(pfb.position, pfb.tech, pfb.rotation);
 							    	//DataboxTypingMap.instance.addValue(gen.position, gen.tech);
 								}

@@ -61,7 +61,9 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures CRABSNAKE = new VanillaCreatures("911afe46-6178-4594-b23c-e577e7633622").addBiome(VanillaBiomes.JELLYSHROOM);
 		public static readonly VanillaCreatures LAVALIZARD = new VanillaCreatures("2fbb2894-a01a-46b4-8748-e871bf23f646").addBiome(VanillaBiomes.ILZ);
 		public static readonly VanillaCreatures RIVERPROWLER = new VanillaCreatures("e82d3c24-5a58-4307-a775-4741050c8a78").addBiome(VanillaBiomes.LOSTRIVER);
+		
 		public static readonly VanillaCreatures WARPER = new VanillaCreatures("c7103527-f6fa-4d1e-a75d-146433851557").addBiome(VanillaBiomes.MOUNTAINS).addBiome(VanillaBiomes.DUNES).addBiome(VanillaBiomes.TREADER).addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.GRANDREEF).addBiome(VanillaBiomes.DEEPGRAND).addBiome(VanillaBiomes.LOSTRIVER).addBiome(VanillaBiomes.ILZ).addBiome(VanillaBiomes.ALZ);
+		public static readonly VanillaCreatures PRECURSORCRAB = new VanillaCreatures("4fae8fa4-0280-43bd-bcf1-f3cba97eed77").addBiome(VanillaBiomes.ILZ).addBiome(VanillaBiomes.ALZ);
 		
 		public static readonly VanillaCreatures REEFBACK = new VanillaCreatures("8d3d3c8b-9290-444a-9fea-8e5493ecd6fe").addBiome(VanillaBiomes.REDGRASS).addBiome(VanillaBiomes.MUSHROOM).addBiome(VanillaBiomes.SPARSE).addBiome(VanillaBiomes.UNDERISLANDS).addBiome(VanillaBiomes.GRANDREEF);
 		public static readonly VanillaCreatures REEFBACK_BABY = new VanillaCreatures("34765384-821f-41ad-b716-1b68c507e4f2");
@@ -72,6 +74,10 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaCreatures GHOST_LEVIATHAN_BABY = new VanillaCreatures("5ea36b37-300f-4f01-96fa-003ae47c61e5").addBiome(VanillaBiomes.LOSTRIVER);
 		public static readonly VanillaCreatures GHOST_LEVIATHAN = new VanillaCreatures("54701bfc-bb1a-4a84-8f79-ba4f76691bef").addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.GRANDREEF).addBiome(VanillaBiomes.VOID);
 		public static readonly VanillaCreatures SEADRAGON = new VanillaCreatures("ff43eacd-1a9e-4182-ab7b-aa43c16d1e53").addBiome(VanillaBiomes.ILZ).addBiome(VanillaBiomes.ALZ);
+		
+		//public static readonly VanillaCreatures EMPEROR = new VanillaCreatures(); //not a prefab
+		public static readonly VanillaCreatures EMPEROR_BABY = new VanillaCreatures("09883a6c-9e78-4bbf-9561-9fa6e49ce766");
+		public static readonly VanillaCreatures EMPEROR_JUVENILE = new VanillaCreatures("c9a28181-a0eb-4ae5-9fb8-ce57772980f1").addBiome(VanillaBiomes.GRANDREEF).addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.CRAG).addBiome(VanillaBiomes.DUNES).addBiome(VanillaBiomes.MOUNTAINS);
 		
 		public static readonly VanillaCreatures SCHOOL_HOOPFISH = new VanillaCreatures("08cb3290-504b-4191-97ee-6af1588af5c0").addBiome(VanillaBiomes.MOUNTAINS).addBiome(VanillaBiomes.KELP);
 		public static readonly VanillaCreatures SCHOOL_SPINEFISH = new VanillaCreatures("2d3ea578-e4fa-4246-8bc9-ed8e66dec781").addBiome(VanillaBiomes.BLOODKELP).addBiome(VanillaBiomes.BLOODKELPNORTH).addBiome(VanillaBiomes.LOSTRIVER);

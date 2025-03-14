@@ -114,6 +114,18 @@ namespace ReikaKalseki.DIAlterra
 			return go.GetComponentInChildren<Renderer>().materials[0].GetTexture(texType);
 		}
 		
+		public static void copyTextures(string pfb, Renderer to, int idxf = 0, int idxt = 0) {
+			GameObject go = ObjectUtil.lookupPrefab(pfb);
+			if (!go)
+				throw new Exception("Prefab "+pfb+" does not exist!");
+			Renderer from = go.GetComponentInChildren<Renderer>();
+			if (!from)
+				throw new Exception("Prefab "+pfb+" has no renderer to pull textures from!");
+			foreach (String type in texTypes) {
+				to.materials[idxt].SetTexture(type, from.materials[idxf].GetTexture(type));
+			}
+		}
+		
 		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
 			if (r == null)
 				throw new Exception("Tried to retexture a null renderer!");

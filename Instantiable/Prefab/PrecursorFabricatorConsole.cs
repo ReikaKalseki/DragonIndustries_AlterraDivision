@@ -177,26 +177,33 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 				
-				float trash;
-				if (fab) {
-					if (!fab.powerRelay)
-						fab.powerRelay = gameObject.EnsureComponent<PowerRelay>();
-					if (!fab.powerRelay.internalPowerSource)
-						fab.powerRelay.internalPowerSource = gameObject.EnsureComponent<PowerSource>();
-					fab.powerRelay.AddEnergy(5, out trash);
-				}
-				
-				if (template != null) {
+				if (template != null && fab) {
 					string barrier = null;
 					foreach (KeyValuePair<string, string> kvp in template.storyGoals) {
 						if (!StoryGoalManager.main.IsGoalComplete(kvp.Key)) {
 							barrier = kvp.Value;
 							break;
 						}
-					}
+					}/*
+					if (barrier == null && !RecipeUtil.areAnyRecipesOfTypeKnown(fab.craftTree)) {
+						
+					}*/
 					bool working = barrier == null;
-					if (fab)
-						fab.handOverText = working ? "Craft" : barrier;
+					fab.handOverText = working ? "Craft" : barrier;
+						
+					float trash;
+					if (!fab.powerRelay)
+						fab.powerRelay = gameObject.EnsureComponent<PowerRelay>();
+					if (!fab.powerRelay.internalPowerSource)
+						fab.powerRelay.internalPowerSource = gameObject.EnsureComponent<PowerSource>();
+					if (working) {
+						fab.closeDistance = 5F;
+						fab.powerRelay.AddEnergy(5, out trash);
+					}
+					else {
+						fab.closeDistance = 0.1F;
+						fab.powerRelay.ConsumeEnergy(9999, out trash);
+					}
 				}
 			}
 			/*

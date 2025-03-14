@@ -131,7 +131,8 @@ namespace ReikaKalseki.DIAlterra
 		public void dumpTextures() {
 			foreach (PlacedObject go in items.Values) {
 				if (go.isSelected) {
-					RenderUtil.dumpTextures(SNUtil.diDLL, go.obj.GetComponentInChildren<Renderer>());
+					foreach (Renderer r in go.obj.GetComponentsInChildren<Renderer>())
+						RenderUtil.dumpTextures(SNUtil.diDLL, r);
 				}
 			}
 		}
