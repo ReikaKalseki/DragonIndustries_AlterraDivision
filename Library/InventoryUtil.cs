@@ -83,7 +83,12 @@ namespace ReikaKalseki.DIAlterra
 				return;
 			}
 			obj.SetActive(false);
-			Inventory.main.ForcePickup(obj.GetComponent<Pickupable>());
+			Pickupable pp = obj.GetComponent<Pickupable>();
+			if (!pp) {
+				SNUtil.writeToChat("Could not add "+Language.main.Get(tt)+" to inventory - no Pickupable");
+				return;
+			}
+			Inventory.main.ForcePickup(pp);
 		}
 		/*
 		public static bool removeItem(ItemsContainer sc, InventoryItem ii) {
