@@ -23,24 +23,63 @@ namespace ReikaKalseki.DIAlterra
 {		
 	public class WreckDoorSwaps : ManipulationBase {
 		
+		private static readonly string DOOR_FRAME = "055b3160-f57b-46ba-80f5-b708d0c8180e";
+		
 		private List<DoorSwap> swaps = new List<DoorSwap>();
 		
 		public override void applyToObject(GameObject go) {
+			GameObject doors = ObjectUtil.getChildObject(go, "Doors");
+			List<DoorSwap> unfound = new List<DoorSwap>();
 			foreach (DoorSwap d in swaps) {
 				bool found = false;
-				foreach (Transform t in ObjectUtil.getChildObject(go, "Doors").transform) {
-					if (!t || !t.gameObject)
-						continue;
-					Vector3 pos = t.position;
-					//SNUtil.log("Checking door "+t.position);
-					if (Vector3.Distance(d.position, pos) <= 0.5) {
-						found = true;
-						d.applyTo(t.gameObject);
-						//SNUtil.log("Matched to door "+pos+", converted to "+d.doorType, SNUtil.diDLL);
+				if (doors) {
+					foreach (Transform t in doors.transform) {
+						if (!t || !t.gameObject)
+							continue;
+						Vector3 pos = t.position;
+						//SNUtil.log("Checking door "+t.position);
+						if (Vector3.Distance(d.position, pos) <= 0.5) {
+							found = true;
+							d.applyTo(t.gameObject);
+						}
 					}
 				}
-				if (!found)
-					SNUtil.log("Door swap @ "+d.position+" found no match!!", SNUtil.diDLL);
+				if (!found) {
+					unfound.Add(d);
+				}
+			}
+			if (unfound.Count > 0) {
+				SNUtil.log("Some door swaps found no easy match, checking all PIs "+unfound.toDebugString(), SNUtil.diDLL);
+				foreach (PrefabIdentifier pi in go.GetComponentsInChildren<PrefabIdentifier>(true)) {
+					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
+						for (int i = unfound.Count-1; i >= 0; i--) {
+							DoorSwap d = unfound[i];
+							if (Vector3.Distance(d.position, pi.transform.position) <= 0.5) {
+								d.applyTo(pi.gameObject);
+								unfound.RemoveAt(i);
+							}
+						}
+						if (unfound.Count == 0)
+							break;
+					}
+				}
+			}
+			if (unfound.Count > 0) {
+				SNUtil.log("Some door swaps ("+unfound.Count+"/"+swaps.Count+") for "+go.name+" @ "+go.transform.position+" found no match!! "+unfound.toDebugString(), SNUtil.diDLL);
+				string has = "Door candidates:\n";
+				if (doors) {
+					foreach (Transform t in doors.transform) {
+						if (t) {
+							has += t.name+" @ "+t.transform.position+"\n";
+						}
+					}
+				}
+				foreach (PrefabIdentifier pi in go.GetComponentsInChildren<PrefabIdentifier>()) {
+					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
+						has += pi.name+" ["+pi.ClassId+"] @ "+pi.transform.position+"\n";
+					}
+				}
+				SNUtil.log(has, SNUtil.diDLL);
 			}
 		}
 		
@@ -85,12 +124,15 @@ namespace ReikaKalseki.DIAlterra
 				{"Delete", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
 			};
 			
+			internal static readonly HashSet<string> doorPrefabIDs = new HashSet<string>(doorPrefabs.Values);
+			
 			public DoorSwap(Vector3 pos, string t) {
 				position = pos;
 				doorType = t;
 			}
 			
 			public void applyTo(GameObject go) {
+				//SNUtil.log("Matched to door "+go.transform.position+", converted to "+d.doorType, SNUtil.diDLL);
 				Transform par = go.transform.parent;
 				GameObject put = ObjectUtil.createWorldObject(doorPrefabs[doorType], true, true);
 				if (put == null) {
@@ -118,6 +160,11 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
+			
+			public override string ToString() {
+				return string.Format("[DoorSwap @ {0}, type={1}]", position, doorType);
+			}
+
 			
 			
 		}

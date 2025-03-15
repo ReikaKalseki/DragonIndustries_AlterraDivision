@@ -326,6 +326,12 @@ namespace ReikaKalseki.DIAlterra
 			return xml.OuterXml;
 		}
 		
+		public static XmlElement addChild(this XmlElement e, string name) {
+			XmlElement e2 = e.OwnerDocument.CreateElement(name);
+			e.AppendChild(e2);
+			return e2;
+		}
+		
 		public static Int3 roundToInt3(this Vector3 vec) {
 			return new Int3((int)Math.Floor(vec.x), (int)Math.Floor(vec.y), (int)Math.Floor(vec.z));
 		}

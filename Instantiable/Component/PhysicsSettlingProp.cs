@@ -25,6 +25,8 @@ namespace ReikaKalseki.DIAlterra {
 		
 		public Rigidbody body {get; private set;}
 		
+		public Predicate<PhysicsSettlingProp> destroyCondition;
+		
 		private float time;
 		
 		public static void export(string key) {
@@ -50,12 +52,18 @@ namespace ReikaKalseki.DIAlterra {
 			locations[key].Remove(pfb);
 		}
 		
+		void Start() {
+			body = GetComponentInChildren<Rigidbody>();
+		}
+		
 		public void Update() {
 			if (!body)
 				body = GetComponentInChildren<Rigidbody>();
 			time += Time.deltaTime;			
-			onUpdate();				
-			if (time > 15F && body.velocity.magnitude < 0.05 && body.angularVelocity.magnitude < 0.05 && !GetComponent<PropulseCannonAmmoHandler>())
+			onUpdate();
+			if (destroyCondition != null && destroyCondition.Invoke(this))
+				UnityEngine.Object.Destroy(gameObject);
+			else if (time > 15F && body.velocity.magnitude < 0.05 && body.angularVelocity.magnitude < 0.05 && !GetComponent<PropulseCannonAmmoHandler>())
 				fixInPlace();
 		}
 		
@@ -66,6 +74,7 @@ namespace ReikaKalseki.DIAlterra {
 		public void init(string key, int duration) {
 			freeTime = duration;
 			this.key = key;
+			Start();
 			Invoke("fixInPlace", freeTime);
 		}
 		
@@ -75,7 +84,7 @@ namespace ReikaKalseki.DIAlterra {
 			body.isKinematic = true;
 			prefabMarker = new PositionedPrefab(GetComponent<PrefabIdentifier>());
 			addPrefab(key, prefabMarker);
-			SNUtil.log("Locked "+prefabMarker+" at time "+time);
+			//SNUtil.log("Locked "+prefabMarker+" at time "+time);
 			//UnityEngine.Object.Destroy(this);
 		}
 		
@@ -89,9 +98,17 @@ namespace ReikaKalseki.DIAlterra {
 			Invoke("fixInPlace", freeTime);
 		}
 		
-		public void delete() {
+		public void bump(float vel) {
+			bump(UnityEngine.Random.onUnitSphere*vel);
+		}
+		
+		public void bump(Vector3 vec) {
+			unlock();
+			body.velocity = vec;
+		}
+		
+		void OnDestroy() {
 			removePrefab(key, prefabMarker);
-			UnityEngine.Object.Destroy(gameObject);
 		}
 		
 	}

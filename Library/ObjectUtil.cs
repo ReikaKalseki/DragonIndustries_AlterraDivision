@@ -755,7 +755,10 @@ namespace ReikaKalseki.DIAlterra
 			go.SetActive(true);
 			foreach (Behaviour mb in go.GetComponentsInChildren<Behaviour>(true)) {
 				mb.enabled = true;
-				mb.gameObject.SetActive(true);
+			}
+			foreach (Transform t in go.transform) {
+				if (t)
+					fullyEnable(t.gameObject);
 			}
 		}
 		

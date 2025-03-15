@@ -14,8 +14,8 @@ namespace ReikaKalseki.DIAlterra
 {
 	public static class InventoryUtil {
 		
-		public static HashSet<TechType> getVehicleUpgrades(Vehicle v) {
-			HashSet<TechType> set = new HashSet<TechType>();
+		public static List<TechType> getVehicleUpgrades(Vehicle v) {
+			List<TechType> set = new List<TechType>();
 			foreach (int idx in v.slotIndexes.Values) {
 				InventoryItem ii = v.GetSlotItem(idx);
 				if (ii != null && ii.item)
@@ -40,8 +40,8 @@ namespace ReikaKalseki.DIAlterra
 			return ii != null && ii.item.GetTechType() == tt;
 		}
 		
-		public static HashSet<TechType> getCyclopsUpgrades(SubRoot sub) {
-			HashSet<TechType> set = new HashSet<TechType>();
+		public static List<TechType> getCyclopsUpgrades(SubRoot sub) {
+			List<TechType> set = new List<TechType>();
 	    	Equipment modules = sub.isCyclops && sub.upgradeConsole ? sub.upgradeConsole.modules : null;
 	    	if (modules != null) {
 		    	foreach (string slot in SubRoot.slotNames) {

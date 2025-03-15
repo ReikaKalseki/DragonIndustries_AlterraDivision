@@ -236,7 +236,7 @@ namespace ReikaKalseki.DIAlterra
 			dataString[getKey(key)] = val;
 		}
 		*/
-		private ConfigEntry getEntry(E key) {
+		public ConfigEntry getEntry(E key) {
 			if (!entryCache.ContainsKey(key)) {
 				entryCache[key] = lookupEntry(key);
 			}

@@ -61,6 +61,11 @@ namespace ReikaKalseki.DIAlterra {
 			return spawnedIDs.toDebugString();
 		}
 		
+		public static void forAllSpawns(Action<SpawnedItemEvent> a) {
+			foreach (SpawnedItemEvent e in spawns)
+				a.Invoke(e);
+		}
+		
 		public static void handleSave() {
 			string path = Path.Combine(SNUtil.getCurrentSaveDir(), saveFileName);
 			List<string> content = new List<string>();
