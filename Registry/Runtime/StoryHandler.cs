@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
+using System.IO;
 
 using Story;
 
@@ -14,7 +16,11 @@ namespace ReikaKalseki.DIAlterra
 {
 	public class StoryHandler : IStoryGoalListener {
 		
+		private static readonly string saveFileName = "StoryGoals.dat";
+		
 		public static readonly StoryHandler instance = new StoryHandler();
+		
+		private static readonly Dictionary<string, StoryGoalRecord> unlocks = new Dictionary<string, StoryGoalRecord>();
 		
 		private readonly Dictionary<ProgressionTrigger, DelayedProgressionEffect> triggers = new Dictionary<ProgressionTrigger, DelayedProgressionEffect>();
 		private readonly List<IStoryGoalListener> listeners = new List<IStoryGoalListener>();
@@ -25,7 +31,54 @@ namespace ReikaKalseki.DIAlterra
 		public bool disableStoryHooks = false;
 		
 		private StoryHandler() {
-			
+			//load in world load//IngameMenuHandler.Main.RegisterOnLoadEvent(handleLoad);
+			IngameMenuHandler.Main.RegisterOnSaveEvent(handleSave);
+		}
+		
+		public static void handleSave() {
+			string path = Path.Combine(SNUtil.getCurrentSaveDir(), saveFileName);
+			/*
+			XmlDocument doc = new XmlDocument();
+			XmlElement rootnode = doc.CreateElement("Root");
+			doc.AppendChild(rootnode);
+			foreach (KeyValuePair<TechType, float> kvp in unlockTimes) {	
+				SNUtil.log("Found "+sh+" save handler for "+pi.ClassId, SNUtil.diDLL);
+				sh.data = doc.CreateElement("object");
+				sh.data.SetAttribute("objectID", pi.Id);
+				sh.save(pi);
+				doc.DocumentElement.AppendChild(sh.data);
+			}
+			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
+			doc.Save(path);
+			*/
+			List<string> content = new List<string>();
+			List<StoryGoalRecord> li = new List<StoryGoalRecord>(unlocks.Values);
+			li.Sort();
+			foreach (StoryGoalRecord tt in li) {
+				content.Add(tt.goal+","+tt.unlockTime.ToString("0.0"));
+			}
+			File.WriteAllLines(path, content.ToArray());
+		}
+		
+		public static void handleLoad() {
+			string dir = SNUtil.getCurrentSaveDir();
+			string path = Path.Combine(dir, saveFileName);
+			if (File.Exists(path)) {
+				/*
+				XmlDocument doc = new XmlDocument();
+				doc.Load(path);
+				saveData.Clear();
+				foreach (XmlElement e in doc.DocumentElement.ChildNodes)
+					saveData[e.Name == "player" ? "player" : e.GetAttribute("objectID")] = e;
+				SNUtil.log("Loaded "+saveData.Count+" object entries from disk", SNUtil.diDLL);
+				*/
+			}
+			unlocks.Clear();
+			string[] content = File.ReadAllLines(path);
+			foreach (string s in content) {
+				string[] parts = s.Split(',');
+				unlocks[parts[0]] = new StoryGoalRecord(parts[0], float.Parse(parts[1]));
+			}
 		}
 		
 		public void addListener(Action<string> call) {
@@ -88,6 +141,13 @@ namespace ReikaKalseki.DIAlterra
 					ut.goalUnlocks[kvp.Key] = kvp.Value;
 				}
 			}
+		
+			handleLoad();
+			foreach (string goal in StoryGoalManager.main.completedGoals) {
+				if (!unlocks.ContainsKey(goal)) {
+					unlocks[goal] = new StoryGoalRecord(goal, -1);
+				}
+			}
 		}
 		
 		public LocationGoal createLocationGoal(double x, double y, double z, double r, string key, float minStay = 0) {
@@ -138,11 +198,21 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public void forAllGoalsNewerThan(float thresh, Action<string, StoryGoalRecord> forEach) {
+			float time = DayNightCycle.main.timePassedAsFloat;
+			foreach (KeyValuePair<string, StoryGoalRecord> kvp in unlocks) {
+				float age = time-kvp.Value.unlockTime;
+				if (age < thresh)
+					forEach.Invoke(kvp.Key, kvp.Value);
+			}
+		}
+		
 		public void NotifyGoalComplete(string key) {
 			SNUtil.log("Completed Story Goal '"+key+"' @ "+DayNightCycle.main.timePassedAsFloat, SNUtil.diDLL);
 			foreach (IStoryGoalListener ig in listeners) {
 				ig.NotifyGoalComplete(key);
 			}	
+			unlocks[key] = new StoryGoalRecord(key, DayNightCycle.main.timePassedAsFloat);
 		}
 		
 		private class DelegateGoalListener : IStoryGoalListener {
@@ -202,6 +272,22 @@ namespace ReikaKalseki.DIAlterra
 				base.Trigger();
 				return true;
 			}
+			
+		}
+		
+		public class StoryGoalRecord : IComparable<StoryGoalRecord> {
+			
+			public readonly string goal;
+			public readonly float unlockTime;
+			
+			internal StoryGoalRecord(string tt, float time) {
+				goal = tt;
+				unlockTime = time;
+			}
+			
+	    	public int CompareTo(StoryGoalRecord fx) {
+	    		return unlockTime.CompareTo(fx.unlockTime);
+	    	}
 			
 		}
 	}

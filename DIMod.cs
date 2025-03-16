@@ -210,10 +210,16 @@ namespace ReikaKalseki.DIAlterra
     }
     
     private static void deletePrefabNear(float r, string id) {
-    	foreach (PrefabIdentifier pi in WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(Player.main.transform.position, r)) {
+    	Vector3 pos = Player.main.transform.position;
+    	int pis = 0;
+    	int found = 0;
+    	foreach (PrefabIdentifier pi in WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(pos, r)) {
+    		pis++;
     		if (SNUtil.match(pi, id)) {
     			UnityEngine.Object.Destroy(pi.gameObject);
+    			found++;
     		}
+    		SNUtil.writeToChat("Found "+pis+" objects near "+pos+", deleted "+found);
     	}
     }
     
