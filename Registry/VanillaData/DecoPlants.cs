@@ -63,6 +63,18 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly DecoPlants BANANA_LEAF = new DecoPlants("a4be67bb-f6e1-4d15-bf08-9d9a3fae4bfa");
 		public static readonly DecoPlants BANANA_LEAF_2 = new DecoPlants("faf96875-22aa-401b-a144-4a4c856239d1");
 		
+		public static readonly DecoPlants LOST_BRANCHES_1 = new DecoPlants("200be3e2-dd25-4288-81b6-54476c1e210c"); //blue-tipped trunks
+		public static readonly DecoPlants LOST_BRANCHES_2 = new DecoPlants("f5ebac74-4099-4af7-9b64-a1b1fad3fb1e");
+		public static readonly DecoPlants LOST_BRANCHES_3 = new DecoPlants("1e6dc864-4259-485f-873e-0b65a1c20b15");
+		public static readonly DecoPlants LOST_BRANCHES_4 = new DecoPlants("ecb2a647-95bb-4660-8380-20f2a5b76ec4"); //bigger versions
+		public static readonly DecoPlants LOST_BRANCHES_5 = new DecoPlants("295c1c89-85c8-4ee0-995a-17db668f4fd9");
+		public static readonly DecoPlants LOST_BRANCHES_6 = new DecoPlants("8aa03869-6224-4975-9b09-f6f449450caf"); //"giant", seen in ghost forest
+		
+		public static readonly DecoPlants LOST_ROOT_1 = new DecoPlants("04a2d0ec-8036-4945-812b-5dc51d17c5f6"); //aux LR roots
+		public static readonly DecoPlants LOST_ROOT_2 = new DecoPlants("9dafed34-133e-43e4-9234-f012ec3872e2");
+		public static readonly DecoPlants LOST_ROOT_3 = new DecoPlants("690e2455-05db-4c69-a48a-288b0a49082a");
+		public static readonly DecoPlants LOST_ROOT_4 = new DecoPlants("41a08c65-ad37-4095-bd48-a8025fe4d016");
+		
 		private static readonly Dictionary<string, DecoPlants> names = new Dictionary<string, DecoPlants>();
 		
 		public static DecoPlants getByName(string n) {

@@ -69,6 +69,9 @@ namespace ReikaKalseki.DIAlterra
         
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SaveSystem).TypeHandle);
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SpawnedItemTracker).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(TechUnlockTracker).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SurvivalEventTracker).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(CommandTracker).TypeHandle);
         
         new ObjectDeleter().Patch();
         
@@ -79,7 +82,7 @@ namespace ReikaKalseki.DIAlterra
         CustomLocaleKeyDatabase.registerKey(locale.getEntry("PrecursorCraftPrompt"));
         CustomLocaleKeyDatabase.registerKey(locale.getEntry("PrecursorCraftNoIngredients"));
         
-        KnownTech.onAdd += (tt, vb) => TechUnlockTracker.onUnlock(tt);
+        KnownTech.onAdd += (tt, vb) => TechUnlockTracker.instance.onUnlock(tt);
         
         CustomEgg spineEel = createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground).modifyGO(e => 
 		{

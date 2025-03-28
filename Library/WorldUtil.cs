@@ -106,7 +106,7 @@ namespace ReikaKalseki.DIAlterra
 			return coord+batchOffset;
 		}
 		
-		/** Returns the min XYZ corner */ 
+		/// <returns>The min XYZ corner</returns>
 		public static Int3 getWorldCoord(Int3 batch) { //TODO https://i.imgur.com/sbXjIpq.png
 			batch = batch-batchOffset;
 			return batch*batchSize+batchOffsetM;
@@ -167,42 +167,42 @@ batch_id = (19, 17, 16)
 			return ret;
 		}
 		
-		/** 
-  			Will not find things without colliders!
-			Avoid using this with components that will result in many findings, as you then end up iterating a large list. Use the getter version instead.
-		 */
+		/// <remarks>Will not find things without colliders!
+		/// 
+		/// Avoid using this with components that will result in many findings, as you then end up iterating a large list. Use the getter version instead.
+		/// </remarks>
 		public static HashSet<C> getObjectsNearWithComponent<C>(Vector3 pos, float r) where C : MonoBehaviour {
 			return getObjectsNear(pos, r, go => UWE.Utils.GetComponentInHierarchy<C>(go));
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static HashSet<GameObject> getObjectsNearMatching(Vector3 pos, float r, Predicate<GameObject> check) {
 			return getObjectsNear(pos, r, go => check(go) ? go : null);
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static HashSet<GameObject> getObjectsNear(Vector3 pos, float r) {
 			return getObjectsNear<GameObject>(pos, r, null);
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static HashSet<R> getObjectsNear<R>(Vector3 pos, float r, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
 			HashSet<R> set = new HashSet<R>();
 			getObjectsNear(pos, r, go => {set.Add(go); return false;}, converter);
 			return set;
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static void getGameObjectsNear(Vector3 pos, float r, Action<GameObject> getter) {
 			getObjectsNear<GameObject>(pos, r, getter, null);
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static void getObjectsNear<R>(Vector3 pos, float r, Action<R> getter, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
 			getObjectsNear<R>(pos, r, obj => {getter(obj); return false;}, converter);
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static void getObjectsNear<R>(Vector3 pos, float r, Func<R, bool> getter, Func<GameObject, R> converter = null) where R : UnityEngine.Object {
 			HashSet<GameObject> found = new HashSet<GameObject>();
 			foreach (RaycastHit hit in Physics.SphereCastAll(pos, r, Vector3.up, 0.1F)) {
@@ -224,7 +224,7 @@ batch_id = (19, 17, 16)
 			}
 		}
 		
-		/** Will not find things without colliders! */
+		/// <remarks>Will not find things without colliders!</remarks>
 		public static GameObject areAnyObjectsNear(Vector3 pos, float r, Predicate<GameObject> check) {
 			GameObject ret = null;
 			getObjectsNear<GameObject>(pos, r, go => {ret = go; return true;}, go => check(go) ? go : null);

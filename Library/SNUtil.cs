@@ -225,11 +225,11 @@ namespace ReikaKalseki.DIAlterra
 			ep.transform.position = to;
 		}
 		
-		public static void addPDAEntry(Spawnable pfb, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
-	    	addPDAEntry(pfb.TechType, pfb.ClassID, pfb.FriendlyName, scanTime, pageCategory, pageText, pageHeader, modify);
+		public static PDAManager.PDAPage addPDAEntry(Spawnable pfb, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
+	    	return addPDAEntry(pfb.TechType, pfb.ClassID, pfb.FriendlyName, scanTime, pageCategory, pageText, pageHeader, modify);
 		}
 		
-		public static void addPDAEntry(TechType pfb, string id, string desc, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
+		public static PDAManager.PDAPage addPDAEntry(TechType pfb, string id, string desc, float scanTime, string pageCategory = null, string pageText = null, string pageHeader = null, Action<PDAScanner.EntryData> modify = null) {
 			PDAManager.PDAPage page = null;
 			if (pageCategory != null && !string.IsNullOrEmpty(pageText)) {
 				page = PDAManager.createPage("ency_"+id, desc, pageText, pageCategory);
@@ -239,6 +239,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			if (scanTime >= 0 && pfb != TechType.None)
 				addScanUnlock(pfb, desc, scanTime, page, modify);
+			return page;
 		}
 		
 		public static void addScanUnlock(TechType pfb, string desc, float scanTime, PDAManager.PDAPage page = null, Action<PDAScanner.EntryData> modify = null) {
@@ -552,6 +553,34 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static bool isPlayerCured() {
 			return Story.StoryGoalManager.main.completedGoals.Contains("Infection_Progress5");
+		}
+		
+		public static void migrateSaveDataFolder(string oldSaveDir, string ext, string saveFileName) {
+			if (Directory.Exists(oldSaveDir) && Directory.Exists(SNUtil.savesDir)) {
+				SNUtil.log("Migrating save data from "+oldSaveDir+" to "+SNUtil.savesDir);
+				bool all = true;
+				foreach (string dat in Directory.GetFiles(oldSaveDir)) {
+					if (dat.EndsWith(ext, StringComparison.InvariantCultureIgnoreCase)) {
+						string save = Path.Combine(SNUtil.savesDir, Path.GetFileNameWithoutExtension(dat));
+						if (Directory.Exists(save)) {
+							SNUtil.log("Moving save data "+dat+" to "+save);
+							File.Move(dat, Path.Combine(save, saveFileName));
+						}
+						else {
+							SNUtil.log("No save found for '"+dat+", skipping");
+							all = false;
+						}
+					}
+				}
+				SNUtil.log("Migration complete.");
+				if (all) {
+					SNUtil.log("All files moved, deleting old folder.");
+					Directory.Delete(oldSaveDir);
+				}
+				else {
+					SNUtil.log("Some files could not be moved so the old folder will not be deleted.");
+				}
+			}
 		}
 		
 	}

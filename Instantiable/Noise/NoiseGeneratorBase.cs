@@ -17,7 +17,7 @@ public abstract class NoiseGeneratorBase {
 	protected readonly List<Octave> octaves = new List<Octave>();
 	protected double maxRange = 1;
 
-	/** As opposed to scaling */
+	/// As opposed to scaling
 	public bool clampEdge = false;
 
 	public readonly long seed;

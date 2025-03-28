@@ -166,7 +166,7 @@ namespace ReikaKalseki.DIAlterra {
 	    		priority = pri;
 	    	}
 	    	
-	    	/** Set is of shaders not controllers */
+	    	/// <remarks>Set is of shaders not controllers</remarks>
 	    	public abstract void onTick();
 			
 	    	public int CompareTo(ScreenFXOverride fx) {

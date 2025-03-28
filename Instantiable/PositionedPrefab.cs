@@ -137,6 +137,20 @@ namespace ReikaKalseki.DIAlterra
 			prefabName = name;
 		}
 		
+		public static Quaternion readRotation(XmlElement e) {
+			XmlElement rot = e.getDirectElementsByTagName("rotation")[0];
+			return rot.hasProperty("quaternion") ? rot.getQuaternion("quaternion").Value : Quaternion.Euler((float)rot.getFloat("x", double.NaN), (float)rot.getFloat("y", double.NaN), (float)rot.getFloat("z", double.NaN));
+		}
+		
+		public static void saveRotation(XmlElement e, Quaternion quat) {
+			e = e.addChild("rotation");
+			Vector3 vec = quat.eulerAngles;
+			e.addProperty("x", vec.x);
+			e.addProperty("y", vec.x);
+			e.addProperty("z", vec.x);
+			e.addProperty("quaternion", quat);
+		}
+		
 		#region Equals and GetHashCode implementation
 		public override int GetHashCode() {
 			int hashCode = 0;

@@ -14,13 +14,11 @@ using ReikaKalseki.DIAlterra;
 
 namespace ReikaKalseki.DIAlterra
 {
-	public class StoryHandler : IStoryGoalListener {
-		
-		private static readonly string saveFileName = "StoryGoals.dat";
+	public class StoryHandler : SerializedTracker<StoryHandler.StoryGoalRecord>, IStoryGoalListener {
 		
 		public static readonly StoryHandler instance = new StoryHandler();
 		
-		private static readonly Dictionary<string, StoryGoalRecord> unlocks = new Dictionary<string, StoryGoalRecord>();
+		private readonly Dictionary<string, StoryGoalRecord> unlocks = new Dictionary<string, StoryGoalRecord>();
 		
 		private readonly Dictionary<ProgressionTrigger, DelayedProgressionEffect> triggers = new Dictionary<ProgressionTrigger, DelayedProgressionEffect>();
 		private readonly List<IStoryGoalListener> listeners = new List<IStoryGoalListener>();
@@ -30,55 +28,18 @@ namespace ReikaKalseki.DIAlterra
 		
 		public bool disableStoryHooks = false;
 		
-		private StoryHandler() {
+		private StoryHandler() : base("StoryGoals.dat", false, parse, parseLegacy) {
 			//load in world load//IngameMenuHandler.Main.RegisterOnLoadEvent(handleLoad);
 			IngameMenuHandler.Main.RegisterOnSaveEvent(handleSave);
 		}
 		
-		public static void handleSave() {
-			string path = Path.Combine(SNUtil.getCurrentSaveDir(), saveFileName);
-			/*
-			XmlDocument doc = new XmlDocument();
-			XmlElement rootnode = doc.CreateElement("Root");
-			doc.AppendChild(rootnode);
-			foreach (KeyValuePair<TechType, float> kvp in unlockTimes) {	
-				SNUtil.log("Found "+sh+" save handler for "+pi.ClassId, SNUtil.diDLL);
-				sh.data = doc.CreateElement("object");
-				sh.data.SetAttribute("objectID", pi.Id);
-				sh.save(pi);
-				doc.DocumentElement.AppendChild(sh.data);
-			}
-			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
-			doc.Save(path);
-			*/
-			List<string> content = new List<string>();
-			List<StoryGoalRecord> li = new List<StoryGoalRecord>(unlocks.Values);
-			li.Sort();
-			foreach (StoryGoalRecord tt in li) {
-				content.Add(tt.goal+","+tt.unlockTime.ToString("0.0"));
-			}
-			File.WriteAllLines(path, content.ToArray());
+		private static StoryGoalRecord parse(XmlElement s) {
+			return new StoryGoalRecord(s.getProperty("goal"), s.getFloat("eventTime", -1));
 		}
 		
-		public static void handleLoad() {
-			string dir = SNUtil.getCurrentSaveDir();
-			string path = Path.Combine(dir, saveFileName);
-			if (File.Exists(path)) {
-				/*
-				XmlDocument doc = new XmlDocument();
-				doc.Load(path);
-				saveData.Clear();
-				foreach (XmlElement e in doc.DocumentElement.ChildNodes)
-					saveData[e.Name == "player" ? "player" : e.GetAttribute("objectID")] = e;
-				SNUtil.log("Loaded "+saveData.Count+" object entries from disk", SNUtil.diDLL);
-				*/
-			}
-			unlocks.Clear();
-			string[] content = File.ReadAllLines(path);
-			foreach (string s in content) {
-				string[] parts = s.Split(',');
-				unlocks[parts[0]] = new StoryGoalRecord(parts[0], float.Parse(parts[1]));
-			}
+		private static StoryGoalRecord parseLegacy(string s) {
+			string[] parts = s.Split(',');
+			return new StoryGoalRecord(parts[0], float.Parse(parts[1]));
 		}
 		
 		public void addListener(Action<string> call) {
@@ -97,7 +58,7 @@ namespace ReikaKalseki.DIAlterra
 			queuedTickedGoals.Add(g);
 		}
 		
-		/** Accepts null to deregister the hook entirely */
+		/// <remarks>Accepts null to deregister the hook entirely</remarks>
 		public void registerChainedRedirect(string key, OnGoalUnlock redirect) {
 			if (queuedChainedGoalRedirects.ContainsKey(key))
 				throw new Exception("Story goal '"+key+"' is already being redirected to "+queuedChainedGoalRedirects[key]);
@@ -145,7 +106,7 @@ namespace ReikaKalseki.DIAlterra
 			handleLoad();
 			foreach (string goal in StoryGoalManager.main.completedGoals) {
 				if (!unlocks.ContainsKey(goal)) {
-					unlocks[goal] = new StoryGoalRecord(goal, -1);
+					add(new StoryGoalRecord(goal, -1));
 				}
 			}
 		}
@@ -198,13 +159,14 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
-		public void forAllGoalsNewerThan(float thresh, Action<string, StoryGoalRecord> forEach) {
-			float time = DayNightCycle.main.timePassedAsFloat;
-			foreach (KeyValuePair<string, StoryGoalRecord> kvp in unlocks) {
-				float age = time-kvp.Value.unlockTime;
-				if (age < thresh)
-					forEach.Invoke(kvp.Key, kvp.Value);
-			}
+		protected override void add(StoryGoalRecord e) {
+			base.add(e);
+			unlocks[e.goal] = e;
+		}
+		
+		protected override void clear() {
+			base.clear();
+			unlocks.Clear();
 		}
 		
 		public void NotifyGoalComplete(string key) {
@@ -212,7 +174,7 @@ namespace ReikaKalseki.DIAlterra
 			foreach (IStoryGoalListener ig in listeners) {
 				ig.NotifyGoalComplete(key);
 			}	
-			unlocks[key] = new StoryGoalRecord(key, DayNightCycle.main.timePassedAsFloat);
+			add(new StoryGoalRecord(key, DayNightCycle.main.timePassedAsFloat));
 		}
 		
 		private class DelegateGoalListener : IStoryGoalListener {
@@ -275,20 +237,22 @@ namespace ReikaKalseki.DIAlterra
 			
 		}
 		
-		public class StoryGoalRecord : IComparable<StoryGoalRecord> {
-			
+		public class StoryGoalRecord : SerializedTrackedEvent {
+				
 			public readonly string goal;
-			public readonly float unlockTime;
-			
-			internal StoryGoalRecord(string tt, float time) {
+				
+			internal StoryGoalRecord(string tt, double time) : base(time) {
 				goal = tt;
-				unlockTime = time;
+			}
+				
+			public override void saveToXML(XmlElement e) {
+				e.addProperty("goal", goal);
 			}
 			
-	    	public int CompareTo(StoryGoalRecord fx) {
-	    		return unlockTime.CompareTo(fx.unlockTime);
-	    	}
-			
+			public override string ToString() {
+				return string.Format("[StoryGoal Goal={0}, Time={1}]", goal, eventTime);
+			}
+				
 		}
 	}
 		

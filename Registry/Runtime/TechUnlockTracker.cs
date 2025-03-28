@@ -13,98 +13,68 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra {
 	
-	public static class TechUnlockTracker {
+	public class TechUnlockTracker : SerializedTracker<TechUnlockTracker.TechUnlock> {
 		
-		private static readonly string saveFileName = "Unlocks.dat";
+		public static readonly TechUnlockTracker instance = new TechUnlockTracker();
 		
-		private static readonly Dictionary<TechType, TechUnlock> unlocks = new Dictionary<TechType, TechUnlock>();
+		private readonly Dictionary<TechType, TechUnlock> unlocks = new Dictionary<TechType, TechUnlock>();
 		
-		static TechUnlockTracker() {
-			IngameMenuHandler.Main.RegisterOnLoadEvent(handleLoad);
-			IngameMenuHandler.Main.RegisterOnSaveEvent(handleSave);
+		private TechUnlockTracker() : base("Unlocks.dat", true, parseUnlock, parseLegacyUnlock) {
+			
 		}
 		
-		public static void onUnlock(TechType tt) {
-			unlocks[tt] = new TechUnlock(tt, DayNightCycle.main.timePassedAsFloat);
+		public void onUnlock(TechType tt) {
+			add(new TechUnlock(tt, DayNightCycle.main.timePassedAsFloat));
 		}
 		
-		public static void onScan(PDAScanner.EntryData scan) {
-			TechType tt = scan.key;
-			unlocks[tt] = new TechUnlock(tt, DayNightCycle.main.timePassedAsFloat, true);
+		public void onScan(PDAScanner.EntryData scan) {
+			add(new TechUnlock(scan.key, DayNightCycle.main.timePassedAsFloat, true));
 		}
 		
-		public static void forAllUnlocksNewerThan(float thresh, Action<TechType, TechUnlock> forEach) {
-			float time = DayNightCycle.main.timePassedAsFloat;
-			foreach (KeyValuePair<TechType, TechUnlock> kvp in unlocks) {
-				float age = time-kvp.Value.unlockTime;
-				if (age < thresh)
-					forEach.Invoke(kvp.Key, kvp.Value);
-			}
+		public TechUnlock getUnlock(TechType tt) {
+			return unlocks.ContainsKey(tt) ? unlocks[tt] : null;
 		}
 		
-		public static void handleSave() {
-			string path = Path.Combine(SNUtil.getCurrentSaveDir(), saveFileName);
-			/*
-			XmlDocument doc = new XmlDocument();
-			XmlElement rootnode = doc.CreateElement("Root");
-			doc.AppendChild(rootnode);
-			foreach (KeyValuePair<TechType, float> kvp in unlockTimes) {	
-				SNUtil.log("Found "+sh+" save handler for "+pi.ClassId, SNUtil.diDLL);
-				sh.data = doc.CreateElement("object");
-				sh.data.SetAttribute("objectID", pi.Id);
-				sh.save(pi);
-				doc.DocumentElement.AppendChild(sh.data);
-			}
-			SNUtil.log("Saving "+doc.DocumentElement.ChildNodes.Count+" objects to disk", SNUtil.diDLL);
-			doc.Save(path);
-			*/
-			List<string> content = new List<string>();
-			List<TechUnlock> li = new List<TechUnlock>(unlocks.Values);
-			li.Sort();
-			foreach (TechUnlock tt in li) {
-				content.Add(tt.tech.AsString()+","+tt.unlockTime.ToString("0.0")+","+tt.isScan.ToString());
-			}
-			File.WriteAllLines(path, content.ToArray());
+		private static TechUnlock parseUnlock(XmlElement s) {
+			return new TechUnlock(SNUtil.getTechType(s.getProperty("tech")), s.getFloat("eventTime", -1), s.getBoolean("isScan"));
 		}
 		
-		public static void handleLoad() {
-			string dir = SNUtil.getCurrentSaveDir();
-			string path = Path.Combine(dir, saveFileName);
-			if (File.Exists(path)) {
-				/*
-				XmlDocument doc = new XmlDocument();
-				doc.Load(path);
-				saveData.Clear();
-				foreach (XmlElement e in doc.DocumentElement.ChildNodes)
-					saveData[e.Name == "player" ? "player" : e.GetAttribute("objectID")] = e;
-				SNUtil.log("Loaded "+saveData.Count+" object entries from disk", SNUtil.diDLL);
-				*/
-			}
+		private static TechUnlock parseLegacyUnlock(string s) {
+			string[] parts = s.Split(',');
+			TechType tt = SNUtil.getTechType(parts[0]);
+			return new TechUnlock(tt, float.Parse(parts[1]), bool.Parse(parts[2]));
+		}
+		
+		protected override void add(TechUnlock e) {
+			base.add(e);
+			unlocks[e.tech] = e;
+		}
+		
+		protected override void clear() {
+			base.clear();
 			unlocks.Clear();
-			string[] content = File.ReadAllLines(path);
-			foreach (string s in content) {
-				string[] parts = s.Split(',');
-				TechType tt = SNUtil.getTechType(parts[0]);
-				unlocks[tt] = new TechUnlock(tt, float.Parse(parts[1]), bool.Parse(parts[2]));
-			}
 		}
 		
-		public class TechUnlock : IComparable<TechUnlock> {
-			
+		public class TechUnlock : SerializedTrackedEvent {
+				
 			public readonly TechType tech;
-			public readonly float unlockTime;
 			public readonly bool isScan;
-			
-			internal TechUnlock(TechType tt, float time, bool scan = false) {
+				
+			internal TechUnlock(TechType tt, double time, bool scan = false) : base(time) {
 				tech = tt;
-				unlockTime = time;
 				isScan = scan;
 			}
+				
+			public override void saveToXML(XmlElement e) {
+				e.addProperty("tech", tech.AsString());
+				e.addProperty("isScan", isScan);
+			}
 			
-	    	public int CompareTo(TechUnlock fx) {
-	    		return unlockTime.CompareTo(fx.unlockTime);
-	    	}
-			
+			public override string ToString() {
+				return string.Format("[TechUnlock Tech={0}, IsScan={1}, Time={2}]", tech, isScan, eventTime);
+			}
+
+				
 		}
 		
 	}

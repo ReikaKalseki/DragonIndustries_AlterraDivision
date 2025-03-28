@@ -29,35 +29,7 @@ namespace ReikaKalseki.DIAlterra {
 			IngameMenuHandler.Main.RegisterOnSaveEvent(handleSave);
 			
 			oldSaveDir = Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "persistentData");
-			if (Directory.Exists(oldSaveDir) && Directory.Exists(SNUtil.savesDir)) {
-				migrateSaveData();
-			}
-		}
-		
-		private static void migrateSaveData() {
-			SNUtil.log("Migrating save data from "+oldSaveDir+" to "+SNUtil.savesDir);
-			bool all = true;
-			foreach (string dat in Directory.GetFiles(oldSaveDir)) {
-				if (dat.EndsWith(".dat", StringComparison.InvariantCultureIgnoreCase)) {
-					string save = Path.Combine(SNUtil.savesDir, Path.GetFileNameWithoutExtension(dat));
-					if (Directory.Exists(save)) {
-						SNUtil.log("Moving save data "+dat+" to "+save);
-						File.Move(dat, Path.Combine(save, saveFileName));
-					}
-					else {
-						SNUtil.log("No save found for '"+dat+", skipping");
-						all = false;
-					}
-				}
-			}
-			SNUtil.log("Migration complete.");
-			if (all) {
-				SNUtil.log("All files moved, deleting old folder.");
-				Directory.Delete(oldSaveDir);
-			}
-			else {
-				SNUtil.log("Some files could not be moved so the old folder will not be deleted.");
-			}
+			SNUtil.migrateSaveDataFolder(oldSaveDir, ".dat", saveFileName);
 		}
 		
 		public static void addSaveHandler(ModPrefab pfb, SaveHandler h) {

@@ -121,7 +121,9 @@ namespace ReikaKalseki.DIAlterra {
 			return ret;
 		}
 		
-		/** Return true in the func to delete the ingredient. */
+		/// <remarks>
+		/// Return true in the func to delete the ingredient.
+		/// </remarks>
 		public static void modifyIngredients(TechType recipe, Func<Ingredient, bool> a) {
 			TechData rec = getRecipe(recipe);
 			cacheOriginalRecipe(recipe, rec);

@@ -1440,7 +1440,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static void onScanComplete(PDAScanner.EntryData data) {
 			if (data != null) {
 				TechnologyUnlockSystem.instance.triggerDirectUnlock(data.key);
-				TechUnlockTracker.onScan(data);
+				TechUnlockTracker.instance.onScan(data);
 				if (scanCompleteEvent != null)
 					scanCompleteEvent.Invoke(data);
 			}
@@ -1787,7 +1787,7 @@ namespace ReikaKalseki.DIAlterra {
 			if (itemTooltipEvent != null) {
 				itemTooltipEvent.Invoke(sb, tt, obj);
 			}
-			SpawnedItemTracker.SpawnedItemEvent e = SpawnedItemTracker.getSpawnEvent(obj);
+			SpawnedItemTracker.SpawnedItemEvent e = SpawnedItemTracker.instance.getSpawnEvent(obj);
 			if (e != null)
 				TooltipFactory.WriteDescription(sb, e.tooltip);
 		}
@@ -2657,7 +2657,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 		
 		public static GameObject createSpawnedItem(TechType tt, bool customOnly) {
-			SpawnedItemTracker.SpawnedItemEvent e = SpawnedItemTracker.addSpawn(tt);
+			SpawnedItemTracker.SpawnedItemEvent e = SpawnedItemTracker.instance.addSpawn(tt);
 			GameObject ret = CraftData.InstantiateFromPrefab(tt, customOnly);
 			if (ret) {
 				PrefabIdentifier pi = ret.GetComponentInChildren<PrefabIdentifier>();
@@ -2670,6 +2670,10 @@ namespace ReikaKalseki.DIAlterra {
 				SNUtil.log("No object at all for spawn event "+e);
 			}
 			return ret;
+		}
+		
+		public static void onCommandUse(DevConsole c, string cmd) {
+			CommandTracker.instance.onCommand(cmd);
 		}
 	   
 		private static GameObject teleportWithPlayer;

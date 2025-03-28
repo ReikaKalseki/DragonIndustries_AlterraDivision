@@ -16,6 +16,7 @@ namespace ReikaKalseki.DIAlterra
 		private readonly Assembly ownerMod;
 		
 		private readonly List<PositionedPrefab> objects = new List<PositionedPrefab>();
+		private readonly List<WorldGenerator> generators = new List<WorldGenerator>();
 		
 		public WorldgenDatabase() {
 			ownerMod = SNUtil.tryGetModDLL();
@@ -115,6 +116,7 @@ namespace ReikaKalseki.DIAlterra
 							else if (ot is WorldGenerator) {
 								WorldGenerator gen = (WorldGenerator)ot;
 								GenUtil.registerWorldgen(gen);
+								generators.Add(gen);
 								//SNUtil.log("Loaded worldgenator "+gen+" for "+e.format(), ownerMod);
 							}
 							else {
@@ -135,6 +137,17 @@ namespace ReikaKalseki.DIAlterra
 			int ret = 0;
 			foreach (PositionedPrefab pfb in objects) {
 				if (pfb.prefabName == classID) {
+					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
+						ret++;
+				}
+			}
+			return ret;
+		}
+		
+		public int getCount<G>(Vector3? near = null, float dist = -1) where G : WorldGenerator {
+			int ret = 0;
+			foreach (WorldGenerator pfb in generators) {
+				if (pfb is G) {
 					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
 						ret++;
 				}

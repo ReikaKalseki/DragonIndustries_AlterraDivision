@@ -13,29 +13,33 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra {
 	
-	public static class SpawnedItemTracker {
+	public class SpawnedItemTracker : SerializedTracker<SpawnedItemTracker.SpawnedItemEvent> {
 		
-		private static readonly string saveFileName = "CSpawns.dat";
+		public static readonly SpawnedItemTracker instance = new SpawnedItemTracker();
 		
-		private static readonly List<SpawnedItemEvent> spawns = new List<SpawnedItemEvent>();
-		private static readonly Dictionary<string, SpawnedItemEvent> spawnedIDs = new Dictionary<string, SpawnedItemEvent>();
+		private readonly Dictionary<string, SpawnedItemEvent> spawnedIDs = new Dictionary<string, SpawnedItemEvent>();
 		
-		static SpawnedItemTracker() {
-			IngameMenuHandler.Main.RegisterOnLoadEvent(handleLoad);
-			IngameMenuHandler.Main.RegisterOnSaveEvent(handleSave);
+		private SpawnedItemTracker() : base("CSpawns.dat", true, parse, SpawnedItemEvent.parseLegacy) {
+
 		}
 		
-		public static SpawnedItemEvent addSpawn(TechType tt) {
-			SpawnedItemEvent e = new SpawnedItemEvent(tt, (int)DayNightCycle.main.timePassedAsFloat);
-			spawns.Add(e);
+		private static SpawnedItemEvent parse(XmlElement s) {
+			SpawnedItemEvent e = new SpawnedItemEvent(SNUtil.getTechType(s.getProperty("item")), s.getFloat("eventTime", -1));
+			e.setObject(s);
 			return e;
 		}
 		
-		public static bool isSpawned(GameObject p) {
+		public SpawnedItemEvent addSpawn(TechType tt) {
+			SpawnedItemEvent e = new SpawnedItemEvent(tt, (int)DayNightCycle.main.timePassedAsFloat);
+			add(e);
+			return e;
+		}
+		
+		public bool isSpawned(GameObject p) {
 			return getSpawnEvent(p) != null;
 		}
 		
-		public static SpawnedItemEvent getSpawnEvent(GameObject p) {
+		public SpawnedItemEvent getSpawnEvent(GameObject p) {
 			SpawnTagCallback c = p.GetComponent<SpawnTagCallback>();
 			if (c)
 				return c.entry;
@@ -45,54 +49,27 @@ namespace ReikaKalseki.DIAlterra {
 			return spawnedIDs.ContainsKey(pi.Id) ? spawnedIDs[pi.Id] : null;
 		}
 		
-		public static bool isSpawned(Pickupable p) {
+		public bool isSpawned(Pickupable p) {
 			return isSpawned(p.gameObject);
 		}
 		
-		public static SpawnedItemEvent getSpawnEvent(Pickupable p) {
+		public SpawnedItemEvent getSpawnEvent(Pickupable p) {
 			return getSpawnEvent(p.gameObject);
 		}
 		
-		public static string getData() {
-			return spawns.toDebugString();
-		}
-		
-		public static string getDataMap() {
+		public string getDataMap() {
 			return spawnedIDs.toDebugString();
 		}
 		
-		public static void forAllSpawns(Action<SpawnedItemEvent> a) {
-			foreach (SpawnedItemEvent e in spawns)
-				a.Invoke(e);
+		protected override void add(SpawnedItemEvent e) {
+			base.add(e);
+			if (!string.IsNullOrEmpty(e.objectID))
+				spawnedIDs[e.objectID] = e;
 		}
 		
-		public static void handleSave() {
-			string path = Path.Combine(SNUtil.getCurrentSaveDir(), saveFileName);
-			List<string> content = new List<string>();
-			spawns.Sort();
-			foreach (SpawnedItemEvent tt in spawns) {
-				content.Add(SpawnedItemEvent.getSaveString(tt));
-			}
-			File.WriteAllLines(path, content.ToArray());
-		}
-		
-		public static void handleLoad() {
-			string dir = SNUtil.getCurrentSaveDir();
-			string path = Path.Combine(dir, saveFileName);
-			if (!File.Exists(path))
-				return;
-			spawns.Clear();
+		protected override void clear() {
+			base.clear();
 			spawnedIDs.Clear();
-			string[] content = File.ReadAllLines(path);
-			foreach (string s in content) {
-				SpawnedItemEvent e = SpawnedItemEvent.parse(s);
-				SNUtil.log("Restored record of spawned item: "+e);
-				if (e != null) {
-					spawns.Add(e);
-					if (!string.IsNullOrEmpty(e.objectID))
-						spawnedIDs[e.objectID] = e;
-				}
-			}
 		}
 		
 		private class SpawnTagCallback : MonoBehaviour {
@@ -102,17 +79,17 @@ namespace ReikaKalseki.DIAlterra {
 			
 			public void register() {
 				if (!prefab || string.IsNullOrEmpty(prefab.Id)) {
-					SNUtil.log("Skipping spawn tag callback for nulled ID: "+prefab+"; entry = "+entry, SNUtil.diDLL);
+					SNUtil.log("Skipping spawn tag callback for nulled ID: " + prefab + "; entry = " + entry, SNUtil.diDLL);
 					return;
 				}
 				entry.attach(prefab);
-				SNUtil.log("Attached spawn tag callback "+entry, SNUtil.diDLL);
+				SNUtil.log("Attached spawn tag callback " + entry, SNUtil.diDLL);
 			}
 			
 			void OnDestroy() {
 				if (!Player.main)
 					return;
-				SNUtil.log("Destroying gameobject bearing spawn tag callback "+entry, SNUtil.diDLL);
+				SNUtil.log("Destroying gameobject bearing spawn tag callback " + entry, SNUtil.diDLL);
 				SpawnTagSearchCallback s = Player.main.gameObject.EnsureComponent<SpawnTagSearchCallback>();
 				s.entry = entry;
 				s.Invoke("register", 0.5F);
@@ -127,83 +104,85 @@ namespace ReikaKalseki.DIAlterra {
 			public void register() {
 				IList<InventoryItem> li = Inventory.main.container.GetItems(entry.itemType);
 				if (li == null || li.Count == 0) {
-					SNUtil.log("Skipping spawn search tag callback, no matching items for "+entry, SNUtil.diDLL);
+					SNUtil.log("Skipping spawn search tag callback, no matching items for " + entry, SNUtil.diDLL);
 					return;
 				}
-				PrefabIdentifier prefab = li[li.Count-1].item.GetComponent<PrefabIdentifier>();
+				PrefabIdentifier prefab = li[li.Count - 1].item.GetComponent<PrefabIdentifier>();
 				if (!prefab || string.IsNullOrEmpty(prefab.Id)) {
-					SNUtil.log("Skipping spawn search tag callback for nulled ID: "+prefab+"; entry = "+entry, SNUtil.diDLL);
+					SNUtil.log("Skipping spawn search tag callback for nulled ID: " + prefab + "; entry = " + entry, SNUtil.diDLL);
 					return;
 				}
 				entry.attach(prefab);
-				SNUtil.log("Attached spawn search tag callback "+entry, SNUtil.diDLL);
+				SNUtil.log("Attached spawn search tag callback " + entry, SNUtil.diDLL);
 			}
 			
 		}
 		
-		public class SpawnedItemEvent : IComparable<SpawnedItemEvent> {
+	public class SpawnedItemEvent : SerializedTrackedEvent {
 			
-			public readonly TechType itemType;
-			public readonly int spawnTime;
+		public readonly TechType itemType;
 			
-			public string classID {get; private set;}
-			public string objectID {get; private set;}
+		public string classID { get; private set; }
+		public string objectID { get; private set; }
 			
-			public string tooltip {
-				get {
-					return "\n<color=#ffc500ff>This item was spawned by command "+Utils.PrettifyTime(spawnTime)+" into the game.</color>";
-				}
+		public string tooltip {
+			get {
+				return "\n<color=#ffc500ff>This item was spawned by command " + Utils.PrettifyTime((int)eventTime) + " into the game.</color>";
 			}
+		}
 			
-			internal SpawnedItemEvent(TechType tt, int time) {
-				itemType = tt;
-				spawnTime = time;
+		internal SpawnedItemEvent(TechType tt, double time) : base(time) {
+			itemType = tt;
+		}
+			
+		public override void saveToXML(XmlElement e) {
+			e.addProperty("item", itemType.AsString());
+			if (!string.IsNullOrEmpty(objectID)) {
+				e.addProperty("class", classID);
+				e.addProperty("object", objectID);
 			}
+		}
 			
-	    	public int CompareTo(SpawnedItemEvent fx) {
-	    		return spawnTime.CompareTo(fx.spawnTime);
-	    	}
-			
-			public void setObject(PrefabIdentifier pi) {
-				SpawnTagCallback s = pi.gameObject.EnsureComponent<SpawnTagCallback>();
-				s.entry = this;
-				s.prefab = pi;
-				s.gameObject.SetActive(true);
-				s.Invoke("register", 0.5F);
-				s.enabled = true;
-				SNUtil.log("Registered callback for spawn event "+this, SNUtil.diDLL);
+		public void setObject(PrefabIdentifier pi) {
+			SpawnedItemTracker.SpawnTagCallback s = pi.gameObject.EnsureComponent<SpawnedItemTracker.SpawnTagCallback>();
+			s.entry = this;
+			s.prefab = pi;
+			s.gameObject.SetActive(true);
+			s.Invoke("register", 0.5F);
+			s.enabled = true;
+			SNUtil.log("Registered callback for spawn event " + this, SNUtil.diDLL);
+		}
+		
+		internal void setObject(XmlElement s) {
+			if (s.hasProperty("object")) {
+				classID = s.getProperty("class");
+				objectID = s.getProperty("object");
 			}
+		}
 			
-			internal void attach(PrefabIdentifier prefab) {
-				classID = prefab.ClassId;
-				objectID = prefab.Id;
-				spawnedIDs[objectID] = this;
-				prefab.gameObject.SetActive(false);
-			}
+		internal void attach(PrefabIdentifier prefab) {
+			classID = prefab.ClassId;
+			objectID = prefab.Id;
+			instance.spawnedIDs[objectID] = this;
+			prefab.gameObject.SetActive(false);
+		}
 			
-			internal static string getSaveString(SpawnedItemEvent e) {
-				string s = e.itemType.AsString()+","+e.spawnTime.ToString();
-				if (!string.IsNullOrEmpty(e.objectID))
-					s = s+","+e.classID+","+e.objectID;
-				return s;
+		internal static SpawnedItemEvent parseLegacy(string s) {
+			string[] parts = s.Split(',');
+			SpawnedItemEvent e = new SpawnedItemEvent(SNUtil.getTechType(parts[0]), int.Parse(parts[1]));
+			if (parts.Length >= 4) {
+				e.classID = parts[2];
+				e.objectID = parts[3];
 			}
+			return e;
+		}
 			
-			internal static SpawnedItemEvent parse(string s) {
-				string[] parts = s.Split(',');
-				SpawnedItemEvent e = new SpawnedItemEvent(SNUtil.getTechType(parts[0]), int.Parse(parts[1]));
-				if (parts.Length >= 4) {
-					e.classID = parts[2];
-					e.objectID = parts[3];
-				}
-				return e;
-			}
-			
-			public override string ToString() {
-				return string.Format("[SpawnedItemEvent ItemType={0}, SpawnTime={1}, ClassID={2}, ObjectID={3}]", itemType, spawnTime, classID, objectID);
-			}
+		public override string ToString() {
+			return string.Format("[SpawnedItemEvent ItemType={0}, SpawnTime={1}, ClassID={2}, ObjectID={3}]", itemType, eventTime, classID, objectID);
+		}
 
 			
-		}
+	}
 		
 	}
 }

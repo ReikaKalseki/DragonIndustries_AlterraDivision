@@ -279,7 +279,7 @@ namespace ReikaKalseki.DIAlterra
 		
 		public static void dumpTextures(Assembly a, Renderer r) {
 			foreach (Material m in r.materials) {
-				dumpTextures(a, m, r.gameObject.name+"_$_");
+				dumpTextures(a, m, new string(r.gameObject.name.Select(ch => System.Array.IndexOf(Path.GetInvalidPathChars(), ch) >= 0 ? '_' : ch).ToArray())+"_$_");
 			}
 		}
 		

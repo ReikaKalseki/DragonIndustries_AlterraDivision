@@ -18,14 +18,12 @@ namespace ReikaKalseki.DIAlterra
 		private static readonly Dictionary<TechType, Databox> databoxes = new Dictionary<TechType, Databox>();
 		private static readonly Dictionary<TechType, Crate>[] crates = new Dictionary<TechType, Crate>[2];
 		private static readonly Dictionary<TechType, FragmentGroup> fragments = new Dictionary<TechType, FragmentGroup>();
-		//private static readonly EmptyCrate emptyCrate;
+		
+		private static readonly Dictionary<LargeWorldEntity.CellLevel, WorldGeneratorPrefab> worldGeneratorPrefabs = new Dictionary<LargeWorldEntity.CellLevel, WorldGeneratorPrefab>();
 		
 		static GenUtil() {	
 			crates[0] = new Dictionary<TechType, Crate>();
 			crates[1] = new Dictionary<TechType, Crate>();
-			
-			//emptyCrate = new EmptyCrate();
-			//emptyCrate.Patch();
 		}
 		
 		public static void registerOreWorldgen(BasicCustomOre ore, BiomeType biome, int amt, float chance) {
@@ -92,16 +90,22 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("You cannot register a null gen!");
 			validateCoords(gen.position);
 			Action<GameObject> call = go => {
-				UnityEngine.Object.Destroy(go);
-				SNUtil.log("Running world generator "+gen, SNUtil.diDLL);
-				List<GameObject> li = new List<GameObject>();
-				gen.generate(li);
-				SNUtil.log("Generated approximately "+li.Count+" objects.", SNUtil.diDLL);
+				SNUtil.log("Placing world generator "+gen);
+				go.EnsureComponent<WorldGeneratorHolder>().generator = gen;
 			};
-			SpawnInfo info = new SpawnInfo(VanillaResources.LIMESTONE.prefab, gen.position, call);
+			SpawnInfo info = new SpawnInfo(getOrCreateWorldgenHolder(gen).ClassID, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
 			SNUtil.log("Queuing world generator "+gen);
 			return info;
+		}
+		
+		private static WorldGeneratorPrefab getOrCreateWorldgenHolder(WorldGenerator gen) {
+			LargeWorldEntity.CellLevel lvl = gen.getCellLevel();
+			if (!worldGeneratorPrefabs.ContainsKey(lvl)) {
+				worldGeneratorPrefabs[lvl] = new WorldGeneratorPrefab(lvl);
+				worldGeneratorPrefabs[lvl].Patch();
+			}
+			return worldGeneratorPrefabs[lvl];
 		}
 		
 		public static SpawnInfo spawnDatabox(Vector3 pos, TechType tech, Vector3? rot = null) {
@@ -508,6 +512,59 @@ namespace ReikaKalseki.DIAlterra
 					itemGrabbed = true;
 					itemInside = null;
 				}
+			}
+			
+		}
+		
+		class WorldGeneratorPrefab : Spawnable {
+			
+			public readonly LargeWorldEntity.CellLevel cellLevel;
+			
+			internal WorldGeneratorPrefab(LargeWorldEntity.CellLevel lvl) : base("WorldGeneratorHolder_"+lvl.ToString(), "", "") {
+				cellLevel = lvl;
+			}
+			
+			public override GameObject GetGameObject() {
+				GameObject go = new GameObject("WorldGeneratorHolder");
+				go.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
+				go.EnsureComponent<TechTag>().type = TechType;
+				go.EnsureComponent<LargeWorldEntity>().cellLevel = cellLevel;
+				go.EnsureComponent<WorldGeneratorHolder>();
+				return go;
+			}
+			
+		}
+		
+		class WorldGeneratorHolder : MonoBehaviour {
+			
+			internal WorldGenerator generator;
+			
+			private readonly List<GameObject> generatedObjects = new List<GameObject>();
+			
+			internal bool generate() {
+				if (generator == null) {
+					SNUtil.log("WorldGen holder @ "+transform.position+" had no generator!", SNUtil.diDLL);
+					return false;
+				}
+				SNUtil.log("Running world generator "+generator, SNUtil.diDLL);
+				if (generator.generate(generatedObjects)) {
+					SNUtil.log("Generated approximately "+generatedObjects.Count+" objects.", SNUtil.diDLL);
+					UnityEngine.Object.Destroy(gameObject);
+					return true;
+				}
+				else {
+					SNUtil.log("Generator "+generator+" failed, trying again in one second");
+					return false;
+				}
+			}
+			
+			void Start() {
+				Invoke("tryGenerate", 0);
+			}
+			
+			void tryGenerate() {
+				if (!generate())
+					Invoke("tryGenerate", 1F);
 			}
 			
 		}

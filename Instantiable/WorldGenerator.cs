@@ -39,7 +39,10 @@ namespace ReikaKalseki.DIAlterra
 			position = pos;
 		}
 		
-		public abstract void generate(List<GameObject> generated);
+		/// <returns>True if the generator completed and the holder should be destroyed</returns>
+		public abstract bool generate(List<GameObject> generated);
+		
+		public abstract LargeWorldEntity.CellLevel getCellLevel();
 		
 		public override sealed string getTagName() {
 			return TAGNAME;

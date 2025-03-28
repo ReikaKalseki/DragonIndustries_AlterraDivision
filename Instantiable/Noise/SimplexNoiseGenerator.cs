@@ -51,7 +51,7 @@ public class SimplexNoiseGenerator : NoiseGeneratorBase {
 	}
 
 	//2D OpenSimplex Noise.
-	/** Returns a value from -1 to +1 */
+	///<returns>A value from -1 to +1</returns>
 	protected override double calcValue(double x, double y, double z, double f, double a) {
 		if (!Mathf.Approximately((float)f, 1) && f > 0) {
 			x *= f;
