@@ -148,7 +148,7 @@ namespace ReikaKalseki.DIAlterra
 					tech = SNUtil.getTechType(techn);
 					if (tech == TechType.None)
 						throw new Exception("Cannot put nonexistent item '"+techn+"' in crate @ "+position+"!");
-					prefabName = GenUtil.getOrCreateCrate(tech, e.getBoolean("sealed")).ClassID;
+					prefabName = GenUtil.getOrCreateCrate(tech, e.getBoolean("sealed"), e.getProperty("goal", true)).ClassID;
 					SNUtil.log("Redirected customprefab to crate "+prefabName, SNUtil.diDLL);
 				}
 				else if (prefabName == "databox") {

@@ -123,6 +123,8 @@ namespace ReikaKalseki.DIAlterra
 									pv.inCyclops = true;
 									pv.inEscapePod = true;
 								}
+								ObjectUtil.removeComponent<Fabricator>(go3);
+								ObjectUtil.removeComponent<MedicalCabinet>(go3);
 								List<XmlElement> li0 = e3.getDirectElementsByTagName("supportData");
 								if (li0.Count == 1)
 									new SeabaseLegLengthPreservation(li0[0]).applyToObject(go3);

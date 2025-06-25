@@ -156,11 +156,11 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("Registered worldgen is out of bounds @ "+pos+"; allowable range is "+allowableGenBounds.min+" > "+allowableGenBounds.max);
 		}
 		
-		public static Spawnable getOrCreateCrate(TechType tech, bool needsCutter = false) {
+		public static Spawnable getOrCreateCrate(TechType tech, bool needsCutter = false, string goal = null) {
 			int idx = needsCutter ? 1 : 0;
 			Crate box = crates[idx].ContainsKey(tech) ? crates[idx][tech] : null;
 			if (box == null) {
-				box = new Crate(tech, needsCutter);
+				box = new Crate(tech, needsCutter, goal);
 				crates[idx][tech] = box;
 				box.Patch();
 			}
@@ -350,11 +350,13 @@ namespace ReikaKalseki.DIAlterra
 		class Crate : Spawnable {
 			
 			private readonly bool needsCutter;
+			private readonly string storyGoal;
 			private readonly TechType containedItem;
 	        
-			internal Crate(TechType tech, bool c = false) : base("Crate_"+tech.AsString()+"_"+c, "Supply Crate", "") {
+			internal Crate(TechType tech, bool c = false, string goal = null) : base("Crate_"+tech.AsString()+"_"+c, "Supply Crate", "") {
 				containedItem = tech;
 				needsCutter = c;
+				storyGoal = goal;
 				
 				//SNUtil.log("Creating Crate_"+tech.AsString()+"_"+c);
 				//SNUtil.log(new System.Diagnostics.StackTrace().ToString());
@@ -378,6 +380,7 @@ namespace ReikaKalseki.DIAlterra
 				mdl.transform.localScale = Vector3.one*5.5F;
 				CrateManagement mgr = go.EnsureComponent<CrateManagement>();
 				mgr.itemToSpawn = containedItem;
+				mgr.collectionGoal = storyGoal;
 				
 				if (needsCutter) {
 					go.EnsureComponent<Sealed>()._sealed = true;
@@ -423,6 +426,8 @@ namespace ReikaKalseki.DIAlterra
 			private string snapOpenAnimation;
 			private FMODAsset openSound;
 			
+			public string collectionGoal;
+			
 			private Sealed laserSeal;
 			
 			private Pickupable itemInside;
@@ -444,7 +449,7 @@ namespace ReikaKalseki.DIAlterra
 				}
 				if (itemToSpawn != TechType.None) {
 					cacheItem();
-					if (!itemInside && !itemGrabbed) {
+					if (!itemInside && !itemGrabbed && (collectionGoal == null || !Story.StoryGoalManager.main.IsGoalComplete(collectionGoal))) {
 						itemInside = ObjectUtil.createWorldObject(itemToSpawn).GetComponent<Pickupable>();
 						SNUtil.log("Filling crate @ "+transform.position+" with "+itemInside);
 						itemInside.transform.SetParent(transform);
@@ -459,6 +464,8 @@ namespace ReikaKalseki.DIAlterra
 			void Update() {
 				if (itemInside)
 					itemInside.isPickupable = isOpened;
+				if (string.IsNullOrEmpty(collectionGoal))
+					collectionGoal = "Crate_"+transform.position.ToString("0.0").Trim();
 			}
 
 			private void cacheItem() {
@@ -501,17 +508,22 @@ namespace ReikaKalseki.DIAlterra
 					}
 					if (this.itemInside) {
 						Inventory.main.Pickup(this.itemInside, false);
-						itemGrabbed = true;
-						this.itemInside = null;
+						clear();
 					}
 				}
 			}
 			
 			public void onPickup(Pickupable p) {
 				if (p && p.GetTechType() == itemToSpawn) {
-					itemGrabbed = true;
-					itemInside = null;
+					clear();
 				}
+			}
+			
+			private void clear() {
+				itemGrabbed = true;
+				this.itemInside = null;
+				if (collectionGoal != null)
+					Story.StoryGoal.Execute(collectionGoal, Story.GoalType.Story);
 			}
 			
 		}
