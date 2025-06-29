@@ -100,6 +100,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static event Action<CreatureSeeObjectCheck> canCreatureSeeObjectEvent;
 		public static event Action<AggressiveToPilotingVehicleCheck> aggressiveToPilotingEvent;
 		public static event Action<Base> baseRebuildEvent;
+		public static event Action<BaseStrengthCalculation> baseStrengthComputeEvent;
 		public static event Action<WaterFilterSpawn> waterFilterSpawnEvent;
 	
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
@@ -707,6 +708,37 @@ namespace ReikaKalseki.DIAlterra {
 				filter = fm;
 				defaultItem = pp;
 				item = defaultItem;
+			}
+	    	
+		}
+	    
+		public class BaseStrengthCalculation {
+	    	
+			public readonly BaseHullStrength component;
+			private readonly Dictionary<Int3, float> cellContributions = new Dictionary<Int3, float>(); //can use Base.GetCellObject to get the BaseCell
+			private readonly Dictionary<GameObject, float> bonusStrength = new Dictionary<GameObject, float>();
+			public float dynamicStrength { get; private set; }
+			
+			public float initialStrength = 10;
+			public float finalStrength { get { return initialStrength+dynamicStrength; } }
+	    	
+			internal BaseStrengthCalculation(BaseHullStrength b) {
+				component = b;
+			}
+			
+			public void computeCellStrength(Int3 cell) {
+				float amt = component.baseComp.GetHullStrength(cell);
+				cellContributions[cell] = amt;
+				dynamicStrength += amt;
+			}
+			
+			public void addBonusStrength(GameObject c, float amt) {
+				bonusStrength[c] = amt;
+				dynamicStrength += amt;
+			}
+			
+			public float getStrength(Int3 cell) {
+				return cellContributions.ContainsKey(cell) ? cellContributions[cell] : 0;
 			}
 	    	
 		}
@@ -2566,6 +2598,30 @@ namespace ReikaKalseki.DIAlterra {
 		public static void onBaseRebuild(Base b) {
 			if (b.cellObjects != null && baseRebuildEvent != null)
 				baseRebuildEvent.Invoke(b);
+		}
+	   
+		public static void onBaseHullStrength(BaseHullStrength b) {
+			if (b.baseComp != null) {
+				if (GameModeUtils.RequiresReinforcements()) {
+					BaseStrengthCalculation calc = new BaseStrengthCalculation(b);
+					b.victims.Clear();
+					foreach (Int3 cell in b.baseComp.AllCells) {
+						if (b.baseComp.GridToWorld(cell).y < 0f) {
+							Transform t = b.baseComp.GetCellObject(cell);
+							if (t != null) {
+								b.victims.Add(t.GetComponent<LiveMixin>());
+								calc.computeCellStrength(cell);
+							}
+						}
+					}
+					if (baseStrengthComputeEvent != null)
+						baseStrengthComputeEvent.Invoke(calc);
+					float total = calc.finalStrength;
+					if (!Mathf.Approximately(total, b.totalStrength))
+						SNUtil.writeToChat(Language.main.GetFormat<float, float>("BaseHullStrChanged", total - b.totalStrength, total));
+					b.totalStrength = total;
+				}
+			}
 		}
 		
 		public static void applyItemBackground(uGUI_ItemIcon ico, Atlas.Sprite spr, InventoryItem ii) {

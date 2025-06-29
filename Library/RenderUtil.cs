@@ -126,6 +126,13 @@ namespace ReikaKalseki.DIAlterra
 			}
 		}
 		
+		public static bool swapTextures(Assembly a, IEnumerable<Renderer> r, string path, Dictionary<int,string> textureLayers = null)  {
+			bool flag = false;
+			foreach (Renderer rr in r)
+				flag |= swapTextures(a, rr, path, textureLayers);
+			return flag;
+		}
+		
 		public static bool swapTextures(Assembly a, Renderer r, string path, Dictionary<int,string> textureLayers = null)  {
 			if (r == null)
 				throw new Exception("Tried to retexture a null renderer!");
