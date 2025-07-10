@@ -2600,7 +2600,7 @@ namespace ReikaKalseki.DIAlterra {
 				baseRebuildEvent.Invoke(b);
 		}
 	   
-		public static void onBaseHullStrength(BaseHullStrength b) {
+		public static void recomputeBaseHullStrength(BaseHullStrength b) {
 			if (b.baseComp != null) {
 				if (GameModeUtils.RequiresReinforcements()) {
 					BaseStrengthCalculation calc = new BaseStrengthCalculation(b);

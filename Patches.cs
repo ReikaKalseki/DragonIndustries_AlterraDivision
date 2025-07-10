@@ -2665,7 +2665,7 @@ namespace ReikaKalseki.DIAlterra {
 			List<CodeInstruction> codes = new List<CodeInstruction>();
 			try {
 				codes.Add(new CodeInstruction(OpCodes.Ldarg_0));
-				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onBaseHullStrength", false, new Type[]{typeof(BaseHullStrength)}));
+				codes.Add(InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "recomputeBaseHullStrength", false, new Type[]{typeof(BaseHullStrength)}));
 				codes.Add(new CodeInstruction(OpCodes.Ret));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}

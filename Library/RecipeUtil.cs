@@ -16,7 +16,8 @@ namespace ReikaKalseki.DIAlterra {
 	public static class RecipeUtil {
 		
 		private static readonly Dictionary<TechType, RecipeNode> nodes = new Dictionary<TechType, RecipeNode>();
-		
+		private static readonly Dictionary<TechType, TechGroup> techGroupData = new Dictionary<TechType, TechGroup>();
+		private static readonly Dictionary<TechType, TechCategory> techCatData = new Dictionary<TechType, TechCategory>();
 		private static readonly Dictionary<TechType, Dictionary<TechType, int>> originalRecipes = new Dictionary<TechType, Dictionary<TechType, int>>();
 		
 		private static bool shouldLogChanges = false;
@@ -404,6 +405,21 @@ namespace ReikaKalseki.DIAlterra {
 				ret[i.techType] = has+i.amount;
 			}
 			return ret;
+		}
+		
+		public static void getRecipeCategory(TechType tt, out TechGroup grp, out TechCategory cat) {
+			if (techGroupData.Count == 0) {
+				foreach (KeyValuePair<TechGroup, Dictionary<TechCategory, List<TechType>>> kvp in CraftData.groups) {
+					foreach (KeyValuePair<TechCategory, List<TechType>> kvp2 in kvp.Value) {
+						foreach (TechType tt2 in kvp2.Value) {
+							techGroupData[tt2] = kvp.Key;
+							techCatData[tt2] = kvp2.Key;
+						}
+					}
+				}
+			}
+			grp = techGroupData.ContainsKey(tt) ? techGroupData[tt] : TechGroup.Miscellaneous;
+			cat = techCatData.ContainsKey(tt) ? techCatData[tt] : TechCategory.Misc;
 		}
 		/*
 		public static bool areAnyRecipesOfTypeKnown(CraftTree.Type tree) {

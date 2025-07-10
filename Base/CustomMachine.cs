@@ -410,6 +410,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			if (sub) {
 				transform.parent = sub.transform;
+				onAttachToBase();
 				SNUtil.log("Custom machine "+this+" @ "+transform.position+" parented to sub: "+sub, SNUtil.diDLL);
 			}
 			
@@ -422,6 +423,10 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		protected abstract void updateEntity(float seconds);
+		
+		protected virtual void onAttachToBase() {
+			
+		}
 		
 	}
 	
