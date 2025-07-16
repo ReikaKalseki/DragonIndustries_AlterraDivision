@@ -26,8 +26,6 @@ namespace ReikaKalseki.DIAlterra
 		
 		public abstract string getTagName();
 		
-		public abstract string getID();
-		
 		public static void registerType(string tagname, Func<XmlElement, ObjectTemplate> ctr) {
 			if (types.ContainsKey(tagname))
 				throw new Exception("Tag name '"+tagname+"' already in use!");

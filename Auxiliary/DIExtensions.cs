@@ -23,6 +23,29 @@ namespace ReikaKalseki.DIAlterra
 			return (upper ? char.ToUpperInvariant(s[0]) : char.ToLowerInvariant(s[0]))+s.Substring(1);
 		}
 		
+		public static List<string[]> polySplit(this string s, char s1, char s2) {
+			List<string[]> li = new List<string[]>();
+			string[] parts = s.Split(s1);
+			for (int i = 0; i < parts.Length; i++) {
+				li.Add(parts[i].Split(s2));
+			}
+			return li;
+		}
+		
+		public static List<List<string[]>> polySplit(this string s, char s1, char s2, char s3) {
+			List<List<string[]>> li0 = new List<List<string[]>>();
+			string[] parts = s.Split(s1);
+			for (int i = 0; i < parts.Length; i++) {
+				string[] p = parts[i].Split(s2);
+				List<string[]> li2 = new List<string[]>();
+				for (int k = 0; k < p.Length; k++) {
+					li2.Add(p[k].Split(s3));
+				}
+				li0.Add(li2);
+			}
+			return li0;
+		}
+		
 		public static bool intersects(this SphereCollider sc, SphereCollider other) {
 			Vector3 pos1 = sc.transform.position+sc.center;
 			Vector3 pos2 = other.transform.position+other.center;

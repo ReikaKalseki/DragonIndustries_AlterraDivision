@@ -21,6 +21,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		private static readonly Dictionary<LargeWorldEntity.CellLevel, WorldGeneratorPrefab> worldGeneratorPrefabs = new Dictionary<LargeWorldEntity.CellLevel, WorldGeneratorPrefab>();
 		
+		private static readonly Dictionary<string, WorldGenerator> generatorTable = new Dictionary<string, WorldGenerator>();
+		
 		static GenUtil() {	
 			crates[0] = new Dictionary<TechType, Crate>();
 			crates[1] = new Dictionary<TechType, Crate>();
@@ -90,8 +92,10 @@ namespace ReikaKalseki.DIAlterra
 				throw new Exception("You cannot register a null gen!");
 			validateCoords(gen.position);
 			Action<GameObject> call = go => {
-				SNUtil.log("Placing world generator "+gen);
-				go.EnsureComponent<WorldGeneratorHolder>().generator = gen;
+				string id = gen.uniqueID;
+				SNUtil.log("Placing world generator "+gen+" ["+id+"]");
+				generatorTable[id] = gen;
+				go.EnsureComponent<WorldGeneratorHolder>().generatorID = id;
 			};
 			SpawnInfo info = new SpawnInfo(getOrCreateWorldgenHolder(gen).ClassID, gen.position, call);
 			CoordinatedSpawnsHandler.Main.RegisterCoordinatedSpawn(info);
@@ -199,6 +203,24 @@ namespace ReikaKalseki.DIAlterra
 			if (li == null || li.variantList.Count == 0)
 				return null;
 			return li.variantList[idx];
+		}
+			
+		public static bool fireGenerator(WorldGenerator gen, List<GameObject> generatedObjects) {
+			WorldgenLog.log("Running world generator " + gen);
+			if (gen.generate(generatedObjects)) {
+				WorldgenLog.log("Generator " + gen + " complete. Generation list (" + generatedObjects.Count + "):");
+				foreach (GameObject go in generatedObjects)
+					WorldgenLog.log(go);
+				if (generatedObjects.Count == 0) {
+					string msg = "Warning: Nothing generated!";
+					WorldgenLog.log(msg);
+				}
+				return true;
+			}
+			else {
+				SNUtil.log("Generator " + gen + " failed, trying again in one second", SNUtil.diDLL);
+				return false;
+			}
 		}
 		
 		public abstract class CustomPrefabImpl : Spawnable, DIPrefab<StringPrefabContainer> {
@@ -549,25 +571,23 @@ namespace ReikaKalseki.DIAlterra
 		
 		class WorldGeneratorHolder : MonoBehaviour {
 			
-			internal WorldGenerator generator;
+			internal string generatorID;
+			
+			private WorldGenerator generatorInstance;
 			
 			private readonly List<GameObject> generatedObjects = new List<GameObject>();
 			
 			internal bool generate() {
-				if (generator == null) {
-					SNUtil.log("WorldGen holder @ "+transform.position+" had no generator!", SNUtil.diDLL);
+				generatorInstance = generatorTable.ContainsKey(generatorID) ? generatorTable[generatorID] : null;
+				if (generatorInstance == null) {
+					SNUtil.log("WorldGen holder '" + generatorID + "' @ " + transform.position + " had no generator!", SNUtil.diDLL);
 					return false;
 				}
-				SNUtil.log("Running world generator "+generator, SNUtil.diDLL);
-				if (generator.generate(generatedObjects)) {
-					SNUtil.log("Generated approximately "+generatedObjects.Count+" objects.", SNUtil.diDLL);
+				bool flag = GenUtil.fireGenerator(generatorInstance, generatedObjects);
+				if (flag) {
 					UnityEngine.Object.Destroy(gameObject);
-					return true;
 				}
-				else {
-					SNUtil.log("Generator "+generator+" failed, trying again in one second");
-					return false;
-				}
+				return flag;
 			}
 			
 			void Start() {

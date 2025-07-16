@@ -949,5 +949,17 @@ namespace ReikaKalseki.DIAlterra
 				UnityEngine.Object.Destroy(c.gameObject);
 		}
 		
+		public static string tryGetObjectIdentifiers(Component c, out PrefabIdentifier prefab, out TechType tech) {
+			return tryGetObjectIdentifiers(c.gameObject, out prefab, out tech);
+		}
+		
+		public static string tryGetObjectIdentifiers(GameObject go, out PrefabIdentifier prefab, out TechType tech) {
+			prefab = go.FindAncestor<PrefabIdentifier>();
+			string classID = prefab ? prefab.ClassId : "<NO PREFAB>";
+			tech = CraftData.GetTechType(go);
+			string techString = tech == TechType.None ? "<NO TECH>" : tech.AsString();
+			return "ClID="+classID+", TT="+techString;
+		}
+		
 	}
 }

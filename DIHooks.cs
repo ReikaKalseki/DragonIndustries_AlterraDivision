@@ -846,6 +846,14 @@ namespace ReikaKalseki.DIAlterra {
 			if (onWorldLoadedEvent != null)
 				onWorldLoadedEvent.Invoke();
 		}
+		
+		public static void setWarningText(params string[] s) {
+			setWarningText(s.AsEnumerable());
+		}
+		
+		public static void setWarningText(IEnumerable<string> li) {
+			updateNotice.ShowMessage(string.Join("\n", li));
+		}
 		/*
 	    internal static void autoUpdate() { //TODO move to own class, and make msg prep and call its own method
 	    	if (outdatedMods | true) {
@@ -2343,9 +2351,15 @@ namespace ReikaKalseki.DIAlterra {
 	   
 		public static void onStorageContainerHover(StorageContainer sc, GUIHand hand) {
 			DiscreteOperationalMachineLogic lgc = sc.GetComponentInParent<DiscreteOperationalMachineLogic>();
-			if (lgc && lgc.isWorking()) {
-				HandReticle.main.SetProgress(lgc.getProgressScalar());
-				HandReticle.main.SetIcon(HandReticle.IconType.Progress, 1f);
+			if (lgc) {
+				if (lgc.isWorking()) {
+					HandReticle.main.SetProgress(lgc.getProgressScalar());
+					HandReticle.main.SetIcon(HandReticle.IconType.Progress, 1f);
+				}
+				else {
+					HandReticle.main.SetInteractText(lgc.getErrorHover()); //locale key
+					HandReticle.main.SetIcon(HandReticle.IconType.HandDeny, 1f);
+				}
 			}
 			if (storageHoverEvent != null)
 				storageHoverEvent.Invoke(sc, hand);

@@ -133,10 +133,14 @@ namespace ReikaKalseki.DIAlterra
 			SNUtil.log("Loaded "+loaded+" worldgen elements from file "+file);
 		}
 		
+		public int getCount() {
+			return objects.Count;
+		}
+		
 		public int getCount(string classID, Vector3? near = null, float dist = -1) {
 			int ret = 0;
 			foreach (PositionedPrefab pfb in objects) {
-				if (pfb.prefabName == classID) {
+				if (pfb.prefabName == classID || classID == "*") {
 					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
 						ret++;
 				}

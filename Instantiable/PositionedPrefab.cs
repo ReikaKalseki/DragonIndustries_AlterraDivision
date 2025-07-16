@@ -51,10 +51,6 @@ namespace ReikaKalseki.DIAlterra
 			return "basicprefab";
 		}
 		
-		public sealed override string getID() {
-			return prefabName;
-		}
-		
 		public string getXMLID() {
 			return xmlID.HasValue ? xmlID.Value.ToString() : null;
 		}

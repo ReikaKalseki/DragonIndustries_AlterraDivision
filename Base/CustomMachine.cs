@@ -219,6 +219,8 @@ namespace ReikaKalseki.DIAlterra
 		
 		public abstract float getProgressScalar();
 		
+		public abstract string getErrorHover();
+		
 	}
 		
 	public abstract class CustomMachineLogic : MonoBehaviour {

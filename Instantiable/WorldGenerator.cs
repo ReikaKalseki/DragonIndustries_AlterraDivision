@@ -20,6 +20,20 @@ namespace ReikaKalseki.DIAlterra
 		
 		public Func<string, GameObject> spawner = s => ObjectUtil.createWorldObject(s, true, true);
 		
+		private string savedID;
+		
+		public string uniqueID { 
+			get {
+				if (string.IsNullOrEmpty(savedID)) {
+					XmlDocument doc = new XmlDocument();
+					XmlElement e = doc.CreateElement("id");
+					saveToXML(e);
+					savedID = e.InnerXml;
+				}
+				return savedID;
+			}
+		}
+		
 		static WorldGenerator() {
 			registerType(TAGNAME, e => {
 				string typeName = e.getProperty("type");
@@ -48,10 +62,6 @@ namespace ReikaKalseki.DIAlterra
 			return TAGNAME;
 		}
 		
-		public override sealed string getID() {
-			return GetType().Name;
-		}
-		
 		protected bool isColliding(Vector3 vec, List<GameObject> li) {
 			foreach (GameObject go in li) {
 				if (ObjectUtil.objectCollidesPosition(go, vec))
@@ -61,7 +71,7 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 		public override string ToString() {
-			return getID()+" @ "+position;
+			return GetType().Name+" @ "+position;
 		}
 	}
 }

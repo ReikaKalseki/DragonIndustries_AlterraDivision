@@ -283,6 +283,8 @@ namespace ReikaKalseki.DIAlterra
 		}
 		
 	    public static Type getTypeBySimpleName(string name) {
+			if (string.IsNullOrEmpty(name))
+				throw new Exception("You cannot get a type of no name!");
 	        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Reverse()) {
 	            Type tt = assembly.GetType(name);
 	            if (tt != null)
@@ -290,6 +292,17 @@ namespace ReikaKalseki.DIAlterra
 	        }	
 	        return null;
 	    }
+		
+		public static MethodInfo getMethodInType(Type t, string name) {
+			try {
+				if (string.IsNullOrEmpty(name))
+					throw new Exception("You cannot get a method of no name!");
+				return t.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+			}
+			catch (Exception ex) {
+				throw new Exception("Failed to find '"+t.Name+"::"+name+"'", ex);
+			}
+		}
 		
 		public static void patchEveryReturnPre(List<CodeInstruction> codes, params CodeInstruction[] insert) {
 			patchEveryReturnPre(codes, insert.ToList<CodeInstruction>());
