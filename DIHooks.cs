@@ -963,8 +963,14 @@ namespace ReikaKalseki.DIAlterra {
 			StoryHandler.instance.tick(ep);
 			ScreenFXManager.instance.tick();
 
-			if (onPlayerTickEvent != null)
-				onPlayerTickEvent.Invoke(ep);
+			if (onPlayerTickEvent != null) {
+				try {
+					onPlayerTickEvent.Invoke(ep);
+				}
+				catch (Exception ex) {
+					SNUtil.writeToChat("Threw exception running player tick hooks: "+ex);
+				}
+			}
 		}
 
 		public static void tickSeamoth(SeaMoth sm) {

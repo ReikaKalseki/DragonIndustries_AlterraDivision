@@ -480,8 +480,24 @@ namespace ReikaKalseki.DIAlterra {
 			return pfb;
 		}
 
+		public static bool isPlantable(this TechType tt) {
+			GameObject go = lookupPrefab(tt);
+			return go && go.GetComponent<Plantable>();
+		}
+
 		public static bool isRawFish(this TechType tt) {
 			return CraftData.cookedCreatureList.ContainsKey(tt);
+		}
+
+		public static FoodCategory getFoodCategory(this TechType tt) {
+			if (tt.isRawFish())
+				return FoodCategory.RAWMEAT;
+			else if (CraftData.cookedCreatureList.Values.Contains(tt) || tt.AsString().StartsWith("Cured"))
+				return FoodCategory.EDIBLEMEAT;
+			else if (tt.isPlantable())
+				return FoodCategory.PLANT;
+			else
+				return FoodCategory.OTHER;
 		}
 
 		public static GameObject lookupPrefab(TechType tt) {
@@ -945,5 +961,12 @@ namespace ReikaKalseki.DIAlterra {
 			go.gameObject.name = name;
 			return go;
 		}
+	}
+
+	public enum FoodCategory {
+		PLANT,
+		RAWMEAT,
+		EDIBLEMEAT,
+		OTHER,
 	}
 }
