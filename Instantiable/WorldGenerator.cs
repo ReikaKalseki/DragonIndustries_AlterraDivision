@@ -1,39 +1,41 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
-namespace ReikaKalseki.DIAlterra
-{
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+
+namespace ReikaKalseki.DIAlterra {
 	public abstract class WorldGenerator : ObjectTemplate {
-		
+
 		public static readonly string TAGNAME = "generator";
-		
+
 		public readonly Vector3 position;
-		
+
 		public Func<string, GameObject> spawner = s => ObjectUtil.createWorldObject(s, true, true);
-		
+
 		private string savedID;
-		
-		public string uniqueID { 
+
+		public string uniqueID {
 			get {
 				if (string.IsNullOrEmpty(savedID)) {
 					XmlDocument doc = new XmlDocument();
 					XmlElement e = doc.CreateElement("id");
-					saveToXML(e);
+					this.saveToXML(e);
 					savedID = e.InnerXml;
 				}
 				return savedID;
 			}
 		}
-		
+
 		static WorldGenerator() {
 			registerType(TAGNAME, e => {
 				string typeName = e.getProperty("type");
@@ -43,25 +45,25 @@ namespace ReikaKalseki.DIAlterra
 					pos += MathUtil.getRandomVectorBetween(-scatt.Value, scatt.Value);
 				Type tt = InstructionHandlers.getTypeBySimpleName(typeName);
 				if (tt == null)
-					throw new Exception("No class found for '"+typeName+"'!");
+					throw new Exception("No class found for '" + typeName + "'!");
 				WorldGenerator gen = (WorldGenerator)Activator.CreateInstance(tt, new object[]{pos});
 				return gen;
 			});
 		}
-		
+
 		protected WorldGenerator(Vector3 pos) {
 			position = pos;
 		}
-		
+
 		/// <returns>True if the generator completed and the holder should be destroyed</returns>
 		public abstract bool generate(List<GameObject> generated);
-		
+
 		public abstract LargeWorldEntity.CellLevel getCellLevel();
-		
+
 		public override sealed string getTagName() {
 			return TAGNAME;
 		}
-		
+
 		protected bool isColliding(Vector3 vec, List<GameObject> li) {
 			foreach (GameObject go in li) {
 				if (ObjectUtil.objectCollidesPosition(go, vec))
@@ -69,9 +71,9 @@ namespace ReikaKalseki.DIAlterra
 			}
 			return false;
 		}
-		
+
 		public override string ToString() {
-			return GetType().Name+" @ "+position;
+			return this.GetType().Name + " @ " + position;
 		}
 	}
 }

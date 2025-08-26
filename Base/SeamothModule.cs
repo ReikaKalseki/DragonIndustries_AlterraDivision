@@ -2,59 +2,59 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using SMLHelper.V2.Assets;
-using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Crafting;
-
-using UnityEngine;
 using ReikaKalseki.DIAlterra;
 
-namespace ReikaKalseki.DIAlterra
-{
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+
+using UnityEngine;
+
+namespace ReikaKalseki.DIAlterra {
 	public abstract class SeamothModule : CustomEquipable {
-		
+
 		private static readonly Dictionary<TechType, SeamothModuleStorage> storageHandlers = new Dictionary<TechType, SeamothModuleStorage>();
-		
+
 		static SeamothModule() {
-			storageHandlers[TechType.SeamothTorpedoModule] = new SeamothModuleStorage(null, StorageAccessType.BOX, -1, -1){localeKey = "SeamothTorpedoStorage"};
+			storageHandlers[TechType.SeamothTorpedoModule] = new SeamothModuleStorage(null, StorageAccessType.BOX, -1, -1) { localeKey = "SeamothTorpedoStorage" };
 		}
-		
+
 		internal static SeamothModuleStorage getStorageHandler(TechType item) {
 			return storageHandlers.ContainsKey(item) ? storageHandlers[item] : null;
 		}
-		
+
 		internal static void updateLocale() {
 			foreach (KeyValuePair<TechType, SeamothModuleStorage> kvp in storageHandlers) {
 				if (!string.IsNullOrEmpty(kvp.Value.localeKey) && !string.IsNullOrEmpty(kvp.Value.localizedHoverText)) {
 					CustomLocaleKeyDatabase.registerKey(kvp.Value.localeKey, kvp.Value.localizedHoverText);
-					SNUtil.log("Relocalized seamoth module tooltip "+kvp.Value.localeKey+" > "+kvp.Value.localizedHoverText, SNUtil.diDLL);
+					SNUtil.log("Relocalized seamoth module tooltip " + kvp.Value.localeKey + " > " + kvp.Value.localizedHoverText, SNUtil.diDLL);
 				}
 			}
 		}
-		
+
 		protected SeamothModule(XMLLocale.LocaleEntry e, string template = "92b6424f-7635-4e61-990e-3c40bfad6e9a") : this(e.key, e.name, e.desc, template) {
-			
+
 		}
-		
+
 		protected SeamothModule(string id, string name, string desc, string template = "92b6424f-7635-4e61-990e-3c40bfad6e9a") : base(id, name, desc, template) { //SeamothElectricalDefense
 			dependency = TechType.BaseUpgradeConsole;
-			
+
 			OnFinishedPatching += () => {
 				if (QuickSlotType == QuickSlotType.Chargeable || QuickSlotType == QuickSlotType.SelectableChargeable) {
-					CraftData.maxCharges[TechType] = getMaxCharge();
-					CraftData.energyCost[TechType] = getChargingPowerCost();
+					CraftData.maxCharges[TechType] = this.getMaxCharge();
+					CraftData.energyCost[TechType] = this.getChargingPowerCost();
 				}
-				SeamothModuleStorage s = getStorage();
+				SeamothModuleStorage s = this.getStorage();
 				if (s != null) {
 					storageHandlers[TechType] = s;
-					s.localeKey = "SeamothModuleStorageAccess_"+id;
-					s.localizedHoverText = "Access "+name+" storage";
+					s.localeKey = "SeamothModuleStorageAccess_" + id;
+					s.localizedHoverText = "Access " + name + " storage";
 				}
 			};
 		}
-		
+
 		public override void prepareGameObject(GameObject go, Renderer[] r) {
-			SeamothModuleStorage s = getStorage();
+			SeamothModuleStorage s = this.getStorage();
 			if (s != null) {
 				SeamothStorageContainer storage = go.GetComponent<SeamothStorageContainer>();
 				if (storage) {
@@ -71,10 +71,10 @@ namespace ReikaKalseki.DIAlterra
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"SeamothModules"};//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
+				return new string[] { "SeamothModules" };//return new string[]{"DISeamoth"};//new string[]{"SeamothModules"};
 			}
 		}
-		
+
 		public override sealed EquipmentType EquipmentType {
 			get {
 				return EquipmentType.SeamothModule;
@@ -92,43 +92,43 @@ namespace ReikaKalseki.DIAlterra
 				return TechCategory.VehicleUpgrades;
 			}
 		}
-		
+
 		protected virtual float getMaxCharge() {
 			return CraftData.GetQuickSlotMaxCharge(TechType.SeamothElectricalDefense);
 		}
-		
+
 		protected virtual float getChargingPowerCost() {
 			return 1;
 		}
-		
+
 		public virtual float getUsageCooldown() {
 			return 0;
 		}
-		
+
 		public virtual SeamothModuleStorage getStorage() {
 			return null;
 		}
-		
+
 		public virtual void onFired(SeaMoth sm, int slotID, float charge) { //charge is 0-1
-			
+
 		}
-		
+
 		public class SeamothModuleStorage {
-			
+
 			public readonly string title;
 			public readonly int width;
 			public readonly int height;
 			private readonly Action<SeamothStorageContainer> additionalModifications;
 			public readonly List<TechType> allowedAmmo = new List<TechType>();
 			public StorageAccessType storageType;
-			
-			public string localeKey {get; internal set;}
-			public string localizedHoverText {get; internal set;}
-			
+
+			public string localeKey { get; internal set; }
+			public string localizedHoverText { get; internal set; }
+
 			public SeamothModuleStorage(string s, StorageAccessType t, int w, int h) : this(s, t, w, h, null) {
-				
+
 			}
-			
+
 			public SeamothModuleStorage(string s, StorageAccessType t, int w, int h, Action<SeamothStorageContainer> a) {
 				title = s;
 				storageType = t;
@@ -136,7 +136,7 @@ namespace ReikaKalseki.DIAlterra
 				height = h;
 				additionalModifications = a;
 			}
-			
+
 			internal void apply(SeamothStorageContainer storage) {
 				if (title != null)
 					storage.storageLabel = title.ToUpperInvariant();
@@ -155,21 +155,21 @@ namespace ReikaKalseki.DIAlterra
 					storage.container.SetAllowedTechTypes(storage.allowedTech);
 				}
 			}
-			
+
 			public SeamothModuleStorage addAmmo(PrefabReference s) {
-				return addAmmo(CraftData.entClassTechTable[s.getPrefabID()]);
+				return this.addAmmo(CraftData.entClassTechTable[s.getPrefabID()]);
 			}
-			
+
 			public SeamothModuleStorage addAmmo(Spawnable s) {
-				return addAmmo(s.TechType);
+				return this.addAmmo(s.TechType);
 			}
-			
+
 			public SeamothModuleStorage addAmmo(TechType tt) {
 				allowedAmmo.Add(tt);
 				return this;
 			}
 		}
-		
+
 		public enum StorageAccessType {
 			BOX,
 			TORPEDO,

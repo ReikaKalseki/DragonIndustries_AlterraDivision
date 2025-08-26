@@ -1,29 +1,28 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Linq;
-
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
 using SMLHelper.V2.Handlers;
 
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace ReikaKalseki.DIAlterra
-{
-	public class VanillaResources : PrefabReference {	
-		
+namespace ReikaKalseki.DIAlterra {
+	public class VanillaResources : PrefabReference {
+
 		private static readonly Dictionary<string, VanillaResources> lookup = new Dictionary<string, VanillaResources>();
-		
+
 		public static readonly VanillaResources SCRAP1 = new VanillaResources("7cd86cbf-0708-41dc-84d7-58c648e25b06"); //"WorldEntities/Natural/metal3",
 		public static readonly VanillaResources SCRAP2 = new VanillaResources("7e507655-9fbf-42e0-8422-163ddd668747"); //"WorldEntities/Natural/metal2",
 		public static readonly VanillaResources SCRAP3 = new VanillaResources("947f2823-c42a-45ef-94e4-52a9f1d3459c"); //"WorldEntities/Natural/metal1",
 		public static readonly VanillaResources SCRAP4 = new VanillaResources("b2d10d9b-878e-4ff8-b71f-cd578e0d2038"); //"WorldEntities/Natural/metal4",
-		
+
 		public static readonly VanillaResources LIMESTONE = new VanillaResources("7e07fce9-0ad6-4c54-9da7-e43eb1e38cea");
 		public static readonly VanillaResources SANDSTONE = new VanillaResources("5b702ef7-7403-49ee-99c5-1f67ab04954a");
 		public static readonly VanillaResources SHALE = new VanillaResources("814fa303-8697-48ef-b126-cf22e703cefd");
-		
+
 		public static readonly VanillaResources TITANIUM = new VanillaResources("c66b5dfa-7fe9-4688-b165-d2e2f4caa8d9");
 		public static readonly VanillaResources COPPER = new VanillaResources("63e251a6-fb65-454b-84b0-4493e19f73cd");
 		public static readonly VanillaResources QUARTZ = new VanillaResources("8ef17c52-2aa8-46b6-ada3-c3e3c4a78dd6");
@@ -41,7 +40,7 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources KYANITE = new VanillaResources("6e7f3d62-7e76-4415-af64-5dcd88fc3fe4");
 		public static readonly VanillaResources MERCURY = new VanillaResources("779ef413-44b0-4eab-b94c-dfaadb1d2df0");
 		public static readonly VanillaResources ION = new VanillaResources("38ebd2e5-9dcc-4d7a-ada4-86a22e01191a");
-		
+
 		public static readonly VanillaResources LARGE_SILVER = new VanillaResources("026d91e2-430b-4c6d-8bd4-b51e270d5eed");
 		public static readonly VanillaResources LARGE_MERCURY = new VanillaResources("06ada673-7d2b-454f-ae11-951d628e64a7");
 		public static readonly VanillaResources LARGE_RUBY = new VanillaResources("109bbd29-c445-4ad8-a4bf-be7bc6d421d6");
@@ -60,30 +59,30 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaResources LARGE_DIAMOND = new VanillaResources("e7c097ac-e7be-4808-aaaa-70178d96f68b");
 		public static readonly VanillaResources LARGE_MAGNETITE = new VanillaResources("f67c158c-3b83-473c-ad52-93fd2eeef66b");
 		public static readonly VanillaResources LARGE_URANIUM = new VanillaResources("fb5de2b6-1fe8-44fc-a555-dc0a09dc292a");
-		
-		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();	
-		
+
+		private static readonly Dictionary<string, VanillaResources> names = new Dictionary<string, VanillaResources>();
+
 		public readonly string prefab;
 		public readonly string pathname;
-		
+
 		private string name;
-				
+
 		private VanillaResources(string id) {
 			prefab = id;
 			pathname = PrefabData.getPrefab(id);
 			lookup[prefab] = this;
 		}
-		
+
 		public static VanillaResources getByName(string n) {
 			populateNames();
 			return names.ContainsKey(n) ? names[n] : null;
 		}
-		
+
 		public static List<VanillaResources> getAll() {
 			populateNames();
 			return new List<VanillaResources>(names.Values);
 		}
-		
+
 		private static void populateNames() {
 			if (names.Count == 0) {
 				foreach (FieldInfo f in typeof(VanillaResources).GetFields()) {
@@ -95,18 +94,18 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 		}
-		
+
 		public string getPrefabID() {
 			return prefab;
 		}
-		
+
 		public static VanillaResources getFromID(string pfb) {
 			return lookup.ContainsKey(pfb) ? lookup[pfb] : null;
 		}
-		
+
 		public override string ToString() {
 			return name;
 		}
-		
+
 	}
 }

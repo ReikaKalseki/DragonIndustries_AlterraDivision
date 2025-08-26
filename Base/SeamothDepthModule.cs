@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using SMLHelper.V2.Assets;
-using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Crafting;
-
-using UnityEngine;
 using ReikaKalseki.DIAlterra;
 
-namespace ReikaKalseki.DIAlterra
-{
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+
+using UnityEngine;
+
+namespace ReikaKalseki.DIAlterra {
 	public sealed class SeamothDepthModule : SeamothModule {
-		
+
 		public readonly int maxDepth;
 		public readonly int depthBonus;
-		
+
 		public SeamothDepthModule(string id, string name, string desc, int d) : base(id, name, desc) {
 			maxDepth = d;
-			depthBonus = maxDepth-200;
+			depthBonus = maxDepth - 200;
 			dependency = TechType.BaseUpgradeConsole;
 		}
 
@@ -47,7 +47,7 @@ namespace ReikaKalseki.DIAlterra
 
 		public override string[] StepsToFabricatorTab {
 			get {
-				return new string[]{"SeamothMenu"};
+				return new string[] { "SeamothMenu" };
 			}
 		}
 	}

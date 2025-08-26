@@ -1,11 +1,11 @@
 using System;
-
-using System.IO;    //For data read/write methods
 using System.Collections;   //Working with Lists and Collections
 using System.Collections.Generic;   //Working with Lists and Collections
+using System.IO;    //For data read/write methods
 using System.Linq;   //More advanced manipulation of lists/collections
 using System.Reflection;
 using System.Reflection.Emit;
+
 using HarmonyLib;
 
 using UnityEngine;
@@ -38,7 +38,7 @@ public abstract class NoiseGeneratorBase {
 	}
 
 	public double getValue(double x, double y, double z) {
-		return this.calculateValues(x*inputFactor, y*inputFactor, z*inputFactor);
+		return this.calculateValues(x * inputFactor, y * inputFactor, z * inputFactor);
 	}
 
 	private double calculateValues(double x, double y, double z) {
@@ -55,7 +55,7 @@ public abstract class NoiseGeneratorBase {
 
 		if (octaves.Count > 0) {
 			foreach (Octave o in octaves) {
-				val += this.calcValue(x+o.phaseShift, y+o.phaseShift, z+o.phaseShift, o.frequency, o.amplitude);
+				val += this.calcValue(x + o.phaseShift, y + o.phaseShift, z + o.phaseShift, o.frequency, o.amplitude);
 			}
 			if (clampEdge)
 				val = Mathf.Clamp((float)val, -1, 1);
@@ -114,14 +114,14 @@ public abstract class NoiseGeneratorBase {
 	}
 
 	public double getXDisplacement(double x, double y, double z) {
-		return xNoise != null ? xNoise.getValue(x, y, z)*xNoiseScale : 0;
+		return xNoise != null ? xNoise.getValue(x, y, z) * xNoiseScale : 0;
 	}
 
 	public double getYDisplacement(double x, double y, double z) {
-		return yNoise != null ? yNoise.getValue(x, y, z)*yNoiseScale : 0;
+		return yNoise != null ? yNoise.getValue(x, y, z) * yNoiseScale : 0;
 	}
 
 	public double getZDisplacement(double x, double y, double z) {
-		return zNoise != null ? zNoise.getValue(x, y, z)*zNoiseScale : 0;
+		return zNoise != null ? zNoise.getValue(x, y, z) * zNoiseScale : 0;
 	}
 }

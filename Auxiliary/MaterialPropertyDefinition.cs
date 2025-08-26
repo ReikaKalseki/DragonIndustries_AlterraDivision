@@ -1,50 +1,49 @@
 ﻿using System;
-
 using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
-using System.Xml;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
+
+using ReikaKalseki.DIAlterra;
 
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
 
-using ReikaKalseki.DIAlterra;
-
 using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra {
-	
+
 	public class MaterialPropertyDefinition {
-		
+
 		private static readonly Dictionary<string, ShaderPropertyDefinition> shaderPropTypes = new Dictionary<string, ShaderPropertyDefinition>();
-		
+
 		static MaterialPropertyDefinition() { //this is not exhaustive but it covers most of the commonly used ones
 			addShaderProperty(new ShaderPropertyDefinition("_Fresnel", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_Shininess", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_SpecInt", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_Mode", typeof(float)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_Color", typeof(Color)));
 			addShaderProperty(new ShaderPropertyDefinition("_Color2", typeof(Color)));
 			addShaderProperty(new ShaderPropertyDefinition("_Color3", typeof(Color)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_SpecColor", typeof(Color)));
 			addShaderProperty(new ShaderPropertyDefinition("_GlowColor", typeof(Color)));
 			addShaderProperty(new ShaderPropertyDefinition("_SquaresColor", typeof(Color)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_GlowStrength", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_GlowStrengthNight", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_EmissionLM", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("__EmissionLMNight", typeof(float)));
-				
+
 			addShaderProperty(new ShaderPropertyDefinition("_EnableGlow", typeof(int)));
 			addShaderProperty(new ShaderPropertyDefinition("_EnableLighting", typeof(int)));
 			addShaderProperty(new ShaderPropertyDefinition("_EnableLightmap", typeof(int)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_ZWrite", typeof(int)));
 			addShaderProperty(new ShaderPropertyDefinition("_Cutoff", typeof(int)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_SrcBlend", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_DstBlend", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_SrcBlend2", typeof(float)));
@@ -53,7 +52,7 @@ namespace ReikaKalseki.DIAlterra {
 			addShaderProperty(new ShaderPropertyDefinition("_AddDstBlend", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_AddSrcBlend2", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_AddDstBlend2", typeof(float)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_FillSack", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_OverlayStrength", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_Hypnotize", typeof(float)));
@@ -72,7 +71,7 @@ namespace ReikaKalseki.DIAlterra {
 			addShaderProperty(new ShaderPropertyDefinition("_Displacement", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_BurstStrength", typeof(float)));
 			addShaderProperty(new ShaderPropertyDefinition("_ClipRange", typeof(float)));
-			
+
 			addShaderProperty(new ShaderPropertyDefinition("_DetailIntensities", typeof(Vector4)));
 			addShaderProperty(new ShaderPropertyDefinition("_LightmapStrength", typeof(Vector4)));
 			addShaderProperty(new ShaderPropertyDefinition("_ColorStrength", typeof(Vector4)));
@@ -88,25 +87,25 @@ namespace ReikaKalseki.DIAlterra {
 			addShaderProperty(new ShaderPropertyDefinition("_ObjectUp", typeof(Vector4)));
 			addShaderProperty(new ShaderPropertyDefinition("_Range", typeof(Vector4)));
 		}
-		
+
 		private static void addShaderProperty(ShaderPropertyDefinition def) {
 			shaderPropTypes[def.name] = def;
 		}
-			
+
 		public string name;
-		
+
 		public readonly Dictionary<string, TextureDefinition> textures = new Dictionary<string, TextureDefinition>();
 		public readonly HashSet<string> shaderFlags = new HashSet<string>();
 		public readonly Dictionary<string, ShaderProperty> shaderProperties = new Dictionary<string, ShaderProperty>();
-		
+
 		public Color color;
 		public int renderQueue;
 		public MaterialGlobalIlluminationFlags illumFlags;
-		
+
 		public MaterialPropertyDefinition(string n) {
 			name = n.Replace(" (Instance)", "");
 		}
-		
+
 		public MaterialPropertyDefinition(Material m) : this(m.mainTexture.name) {
 			color = m.color;
 			renderQueue = m.renderQueue;
@@ -121,7 +120,7 @@ namespace ReikaKalseki.DIAlterra {
 				shaderProperties[shd.name] = new ShaderProperty(shd, m);
 			}
 		}
-		
+
 		public void readFromFile(Assembly a, string folder) {
 			string defs = Path.Combine(folder, "defs.xml");
 			XmlDocument doc = new XmlDocument();
@@ -147,7 +146,7 @@ namespace ReikaKalseki.DIAlterra {
 			renderQueue = doc.DocumentElement.getInt("renderQueue", 0, false);
 			illumFlags = (MaterialGlobalIlluminationFlags)doc.DocumentElement.getInt("illumFlags", 0, false);
 		}
-		
+
 		public void writeToFile(string folder) {
 			Directory.CreateDirectory(folder);
 			string defs = Path.Combine(folder, "defs.xml");
@@ -179,7 +178,7 @@ namespace ReikaKalseki.DIAlterra {
 			doc.DocumentElement.AppendChild(props);
 			doc.Save(defs);
 		}
-		
+
 		public void applyToMaterial(Material m, bool useTex = true, bool vars = true) {
 			m.name = name;
 			m.color = color;
@@ -204,17 +203,17 @@ namespace ReikaKalseki.DIAlterra {
 				}
 			}
 		}
-		
+
 		public class ShaderPropertyDefinition {
-			
+
 			public readonly string name;
 			public readonly Type valueType;
-			
+
 			public ShaderPropertyDefinition(string n, Type tt) {
 				name = n;
 				valueType = tt;
 			}
-			
+
 			internal object loadValue(XmlElement e) {
 				if (valueType == typeof(int))
 					return e.getInt(name, 0, false);
@@ -222,40 +221,32 @@ namespace ReikaKalseki.DIAlterra {
 					return e.getFloat(name, float.NaN);
 				//if (valueType == typeof(float[]))
 				//	return e.GetFloatArray(name);
-				if (valueType == typeof(Vector4))
-					return e.getVector4(name);
-				if (valueType == typeof(Color))
-					return e.getColor(name, true);
-				return null;
+				return valueType == typeof(Vector4) ? e.getVector4(name) : valueType == typeof(Color) ? e.getColor(name, true) : (object)null;
 			}
-			
+
 			internal void saveValue(XmlElement e, object val) {
 				if (valueType == typeof(int))
 					e.addProperty(name, (int)val);
 				if (valueType == typeof(float))
 					e.addProperty(name, (float)val);
 				//if (valueType == typeof(float[]))
-					//e.addProperty(name, val);
+				//e.addProperty(name, val);
 				if (valueType == typeof(Vector4))
 					e.addProperty(name, (Vector4)val);
 				if (valueType == typeof(Color))
 					e.addProperty(name, (Color)val);
 			}
-			
+
 			internal object getValue(Material m) {
-				if (valueType == typeof(int))
-					return m.GetInt(name);
-				if (valueType == typeof(float))
-					return m.GetFloat(name);
-				if (valueType == typeof(float[]))
-					return m.GetFloatArray(name);
-				if (valueType == typeof(Vector4))
-					return m.GetVector(name);
-				if (valueType == typeof(Color))
-					return m.GetColor(name);
-				return null;
+				return valueType == typeof(int)
+					? m.GetInt(name)
+					: valueType == typeof(float)
+					? m.GetFloat(name)
+					: valueType == typeof(float[])
+					? m.GetFloatArray(name)
+					: valueType == typeof(Vector4) ? m.GetVector(name) : valueType == typeof(Color) ? m.GetColor(name) : (object)null;
 			}
-			
+
 			internal void applyValue(Material m, object val) {
 				if (valueType == typeof(int))
 					m.SetInt(name, Convert.ToInt32(val));
@@ -268,81 +259,81 @@ namespace ReikaKalseki.DIAlterra {
 				if (valueType == typeof(Color))
 					m.SetColor(name, (Color)val);
 			}
-			
+
 		}
-		
+
 		public class ShaderProperty {
-			
+
 			public readonly ShaderPropertyDefinition definition;
-			
+
 			public object value;
-			
+
 			public ShaderProperty(ShaderPropertyDefinition n) {
 				definition = n;
 			}
-			
+
 			public ShaderProperty(ShaderPropertyDefinition n, Material m) : this(n) {
 				value = definition.getValue(m);
 			}
-		
+
 			public void applyToMaterial(Material m) {
 				try {
 					definition.applyValue(m, value);
 				}
 				catch (Exception ex) {
-					SNUtil.log("Could not apply shader property "+definition.name+" ["+value+"]: "+ex);
+					SNUtil.log("Could not apply shader property " + definition.name + " [" + value + "]: " + ex);
 				}
 			}
-			
+
 			public void writeToFile(XmlElement e) {
 				e.addProperty("name", definition.name);
 				definition.saveValue(e, value);
 			}
-			
+
 			public void readFromFile(XmlElement e) {
 				value = definition.loadValue(e);
 			}
-			
+
 		}
-		
+
 		public class TextureDefinition {
-			
+
 			public string name;
-			
+
 			public Texture texture;
 			public Vector2 scale;
 			public Vector2 offset;
-			
+
 			public TextureDefinition() {
-				
+
 			}
-			
+
 			public TextureDefinition(Material m, string tex) {
 				name = tex;
 				texture = m.GetTexture(tex);
 				scale = m.GetTextureScale(tex);
 				offset = m.GetTextureOffset(tex);
 			}
-		
-			public void applyToMaterial(Material m) {				
+
+			public void applyToMaterial(Material m) {
 				m.SetTexture(name, texture);
 				m.SetTextureScale(name, scale);
 				m.SetTextureOffset(name, offset);
 			}
-			
+
 			public void writeToFile(XmlElement e) {
 				e.addProperty("name", name);
 				e.addProperty("scale", scale.WithZ(0));
 				e.addProperty("offset", offset.WithZ(0));
 			}
-			
+
 			public void readFromFile(XmlElement e) {
 				name = e.getProperty("name");
 				scale = e.getVector("scale").Value.XY();
 				offset = e.getVector("offset").Value.XY();
 			}
-			
+
 		}
-		
+
 	}
 }

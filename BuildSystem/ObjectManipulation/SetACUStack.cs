@@ -7,54 +7,56 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
-namespace ReikaKalseki.DIAlterra
-{		
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
+namespace ReikaKalseki.DIAlterra {
 	internal class SetACUStack : ManipulationBase {
-		
+
 		private bool isBottomOfStack;
 		private bool isTopOfStack;
 		private bool glassTop;
-		
+
 		public override void applyToObject(GameObject go) {
-			GameObject floor = ObjectUtil.getChildObject(go, "BaseWaterParkFloorBottom");
-			GameObject middleBottom = ObjectUtil.getChildObject(go, "BaseWaterParkFloorMiddle");
-			GameObject middleTop = ObjectUtil.getChildObject(go, "BaseWaterParkCeilingMiddle");
-			GameObject ceiling = ObjectUtil.getChildObject(go, "BaseWaterParkCeilingTop");
-			GameObject gt = ObjectUtil.getChildObject(go, "BaseWaterParkCeilingGlass");
+			GameObject floor = go.getChildObject("BaseWaterParkFloorBottom");
+			GameObject middleBottom = go.getChildObject("BaseWaterParkFloorMiddle");
+			GameObject middleTop = go.getChildObject("BaseWaterParkCeilingMiddle");
+			GameObject ceiling = go.getChildObject("BaseWaterParkCeilingTop");
+			GameObject gt = go.getChildObject("BaseWaterParkCeilingGlass");
 			floor.SetActive(isBottomOfStack);
 			middleBottom.SetActive(!isBottomOfStack);
 			ceiling.SetActive(isTopOfStack);
 			middleTop.SetActive(!isTopOfStack);
 			gt.SetActive(isTopOfStack && glassTop);
 		}
-		
+
 		public override void applyToObject(PlacedObject go) {
-			applyToObject(go.obj);
+			this.applyToObject(go.obj);
 		}
-		
+
 		public override void loadFromXML(XmlElement e) {
 			isBottomOfStack = e.getBoolean("Bottom");
 			isTopOfStack = e.getBoolean("Top");
 			glassTop = e.getBoolean("GlassTop");
 		}
-		
+
 		public override void saveToXML(XmlElement e) {
 			e.addProperty("Bottom", isBottomOfStack);
 			e.addProperty("Top", isTopOfStack);
 			e.addProperty("GlassTop", glassTop);
 		}
-		
+
 	}
 }

@@ -1,43 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
 using ReikaKalseki.SeaToSea;
+
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
-using SMLHelper.V2.Assets;
+
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace ReikaKalseki.DIAlterra {
-	
+
 	public class LockedPrecursorDoor : Spawnable {
-		
+
 		public readonly string id;
-		
-		public readonly PrecursorKeyTerminal.PrecursorKeyType key;		
+
+		public readonly PrecursorKeyTerminal.PrecursorKeyType key;
 		public readonly PositionedPrefab barrierLocation;
 		public readonly PositionedPrefab keyTerminalLocation;
-		
+
 		internal static readonly Dictionary<string, LockedPrecursorDoor> prefabs = new Dictionary<string, LockedPrecursorDoor>();
-	        
+
 		public LockedPrecursorDoor(string id, PrecursorKeyTerminal.PrecursorKeyType key, PositionedPrefab barrier, PositionedPrefab terminal)
 			: base("LockedPrecursorDoor_" + id, "", "") {
 			this.id = id;
 			this.key = key;
-			
+
 			barrierLocation = barrier;
 			keyTerminalLocation = terminal;
-			
+
 			OnFinishedPatching += () => {
 				prefabs[ClassID] = this;
 			};
 		}
-			
+
 		public override GameObject GetGameObject() {
 			GameObject go = new GameObject("LockedPrecursorDoor_" + id + "(Clone)");
 			//SNUtil.log("Spawning LockedPrecursorDoor_"+id+" @ "+go.transform.position);
@@ -53,26 +56,26 @@ namespace ReikaKalseki.DIAlterra {
 		protected override void ProcessPrefab(GameObject go) {
 			base.ProcessPrefab(go);
 		}
-		
+
 		class LockedPrecursorDoorTag : MonoBehaviour {
-			
+
 			private PrecursorKeyTerminal terminal;
 			private PrecursorDoorway barrier;
 			private LockedPrecursorDoor template;
-			
+
 			private ChangePrecursorDoor doorColor;
-			
+
 			void Update() {
 				if (template == null)
-					template = LockedPrecursorDoor.prefabs[GetComponent<PrefabIdentifier>().ClassId];
+					template = LockedPrecursorDoor.prefabs[this.GetComponent<PrefabIdentifier>().ClassId];
 				if (template == null)
 					return;
 				if (doorColor == null)
 					doorColor = new ChangePrecursorDoor(template.key);
 				if (!terminal)
-					terminal = GetComponentInChildren<PrecursorKeyTerminal>();
+					terminal = this.GetComponentInChildren<PrecursorKeyTerminal>();
 				if (!barrier)
-					barrier = GetComponentInChildren<PrecursorDoorway>();
+					barrier = this.GetComponentInChildren<PrecursorDoorway>();
 				if (!terminal) {
 					terminal = UnityEngine.Object.Instantiate(ObjectUtil.lookupPrefab("c718547d-fe06-4247-86d0-efd1e3747af0")).GetComponent<PrecursorKeyTerminal>();
 					terminal.transform.SetParent(transform);
@@ -91,8 +94,8 @@ namespace ReikaKalseki.DIAlterra {
 				barrier.transform.position = template.barrierLocation.position;
 				barrier.transform.localScale = template.barrierLocation.scale;
 			}
-			
+
 		}
-			
+
 	}
 }

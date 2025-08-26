@@ -7,28 +7,30 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
-namespace ReikaKalseki.DIAlterra
-{		
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
+namespace ReikaKalseki.DIAlterra {
 	public class WreckDoorSwaps : ManipulationBase {
-		
+
 		private static readonly string DOOR_FRAME = "055b3160-f57b-46ba-80f5-b708d0c8180e";
-		
+
 		private List<DoorSwap> swaps = new List<DoorSwap>();
-		
+
 		public override void applyToObject(GameObject go) {
-			GameObject doors = ObjectUtil.getChildObject(go, "Doors");
+			GameObject doors = go.getChildObject("Doors");
 			List<DoorSwap> unfound = new List<DoorSwap>();
 			foreach (DoorSwap d in swaps) {
 				bool found = false;
@@ -49,10 +51,10 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			if (unfound.Count > 0) {
-				SNUtil.log("Some door swaps found no easy match, checking all PIs "+unfound.toDebugString(), SNUtil.diDLL);
+				SNUtil.log("Some door swaps found no easy match, checking all PIs " + unfound.toDebugString(), SNUtil.diDLL);
 				foreach (PrefabIdentifier pi in go.GetComponentsInChildren<PrefabIdentifier>(true)) {
 					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
-						for (int i = unfound.Count-1; i >= 0; i--) {
+						for (int i = unfound.Count - 1; i >= 0; i--) {
 							DoorSwap d = unfound[i];
 							if (Vector3.Distance(d.position, pi.transform.position) <= 0.5) {
 								d.applyTo(pi.gameObject);
@@ -65,28 +67,28 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 			if (unfound.Count > 0) {
-				SNUtil.log("Some door swaps ("+unfound.Count+"/"+swaps.Count+") for "+go.name+" @ "+go.transform.position+" found no match!! "+unfound.toDebugString(), SNUtil.diDLL);
+				SNUtil.log("Some door swaps (" + unfound.Count + "/" + swaps.Count + ") for " + go.name + " @ " + go.transform.position + " found no match!! " + unfound.toDebugString(), SNUtil.diDLL);
 				string has = "Door candidates:\n";
 				if (doors) {
 					foreach (Transform t in doors.transform) {
 						if (t) {
-							has += t.name+" @ "+t.transform.position+"\n";
+							has += t.name + " @ " + t.transform.position + "\n";
 						}
 					}
 				}
 				foreach (PrefabIdentifier pi in go.GetComponentsInChildren<PrefabIdentifier>()) {
 					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
-						has += pi.name+" ["+pi.ClassId+"] @ "+pi.transform.position+"\n";
+						has += pi.name + " [" + pi.ClassId + "] @ " + pi.transform.position + "\n";
 					}
 				}
 				SNUtil.log(has, SNUtil.diDLL);
 			}
 		}
-		
+
 		public override void applyToObject(PlacedObject go) {
-			applyToObject(go.obj);
+			this.applyToObject(go.obj);
 		}
-		
+
 		public override void loadFromXML(XmlElement e) {
 			swaps.Clear();
 			foreach (XmlElement e2 in e.getDirectElementsByTagName("door")) {
@@ -94,7 +96,7 @@ namespace ReikaKalseki.DIAlterra
 				swaps.Add(d);
 			}
 		}
-		
+
 		public override void saveToXML(XmlElement e) {
 			foreach (DoorSwap d in swaps) {
 				XmlElement e2 = e.OwnerDocument.CreateElement("door");
@@ -103,18 +105,18 @@ namespace ReikaKalseki.DIAlterra
 				e.AppendChild(e2);
 			}
 		}
-		
+
 		public static void setupRepairableDoor(GameObject panel) {
 			WeldableWallPanelGeneric weld = panel.EnsureComponent<WeldableWallPanelGeneric>();
 			LiveMixin lv = weld.GetComponentInChildren<LiveMixin>();
 			lv.data.canResurrect = true;
 		}
-		
+
 		public class DoorSwap {
-			
+
 			internal readonly Vector3 position;
 			internal readonly string doorType;
-			
+
 			internal static readonly Dictionary<string, string> doorPrefabs = new Dictionary<string, string>{
 				{"Blocked", "d79ab37f-23b6-42b9-958c-9a1f4fc64cfd"},
 				{"Handle", "d9524ffa-11cf-4265-9f61-da6f0fe84a3f"},
@@ -123,30 +125,30 @@ namespace ReikaKalseki.DIAlterra
 				{"Openable", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
 				{"Delete", "b86d345e-0517-4f6e-bea4-2c5b40f623b4"},
 			};
-			
+
 			internal static readonly HashSet<string> doorPrefabIDs = new HashSet<string>(doorPrefabs.Values);
-			
+
 			public DoorSwap(Vector3 pos, string t) {
 				position = pos;
 				doorType = t;
 			}
-			
+
 			public void applyTo(GameObject go) {
 				//SNUtil.log("Matched to door "+go.transform.position+", converted to "+d.doorType, SNUtil.diDLL);
 				Transform par = go.transform.parent;
 				GameObject put = ObjectUtil.createWorldObject(doorPrefabs[doorType], true, true);
 				if (put == null) {
-					SNUtil.writeToChat("Could not find prefab for door type "+doorType);
+					SNUtil.writeToChat("Could not find prefab for door type " + doorType);
 					return;
 				}
 				put.transform.position = go.transform.position;
 				put.transform.rotation = go.transform.rotation;
 				put.transform.parent = par;
-				UnityEngine.Object.DestroyImmediate(go);
+				go.destroy();
 				StarshipDoor d = put.GetComponent<StarshipDoor>();
 				if (d) {
 					if (doorType == "Delete") {
-						ObjectUtil.removeChildObject(put, "Starship_doors_manual_01/Starship_doors_automatic");
+						put.removeChildObject("Starship_doors_manual_01/Starship_doors_automatic");
 					}
 					else if (doorType == "Openable") {
 						d.UnlockDoor();
@@ -160,14 +162,14 @@ namespace ReikaKalseki.DIAlterra
 					}
 				}
 			}
-			
+
 			public override string ToString() {
 				return string.Format("[DoorSwap @ {0}, type={1}]", position, doorType);
 			}
 
-			
-			
+
+
 		}
-		
+
 	}
 }

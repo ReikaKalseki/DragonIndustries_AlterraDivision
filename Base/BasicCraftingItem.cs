@@ -1,22 +1,21 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
+using System.Reflection;
 
 using SMLHelper.V2.Assets;
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
 
 using UnityEngine;
 
-namespace ReikaKalseki.DIAlterra
-{
+namespace ReikaKalseki.DIAlterra {
 	public class BasicCraftingItem : Craftable, DIPrefab<BasicCraftingItem, StringPrefabContainer> {
-		
+
 		private static bool addedTab = false;
-		
+
 		private readonly List<PlannedIngredient> recipe = new List<PlannedIngredient>();
 		public readonly string id;
-		
+
 		public int numberCrafted = 1;
 		public TechType unlockRequirement = TechType.None;
 		public Atlas.Sprite sprite = null;
@@ -25,29 +24,29 @@ namespace ReikaKalseki.DIAlterra
 		public readonly List<PlannedIngredient> byproducts = new List<PlannedIngredient>();
 		public string craftingSubCategory = ""+TechCategory.BasicMaterials;
 		public Action<Renderer> renderModify = null;
-		
-		public float glowIntensity {get; set;}
-		public StringPrefabContainer baseTemplate {get; set;}
-		
+
+		public float glowIntensity { get; set; }
+		public StringPrefabContainer baseTemplate { get; set; }
+
 		protected readonly Assembly ownerMod;
-		
+
 		public BasicCraftingItem(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
-			
+
 		}
-		
+
 		public BasicCraftingItem(string id, string name, string desc, string template) : base(id, name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
 			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
 			this.id = id;
-			
+
 			if (!addedTab) {
 				//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DIIntermediate", "Intermediate Products", SpriteManager.Get(TechType.HatchingEnzymes));
 				addedTab = true;
 			}
-			
+
 			baseTemplate = new StringPrefabContainer(template.Contains("/") ? PrefabData.getPrefabID(template) : template);
-			
-			OnFinishedPatching += () => {ItemRegistry.instance.addItem(this);};
+
+			OnFinishedPatching += () => { ItemRegistry.instance.addItem(this); };
 		}
 
 		public override CraftTree.Type FabricatorType {
@@ -55,35 +54,35 @@ namespace ReikaKalseki.DIAlterra
 				return CraftTree.Type.Fabricator;
 			}
 		}
-		
+
 		/*
 		public TechType getTechType() {
 			TechType tech = TechType.None;
 			TechTypeHandler.TryGetModdedTechType(id, out tech);
 			return tech;
 		}*/
-		
+
 		public BasicCraftingItem addIngredient(ItemDef item, int amt) {
-			return addIngredient(item.getTechType(), amt);
+			return this.addIngredient(item.getTechType(), amt);
 		}
-		
+
 		public BasicCraftingItem addIngredient(ModPrefab item, int amt) {
-			return addIngredient(new ModPrefabTechReference(item), amt);
+			return this.addIngredient(new ModPrefabTechReference(item), amt);
 		}
-		
+
 		public BasicCraftingItem addIngredient(TechType item, int amt) {
-			return addIngredient(new TechTypeContainer(item), amt);
+			return this.addIngredient(new TechTypeContainer(item), amt);
 		}
-		
+
 		public BasicCraftingItem addIngredient(TechTypeReference item, int amt) {
 			recipe.Add(new PlannedIngredient(item, amt));
 			return this;
 		}
-		
+
 		public BasicCraftingItem scaleRecipe(float amt) {
-			numberCrafted = (int)Mathf.Max(1, numberCrafted*amt);
+			numberCrafted = (int)Mathf.Max(1, numberCrafted * amt);
 			foreach (PlannedIngredient pi in recipe)
-				pi.amount = (int)Mathf.Max(1, pi.amount*amt);
+				pi.amount = (int)Mathf.Max(1, pi.amount * amt);
 			return this;
 		}
 
@@ -102,12 +101,9 @@ namespace ReikaKalseki.DIAlterra
 		public override TechCategory CategoryForPDA {
 			get {
 				TechCategory ret = TechCategory.Misc;
-				if (Enum.TryParse(craftingSubCategory, out ret))
-				    return ret;
-				else if (TechCategoryHandler.Main.TryGetModdedTechCategory(craftingSubCategory, out ret))
-					return ret;
-				else
-					return TechCategory.BasicMaterials;
+				return Enum.TryParse(craftingSubCategory, out ret)
+					? ret
+					: TechCategoryHandler.Main.TryGetModdedTechCategory(craftingSubCategory, out ret) ? ret : TechCategory.BasicMaterials;
 			}
 		}
 
@@ -115,52 +111,51 @@ namespace ReikaKalseki.DIAlterra
 			get {
 				//SNUtil.log("Fetching craftingsubcat "+craftingSubCategory+" from "+FriendlyName);
 				//RecipeUtil.dumpCraftTree(CraftTree.Type.Fabricator);
-				return new string[]{"Resources", craftingSubCategory};
+				return new string[] { "Resources", craftingSubCategory };
 			}
 		}
-			
+
 		public sealed override GameObject GetGameObject() {
 			GameObject go = ObjectUtil.getModPrefabBaseObject(this);
 			if (renderModify != null)
 				renderModify(go.GetComponentInChildren<Renderer>());
 			return go;
 		}
-		
+
 		public Assembly getOwnerMod() {
 			return ownerMod;
 		}
-		
+
 		public virtual bool isResource() {
 			return false;
 		}
-		
+
 		public virtual string getTextureFolder() {
 			return "Items/World";
 		}
-		
+
 		public virtual void prepareGameObject(GameObject go, Renderer[] r) {
-			
+
 		}
-		
+
 		protected sealed override TechData GetBlueprintRecipe() {
-			return new TechData
-			{
+			return new TechData {
 				Ingredients = RecipeUtil.buildRecipeList(recipe),
 				craftAmount = numberCrafted,
 				LinkedItems = RecipeUtil.buildLinkedItems(byproducts)
 			};
 		}
-	
+
 		public TechData getRecipe() {
-			return GetBlueprintRecipe();
+			return this.GetBlueprintRecipe();
 		}
-		
+
 		protected sealed override Atlas.Sprite GetItemSprite() {
 			return sprite == null ? base.GetItemSprite() : sprite;
 		}
-		
+
 		public Atlas.Sprite getIcon() {
-			return GetItemSprite();
+			return this.GetItemSprite();
 		}
 
 		public sealed override float CraftingTime {
@@ -168,19 +163,19 @@ namespace ReikaKalseki.DIAlterra
 				return craftingTime;
 			}
 		}
-		
+
 		public sealed override Vector2int SizeInInventory {
 			get {
 				return inventorySize;
 			}
 		}
-		
+
 		public sealed override string ToString() {
-			return base.ToString()+" ["+TechType+"] / "+ClassID+" / "+PrefabFileName;
+			return base.ToString() + " [" + TechType + "] / " + ClassID + " / " + PrefabFileName;
 		}
-		
+
 		public void addPostPatchCallback(Action a) {
-			OnFinishedPatching += () => {a();};
+			OnFinishedPatching += () => { a(); };
 		}
 	}
 }

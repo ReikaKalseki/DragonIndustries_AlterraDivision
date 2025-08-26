@@ -7,28 +7,30 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
-namespace ReikaKalseki.DIAlterra
-{		
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
+namespace ReikaKalseki.DIAlterra {
 	public sealed class AddLockerContents : ManipulationBase {
-		
+
 		private readonly List<Item> items = new List<Item>();
-		
+
 		public override void applyToObject(PlacedObject go) {
-			applyToObject(go.obj);
+			this.applyToObject(go.obj);
 		}
-		
+
 		public override void applyToObject(GameObject go) {
 			//SBUtil.log("adding items to "+go.transform.position+" from trace "+System.Environment.StackTrace);
 			StorageContainer con = go.GetComponentInChildren<StorageContainer>();
@@ -39,13 +41,13 @@ namespace ReikaKalseki.DIAlterra
 				for (int i = 0; i < amt; i++) {
 					GameObject item = ObjectUtil.createWorldObject(s.prefab);
 					item.SetActive(false);
-					ObjectUtil.refillItem(item);
+					item.refillItem();
 					con.container.AddItem(item.GetComponent<Pickupable>());
-					//UnityEngine.Object.Destroy(item);
+					//item.destroy(false);
 				}
 			}
 		}
-		
+
 		public override void loadFromXML(XmlElement e) {
 			items.Clear();
 			foreach (XmlElement e2 in e.ChildNodes) {
@@ -64,7 +66,7 @@ namespace ReikaKalseki.DIAlterra
 						break;
 				}
 				if (i == null)
-					throw new Exception("Invalid item ref type '"+type+"'");
+					throw new Exception("Invalid item ref type '" + type + "'");
 				if (e2.hasProperty("min") && e2.hasProperty("max")) {
 					i.amountMin = e2.getInt("min", 1);
 					i.amountMax = e2.getInt("max", 1);
@@ -77,7 +79,7 @@ namespace ReikaKalseki.DIAlterra
 				items.Add(i);
 			}
 		}
-		
+
 		public override void saveToXML(XmlElement e) {
 			foreach (Item s in items) {
 				XmlElement e2 = e.OwnerDocument.CreateElement("item");
@@ -88,31 +90,31 @@ namespace ReikaKalseki.DIAlterra
 				e.AppendChild(e2);
 			}
 		}
-		
+
 		public override bool needsReapplication() {
 			return false;
 		}
-		
+
 		private class Item {
-			
+
 			internal readonly string prefab;
 			internal int amountMin = 1;
 			internal int amountMax = 1;
-			
+
 			internal Item(TechType tech) : this(CraftData.GetClassIdForTechType(tech)) {
-								
+
 			}
-			
+
 			internal Item(string pfb) {
 				prefab = pfb;
 			}
-			
+
 			public override string ToString() {
-				return prefab+" x["+amountMin+"-"+amountMax+"]";
+				return prefab + " x[" + amountMin + "-" + amountMax + "]";
 			}
- 
-			
+
+
 		}
-		
+
 	}
 }

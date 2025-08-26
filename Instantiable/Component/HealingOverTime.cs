@@ -1,40 +1,43 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+
 namespace ReikaKalseki.DIAlterra {
-	
+
 	public class HealingOverTime : MonoBehaviour, CustomSerializedComponent {
-		
+
 		private static readonly float TICK_RATE = 0.25F;
-		
+
 		private float totalToHeal;
 		private float healingRemaining;
 		private float totalDuration;
-		
+
 		private float healRate;
 		private float startTime;
-		
+
 		public HealingOverTime setValues(float total, float seconds) {
 			totalToHeal = total;
 			totalDuration = seconds;
 			healingRemaining = total;
-			healRate = totalToHeal/seconds*TICK_RATE;
+			healRate = totalToHeal / seconds * TICK_RATE;
 			return this;
 		}
-		
+
 		public void activate() {
-			CancelInvoke("tick");
+			this.CancelInvoke("tick");
 			startTime = Time.time;
-			InvokeRepeating("tick", 0f, TICK_RATE);
+			this.InvokeRepeating("tick", 0f, TICK_RATE);
 		}
 
 		internal void tick() {
@@ -42,13 +45,13 @@ namespace ReikaKalseki.DIAlterra {
 			Player.main.GetComponent<LiveMixin>().AddHealth(amt);
 			healingRemaining -= amt;
 			if (healingRemaining <= 0)
-				UnityEngine.Object.Destroy(this);
+				this.destroy(false);
 		}
-		
+
 		private void OnKill() {
-			UnityEngine.Object.Destroy(this);
+			this.destroy(false);
 		}
-		
+
 		public virtual void saveToXML(XmlElement e) {
 			e.addProperty("total", totalToHeal);
 			e.addProperty("remaining", healingRemaining);
@@ -56,15 +59,15 @@ namespace ReikaKalseki.DIAlterra {
 			e.addProperty("rate", healRate);
 			e.addProperty("time", startTime);
 		}
-		
+
 		public virtual void readFromXML(XmlElement e) {
 			totalToHeal = (float)e.getFloat("total", 0);
 			healingRemaining = (float)e.getFloat("remaining", 0);
 			totalDuration = (float)e.getFloat("duration", 0);
 			healRate = (float)e.getFloat("rate", 0);
-			activate();
+			this.activate();
 			startTime = (float)e.getFloat("time", 0);
 		}
-		
+
 	}
 }

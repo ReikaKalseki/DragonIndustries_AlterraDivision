@@ -1,27 +1,30 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+
 namespace ReikaKalseki.DIAlterra {
-	
+
 	[Obsolete]
 	public class ColliderPrefabLink : MonoBehaviour {
-		
-		public GameObject root {private set; get;}/*
+
+		public GameObject root { private set; get; }/*
 		
 		public bool isPlayer {private set; get;}
 		public LiveMixin living {private set; get;}
 		public Vehicle vehicle {private set; get;}
 		public Creature creature {private set; get;}*/
-		
+
 		internal void init(PrefabIdentifier pi) {
 			root = pi.gameObject;/*
 			
@@ -32,6 +35,6 @@ namespace ReikaKalseki.DIAlterra {
 					break;
 			}*/
 		}
-		
+
 	}
 }

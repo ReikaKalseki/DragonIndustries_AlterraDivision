@@ -1,22 +1,21 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Linq;
-
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
 using SMLHelper.V2.Handlers;
 
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace ReikaKalseki.DIAlterra
-{
+namespace ReikaKalseki.DIAlterra {
 	public static class PrefabData { //TODO make prefab list an enum?
-		
+
 		private static readonly Dictionary<string, string> data = new Dictionary<string, string>();
 		private static readonly Dictionary<string, string> inverse;
 		private static readonly Dictionary<string, string> shortName = new Dictionary<string, string>();
-		
+
 		static PrefabData() {
 			data["0001c04a-5bb4-4fb9-adb4-fcc7e3de308c"] = "WorldEntities/Slots/Ship/Loot_ShipInterior_AuxPowerRoom1";
 			data["00037e80-3037-48cf-b769-dc97c761e5f6"] = "WorldEntities/Environment/Wrecks/life_pod_exploded_13";
@@ -3340,25 +3339,25 @@ namespace ReikaKalseki.DIAlterra
 			data["ffef3320-9d36-4a0f-8b2b-6ab1247426cb"] = "WorldEntities/Environment/Wrecks/Bio_reactor_damaged_03";
 			data["ffefd592-fd1f-4a7a-bf9c-20fe3b10930f"] = "WorldEntities/Fragments/Old/seamothfragment_old3";
 			data["fff7ee12-c75d-48bd-a6e0-8fb4856cd1ab"] = "WorldEntities/Atmosphere/UnderwaterIslands/Cave";
-			
-			inverse = (data as IEnumerable<KeyValuePair<string, string>>).ToDictionary(e => e.Value, e => e.Key);
+
+			inverse = data.ToDictionary(e => e.Value, e => e.Key);
 			foreach (KeyValuePair<string, string> kvp in data) {
 				string sh = kvp.Value.Substring(kvp.Value.LastIndexOf('/')+1);
 				shortName[sh] = kvp.Key;
 			}
 		}
-		
+
 		public static string getPrefab(string id) {
 			return data.ContainsKey(id) ? data[id] : null;
 		}
-		
+
 		public static string getPrefabID(string name) {
 			return inverse.ContainsKey(name) ? inverse[name] : null;
 		}
-		
+
 		public static string getPrefabIDByShortName(string name) {
 			return shortName.ContainsKey(name) ? shortName[name] : null;
 		}
-		
+
 	}
 }

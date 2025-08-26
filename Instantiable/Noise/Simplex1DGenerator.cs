@@ -8,13 +8,13 @@
  * explicit, prior permission from the owner.
  ******************************************************************************/
 using System;
-
-using System.IO;    //For data read/write methods
 using System.Collections;   //Working with Lists and Collections
 using System.Collections.Generic;   //Working with Lists and Collections
+using System.IO;    //For data read/write methods
 using System.Linq;   //More advanced manipulation of lists/collections
 using System.Reflection;
 using System.Reflection.Emit;
+
 using HarmonyLib;
 
 using UnityEngine;
@@ -23,13 +23,13 @@ using UnityEngine;
  * All '//' comments are his. */
 public class Simplex1DGenerator : SimplexNoiseGenerator {
 
-	private static readonly double STRETCH_CONSTANT = (1D/Math.Sqrt(2D+1D)-1D)/2D;
+	private static readonly double STRETCH_CONSTANT = ((1D/Math.Sqrt(2D+1D))-1D)/2D;
 	private static readonly double SQUISH_CONSTANT = (Math.Sqrt(2D+1D)-1D)/2D;
 
 	private static readonly double NORM_CONSTANT = 47;
 
 	public Simplex1DGenerator(long seed) : base(seed) {
-		
+
 	}
 
 	//1D OpenSimplex Noise.
@@ -73,7 +73,7 @@ public class Simplex1DGenerator : SimplexNoiseGenerator {
 		//Contribution (1,0)
 		double dx1 = dx0 - 1 - SQUISH_CONSTANT;
 		double dz1 = dz0 - 0 - SQUISH_CONSTANT;
-		double attn1 = 2 - dx1 * dx1 - dz1 * dz1;
+		double attn1 = 2 - (dx1 * dx1) - (dz1 * dz1);
 		if (attn1 > 0) {
 			attn1 *= attn1;
 			value += attn1 * attn1 * this.extrapolate(xsb + 1, dx1);
@@ -82,7 +82,7 @@ public class Simplex1DGenerator : SimplexNoiseGenerator {
 		//Contribution (0,1)
 		double dx2 = dx0 - 0 - SQUISH_CONSTANT;
 		double dz2 = dz0 - 1 - SQUISH_CONSTANT;
-		double attn2 = 2 - dx2 * dx2 - dz2 * dz2;
+		double attn2 = 2 - (dx2 * dx2) - (dz2 * dz2);
 		if (attn2 > 0) {
 			attn2 *= attn2;
 			value += attn2 * attn2 * this.extrapolate(xsb + 0, dx2);
@@ -107,8 +107,8 @@ public class Simplex1DGenerator : SimplexNoiseGenerator {
 			else { //(1,0) and (0,1) are the closest two vertices.
 				xsv_ext = xsb + 1;
 				zsv_ext = zsb + 1;
-				dx_ext = dx0 - 1 - 2 * SQUISH_CONSTANT;
-				dz_ext = dz0 - 1 - 2 * SQUISH_CONSTANT;
+				dx_ext = dx0 - 1 - (2 * SQUISH_CONSTANT);
+				dz_ext = dz0 - 1 - (2 * SQUISH_CONSTANT);
 			}
 		}
 		else { //We're inside the triangle (2-Simplex) at (1,1)
@@ -117,14 +117,14 @@ public class Simplex1DGenerator : SimplexNoiseGenerator {
 				if (xins > zins) {
 					xsv_ext = xsb + 2;
 					zsv_ext = zsb + 0;
-					dx_ext = dx0 - 2 - 2 * SQUISH_CONSTANT;
-					dz_ext = dz0 + 0 - 2 * SQUISH_CONSTANT;
+					dx_ext = dx0 - 2 - (2 * SQUISH_CONSTANT);
+					dz_ext = dz0 + 0 - (2 * SQUISH_CONSTANT);
 				}
 				else {
 					xsv_ext = xsb + 0;
 					zsv_ext = zsb + 2;
-					dx_ext = dx0 + 0 - 2 * SQUISH_CONSTANT;
-					dz_ext = dz0 - 2 - 2 * SQUISH_CONSTANT;
+					dx_ext = dx0 + 0 - (2 * SQUISH_CONSTANT);
+					dz_ext = dz0 - 2 - (2 * SQUISH_CONSTANT);
 				}
 			}
 			else { //(1,0) and (0,1) are the closest two vertices.
@@ -135,19 +135,19 @@ public class Simplex1DGenerator : SimplexNoiseGenerator {
 			}
 			xsb += 1;
 			zsb += 1;
-			dx0 = dx0 - 1 - 2 * SQUISH_CONSTANT;
-			dz0 = dz0 - 1 - 2 * SQUISH_CONSTANT;
+			dx0 = dx0 - 1 - (2 * SQUISH_CONSTANT);
+			dz0 = dz0 - 1 - (2 * SQUISH_CONSTANT);
 		}
 
 		//Contribution (0,0) or (1,1)
-		double attn0 = 2 - dx0 * dx0 - dz0 * dz0;
+		double attn0 = 2 - (dx0 * dx0) - (dz0 * dz0);
 		if (attn0 > 0) {
 			attn0 *= attn0;
 			value += attn0 * attn0 * this.extrapolate(xsb, dx0);
 		}
 
 		//Extra Vertex
-		double attn_ext = 2 - dx_ext * dx_ext - dz_ext * dz_ext;
+		double attn_ext = 2 - (dx_ext * dx_ext) - (dz_ext * dz_ext);
 		if (attn_ext > 0) {
 			attn_ext *= attn_ext;
 			value += attn_ext * attn_ext * this.extrapolate(xsv_ext, dx_ext);

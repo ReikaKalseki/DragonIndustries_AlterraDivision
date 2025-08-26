@@ -1,30 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using Story;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
-using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Utility;
+
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Utility;
+
+using Story;
+
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace ReikaKalseki.DIAlterra {
-	
+
 	public class PrecursorFabricatorConsole : Spawnable {
-		
+
 		//public readonly CraftingIdentifier craftingSet;
 		public readonly CraftTree.Type craftingSet;
 		public readonly Color renderColor;
 		internal readonly Dictionary<string, string> storyGoals = new Dictionary<string, string>();
-		
+
 		internal static readonly Dictionary<string, PrecursorFabricatorConsole> map = new Dictionary<string, PrecursorFabricatorConsole>();
-		
+
 		private static readonly List<PositionedPrefab> modelParts = new List<PositionedPrefab>(){
 			new PositionedPrefab("78009225-a9fa-4d21-9580-8719a3368373"),
 			new PositionedPrefab("a0a9237e-dee3-4efa-81ff-fea3893a6eb7", new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 90)),
@@ -34,13 +38,13 @@ namespace ReikaKalseki.DIAlterra {
 			new PositionedPrefab("6a01a336-fb46-469a-9f7d-1659e07d11d7", new Vector3(0, 1.35F, -0.1F), Quaternion.Euler(90, 180, 0), new Vector3(0.8F, 0.8F, 0.8F)),
 			new PositionedPrefab("6a01a336-fb46-469a-9f7d-1659e07d11d7", new Vector3(-0.1F, 1.35F, 0), Quaternion.Euler(90, 270, 0), new Vector3(0.8F, 0.8F, 0.8F)),
 		};
-	        
-		public PrecursorFabricatorConsole(/*CraftingIdentifier rec*/CraftTree.Type rec, string id, Color c) : base("PrecursorFabricator_"+id, "", "") {
+
+		public PrecursorFabricatorConsole(/*CraftingIdentifier rec*/CraftTree.Type rec, string id, Color c) : base("PrecursorFabricator_" + id, "", "") {
 			craftingSet = rec;
 			renderColor = c;
-			OnFinishedPatching += () => {map[ClassID] = this;};
-	    }
-		
+			OnFinishedPatching += () => { map[ClassID] = this; };
+		}
+
 		public PrecursorFabricatorConsole addStoryGate(string s, string ifNotMet) {
 			storyGoals[s] = ifNotMet;
 			return this;
@@ -84,18 +88,18 @@ namespace ReikaKalseki.DIAlterra {
 			
 		}
 			*/
-	    public override GameObject GetGameObject() {
+		public override GameObject GetGameObject() {
 			GameObject world = ObjectUtil.createWorldObject("81cf2223-455d-4400-bac3-a5bcd02b3638");
 			world.EnsureComponent<TechTag>().type = TechType;
 			world.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
-			ObjectUtil.removeComponent<StoryHandTarget>(world);
+			world.removeComponent<StoryHandTarget>();
 			//if (craftingSet is CraftTreeID) {
-				CrafterLogic lgc = world.EnsureComponent<CrafterLogic>();
-				GhostCrafter f = world.EnsureComponent<GhostCrafter>();
-				f.closeDistance = 5;
-				//f.craftTree = ((CraftTreeID)craftingSet).craftingTree;
-				f.craftTree = craftingSet;
-				f.logic = lgc;
+			CrafterLogic lgc = world.EnsureComponent<CrafterLogic>();
+			GhostCrafter f = world.EnsureComponent<GhostCrafter>();
+			f.closeDistance = 5;
+			//f.craftTree = ((CraftTreeID)craftingSet).craftingTree;
+			f.craftTree = craftingSet;
+			f.logic = lgc;
 			//}
 			world.EnsureComponent<PrecursorFabricatorConsoleTag>();
 			GameObject fx = world.GetComponent<PrecursorComputerTerminal>().fx;
@@ -103,17 +107,17 @@ namespace ReikaKalseki.DIAlterra {
 				//r.materials[0].SetColor("_Color", new Color(0.8F, 0.25F, 1F));
 				r.materials[0].SetColor("_Color", renderColor);
 			}
-			ObjectUtil.removeComponent<PrecursorComputerTerminal>(world); //do AFTER apply to its renderers
-			
+			world.removeComponent<PrecursorComputerTerminal>(); //do AFTER apply to its renderers
+
 			createModels(world);
-			
+
 			return world;
-	    }
-			
+		}
+
 		internal static GameObject createModels(GameObject world) {
 			GameObject mdl = new GameObject("models");
 			mdl.transform.SetParent(world.transform);
-			mdl.transform.localScale = Vector3.one*0.75F;
+			mdl.transform.localScale = Vector3.one * 0.75F;
 			mdl.transform.localRotation = Quaternion.Euler(0, 45, 0);
 			mdl.transform.localPosition = Vector3.zero;
 			foreach (PositionedPrefab pfb in modelParts) {
@@ -122,10 +126,10 @@ namespace ReikaKalseki.DIAlterra {
 				go.transform.localScale = pfb.scale;
 				go.transform.localRotation = pfb.rotation;
 				go.transform.localPosition = pfb.position;
-				ObjectUtil.removeComponent<Collider>(go);
+				go.removeComponent<Collider>();
 				if (pfb.prefabName == "6a01a336-fb46-469a-9f7d-1659e07d11d7") {
-					Transform t = ObjectUtil.getChildObject(go, "Precursor_Lab_surgical_machine/Precursor_lab_surgical_machine_base").transform;
-					t.localScale = Vector3.one*0.99F; //zfight fix
+					Transform t = go.getChildObject("Precursor_Lab_surgical_machine/Precursor_lab_surgical_machine_base").transform;
+					t.localScale = Vector3.one * 0.99F; //zfight fix
 					t.localPosition = new Vector3(0, 2.1F, 0);
 					foreach (Renderer r in go.GetComponentsInChildren<Renderer>()) {
 						RenderUtil.swapTextures(SNUtil.diDLL, r, "Textures/PrecursorFabricatorArms");
@@ -140,43 +144,43 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			}
-			ObjectUtil.getChildObject(world, "Precursor_computer_terminal/Precursor_computer_terminal").SetActive(false);
-			ObjectUtil.getChildObject(world, "FX").transform.localPosition = new Vector3(0, -0.4F, -0.375F);
+			world.getChildObject("Precursor_computer_terminal/Precursor_computer_terminal").SetActive(false);
+			world.getChildObject("FX").transform.localPosition = new Vector3(0, -0.4F, -0.375F);
 			return mdl;
 		}
-		
+
 		class PrecursorFabricatorConsoleTag : MonoBehaviour/*, IHandTarget {*/{
-			
+
 			private PrecursorFabricatorConsole template;
 			private GhostCrafter fab;
-			
+
 			private GameObject models;
-			
+
 			void Update() {
 				if (template == null)
-					template = PrecursorFabricatorConsole.map[GetComponent<PrefabIdentifier>().ClassId];
-				
+					template = PrecursorFabricatorConsole.map[this.GetComponent<PrefabIdentifier>().ClassId];
+
 				if (!fab/* && template.craftingSet is CraftTreeID*/)
 					fab = gameObject.GetComponent<GhostCrafter>();
 				if (fab && !fab.logic)
-					fab.logic = GetComponent<CrafterLogic>();
-				
+					fab.logic = this.GetComponent<CrafterLogic>();
+
 				bool flag = false;
 				if (!models) {
 					flag = true;
-					models = ObjectUtil.getChildObject(gameObject, "models");
+					models = gameObject.getChildObject("models");
 				}
 				if (!models) {
 					flag = true;
 					models = PrecursorFabricatorConsole.createModels(gameObject);
 				}
 				if (flag) {
-					SkyApplier sk0 = GetComponent<SkyApplier>();
+					SkyApplier sk0 = this.GetComponent<SkyApplier>();
 					foreach (SkyApplier sk2 in models.GetComponentsInChildren<SkyApplier>()) {
 						sk2.SetCustomSky(sk0.applySky);
 					}
 				}
-				
+
 				if (template != null && fab) {
 					string barrier = null;
 					foreach (KeyValuePair<string, string> kvp in template.storyGoals) {
@@ -190,7 +194,7 @@ namespace ReikaKalseki.DIAlterra {
 					}*/
 					bool working = barrier == null;
 					fab.handOverText = working ? "Craft" : barrier;
-						
+
 					float trash;
 					if (!fab.powerRelay)
 						fab.powerRelay = gameObject.EnsureComponent<PowerRelay>();
@@ -248,6 +252,6 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			*/
 		}
-		
+
 	}
 }

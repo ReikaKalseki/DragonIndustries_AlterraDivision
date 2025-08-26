@@ -1,21 +1,19 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Linq;
-
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
+using SMLHelper.V2.Handlers;
 
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace ReikaKalseki.DIAlterra
-{
+namespace ReikaKalseki.DIAlterra {
 	public class VanillaBiomes : BiomeBase {
-		
+
 		public static readonly VanillaBiomes SHALLOWS = new VanillaBiomes(0, "Safe Shallows", 0.25F, "safe", "safeShallows");
 		public static readonly VanillaBiomes KELP = new VanillaBiomes(50, "Kelp Forest", 0.4F, "kelp", "kelpForest");
 		public static readonly VanillaBiomes REDGRASS = new VanillaBiomes(100, "Grassy Plateaus", 0.33F, "grassy", "grassyPlateaus", "GrassyPlateaus_Tower");
@@ -41,25 +39,25 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaBiomes FLOATISLAND = new VanillaBiomes(0, "Floating Island", 0F, "FloatingIsland");
 		public static readonly VanillaBiomes MOUNTISLAND = new VanillaBiomes(0, "Mountain Island", 0F, "MountainIsland"); //not a distinct biome
 		public static readonly VanillaBiomes VOID = new VanillaBiomes(8192, "Crater Edge", 0F, "void"/*, ""*/);
-		
+
 		public readonly float averageDepth;
-				
+
 		private VanillaBiomes(float dp, string d, float deco, params string[] ids) : base(d, deco, ids) {
 			averageDepth = dp;
 		}
-		
+
 		public override bool isCaveBiome() {
 			return this == ALZ || this == ILZ || this == COVE || this == LOSTRIVER || this == JELLYSHROOM || this == DEEPGRAND;
 		}
-		
+
 		public override bool existsInSeveralPlaces() {
 			return this == SHALLOWS || this == KELP || this == REDGRASS || this == MUSHROOM;
 		}
-		
+
 		public override bool isInBiome(Vector3 pos) {
 			return BiomeBase.getBiome(pos) == this;
 		}
-		
+
 		public static int compare(VanillaBiomes b1, VanillaBiomes b2) {
 			return b1.averageDepth.CompareTo(b2.averageDepth);
 		}

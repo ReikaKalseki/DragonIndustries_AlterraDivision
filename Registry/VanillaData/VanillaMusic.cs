@@ -1,21 +1,20 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Linq;
-
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
 using SMLHelper.V2.Handlers;
 
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace ReikaKalseki.DIAlterra
-{
-	public class VanillaMusic {	
-		
+namespace ReikaKalseki.DIAlterra {
+	public class VanillaMusic {
+
 		private static readonly Dictionary<string, VanillaMusic> table = new Dictionary<string, VanillaMusic>();
-		
+
 		//Where does Crush Depth play?
 		public static readonly VanillaMusic KOOSH = new VanillaMusic("kooshAmbience", 2, 48); //Islands Beneath The Sea
 		public static readonly VanillaMusic BKELP = new VanillaMusic("BloodKelpAmbience", 2, 12); //Lava Castle
@@ -44,75 +43,75 @@ namespace ReikaKalseki.DIAlterra
 		public static readonly VanillaMusic WRECK = new VanillaMusic("WreckAmbience", 1, 0); //not a music track, just the wreckage near pod 6
 		public static readonly VanillaMusic GENERATOR = new VanillaMusic("generatorRoomAmbience", 1, 57); //Bring a Medpack
 		public static readonly VanillaMusic SCANNER = new VanillaMusic("mapRoomAmbience", 0, 5); //Scanner Room Ambient
-		
+
 		private readonly string objectName;
-		
+
 		private string activationBiome;
-		
+
 		private float length;
-				
+
 		private VanillaMusic(string id, int min, int sec) {
 			objectName = id;
 			table[objectName] = this;
-			
-			length = min*60+sec;
+
+			length = (min * 60) + sec;
 		}
-		
+
 		public override string ToString() {
 			return objectName;
 		}
-		
+
 		private GameObject getObject() {
-			return ObjectUtil.getChildObject(Player.main.gameObject, "SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music/"+objectName);
+			return Player.main.gameObject.getChildObject("SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music/" + objectName);
 		}
-		
+
 		public void reset() {
-			GameObject go = getObject();
+			GameObject go = this.getObject();
 			go.SetActive(true);
 			if (!string.IsNullOrEmpty(activationBiome))
 				go.GetComponent<FMODGameParams>().onlyInBiome = activationBiome;
 		}
-		
+
 		public void play() {
-			enable();
+			this.enable();
 			;//getObject().GetComponent<FMOD_CustomLoopingEmitter>().Play();
-			//SoundManager.playSound(getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset.path);
-			FMODUWE.PlayOneShot(getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset, Player.main.transform.position, 1);
+			 //SoundManager.playSound(getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset.path);
+			FMODUWE.PlayOneShot(this.getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset, Player.main.transform.position, 1);
 		}
-		
+
 		public void enable() {
-			getObject().SetActive(true);
+			this.getObject().SetActive(true);
 		}
-		
+
 		public void stop() {
 			//getObject().GetComponent<FMOD_CustomLoopingEmitter>().Stop();
 		}
-		
+
 		public float getLength() {
 			return length;//getObject().GetComponent<FMOD_CustomLoopingEmitter>().length;
 		}
-		
+
 		public void disable() {
-			getObject().SetActive(false);
+			this.getObject().SetActive(false);
 		}
-		
+
 		public void setToBiome(string biome) {
-			FMODGameParams par = getObject().GetComponent<FMODGameParams>();
+			FMODGameParams par = this.getObject().GetComponent<FMODGameParams>();
 			activationBiome = par.onlyInBiome;
 			par.onlyInBiome = biome;
 			par.gameObject.SetActive(true);
 		}
-		
+
 		public static IEnumerable<VanillaMusic> getAll() {
 			return new ReadOnlyCollection<VanillaMusic>(new List<VanillaMusic>(table.Values));
 		}
 		/*
 		public static void disableAllMusic() {
-			GameObject go = ObjectUtil.getChildObject(Player.main.gameObject, "SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music");
+			GameObject go = Player.main.gameObject.getChildObject("SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music");
 			foreach (FMODGameParams par in go.GetComponentsInChildren<FMODGameParams>(true)) {
 				par.gameObject.SetActive(false);
 			}
 		}*/
-		
+
 	}
 }

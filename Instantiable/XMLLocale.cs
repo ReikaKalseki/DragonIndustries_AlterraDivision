@@ -1,48 +1,47 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Xml;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 
-using System.Collections.Generic;
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
+using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
 using UnityEngine;
 
-namespace ReikaKalseki.DIAlterra
-{
+namespace ReikaKalseki.DIAlterra {
 	public class XMLLocale {
-		
+
 		private static readonly LocaleEntry NOT_FOUND = new LocaleEntry(null, "NOTFOUND", "#NULL", "#NULL", "#NULL");
-		
+
 		public readonly string relativePath;
 		private readonly Assembly ownerMod;
-		
+
 		private readonly Dictionary<string, LocaleEntry> entries = new Dictionary<string, LocaleEntry>();
-		
+
 		private XmlDocument xmlFile;
-		
+
 		public XMLLocale(Assembly owner, string path) {
 			ownerMod = owner;
 			relativePath = path;
 		}
-		
+
 		public void load() {
-			xmlFile = loadXML();
+			xmlFile = this.loadXML();
 			if (xmlFile.DocumentElement == null)
-				throw new Exception("No XML file at "+relativePath);
+				throw new Exception("No XML file at " + relativePath);
 			foreach (XmlElement e in xmlFile.DocumentElement.ChildNodes) {
-				LocaleEntry lc = constructEntry(e);
+				LocaleEntry lc = this.constructEntry(e);
 				entries[lc.key] = lc;
 			}
-			SNUtil.log("XML DB '"+this+"' loaded "+entries.Count+" entries: "+string.Join(", ", entries.Keys), ownerMod);/*
+			SNUtil.log("XML DB '" + this + "' loaded " + entries.Count + " entries: " + string.Join(", ", entries.Keys), ownerMod);/*
 			foreach (LocaleEntry e in entries.Values) {
 				SNUtil.log(e.ToString());
 			}*/
 		}
-		
+
 		private XmlDocument loadXML() {
 			string loc = Path.GetDirectoryName(ownerMod.Location);
 			string path = Path.Combine(loc, relativePath);
@@ -51,26 +50,26 @@ namespace ReikaKalseki.DIAlterra
 				doc.Load(path);
 			}
 			else {
-				SNUtil.log("Could not find XML file "+path+"!", ownerMod);
+				SNUtil.log("Could not find XML file " + path + "!", ownerMod);
 			}
 			return doc;
 		}
-		
+
 		private LocaleEntry constructEntry(XmlElement e) {
 			return new LocaleEntry(e);
 		}
-		
+
 		public LocaleEntry getEntry(string id) {
 			if (entries.ContainsKey(id))
 				return entries[id];
-			SNUtil.log("Could not find locale entry '"+id+"'", ownerMod);
+			SNUtil.log("Could not find locale entry '" + id + "'", ownerMod);
 			return NOT_FOUND;
 		}
-		
+
 		public IEnumerable<LocaleEntry> getEntries() {
 			return entries.Values;
 		}
-		
+
 		private static string cleanString(string input) {
 			if (string.IsNullOrEmpty(input))
 				return input;
@@ -80,45 +79,45 @@ namespace ReikaKalseki.DIAlterra
 			}
 			return string.Join("\n", parts);
 		}
-		
+
 		public class LocaleEntry {
-			
+
 			private readonly XmlElement element;
-			
+
 			public readonly string key;
 			public readonly string name;
 			public readonly string desc;
 			public readonly string pda;
-			
+
 			internal LocaleEntry(XmlElement e) : this(e, e.Name, cleanString(e.getProperty("name")), cleanString(e.getProperty("desc", true)), cleanString(e.getProperty("pda"))) {
-				
+
 			}
-			
+
 			internal LocaleEntry(XmlElement e, string k, string n, string d, string p) {
 				key = k;
 				name = n;
 				desc = d;
 				pda = p;
-				
+
 				element = e;
 			}
-			
+
 			public override string ToString() {
-				return key+": "+name+" / "+desc;
+				return key + ": " + name + " / " + desc;
 			}
-			
+
 			public string dump() {
 				return element == null ? "<null>" : element.format();
 			}
-			
+
 			public bool hasField(string key) {
 				return element != null && element.hasProperty(key);
 			}
-			
+
 			public T getField<T>(string key) where T : class {
-				return getField<T>(key, null);
+				return this.getField<T>(key, null);
 			}
-			
+
 			public T getField<T>(string key, T fallback) {
 				if (element == null)
 					return fallback;
@@ -143,19 +142,19 @@ namespace ReikaKalseki.DIAlterra
 					return (T)Convert.ChangeType(element.getBoolean(key), t);
 				}
 				if (t == typeof(int)) {
-					return (T)Convert.ChangeType(element.getInt(key, (int)((object)fallback), true), t);
+					return (T)Convert.ChangeType(element.getInt(key, (int)(object)fallback, true), t);
 				}
 				if (t == typeof(float)) {
-					double fall = (double)((object)fallback);
-					return (T)Convert.ChangeType(((float)element.getFloat(key, fall)), t);
+					double fall = (double)(object)fallback;
+					return (T)Convert.ChangeType((float)element.getFloat(key, fall), t);
 				}
 				if (t == typeof(double)) {
-					double fall = (double)((object)fallback);
+					double fall = (double)(object)fallback;
 					return (T)Convert.ChangeType(element.getFloat(key, fall), t);
 				}
-				throw new Exception("Undefined data type '"+t+"'");
+				throw new Exception("Undefined data type '" + t + "'");
 			}
-			
+
 			public IEnumerable<KeyValuePair<string, string>> getFields() {
 				List<KeyValuePair<string, string>> li = new List<KeyValuePair<string, string>>();
 				foreach (XmlElement e in element.ChildNodes) {
@@ -163,8 +162,8 @@ namespace ReikaKalseki.DIAlterra
 				}
 				return li;
 			}
-			
+
 		}
-		
+
 	}
 }

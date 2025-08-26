@@ -1,21 +1,20 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Linq;
-
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
 using SMLHelper.V2.Handlers;
 
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace ReikaKalseki.DIAlterra
-{
+namespace ReikaKalseki.DIAlterra {
 	public static class VanillaSounds {
-		
+
 		private static readonly Dictionary<string, string> data = new Dictionary<string, string>();
 		private static readonly Dictionary<string, string> inverse;
-		
+
 		static VanillaSounds() {
 			data["007b0c48-3a23-46b8-a5c1-7856a0958225"] = "event:/sub/rocket/ladders/innerRocketShip_ladder_down";
 			data["00bc6b7c-3a07-47ad-bde2-c88a43ee5c4a"] = "event:/env/prec_foce_field_deactivate";
@@ -1208,17 +1207,17 @@ namespace ReikaKalseki.DIAlterra
 			data["ff82efe7-199c-4cc5-9cfe-fadc187097f1"] = "event:/player/story/VO/Ency_IslandsPDABase1Interior";
 			data["ff87fd3b-ef80-40be-8eed-cf3b1da407c5"] = "event:/sub/seamoth/seamoth_light_on";
 			data["ffba379f-e7c5-4d3d-8b99-19003e26e1d9"] = "event:/player/aurora_warning_3";
-			
-			inverse = (data as IEnumerable<KeyValuePair<string, string>>).ToDictionary(e => e.Value, e => e.Key);
+
+			inverse = data.ToDictionary(e => e.Value, e => e.Key);
 		}
-		
+
 		public static string getPath(string id) {
 			return data.ContainsKey(id) ? data[id] : null;
 		}
-		
+
 		public static string getID(string path) {
 			return inverse.ContainsKey(path) ? inverse[path] : null;
 		}
-		
+
 	}
 }

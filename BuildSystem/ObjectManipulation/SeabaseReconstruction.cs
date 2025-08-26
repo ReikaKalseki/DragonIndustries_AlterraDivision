@@ -7,77 +7,79 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
-namespace ReikaKalseki.DIAlterra
-{		
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
+namespace ReikaKalseki.DIAlterra {
 	public static class SeabaseReconstruction {
-		
+
 		private static readonly Dictionary<string, SeabasePrefab> dataCache = new Dictionary<string, SeabasePrefab>();
-		
+
 		static SeabaseReconstruction() {
 			new SeabaseDoorOpener().Patch();
 		}
-		
+
 		internal static SeabasePrefab getOrCreatePrefab(XmlElement e) {
 			string id = e.getProperty("identifier");
 			if (!dataCache.ContainsKey(id)) {
 				dataCache[id] = new SeabasePrefab(id, e);
 				dataCache[id].Patch();
-				SNUtil.log("Created worldgen seabase "+id);
+				SNUtil.log("Created worldgen seabase " + id);
 			}
 			return dataCache[id];
 		}
-		
+
 		class SeabaseIDHolder : MonoBehaviour {
-			
+
 		}
-		
+
 		public class WorldgenSeabaseController : MonoBehaviour {
-			
+
 			private static readonly string GEN_MARKER = "GenMarker";
-			
+
 			internal XmlElement reconstructionData;
 			internal string seabaseID;
-			
+
 			private float lastBuildTime = -1;
 			private float lastSkyTime = -1;
 			private float lastModifyTime = -1;
-			
+
 			private Vector3 baseCenter = Vector3.zero;
 			private int pieceCount;
-		
+
 			//private Planter[] planters = null;
 			private Animator[] animations = null;
 			private StorageContainer[] storages = null;
 			private Charger[] chargers = null;
-			
+
 			public static event Action<WorldgenSeabaseController> onWorldgenSeabaseLoad;
-			
+
 			void Awake() {
 				if (onWorldgenSeabaseLoad != null)
 					onWorldgenSeabaseLoad.Invoke(this);
 			}
-			
+
 			void rebuild(float time) {
-				SNUtil.log("Seabase '"+seabaseID+"' undergoing reconstruction", SNUtil.diDLL);
+				SNUtil.log("Seabase '" + seabaseID + "' undergoing reconstruction", SNUtil.diDLL);
 				if (reconstructionData == null) {
-					SNUtil.writeToChat("Cannot rebuild worldgen seabase @ "+baseCenter+" - no data");
+					SNUtil.writeToChat("Cannot rebuild worldgen seabase @ " + baseCenter + " - no data");
 					return;
 				}
 				List<XmlElement> li = reconstructionData.getDirectElementsByTagName("part");
-				SNUtil.log("Reconstructing base from "+li.Count+" parts", SNUtil.diDLL);
+				SNUtil.log("Reconstructing base from " + li.Count + " parts", SNUtil.diDLL);
 				int idx = 0;
 				foreach (XmlElement e2 in li) {
 					//SNUtil.log("Reconstructing part #"+idx+" from "+e2.InnerXml, SNUtil.diDLL);
@@ -86,14 +88,14 @@ namespace ReikaKalseki.DIAlterra
 						CustomPrefab pfb = new CustomPrefab("9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5"); //BaseCell
 						pfb.loadFromXML(e2);
 						if (baseHasPart(gameObject, pfb) && pfb.prefabName != "9d3e9fa5-a5ac-496e-89f4-70e13c0bedd5") { //ie is loose
-							SNUtil.log("Skipped recreate of loose piece: "+pfb, SNUtil.diDLL);
+							SNUtil.log("Skipped recreate of loose piece: " + pfb, SNUtil.diDLL);
 							continue;
 						}
-						SNUtil.log("Reconstructed BaseCell/loose piece: "+pfb, SNUtil.diDLL);
+						SNUtil.log("Reconstructed BaseCell/loose piece: " + pfb, SNUtil.diDLL);
 						GameObject go2 = pfb.createWorldObject();
 						go2.transform.parent = gameObject.transform;
 						go2.EnsureComponent<WorldgenSeabasePart>();
-						ObjectUtil.removeComponent<CustomMachineLogic>(go2);
+						go2.removeComponent<CustomMachineLogic>();
 						go2.EnsureComponent<PreventDeconstruction>();
 						baseCenter += go2.transform.position;
 						pieceCount++;
@@ -105,26 +107,26 @@ namespace ReikaKalseki.DIAlterra
 								pfb2.loadFromXML(e3);
 								if (pfb2.prefabName == PlacedObject.BUBBLE_PREFAB)
 									continue;
-								SNUtil.log("Reconstructed base component: "+pfb2, SNUtil.diDLL);
+								SNUtil.log("Reconstructed base component: " + pfb2, SNUtil.diDLL);
 								GameObject go3 = pfb2.createWorldObject();
 								if (pfb2.prefabName == "RoomWaterParkBottom")
-									ObjectUtil.removeChildObject(go3, "BaseWaterParkFloorBottom/Bubbles");
+									go3.removeChildObject("BaseWaterParkFloorBottom/Bubbles");
 								else if (pfb2.prefabName == "RoomWaterParkHatch")
-									ObjectUtil.removeChildObject(go3, "BaseCorridorHatch(Clone)");
+									go3.removeChildObject("BaseCorridorHatch(Clone)");
 								else if (pfb2.prefabName == "CorridorBulkhead")
 									go3.EnsureComponent<WorldgenBulkhead>();
 								go3.transform.parent = go2.transform;
 								rebuildNestedObjects(go3, e3);
 								if (!reconstructionData.getBoolean("allowDeconstruct")) {
-									ObjectUtil.removeComponent<BaseDeconstructable>(go3);
-									ObjectUtil.removeComponent<Constructable>(go3);
+									go3.removeComponent<BaseDeconstructable>();
+									go3.removeComponent<Constructable>();
 									PreventDeconstruction pv = go3.EnsureComponent<PreventDeconstruction>();
 									pv.inBase = true;
 									pv.inCyclops = true;
 									pv.inEscapePod = true;
 								}
-								ObjectUtil.removeComponent<Fabricator>(go3);
-								ObjectUtil.removeComponent<MedicalCabinet>(go3);
+								go3.removeComponent<Fabricator>();
+								go3.removeComponent<MedicalCabinet>();
 								List<XmlElement> li0 = e3.getDirectElementsByTagName("supportData");
 								if (li0.Count == 1)
 									new SeabaseLegLengthPreservation(li0[0]).applyToObject(go3);
@@ -147,7 +149,7 @@ namespace ReikaKalseki.DIAlterra
 							Charger cg = go2.GetComponent<Charger>();
 							Planter p = go2.GetComponent<Planter>();
 							if (sc == null && cg == null) {
-								SNUtil.log("Tried to deserialize inventory to a null container in "+go2);
+								SNUtil.log("Tried to deserialize inventory to a null container in " + go2);
 								continue;
 							}
 							GrowbedPropifier pg = null;
@@ -157,13 +159,13 @@ namespace ReikaKalseki.DIAlterra
 							foreach (XmlElement e3 in li1[0].getDirectElementsByTagName("item")) {
 								TechType tt = SNUtil.getTechType(e3.getProperty("type"));
 								if (tt == TechType.None) {
-									SNUtil.log("Could not deserialize item - null TechType: "+e3.OuterXml, SNUtil.diDLL);
+									SNUtil.log("Could not deserialize item - null TechType: " + e3.OuterXml, SNUtil.diDLL);
 								}
 								else {
 									bool lootCube = false;
-									GameObject igo = ObjectUtil.getItem(tt);
+									GameObject igo = tt.getItem();
 									if (igo == null) {
-										SNUtil.log("Item did not have prefab, using loot cube: "+e3.OuterXml, SNUtil.diDLL);
+										SNUtil.log("Item did not have prefab, using loot cube: " + e3.OuterXml, SNUtil.diDLL);
 										igo = ObjectUtil.lookupPrefab("01de572d-5549-44c6-97cf-645b07d1c79d");
 										lootCube = true;
 									}
@@ -176,8 +178,8 @@ namespace ReikaKalseki.DIAlterra
 										pp.SetTechTypeOverride(tt, true);
 										InventoryItem item = null;
 										if (pp == null) {
-											SNUtil.log("Could not deserialize item - no pickupable: "+e3.OuterXml, SNUtil.diDLL);
-										} 
+											SNUtil.log("Could not deserialize item - no pickupable: " + e3.OuterXml, SNUtil.diDLL);
+										}
 										if (cg != null) {
 											cg.equipment.AddItem(slot, new InventoryItem(pp), true);
 										}
@@ -185,7 +187,7 @@ namespace ReikaKalseki.DIAlterra
 											item = sc.container.AddItem(pp);
 										}
 									}
-									SNUtil.log("Added "+tt+" x"+amt, SNUtil.diDLL);
+									SNUtil.log("Added " + tt + " x" + amt, SNUtil.diDLL);
 								}
 							}/*
 							if (sc != null)
@@ -194,36 +196,36 @@ namespace ReikaKalseki.DIAlterra
 								SNUtil.log("Recreated charger contents: "+cg.equipment.equipment.toDebugString(), SNUtil.diDLL);
 								*/
 						}
-						GameObject mdl = ObjectUtil.getChildObject(go2, "MachineModel");
+						GameObject mdl = go2.getChildObject("MachineModel");
 						if (mdl)
 							mdl.SetActive(true);
 					}
 					catch (Exception ex) {
-						SNUtil.log("Threw exception reconstructing part: "+ex.ToString(), SNUtil.diDLL);
+						SNUtil.log("Threw exception reconstructing part: " + ex.ToString(), SNUtil.diDLL);
 					}
 				}
 				//ObjectUtil.debugMode = true;
-				ObjectUtil.removeChildObject(gameObject, "SubDamageSounds");
-				ObjectUtil.removeChildObject(gameObject, "PowerAttach");
-				ObjectUtil.removeChildObject(gameObject, "MapRoomFunctionality");
-				ObjectUtil.removeChildObject(gameObject, "*x_TechLight_Cone");
-				ObjectUtil.removeComponent<Light>(gameObject);
-				ObjectUtil.removeComponent<BaseFloodSim>(gameObject);
-				ObjectUtil.removeComponent<BaseHullStrength>(gameObject);
-				ObjectUtil.removeComponent<BasePowerRelay>(gameObject);
-				ObjectUtil.removeComponent<PowerFX>(gameObject);
-				ObjectUtil.removeComponent<VoiceNotificationManager>(gameObject);
-				ObjectUtil.removeComponent<VoiceNotification>(gameObject);
-				ObjectUtil.removeComponent<BaseRoot>(gameObject);
-				ObjectUtil.removeComponent<Base>(gameObject);
-				ObjectUtil.removeComponent<WaterPark>(gameObject);
-				ObjectUtil.removeComponent<CustomMachineLogic>(gameObject);
-				ObjectUtil.removeComponent<Constructable>(gameObject); //TODO find a way to not need this so you *can* dismantle parts
-				//ObjectUtil.debugMode = false;
-				
+				gameObject.removeChildObject("SubDamageSounds");
+				gameObject.removeChildObject("PowerAttach");
+				gameObject.removeChildObject("MapRoomFunctionality");
+				gameObject.removeChildObject("*x_TechLight_Cone");
+				gameObject.removeComponent<Light>();
+				gameObject.removeComponent<BaseFloodSim>();
+				gameObject.removeComponent<BaseHullStrength>();
+				gameObject.removeComponent<BasePowerRelay>();
+				gameObject.removeComponent<PowerFX>();
+				gameObject.removeComponent<VoiceNotificationManager>();
+				gameObject.removeComponent<VoiceNotification>();
+				gameObject.removeComponent<BaseRoot>();
+				gameObject.removeComponent<Base>();
+				gameObject.removeComponent<WaterPark>();
+				gameObject.removeComponent<CustomMachineLogic>();
+				gameObject.removeComponent<Constructable>(); //TODO find a way to not need this so you *can* dismantle parts
+															 //ObjectUtil.debugMode = false;
+
 				baseCenter /= pieceCount;
-				
-				//ObjectUtil.removeComponent<SkyApplier>(gameObject);				
+
+				//gameObject.removeComponent<SkyApplier>();				
 				/*
 				SkyApplier sk = gameObject.EnsureComponent<SkyApplier>();
 				sk.renderers = gameObject.GetComponentsInChildren<Renderer>();
@@ -232,17 +234,17 @@ namespace ReikaKalseki.DIAlterra
 				sk.enabled = true;
 				sk.ApplySkybox();
 				sk.RefreshDirtySky();*/
-				
+
 				foreach (UseableDiveHatch c in gameObject.GetComponentsInChildren<UseableDiveHatch>(true)) {
 					if (c.gameObject.name.Contains("WaterPark"))
 						c.gameObject.EnsureComponent<WorldgenBaseWaterparkHatch>();
 					else
-						UnityEngine.Object.DestroyImmediate(c); //component not object
+						c.destroy(); //component not object
 				}
 				foreach (MapRoomCamera c in gameObject.GetComponentsInChildren<MapRoomCamera>(true)) {
-					UnityEngine.Object.DestroyImmediate(c.gameObject);
+					c.gameObject.destroy();
 				}
-				SNUtil.log("Finished reconstructing seabase '"+seabaseID+"' @ "+baseCenter+" @ "+time, SNUtil.diDLL);
+				SNUtil.log("Finished reconstructing seabase '" + seabaseID + "' @ " + baseCenter + " @ " + time, SNUtil.diDLL);
 				//ObjectUtil.dumpObjectData(gameObject);
 			}
 
@@ -251,32 +253,31 @@ namespace ReikaKalseki.DIAlterra
 				if (seabaseID == null)
 					seabaseID = gameObject.GetComponentInChildren<SeabaseIDHolder>().name;
 				if (seabaseID == null) {
-					SNUtil.writeToChat("Could not find seabase ID in "+this+" @ "+transform.position);
+					SNUtil.writeToChat("Could not find seabase ID in " + this + " @ " + transform.position);
 					return;
 				}
 				if (reconstructionData == null) {
 					reconstructionData = dataCache[seabaseID].data;
 				}
-				
-				if (time-lastBuildTime >= 1) {
+
+				if (time - lastBuildTime >= 1) {
 					foreach (Transform t in transform) {
 						if (t.gameObject.name.Contains("BaseCell") && t.childCount == 0) {
-							UnityEngine.Object.Destroy(t.gameObject);
+							t.gameObject.destroy(false);
 						}
 					}
-					if (!ObjectUtil.getChildObject(gameObject, "BaseCell")) {/*
-						GameObject marker = ObjectUtil.getChildObject(gameObject, GEN_MARKER);
+					if (!gameObject.getChildObject("BaseCell")) {/*
+						GameObject marker = gameObject.getChildObject(GEN_MARKER);
 						bool isNew = !marker;
 						if (!marker) {
-							marker = new GameObject();
-							marker.name = GEN_MARKER;
+							marker = new GameObject(GEN_MARKER);
 							marker.transform.parent = transform;
 						}*/
-						rebuild(time);
+						this.rebuild(time);
 					}
 					lastBuildTime = time;
 				}
-				if (time-lastSkyTime >= 15) {
+				if (time - lastSkyTime >= 15) {
 					SkyApplier[] skies = gameObject.GetComponentsInChildren<SkyApplier>(true);
 					mset.Sky skyAt = WaterBiomeManager.main.GetBiomeEnvironment(baseCenter);
 					foreach (SkyApplier sk in skies) {
@@ -310,32 +311,32 @@ namespace ReikaKalseki.DIAlterra
 				}*/
 				if (storages == null) {
 					storages = gameObject.GetComponentsInChildren<StorageContainer>();
-					SNUtil.log("Worldgen Seabase "+seabaseID+" finding storages: "+storages.toDebugString(), SNUtil.diDLL);
+					SNUtil.log("Worldgen Seabase " + seabaseID + " finding storages: " + storages.toDebugString(), SNUtil.diDLL);
 				}
 				if (chargers == null) {
 					chargers = gameObject.GetComponentsInChildren<Charger>();
-					SNUtil.log("Worldgen Seabase "+seabaseID+" finding chargers: "+chargers.toDebugString(), SNUtil.diDLL);
+					SNUtil.log("Worldgen Seabase " + seabaseID + " finding chargers: " + chargers.toDebugString(), SNUtil.diDLL);
 				}
 				if (animations == null) {
 					animations = gameObject.GetComponentsInChildren<Animator>();
-					SNUtil.log("Worldgen Seabase "+seabaseID+" finding animations: "+animations.toDebugString(), SNUtil.diDLL);
+					SNUtil.log("Worldgen Seabase " + seabaseID + " finding animations: " + animations.toDebugString(), SNUtil.diDLL);
 				}
-				if (time-lastModifyTime >= 5) {
+				if (time - lastModifyTime >= 5) {
 					lastModifyTime = time;
 					foreach (Animator a in animations)
 						if (a)
-							a.enabled = keepAnimator(a);
-					
+							a.enabled = this.keepAnimator(a);
+
 					foreach (StorageContainer p in storages) {
 						if (p.container.IsEmpty() && p.storageRoot.transform.childCount > 0) {
-							SNUtil.log("Worldgen Seabase "+seabaseID+" rebuilding storage for "+p+": "+p.storageRoot.GetComponentsInChildren<Pickupable>().toDebugString(), SNUtil.diDLL);
+							SNUtil.log("Worldgen Seabase " + seabaseID + " rebuilding storage for " + p + ": " + p.storageRoot.GetComponentsInChildren<Pickupable>().toDebugString(), SNUtil.diDLL);
 							try {
 								foreach (Pickupable pp in p.GetComponentsInChildren<Pickupable>(true)) {
 									p.container.AddItem(pp);
 								}
 							}
 							catch (Exception e) {
-								SNUtil.log("Exception initializing worldgen seabase inventory @ "+p.transform.position+": "+e, SNUtil.diDLL);
+								SNUtil.log("Exception initializing worldgen seabase inventory @ " + p.transform.position + ": " + e, SNUtil.diDLL);
 							}
 						}
 					}
@@ -356,7 +357,7 @@ namespace ReikaKalseki.DIAlterra
 					foreach (Charger p in chargers) {
 						//SNUtil.writeToChat(p+" @ "+p.transform.position+" : "+p.equipment.equippedCount.Count+" : "+p.equipmentRoot.transform.childCount);
 						if (p.equipment.equippedCount.Count == 0 && p.equipmentRoot.transform.childCount > 0) {
-							SNUtil.log("Worldgen Seabase "+seabaseID+" rebuilding storage for "+p+": "+p.equipmentRoot.GetComponentsInChildren<Pickupable>().toDebugString(), SNUtil.diDLL);
+							SNUtil.log("Worldgen Seabase " + seabaseID + " rebuilding storage for " + p + ": " + p.equipmentRoot.GetComponentsInChildren<Pickupable>().toDebugString(), SNUtil.diDLL);
 							try {
 								int i = 0;
 								Pickupable[] pc = p.equipmentRoot.GetComponentsInChildren<Pickupable>(true);
@@ -372,17 +373,17 @@ namespace ReikaKalseki.DIAlterra
 								p.ToggleUI(true);
 							}
 							catch (Exception e) {
-								SNUtil.log("Exception initializing worldgen seabase charger @ "+p.transform.position+": "+e, SNUtil.diDLL);
+								SNUtil.log("Exception initializing worldgen seabase charger @ " + p.transform.position + ": " + e, SNUtil.diDLL);
 							}
 						}
 					}
 				}
 			}
-			
+
 			private bool keepAnimator(Animator a) {
 				return a.gameObject.FindAncestor<SpikePlant>() || a.gameObject.FindAncestor<Aquarium>();
 			}
-			
+
 		}
 		/*
 		class BaseHider : MonoBehaviour {
@@ -396,7 +397,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			
 		}*/
-		
+
 		private static bool baseHasPart(GameObject main, CustomPrefab pfb) {
 			foreach (Transform t in main.transform) {
 				PrefabIdentifier pi = t.GetComponent<PrefabIdentifier>();
@@ -408,7 +409,7 @@ namespace ReikaKalseki.DIAlterra
 			}
 			return false;
 		}
-			
+
 		private static void rebuildNestedObjects(GameObject main, XmlElement e) {
 			foreach (XmlElement e2 in e.getDirectElementsByTagName("child")) {
 				CustomPrefab pfb = new CustomPrefab(e2.getProperty("prefab"));
@@ -420,32 +421,32 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 		}
-		
+
 		public class WorldgenBaseWaterparkHatch : MonoBehaviour {
-			
+
 			private UseableDiveHatch hatch;
 			private bool cleanedModel = false;
-			
+
 			void Update() {
 				if (!hatch) {
 					hatch = gameObject.GetComponent<UseableDiveHatch>();
 					ObjectUtil.setActive<Animator>(gameObject, true);
 				}
 				if (!cleanedModel)
-					cleanedModel = ObjectUtil.removeChildObject(gameObject, "BaseCorridorHatch(Clone)") > 0;
+					cleanedModel = gameObject.removeChildObject("BaseCorridorHatch(Clone)") > 0;
 			}
-			
+
 			public bool isPlayerInside() {
 				Vector3 acuCenter = transform.position;
-				Vector3 outside = transform.position+transform.forward*4.5F;
+				Vector3 outside = transform.position+(transform.forward*4.5F);
 				Vector3 pos = Player.main.transform.position;
 				return Vector3.Distance(pos, acuCenter) > Vector3.Distance(pos, outside);
 			}
-			
+
 		}
-		
+
 		class GrowbedPropifier : MonoBehaviour {
-			
+
 			void Update() {
 				Planter p = gameObject.GetComponent<Planter>();
 				if (p != null) {
@@ -466,53 +467,52 @@ namespace ReikaKalseki.DIAlterra
 					gameObject.GetComponent<StorageContainer>().enabled = false;
 				}
 			}
-			
+
 		}
-		
+
 		public static List<mset.Sky> getBiomeSkies() {
 			return WaterBiomeManager.main.biomeSkies;
 		}
-		
+
 		public static int getBiomeIndex(string s) {
 			return WaterBiomeManager.main.GetBiomeIndex(s);
 		}
-		
+
 		internal class WorldgenSeabasePart : MonoBehaviour {
-			
+
 			private float lastTickTime;
-			
+
 			void Update() {
 				float time = DayNightCycle.main.timePassedAsFloat;
-				if (time-lastTickTime >= 1) {
+				if (time - lastTickTime >= 1) {
 					lastTickTime = time;
-					ObjectUtil.removeComponent<CustomMachineLogic>(gameObject);
+					gameObject.removeComponent<CustomMachineLogic>();
 				}
 			}
-			
+
 		}
-		
+
 		internal class SeabasePrefab : Spawnable {
-		
+
 			internal readonly XmlElement data;
 			internal readonly string id;
-			
-			internal SeabasePrefab(string id, XmlElement e) : base("seabase##C2C##"+id, "Seabase: "+id, "") {
+
+			internal SeabasePrefab(string id, XmlElement e) : base("seabase##C2C##" + id, "Seabase: " + id, "") {
 				data = e;
 				this.id = id;
 			}
-			
+
 			public override GameObject GetGameObject() {
-				SNUtil.log("Reconstructing seabase with "+data.ChildNodes.Count+" parts", SNUtil.diDLL);
+				SNUtil.log("Reconstructing seabase with " + data.ChildNodes.Count + " parts", SNUtil.diDLL);
 				GameObject go = new GameObject(ClassID);
 				go.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
 				go.EnsureComponent<PrefabIdentifier>().ClassId = ClassID;
 				go.EnsureComponent<TechTag>().type = TechType;
-				
+
 				WorldgenSeabaseController ws = go.EnsureComponent<WorldgenSeabaseController>();
 				ws.reconstructionData = data;
 				ws.seabaseID = id;
-				GameObject holder = new GameObject();
-				holder.name = id;
+				GameObject holder = new GameObject(id);
 				holder.EnsureComponent<SeabaseIDHolder>();
 				holder.transform.parent = go.transform;
 				//go.GetComponent<LightingController>().state = LightingController.LightingState.Damaged;
@@ -521,25 +521,25 @@ namespace ReikaKalseki.DIAlterra
 				go.transform.position = pos;
 				go.transform.localPosition = Vector3.zero;
 				go.transform.localRotation = Quaternion.identity;
-				SNUtil.log("Finished deserializing seabase @ "+pos, SNUtil.diDLL);
+				SNUtil.log("Finished deserializing seabase @ " + pos, SNUtil.diDLL);
 				return go;
 			}
-			
+
 		}
-		
+
 		internal class WorldgenBulkhead : MonoBehaviour {
-			
+
 			internal BulkheadDoor door;
-			
+
 			private float lastOpenerCheckTime = -1;
-			
+
 			//private float openTime;
-			
+
 			void Update() {
 				if (!door)
-					door = GetComponentInChildren<BulkheadDoor>();
-				
-				if (door && door.isOpen && DayNightCycle.main.timePassedAsFloat-lastOpenerCheckTime >= 0.5F && !hasOpener()) {/*
+					door = this.GetComponentInChildren<BulkheadDoor>();
+
+				if (door && door.isOpen && DayNightCycle.main.timePassedAsFloat - lastOpenerCheckTime >= 0.5F && !this.hasOpener()) {/*
 					if (openTime > 4)
 						GenUtil.OpenWorldgenSeabaseDoor.lockOpen(door);
 					else
@@ -549,19 +549,19 @@ namespace ReikaKalseki.DIAlterra
 					go.transform.position = transform.position;
 				}
 			}
-			
+
 			private bool hasOpener() {
 				return WorldUtil.areAnyObjectsNear(transform.position, 2, go => go.GetComponent<SeabaseDoorOpenerTag>());
 			}
-			
+
 		}
-		
+
 		class SeabaseDoorOpener : Spawnable {
-			
+
 			internal SeabaseDoorOpener() : base("SeabaseDoorOpener", "", "") {
-				
+
 			}
-				
+
 			public override GameObject GetGameObject() {
 				GameObject go = new GameObject();
 				go.EnsureComponent<PrefabIdentifier>().classId = ClassID;
@@ -575,11 +575,11 @@ namespace ReikaKalseki.DIAlterra
 				return go;
 			}
 		}
-		
+
 		class SeabaseDoorOpenerTag : MonoBehaviour {
-			
+
 			private bool hasRun;
-			
+
 			void Update() {
 				if (!hasRun) {
 					WorldgenBulkhead bk = WorldUtil.getClosest<WorldgenBulkhead>(transform.position);
@@ -595,12 +595,12 @@ namespace ReikaKalseki.DIAlterra
 						bk.door.sound = null;
 						bk.door.NotifyStateChange();
 						hasRun = true;
-						ObjectUtil.removeComponent<Sealed>(bk.gameObject);
+						bk.gameObject.removeComponent<Sealed>();
 					}
 				}
 			}
-			
+
 		}
-		
+
 	}
 }

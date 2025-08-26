@@ -7,33 +7,35 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using System.Collections.Generic;
+
 using ReikaKalseki.DIAlterra;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 
-namespace ReikaKalseki.DIAlterra
-{		
+using UnityEngine;
+using UnityEngine.Scripting;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
+namespace ReikaKalseki.DIAlterra {
 	internal class SeabaseLegLengthPreservation : ManipulationBase {
-		
+
 		private readonly XmlElement data;
-		
+
 		internal SeabaseLegLengthPreservation(XmlElement e) {
 			data = e;
 		}
-		
+
 		public override void applyToObject(GameObject go) {
 			BaseFoundationPiece bf = go.GetComponent<BaseFoundationPiece>();
 			if (bf) {
 				if (data == null) {
-					UnityEngine.Object.DestroyImmediate(bf.gameObject);
+					bf.gameObject.destroy();
 				}
 				else {
 					bf.maxPillarHeight = (float)data.getFloat("maxHeight", double.NaN);
@@ -50,22 +52,22 @@ namespace ReikaKalseki.DIAlterra
 								if (Vector3.Distance(pos, l.position) <= 0.25) {
 									l.rotation = e3.getQuaternion("rotation").Value;
 									l.localScale = e3.getVector("scale").Value;
-									SNUtil.log("Applied pillar match "+e3.OuterXml, SNUtil.diDLL);
+									SNUtil.log("Applied pillar match " + e3.OuterXml, SNUtil.diDLL);
 									matched = true;
 								}
 							}
 							if (!matched || (!p.bottom && p.adjustable.localScale == Vector3.one)) {
 								//SNUtil.log("Destroying base leg @ "+l.position);
 								if (p.bottom)
-									UnityEngine.Object.DestroyImmediate(p.bottom.gameObject);
+									p.bottom.gameObject.destroy();
 								if (p.adjustable)
-									UnityEngine.Object.DestroyImmediate(p.adjustable.gameObject);
-								UnityEngine.Object.DestroyImmediate(p.root);
+									p.adjustable.gameObject.destroy();
+								p.root.destroy();
 							}
 							if (l) {
 								foreach (Shocker s in UnityEngine.Object.FindObjectsOfType<Shocker>()) {
 									if (s && s.gameObject)
-										ObjectUtil.ignoreCollisions(s.gameObject, l.gameObject);
+										s.gameObject.ignoreCollisions(l.gameObject);
 								}
 							}
 						}
@@ -73,22 +75,22 @@ namespace ReikaKalseki.DIAlterra
 				}
 			}
 		}
-		
+
 		public override void applyToObject(PlacedObject go) {
-			applyToObject(go.obj);
+			this.applyToObject(go.obj);
 		}
-		
+
 		public override void loadFromXML(XmlElement e) {
-			
+
 		}
-		
+
 		public override void saveToXML(XmlElement e) {
-			
+
 		}
-		
+
 		public override bool needsReapplication() {
 			return false;
 		}
-		
+
 	}
 }
