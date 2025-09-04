@@ -5,15 +5,19 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 using FMOD;
 using FMOD.Studio;
 
 using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Patchers;
 
 using UnityEngine;
 using UnityEngine.Serialization;
+
+using UWE;
 
 namespace ReikaKalseki.DIAlterra {
 	public static class DIExtensions {
@@ -51,6 +55,10 @@ namespace ReikaKalseki.DIAlterra {
 				li0.Add(li2);
 			}
 			return li0;
+		}
+
+		public static bool contains(this string s, Regex r) {
+			return r.IsMatch(s);
 		}
 
 		public static E convertEnum<E>(this Enum e, E fallback) where E : struct {
@@ -129,6 +137,14 @@ namespace ReikaKalseki.DIAlterra {
 			int g = Mathf.RoundToInt(c.g*255) & 0xFF;
 			int b = Mathf.RoundToInt(c.b*255) & 0xFF;
 			return (a << 24) | (r << 16) | (g << 8) | (b);
+		}
+
+		public static Color toColor(this Color32 c) {
+			return new Color(c.r / 255F, c.g / 255F, c.b / 255F, c.a / 255F);
+		}
+
+		public static Color32 toColor32(this Color c) {
+			return new Color32((byte)Mathf.Round(c.r * 255F), (byte)Mathf.Round(c.g * 255F), (byte)Mathf.Round(c.b * 255F), (byte)Mathf.Round(c.a * 255F));
 		}
 
 		public static Vector3 getXYZ(this Vector4 vec) {
@@ -368,7 +384,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static Int3 roundToInt3(this Vector3 vec) {
-			return new Int3((int)Math.Floor(vec.x), (int)Math.Floor(vec.y), (int)Math.Floor(vec.z));
+			return new Int3((int)Mathf.Floor(vec.x), (int)Mathf.Floor(vec.y), (int)Mathf.Floor(vec.z));
 		}
 
 		public static bool isEnumerable(this object o) {
@@ -471,6 +487,41 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static float getLifespan(this StasisSphere s) {
 			return s.time * s.fieldEnergy;
+		}
+
+		public static void clearAttackTarget(this AttackLastTarget a) {
+			Creature c = a.GetComponent<Creature>();
+			if (c)
+				c.Aggression.Add(-1);
+			a.StopAttack();
+			a.currentTarget = null;
+			a.lastTarget.SetTarget(null);
+		}
+
+		private static readonly Type craftDataPatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.CraftDataPatcher");
+
+		public static TechType getCookedCounterpart(this TechType raw) {
+			if (CraftData.cookedCreatureList.ContainsKey(raw))
+				return CraftData.cookedCreatureList[raw];
+			IDictionary<TechType, TechType> dict = getPatcherDict<TechType>("CustomCookedCreatureList");
+			if (dict != null && dict.ContainsKey(raw))
+				return dict[raw];
+			else
+				return TechType.None;
+		}
+
+		public static Vector2int getItemSize(this TechType item) {
+			if (CraftData.itemSizes.ContainsKey(item))
+				return CraftData.itemSizes[item];
+			IDictionary<TechType, Vector2int> dict = getPatcherDict<Vector2int>("CustomItemSizes");
+			if (dict != null && dict.ContainsKey(item))
+				return dict[item];
+			else
+				return new Vector2int(1, 1);
+		}
+
+		private static IDictionary<TechType, E> getPatcherDict<E>(string name) {
+			return (IDictionary<TechType, E>)craftDataPatcher.GetField(name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null);
 		}
 
 	}

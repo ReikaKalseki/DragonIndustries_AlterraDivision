@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
@@ -15,6 +16,9 @@ namespace ReikaKalseki.DIAlterra {
 
 		private static readonly string[] texTypes = new string[]{"_MainTex", "_SpecTex", "_BumpMap", "_Illum"};
 		private static readonly HashSet<string> warnNoTextures = new HashSet<string>();
+
+		private static readonly Regex LODPattern = new Regex("LOD[0-9]", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(50));
+		private static readonly Regex LODPatternExcept0 = new Regex("LOD[1-9]", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(50));
 
 		public static void setEmissivity(Renderer r, float amt, HashSet<int> matIndices = null) {
 			setEmissivity(r, amt, amt, matIndices);
@@ -195,7 +199,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
-		public static void setPolyanilineColor(Renderer r, Color c, float glow = 0) {
+		public static void setPolyanilineColor(this Renderer r, Color c, float glow = 0) {
 			Material m = r.materials[1]; //liquid
 			m.SetColor("_Color", c);
 			m.SetColor("_SpecColor", c);
@@ -209,11 +213,11 @@ namespace ReikaKalseki.DIAlterra {
 			r.gameObject.FindAncestor<SkyApplier>().SetSky(Skies.Auto);
 		}
 
-		public static GameObject setModel(Renderer r, GameObject modelObj) {
-			return setModel(r.transform.parent.gameObject, r.gameObject.name, modelObj);
+		public static GameObject setModel(this Renderer r, GameObject modelObj) {
+			return r.transform.parent.gameObject.setModel(r.gameObject.name, modelObj);
 		}
 
-		public static GameObject setModel(GameObject go, string localModelName, GameObject modelObj) { //FIXME duplicate models
+		public static GameObject setModel(this GameObject go, string localModelName, GameObject modelObj) { //FIXME duplicate models
 			go.removeChildObject(localModelName);
 			modelObj = UnityEngine.Object.Instantiate(modelObj).setName(localModelName);
 			modelObj.transform.parent = go.transform;
@@ -221,11 +225,29 @@ namespace ReikaKalseki.DIAlterra {
 			modelObj.transform.localEulerAngles = Vector3.zero;
 			modelObj.transform.localRotation = Quaternion.identity;
 			modelObj.transform.localScale = Vector3.one;
-			convertToModel(modelObj);
+			modelObj.convertToModel();
 			return modelObj;
 		}
 
-		public static void convertToModel(GameObject modelObj, params Type[] except) {
+		public static GameObject getModelRoot(this GameObject go) {
+			Animator[] anim = go.GetComponentsInChildren<Animator>();
+			foreach (Animator a in anim) {
+				if (!a.gameObject.GetFullHierarchyPath().Contains("ViewModel"))
+					return a.gameObject;
+			}
+			SkinnedMeshRenderer smr = go.GetComponentInChildren<SkinnedMeshRenderer>();
+			if (smr)
+				return smr.gameObject;
+			Renderer[] arr = go.GetComponentsInChildren<Renderer>();
+			if (arr.Length == 0)
+				return null;
+			List<Renderer> li = arr.Where(r => !r.name.contains(LODPattern)).ToList();
+			if (li.Count == 0)
+				li = arr.Where(r => !r.name.contains(LODPatternExcept0)).ToList();
+			return (li.Count == 0 ? arr[0] : li[0]).gameObject;
+		}
+
+		public static void convertToModel(this GameObject modelObj, params Type[] except) {
 			HashSet<Type> li = except.ToSet();
 			foreach (Component c in modelObj.GetComponentsInChildren<Component>()) {
 				if (c is Transform || c is Renderer || c is MeshFilter || c is Animator || c is Collider || c is VFXFabricating || c is PrefabIdentifier || c is ChildObjectIdentifier || c is AnimatorComponent)
@@ -236,7 +258,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
-		public static void setMesh(GameObject go, Mesh m) {
+		public static void setMesh(this GameObject go, Mesh m) {
 			if (m == null) {
 				SNUtil.writeToChat("Cannot set a GO mesh to null!");
 				return;
@@ -255,7 +277,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
-		public static Texture2D getSpriteTexture(Sprite s) {
+		public static Texture2D getSpriteTexture(this Sprite s) {
 			if (!Mathf.Approximately(s.rect.width, s.texture.width)) {
 				Texture2D newTex = new Texture2D((int)s.rect.width, (int)s.rect.height);
 				Rect r = s.textureRect;
@@ -269,11 +291,11 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
-		public static Atlas.Sprite copySprite(Atlas.Sprite source) {
+		public static Atlas.Sprite copySprite(this Atlas.Sprite source) {
 			return ImageUtils.LoadSpriteFromTexture(source.texture);
 		}
 
-		public static Texture2D duplicateTexture(Texture2D source) {
+		public static Texture2D duplicateTexture(this Texture2D source) {
 			RenderTexture renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, source.format.convertEnum(RenderTextureFormat.Default), RenderTextureReadWrite.sRGB);
 			Graphics.Blit(source, renderTex);
 			RenderTexture previous = RenderTexture.active;
@@ -309,7 +331,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static void dumpTexture(Assembly a, string fn, Texture2D img, string pathOverride = null) {
 			if (img != null) {
-				byte[] raw = duplicateTexture(img).EncodeToPNG();
+				byte[] raw = img.duplicateTexture().EncodeToPNG();
 				string folder = Path.GetDirectoryName(a.Location);
 				string path = Path.Combine(folder, "TextureDump", fn+".png");
 				if (!string.IsNullOrEmpty(pathOverride))

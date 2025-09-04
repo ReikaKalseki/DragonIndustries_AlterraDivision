@@ -2356,7 +2356,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static void onItemsLost() {
-			InventoryUtil.forEach(Inventory.main.container, (ii) => {
+			Inventory.main.container.forEach((ii) => {
 				IrreplaceableItemRegistry.IrreplaceableItemData eff = IrreplaceableItemRegistry.instance.getEffects(ii.item.GetTechType());
 				if (eff != null) {
 					eff.onDiedWhileHolding.Invoke(ii);
@@ -2551,21 +2551,25 @@ namespace ReikaKalseki.DIAlterra {
 		public static void onVehicleDestroyed(Vehicle v) {
 			if (onVehicleDestroyEvent != null)
 				onVehicleDestroyEvent.Invoke(v);
+			List<Pickupable> storeInLocker = new List<Pickupable>();
 			List<IItemsContainer> li = new List<IItemsContainer>();
 			v.GetAllStorages(li);
 			foreach (ItemsContainer sc in li) {
-				InventoryUtil.forEach(sc, ii => fireVehicleLoss(v, ii));
+				sc.forEach(ii => fireVehicleLoss(v, false, ii, storeInLocker));
 			}
 			if (v.modules != null) {
-				v.modules.equipment.Values.ForEach(ii => fireVehicleLoss(v, ii));
+				v.modules.equipment.Values.ForEach(ii => fireVehicleLoss(v, true, ii, storeInLocker));
+			}
+			if (storeInLocker.Count > 0) {
+				TemporaryFloatingLocker.createFloatingLocker(v.transform.position, storeInLocker);
 			}
 		}
 
-		private static void fireVehicleLoss(Vehicle v, InventoryItem ii) {
+		private static void fireVehicleLoss(Vehicle v, bool module, InventoryItem ii, List<Pickupable> locker) {
 			if (ii != null && ii.item) {
 				IrreplaceableItemRegistry.IrreplaceableItemData eff = IrreplaceableItemRegistry.instance.getEffects(ii.item.GetTechType());
 				if (eff != null) {
-					eff.onLostWithVehicle.Invoke(v, ii);
+					eff.onLostWithVehicle.Invoke(v, module, ii, locker);
 				}
 			}
 		}

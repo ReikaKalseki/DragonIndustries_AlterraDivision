@@ -13,7 +13,7 @@ using UnityEngine;
 namespace ReikaKalseki.DIAlterra {
 	public static class InventoryUtil {
 
-		public static List<TechType> getVehicleUpgrades(Vehicle v) {
+		public static List<TechType> getVehicleUpgrades(this Vehicle v) {
 			List<TechType> set = new List<TechType>();
 			foreach (int idx in v.slotIndexes.Values) {
 				InventoryItem ii = v.GetSlotItem(idx);
@@ -23,7 +23,7 @@ namespace ReikaKalseki.DIAlterra {
 			return set;
 		}
 
-		public static bool vehicleHasUpgrade(Vehicle v, TechType tt) {/*
+		public static bool vehicleHasUpgrade(this Vehicle v, TechType tt) {/*
 			foreach (int idx in v.slotIndexes.Values) {
 				InventoryItem ii = v.GetSlotItem(idx);
 				if (ii != null && ii.item && ii.item.GetTechType() == tt)
@@ -33,14 +33,14 @@ namespace ReikaKalseki.DIAlterra {
 			return v.modules.GetCount(tt) > 0;
 		}
 
-		public static bool isVehicleUpgradeSelected(Vehicle v, TechType tt) {
+		public static bool isVehicleUpgradeSelected(this Vehicle v, TechType tt) {
 			if (!v || v.activeSlot < 0)
 				return false;
 			InventoryItem ii = v.GetSlotItem(v.activeSlot);
 			return ii != null && ii.item.GetTechType() == tt;
 		}
 
-		public static List<TechType> getCyclopsUpgrades(SubRoot sub) {
+		public static List<TechType> getCyclopsUpgrades(this SubRoot sub) {
 			List<TechType> set = new List<TechType>();
 			Equipment modules = sub.isCyclops && sub.upgradeConsole ? sub.upgradeConsole.modules : null;
 			if (modules != null) {
@@ -53,7 +53,7 @@ namespace ReikaKalseki.DIAlterra {
 			return set;
 		}
 
-		public static bool cyclopsHasUpgrade(SubRoot sub, TechType tt) {
+		public static bool cyclopsHasUpgrade(this SubRoot sub, TechType tt) {
 			Equipment modules = sub.isCyclops && sub.upgradeConsole ? sub.upgradeConsole.modules : null;/*
 	    	if (modules != null) {
 		    	foreach (string slot in SubRoot.slotNames) {
@@ -66,7 +66,7 @@ namespace ReikaKalseki.DIAlterra {
 			return modules != null && modules.GetCount(tt) > 0;
 		}
 
-		public static List<Battery> getCyclopsPowerCells(SubRoot sub) {
+		public static List<Battery> getCyclopsPowerCells(this SubRoot sub) {
 			if (!sub.isCyclops)
 				return null;
 			List<Battery> ret = new List<Battery>();
@@ -96,15 +96,15 @@ namespace ReikaKalseki.DIAlterra {
 			return sc.DestroyItem(ii.item.GetTechType());
 		}*/
 
-		public static bool forceRemoveItem(StorageContainer sc, Pickupable pp) {
-			return forceRemoveItem(sc.container, getItem(sc.container, pp));
+		public static bool forceRemoveItem(this StorageContainer sc, Pickupable pp) {
+			return sc.container.forceRemoveItem(sc.container.getItem(pp));
 		}
 
-		public static bool forceRemoveItem(StorageContainer sc, InventoryItem ii) {
-			return forceRemoveItem(sc.container, ii);
+		public static bool forceRemoveItem(this StorageContainer sc, InventoryItem ii) {
+			return sc.container.forceRemoveItem(ii);
 		}
 
-		public static bool forceRemoveItem(ItemsContainer sc, InventoryItem ii) {
+		public static bool forceRemoveItem(this ItemsContainer sc, InventoryItem ii) {
 			if (sc.RemoveItem(ii.item, true)) {
 				ii.item.gameObject.destroy(false);
 				return true;
@@ -112,7 +112,14 @@ namespace ReikaKalseki.DIAlterra {
 			return false;
 		}
 
-		public static void forEachOfType(ItemsContainer sc, TechType tt, Action<InventoryItem> act) {
+		public static bool isEmpty(this StorageContainer sc) {
+			if (!sc)
+				return true;
+			List<TechType> li = sc.container.GetItemTypes();
+			return li == null || li.Count == 0;
+		}
+
+		public static void forEachOfType(this ItemsContainer sc, TechType tt, Action<InventoryItem> act) {
 			IList<InventoryItem> il = sc.GetItems(tt);
 			if (il == null || il.Count == 0)
 				return;
@@ -123,7 +130,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
-		public static void forEach(ItemsContainer sc, Action<InventoryItem> act) {
+		public static void forEach(this ItemsContainer sc, Action<InventoryItem> act) {
 			foreach (KeyValuePair<TechType, ItemsContainer.ItemGroup> kvp in sc._items) {
 				foreach (InventoryItem ii in kvp.Value.items) {
 					if (ii != null && ii.item)
@@ -132,11 +139,11 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
-		public static InventoryItem getItem(ItemsContainer sc, Pickupable pp) {
-			return getItem(sc, pp.GetTechType(), ii => ii.item == pp);
+		public static InventoryItem getItem(this ItemsContainer sc, Pickupable pp) {
+			return sc.getItem(pp.GetTechType(), ii => ii.item == pp);
 		}
 
-		public static InventoryItem getItem(ItemsContainer sc, TechType tt, Predicate<InventoryItem> acceptor = null) {
+		public static InventoryItem getItem(this ItemsContainer sc, TechType tt, Predicate<InventoryItem> acceptor = null) {
 			IList<InventoryItem> il = sc.GetItems(tt);
 			if (il == null || il.Count == 0)
 				return null;

@@ -429,9 +429,13 @@ namespace ReikaKalseki.DIAlterra {
 			MainCameraControl.main.ShakeCamera(2F, 1.0F, MainCameraControl.ShakeMode.Linear, 0.25F);//SNUtil.shakeCamera(1.2F, 0.5F, 0.2F);
 		}
 
-		public static ModPrefab getModPrefabByTechType(TechType tt) {
+		public static ModPrefab getModPrefabByTechType(this TechType tt) {
 			Dictionary<string, ModPrefab> dict = (Dictionary<string, ModPrefab>)typeof(ModPrefab).GetField("ClassIdDictionary", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null);
 			return dict.ContainsKey(tt.AsString()) ? dict[tt.AsString()] : null;
+		}
+
+		public static Atlas.Sprite getPrefabSprite(this Spawnable mod) {
+			return (Atlas.Sprite)typeof(Spawnable).GetMethod("GetItemSprite", BindingFlags.Instance | BindingFlags.NonPublic, null, CallingConventions.HasThis, new Type[0], null).Invoke(mod, BindingFlags.Default, null, new object[0], null);
 		}
 
 		public static WaterParkCreatureParameters getModifiedACUParams(TechType basis, float initSizeScale, float maxSizeScale, float outsideSizeScale, float growTimeScale) {

@@ -98,7 +98,7 @@ namespace ReikaKalseki.DIAlterra {
 			e = xmlDoc.DocumentElement.addChild("Cyclopses");
 			foreach (SubRoot sub in cyclops) {
 				XmlElement e2 = e.addChild("Cyclops");
-				foreach (TechType tt in InventoryUtil.getCyclopsUpgrades(sub)) {
+				foreach (TechType tt in sub.getCyclopsUpgrades()) {
 					e2.addProperty("module", tt.AsString());
 				}
 				this.collectStorage(e2, sub.gameObject);
@@ -108,7 +108,7 @@ namespace ReikaKalseki.DIAlterra {
 			foreach (Vehicle v in vehicles) {
 				XmlElement e2 = e.addChild("Vehicle");
 				e2.addProperty("type", this.getObjectType(v));
-				foreach (TechType tt in InventoryUtil.getVehicleUpgrades(v)) {
+				foreach (TechType tt in v.getVehicleUpgrades()) {
 					e2.addProperty("module", tt.AsString());
 				}
 			}
@@ -172,7 +172,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		private void collectStorage(XmlElement e3, ItemsContainer sc) {
 			Dictionary<TechType, int> counts = new Dictionary<TechType, int>();
-			InventoryUtil.forEach(sc, ii => {
+			sc.forEach(ii => {
 				TechType tt = ii.item.GetTechType();
 				int has = counts.ContainsKey(tt) ? counts[tt] : 0;
 				counts[tt] = has + 1;

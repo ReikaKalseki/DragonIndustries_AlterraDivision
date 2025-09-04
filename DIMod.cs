@@ -37,6 +37,7 @@ namespace ReikaKalseki.DIAlterra {
 		internal static readonly Dictionary<TechType, Buildable> machineList = new Dictionary<TechType, Buildable>();
 
 		public static SignalManager.ModSignal areaOfInterestMarker { get; private set; }
+		public static TemporaryFloatingLocker floatingLocker { get; private set; }
 
 		[QModPrePatch]
 		public static void PreLoad() {
@@ -65,6 +66,8 @@ namespace ReikaKalseki.DIAlterra {
 			System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(ConsumableTracker).TypeHandle);
 
 			new ObjectDeleter().Patch();
+			floatingLocker = new TemporaryFloatingLocker();
+			floatingLocker.Patch();
 
 			locale.load();
 
@@ -76,34 +79,34 @@ namespace ReikaKalseki.DIAlterra {
 			KnownTech.onAdd += (tt, vb) => TechUnlockTracker.instance.onUnlock(tt);
 
 			CustomEgg spineEel = createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground).modifyGO(e =>
-		{
-			List<Renderer> li = new List<Renderer>();
-			foreach (Renderer r in e.GetComponentsInChildren<Renderer>()) {
-				RenderUtil.makeTransparent(r);
-				RenderUtil.setGlossiness(r.material, 10, 6, 0.5F);
-				r.material.SetColor("_SpecColor", new Color(1, 1, 0.8F, 1));
-				r.material.SetFloat("_SrcBlend", 5);
-				r.material.SetFloat("_DstBlend", 10);
-				r.material.SetFloat("_SrcBlend2", 2);
-				r.material.SetFloat("_DstBlend2", 10);
-				li.Add(r);
-			}
-			foreach (Renderer r in li) {
-				for (int i = 0; i < 3; i++) {
-					GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere).setName("EggGlow_"+i);
-					sphere.transform.localScale = Vector3.one*0.1F;
-					sphere.transform.SetParent(r.transform.parent);
-					sphere.transform.localPosition = MathUtil.getRandomVectorAround(new Vector3(-0.3F, 0.24F, 0), 0.15F);
-					sphere.transform.localRotation = Quaternion.identity;
-					sphere.removeComponent<Collider>();
-					ECCHelpers.ApplySNShaders(sphere, new UBERMaterialProperties(0, 0, 5));
-					Renderer r2 = sphere.GetComponentInChildren<Renderer>();
-					r2.material.SetColor("_GlowColor", new Color(1, 0.75F, 0.33F, 1));
-					RenderUtil.setEmissivity(r2, 0.8F);
-					RenderUtil.setGlossiness(r2, 4, 0, 0);
+			{
+				List<Renderer> li = new List<Renderer>();
+				foreach (Renderer r in e.GetComponentsInChildren<Renderer>()) {
+					RenderUtil.makeTransparent(r);
+					RenderUtil.setGlossiness(r.material, 10, 6, 0.5F);
+					r.material.SetColor("_SpecColor", new Color(1, 1, 0.8F, 1));
+					r.material.SetFloat("_SrcBlend", 5);
+					r.material.SetFloat("_DstBlend", 10);
+					r.material.SetFloat("_SrcBlend2", 2);
+					r.material.SetFloat("_DstBlend2", 10);
+					li.Add(r);
 				}
-			}
-		});
+				foreach (Renderer r in li) {
+					for (int i = 0; i < 3; i++) {
+						GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere).setName("EggGlow_"+i);
+						sphere.transform.localScale = Vector3.one*0.1F;
+						sphere.transform.SetParent(r.transform.parent);
+						sphere.transform.localPosition = MathUtil.getRandomVectorAround(new Vector3(-0.3F, 0.24F, 0), 0.15F);
+						sphere.transform.localRotation = Quaternion.identity;
+						sphere.removeComponent<Collider>();
+						ECCHelpers.ApplySNShaders(sphere, new UBERMaterialProperties(0, 0, 5));
+						Renderer r2 = sphere.GetComponentInChildren<Renderer>();
+						r2.material.SetColor("_GlowColor", new Color(1, 0.75F, 0.33F, 1));
+						RenderUtil.setEmissivity(r2, 0.8F);
+						RenderUtil.setGlossiness(r2, 4, 0, 0);
+					}
+				}
+			});
 			createEgg(TechType.GhostRayBlue, TechType.JumperEgg, 1.75F, "GhostRayDesc", true, 0.12F, 2, 0.75F, BiomeType.TreeCove_LakeFloor);
 			createEgg(TechType.GhostRayRed, TechType.CrabsnakeEgg, 1.25F, "CrimsonRayDesc", true, 0.6F, 2, 0.8F, BiomeType.InactiveLavaZone_Chamber_Floor_Far);
 			createEgg(TechType.Biter, TechType.RabbitrayEgg, 1F, "BiterDesc", false, 0.6F, 2, 1, BiomeType.GrassyPlateaus_CaveFloor, BiomeType.Mountains_CaveFloor);

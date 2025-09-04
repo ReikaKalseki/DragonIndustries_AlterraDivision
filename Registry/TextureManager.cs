@@ -15,7 +15,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		private static readonly Dictionary<Assembly, Dictionary<string, Texture2D>> textures = new Dictionary<Assembly, Dictionary<string, Texture2D>>();
 		private static readonly Dictionary<Assembly, Dictionary<string, Atlas.Sprite>> sprites = new Dictionary<Assembly, Dictionary<string, Atlas.Sprite>>();
-		//private static readonly Texture2D NOT_FOUND = ImageUtils.LoadTextureFromFile(path); 
+		private static readonly HashSet<string> notFound = new HashSet<string>();
 
 		static TextureManager() {
 
@@ -31,20 +31,19 @@ namespace ReikaKalseki.DIAlterra {
 			if (!textures.ContainsKey(a))
 				textures[a] = new Dictionary<string, Texture2D>();
 			if (!textures[a].ContainsKey(path)) {
-				textures[a][path] = loadTexture(a, path);
+				textures[a][path] = loadTexture(a, path, out bool found);
+				if (!found)
+					notFound.Add(path);
 			}
 			return textures[a][path];
 		}
 
-		private static Texture2D loadTexture(Assembly a, string relative) {
+		private static Texture2D loadTexture(Assembly a, string relative, out bool found) {
 			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
 			SNUtil.log("Loading texture from '" + path + "'", a);
 			Texture2D newTex = ImageUtils.LoadTextureFromFile(path);
-			if (newTex == null) {
-				//newTex = NOT_FOUND;
-				SNUtil.log("Texture not found @ " + path, a);
-			}
+			found = File.Exists(path);
 			return newTex;
 		}
 
@@ -54,7 +53,9 @@ namespace ReikaKalseki.DIAlterra {
 			if (!sprites.ContainsKey(a))
 				sprites[a] = new Dictionary<string, Atlas.Sprite>();
 			if (!sprites[a].ContainsKey(path)) {
-				sprites[a][path] = loadSprite(a, path);
+				sprites[a][path] = loadSprite(a, path, out bool found);
+				if (!found)
+					notFound.Add(path);
 			}
 			return sprites[a][path];
 		}
@@ -63,16 +64,17 @@ namespace ReikaKalseki.DIAlterra {
 			return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), pxPerUnit);
 		}
 
-		private static Atlas.Sprite loadSprite(Assembly a, string relative) {
+		private static Atlas.Sprite loadSprite(Assembly a, string relative, out bool found) {
 			string folder = Path.GetDirectoryName(a.Location);
 			string path = Path.Combine(folder, relative+".png");
 			SNUtil.log("Loading sprite from '" + path + "'", a);
 			Atlas.Sprite newTex = ImageUtils.LoadSpriteFromFile(path);
-			if (newTex == null) {
-				//newTex = NOT_FOUND;
-				SNUtil.log("Sprite not found @ " + path, a);
-			}
+			found = File.Exists(path);
 			return newTex;
+		}
+
+		public static bool isTextureNotFound(string path) {
+			return notFound.Contains(path);
 		}
 
 	}

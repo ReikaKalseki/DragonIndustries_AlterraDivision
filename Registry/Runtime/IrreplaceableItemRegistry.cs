@@ -28,14 +28,16 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static readonly Action<InventoryItem> COLLECT_ITEM = (ii) => Inventory.main.ForcePickup(ii.item);
 
-		private static readonly IrreplaceableItemData DEFAULT = new IrreplaceableItemData(
+		public static readonly Action<InventoryItem, List<Pickupable>> TEMP_LOCKER = (ii, li) => li.Add(ii.item);
+
+		public static readonly IrreplaceableItemData DEFAULT_EFFECTS = new IrreplaceableItemData(
 			(pp, notify) => {
 				if (notify)
 					ErrorMessage.AddError(Language.main.Get("ItemNotDroppable"));
 				return false;
 			},
-			ii => ii.item.destroyOnDeath = false,
-			(v, ii) => COLLECT_ITEM.Invoke(ii)
+			ii => ii.item.destroyOnDeath = false, //prevents drop
+			(v, m, ii, li) => TEMP_LOCKER.Invoke(ii, li)
 		);
 
 		private IrreplaceableItemRegistry() {
@@ -47,7 +49,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public void registerItem(TechType item, IrreplaceableItemData data = null) {
-			items[item] = data == null ? DEFAULT : data;
+			items[item] = data == null ? DEFAULT_EFFECTS : data;
 		}
 
 		public bool isIrreplaceable(TechType tt) {
@@ -61,9 +63,9 @@ namespace ReikaKalseki.DIAlterra {
 
 			public readonly Func<Pickupable, bool, bool> onAttemptToDrop;
 			public readonly Action<InventoryItem> onDiedWhileHolding;
-			public readonly Action<Vehicle, InventoryItem> onLostWithVehicle;
+			public readonly Action<Vehicle, bool, InventoryItem, List<Pickupable>> onLostWithVehicle;
 
-			public IrreplaceableItemData(Func<Pickupable, bool, bool> onDrop, Action<InventoryItem> onDie, Action<Vehicle, InventoryItem> loseVehicle) {
+			public IrreplaceableItemData(Func<Pickupable, bool, bool> onDrop, Action<InventoryItem> onDie, Action<Vehicle, bool, InventoryItem, List<Pickupable>> loseVehicle) {
 				onAttemptToDrop = onDrop;
 				onDiedWhileHolding = onDie;
 				onLostWithVehicle = loseVehicle;

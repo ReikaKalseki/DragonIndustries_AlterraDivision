@@ -62,7 +62,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static void addDelegate(DuplicateItemDelegate d) {
 			TechType tt = d.getBasis();
 			FieldInfo fi = typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic);
-			ModPrefab pfb = SNUtil.getModPrefabByTechType(tt);
+			ModPrefab pfb = tt.getModPrefabByTechType();
 			Assembly a = pfb == null ? /*SNUtil.gameDLL*/null : (Assembly)fi.GetValue(pfb); //SML does not recognize game DLL and looks for a mod with that DLL, fails, and says error
 			if (a == null)
 				a = d.getOwnerMod();
