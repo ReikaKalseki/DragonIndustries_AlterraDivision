@@ -101,9 +101,7 @@ namespace ReikaKalseki.DIAlterra {
 		public override TechCategory CategoryForPDA {
 			get {
 				TechCategory ret = TechCategory.Misc;
-				return Enum.TryParse(craftingSubCategory, out ret)
-					? ret
-					: TechCategoryHandler.Main.TryGetModdedTechCategory(craftingSubCategory, out ret) ? ret : TechCategory.BasicMaterials;
+				return Enum.TryParse(craftingSubCategory, out ret) ? ret : TechCategoryHandler.Main.TryGetModdedTechCategory(craftingSubCategory, out ret) ? ret : TechCategory.BasicMaterials;
 			}
 		}
 

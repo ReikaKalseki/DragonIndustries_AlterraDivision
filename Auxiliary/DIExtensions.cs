@@ -11,6 +11,8 @@ using System.Xml;
 using FMOD;
 using FMOD.Studio;
 
+using JetBrains.Annotations;
+
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Patchers;
 
@@ -499,11 +501,14 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		private static readonly Type craftDataPatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.CraftDataPatcher");
+		private static readonly Type knownTechPatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.KnownTechPatcher");
+		private static readonly Type craftTreePatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.CraftTreePatcher");
+		private static readonly Type craftingNode = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Crafting.CraftingNode");
 
 		public static TechType getCookedCounterpart(this TechType raw) {
 			if (CraftData.cookedCreatureList.ContainsKey(raw))
 				return CraftData.cookedCreatureList[raw];
-			IDictionary<TechType, TechType> dict = getPatcherDict<TechType>("CustomCookedCreatureList");
+			IDictionary<TechType, TechType> dict = getPatcherDict<TechType>("CustomCookedCreatureList", craftDataPatcher);
 			if (dict != null && dict.ContainsKey(raw))
 				return dict[raw];
 			else
@@ -513,15 +518,61 @@ namespace ReikaKalseki.DIAlterra {
 		public static Vector2int getItemSize(this TechType item) {
 			if (CraftData.itemSizes.ContainsKey(item))
 				return CraftData.itemSizes[item];
-			IDictionary<TechType, Vector2int> dict = getPatcherDict<Vector2int>("CustomItemSizes");
+			IDictionary<TechType, Vector2int> dict = getPatcherDict<Vector2int>("CustomItemSizes", craftDataPatcher);
 			if (dict != null && dict.ContainsKey(item))
 				return dict[item];
 			else
 				return new Vector2int(1, 1);
 		}
 
-		private static IDictionary<TechType, E> getPatcherDict<E>(string name) {
-			return (IDictionary<TechType, E>)craftDataPatcher.GetField(name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null);
+		private static IDictionary<TechType, E> getPatcherDict<E>(string name, Type from) {
+			return (IDictionary<TechType, E>)from.GetField(name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null);
+		}
+
+		public static void removeUnlockTrigger(this TechType item) {
+			KnownTechHandler.Main.RemoveAllCurrentAnalysisTechEntry(item);
+			((ICollection<TechType>)knownTechPatcher.GetField("UnlockedAtStart", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null)).Remove(item);
+		}
+
+		public static void preventCraftNodeAddition(this TechType rec, CraftTree.Type tree = CraftTree.Type.Fabricator) {
+			SNUtil.log("Removing all prepared craft nodes for '" + rec.AsString() + "'");
+
+			IList li = (IList)craftTreePatcher.GetField("CraftingNodes", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null);
+
+			PropertyInfo ttP = craftingNode.GetProperty("TechType", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+			PropertyInfo pathP = craftingNode.BaseType.GetProperty("Path", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+			bool any = false;
+			for (int i = li.Count-1; i >= 0; i--) {
+				object o = li[i];
+				if (o == null)
+					continue;
+				TechType tt = (TechType)ttP.GetValue(o);
+				if (tt == rec) {
+					li.RemoveAt(i);
+					string[] path = (string[])pathP.GetValue(o);
+					if (path == null)
+						path = new string[0];
+					path = path.addToArray(tt.AsString());
+					SNUtil.log("Removing craft node "+o.ToString()+" @ "+string.Join("/", path));
+					CraftTreeHandler.RemoveNode(tree, path);
+					any = true;
+				}
+			}
+			if (!any) {
+				string nodelist = "";
+				foreach (object o in li) {
+					if (o == null)
+						continue;
+					TechType tt = (TechType)ttP.GetValue(o);
+					string[] path = (string[])pathP.GetValue(o);
+					if (path == null)
+						path = new string[0];
+					path = path.addToArray(tt.AsString());
+					nodelist += tt.AsString() + " @ " + string.Join("/", path)+"\n";
+				}
+				SNUtil.log("No craft nodes for '" + rec.AsString() + "' found! Queued Nodes:\n"+nodelist);
+			}
 		}
 
 	}
