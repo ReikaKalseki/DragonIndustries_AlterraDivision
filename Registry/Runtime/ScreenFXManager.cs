@@ -43,6 +43,8 @@ namespace ReikaKalseki.DIAlterra {
 		private readonly Dictionary<MonoBehaviour, ShaderPair> shaders = new Dictionary<MonoBehaviour, ShaderPair>();
 		private readonly List<ScreenFXOverride> effects = new List<ScreenFXOverride>();
 
+		public static bool disableShaders = false;
+
 		//private readonly Dictionary<MonoBehaviour, List<ScreenFXOverride>> activeOverrides = new Dictionary<MonoBehaviour, List<ScreenFXOverride>>();
 		//private readonly HashSet<MonoBehaviour> activeOverrides = new HashSet<MonoBehaviour>();
 
@@ -121,7 +123,7 @@ namespace ReikaKalseki.DIAlterra {
 					return;
 				}
 			}
-			if (!mainCamera || shaders.Count == 0)
+			if (!mainCamera || shaders.Count == 0 || disableShaders)
 				return;
 			foreach (ShaderPair sp in shaders.Values)
 				sp.overriddenThisTick = false;
