@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -66,14 +67,21 @@ namespace ReikaKalseki.DIAlterra {
 			XmlElement rootnode = doc.CreateElement("Root");
 			doc.AppendChild(rootnode);
 			foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {
+				if (!pi)
+					continue;
 				SaveHandler sh = getHandler(pi, false);
 				if (sh != null) {
-					if (debugSave)
-						SNUtil.log("Found " + sh + " save handler for " + pi.ClassId, SNUtil.diDLL);
-					sh.data = doc.CreateElement("object");
-					sh.data.SetAttribute("objectID", pi.Id);
-					sh.save(pi);
-					doc.DocumentElement.AppendChild(sh.data);
+					try {
+						if (debugSave)
+							SNUtil.log("Found " + sh + " save handler for " + pi.ClassId, SNUtil.diDLL);
+						sh.data = doc.CreateElement("object");
+						sh.data.SetAttribute("objectID", pi.Id);
+						sh.save(pi);
+						doc.DocumentElement.AppendChild(sh.data);
+					}
+					catch (Exception ex) {
+						SNUtil.writeToChat("Failed to save data for object " + pi.name+" ["+pi.ClassId+"]: "+ex.ToString());
+					}
 				}
 			}
 			XmlElement e = doc.CreateElement("player");
@@ -316,7 +324,8 @@ namespace ReikaKalseki.DIAlterra {
 				if (!com)
 					return;
 				foreach (string s in fields) {
-					object val = this.getField(s).GetValue(com);
+					MemberInfo m = this.getField(s);
+					object val = m is FieldInfo fi ? fi.GetValue(com) : ((PropertyInfo)m).GetValue(com);
 					SaveSystem.saveToXML(data, s, val);
 				}
 			}
@@ -326,13 +335,18 @@ namespace ReikaKalseki.DIAlterra {
 				if (!com)
 					return;
 				foreach (string s in fields) {
-					FieldInfo fi = this.getField(s);
+					MemberInfo fi = this.getField(s);
 					SaveSystem.setField(data, s, fi, com);
 				}
 			}
 
-			private FieldInfo getField(string s) {
-				return typeof(C).GetField(s, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+			private MemberInfo getField(string s) {
+				MemberInfo ret = typeof(C).GetField(s, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+				if (ret == null)
+					ret = typeof(C).GetProperty(s, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+				if (ret == null)
+					throw new Exception(typeof(C).Name + " has no field or property named '" + s + "'!");
+				return ret;
 			}
 
 			public override string ToString() {
