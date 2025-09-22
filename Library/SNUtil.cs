@@ -544,11 +544,11 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static bool isPlayerCured() {
-			return StoryGoalManager.main.completedGoals.Contains("Infection_Progress5");
+			return StoryGoalManager.main.completedGoals.Contains(StoryGoals.CURED);
 		}
 
 		public static bool isSunbeamExpected() {
-			return StoryGoalManager.main.IsGoalComplete("OnPlayRadioSunbeam4") && !StoryGoalManager.main.IsGoalComplete("PDASunbeamDestroyEventInRange") && !StoryGoalManager.main.IsGoalComplete("PDASunbeamDestroyEventOutOfRange");
+			return StoryGoalManager.main.IsGoalComplete(StoryGoals.getRadioPlayGoal(StoryGoals.SUNBEAM_TIMER_START)) && !StoryGoalManager.main.IsGoalComplete(StoryGoals.SUNBEAM_DESTROY_FAR) && !StoryGoalManager.main.IsGoalComplete(StoryGoals.SUNBEAM_DESTROY_NEAR);
 		}
 
 		public static void migrateSaveDataFolder(string oldSaveDir, string ext, string saveFileName) {
