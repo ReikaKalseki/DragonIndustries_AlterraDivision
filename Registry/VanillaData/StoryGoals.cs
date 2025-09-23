@@ -69,8 +69,8 @@ namespace ReikaKalseki.DIAlterra {
 		public const string PAUL_START_LOG = "IslandsPDABase1Interior";
 		public const string ISLAND_JELLYSHROOM_PDA = "IslandsPDAExterior";
 		public const string MAIDA_SEAMOTH_LOG = "JellyPDAExterior";
-		public const string FINAL_DEGASI_LOG = "";
-		public const string PAUL_DEATH_LOG = "DeepPDA3";
+		public const string FINAL_DEGASI_LOG = "DeepPDA3";
+		public const string PAUL_DEATH_LOG = "DeepPDA4";
 		public const string BART_DEATH_LOG = "IslandsPDABase1a";
 
 
