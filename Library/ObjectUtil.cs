@@ -330,11 +330,7 @@ namespace ReikaKalseki.DIAlterra {
 				string n = t.gameObject.name;
 				n = n.Replace("(Placeholder)", "");
 				n = n.Replace("(Clone)", "");
-				bool match = startWild && endWild
-					? n.Contains(seek)
-					: startWild
-						? n.EndsWith(seek, StringComparison.InvariantCulture)
-						: endWild ? n.StartsWith(seek, StringComparison.InvariantCulture) : n == seek;
+				bool match = startWild && endWild ? n.Contains(seek) : startWild ? n.EndsWith(seek, StringComparison.InvariantCulture) : endWild ? n.StartsWith(seek, StringComparison.InvariantCulture) : n == seek;
 				//SNUtil.writeToChat(seek+"&&"+n+" > "+match);
 				if (match) {
 					ret.Add(t.gameObject);
@@ -946,6 +942,8 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static void destroy(this UnityEngine.Object go, bool immediate = true, float delay = 0) {
+			if (debugMode)
+				SNUtil.log("Destroying "+go+" ("+(go is GameObject go2 ? go2.GetFullHierarchyPath() : go.GetType().Name)+") from\n"+SNUtil.getStacktrace(), SNUtil.diDLL);
 			if (immediate)
 				UnityEngine.Object.DestroyImmediate(go);
 			else

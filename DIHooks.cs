@@ -113,6 +113,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static event Action<SeaMoth> seamothDischargeEvent;
 		public static event Action<SinkingGroundChunk> spawnTreaderChunk;
 		public static event Action<Crash> crashfishExplodeEvent;
+		public static event Action<TargetabilityCheck> targetabilityEvent;
 
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 
@@ -767,6 +768,23 @@ namespace ReikaKalseki.DIAlterra {
 				craftingDuration = originalDuration;
 				recipe = tt;
 				crafter = c;
+			}
+
+		}
+
+		public class TargetabilityCheck {
+
+			public readonly bool originalValue;
+			public readonly Transform transform;
+			public readonly PrefabIdentifier prefab;
+
+			public bool allowTargeting;
+
+			internal TargetabilityCheck(bool orig, Transform obj, PrefabIdentifier pi) {
+				originalValue = orig;
+				transform = obj;
+				allowTargeting = orig;
+				prefab = pi;
 			}
 
 		}
@@ -1774,7 +1792,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static void updateCyclopsModules(SubRoot sm) {
-			if (onCyclopsModulesChangedEvent != null)
+			if (onCyclopsModulesChangedEvent != null && !sm.isBase)
 				onCyclopsModulesChangedEvent.Invoke(sm);
 		}
 
@@ -2821,6 +2839,19 @@ namespace ReikaKalseki.DIAlterra {
 		public static void onCrashfishExplode(Crash c) {
 			if (crashfishExplodeEvent != null)
 				crashfishExplodeEvent.Invoke(c);
+		}
+
+		public static bool checkTargetingSkip(bool orig, Transform obj) {
+			if (!obj || !obj.gameObject)
+				return orig;
+			PrefabIdentifier id = obj.gameObject.FindAncestor<PrefabIdentifier>();
+			if (!id)
+				return orig;
+			TargetabilityCheck calc = new TargetabilityCheck(!orig, obj, id);
+			if (targetabilityEvent != null)
+				targetabilityEvent.Invoke(calc);
+			//SNUtil.writeToChat("Crafting time adjusted to "+calc.craftingDuration.ToString("0.0")+"s from original "+calc.originalDuration.ToString("0.0")+"s");
+			return !calc.allowTargeting;
 		}
 
 		public static void onAuroraSpawn(CrashedShipExploder ex) {

@@ -20,6 +20,7 @@ namespace ReikaKalseki.DIAlterra {
 		public const string MAKE_CYCLOPS = "Goal_Cyclops";
 		public const string AURORA_FIX = "AuroraRadiationFixed";
 		public const string ROCKET_COMPLETE = "RocketComplete"; //added by DI
+		public const string LAUNCH_ROCKET = "???";
 
 		public const string POD12RADIO = "RadioKoosh26";
 		public const string POD12 = "Lifepod2";

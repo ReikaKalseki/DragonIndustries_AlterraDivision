@@ -3097,6 +3097,31 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}*/
 
+		[HarmonyPatch(typeof(Targeting))]
+		[HarmonyPatch("Skip")]
+		public static class ControllableTargetingBypass {
+
+			static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+				InsnList codes = new InsnList(instructions);
+				try {
+					codes.patchEveryReturnPre(injectHook);
+					FileLog.Log("Done patch " + MethodBase.GetCurrentMethod().DeclaringType);
+				}
+				catch (Exception e) {
+					FileLog.Log("Caught exception when running patch " + MethodBase.GetCurrentMethod().DeclaringType + "!");
+					FileLog.Log(e.Message);
+					FileLog.Log(e.StackTrace);
+					FileLog.Log(e.ToString());
+				}
+				return codes.AsEnumerable();
+			}
+
+			private static void injectHook(InsnList codes, int i) {
+				codes.Insert(i, InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "checkTargetingSkip", false, typeof(bool), typeof(Transform)));
+				codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+			}
+		}
+
 		static class PatchLib {
 
 			internal static void addEquipmentAllowedHook(InsnList codes, params CodeInstruction[] getItem) {

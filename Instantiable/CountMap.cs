@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+using JetBrains.Annotations;
+
 using ReikaKalseki.DIAlterra;
 
 using UnityEngine;
@@ -13,6 +15,8 @@ namespace ReikaKalseki.DIAlterra {
 	public sealed class CountMap<V> {
 
 		private readonly Dictionary<V, int> data = new Dictionary<V, int>();
+
+		public int this[V obj] { get { return getCount(obj); } }
 
 		public void add(V obj, int amt = 1) {
 			data[obj] = data.ContainsKey(obj) ? data[obj] + amt : amt;
