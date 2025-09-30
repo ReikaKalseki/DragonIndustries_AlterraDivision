@@ -3122,6 +3122,27 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
+		[HarmonyPatch(typeof(Constructable))]
+		[HarmonyPatch("Deconstruct")]
+		public static class DeconstructionRefundHook {
+
+			static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+				InsnList codes = new InsnList(instructions);
+				try {
+					int idx = codes.getInstruction(0, 0, OpCodes.Stloc_3);
+					codes.InsertRange(idx, new List<CodeInstruction> { new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall("ReikaKalseki.DIAlterra.DIHooks", "onRefundConstructableIngredient", false, typeof(Pickupable), typeof(Constructable)) });
+					FileLog.Log("Done patch " + MethodBase.GetCurrentMethod().DeclaringType);
+				}
+				catch (Exception e) {
+					FileLog.Log("Caught exception when running patch " + MethodBase.GetCurrentMethod().DeclaringType + "!");
+					FileLog.Log(e.Message);
+					FileLog.Log(e.StackTrace);
+					FileLog.Log(e.ToString());
+				}
+				return codes.AsEnumerable();
+			}
+		}
+
 		static class PatchLib {
 
 			internal static void addEquipmentAllowedHook(InsnList codes, params CodeInstruction[] getItem) {

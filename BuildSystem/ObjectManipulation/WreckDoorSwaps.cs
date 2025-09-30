@@ -30,59 +30,9 @@ namespace ReikaKalseki.DIAlterra {
 		private List<DoorSwap> swaps = new List<DoorSwap>();
 
 		public override void applyToObject(GameObject go) {
-			GameObject doors = go.getChildObject("Doors");
-			List<DoorSwap> unfound = new List<DoorSwap>();
-			foreach (DoorSwap d in swaps) {
-				bool found = false;
-				if (doors) {
-					foreach (Transform t in doors.transform) {
-						if (!t || !t.gameObject)
-							continue;
-						Vector3 pos = t.position;
-						//SNUtil.log("Checking door "+t.position);
-						if (Vector3.Distance(d.position, pos) <= 0.5) {
-							found = true;
-							d.applyTo(t.gameObject);
-						}
-					}
-				}
-				if (!found) {
-					unfound.Add(d);
-				}
-			}
-			if (unfound.Count > 0) {
-				SNUtil.log("Some door swaps found no easy match, checking all PIs " + unfound.toDebugString(), SNUtil.diDLL);
-				foreach (PrefabIdentifier pi in go.GetComponentsInChildren<PrefabIdentifier>(true)) {
-					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
-						for (int i = unfound.Count - 1; i >= 0; i--) {
-							DoorSwap d = unfound[i];
-							if (Vector3.Distance(d.position, pi.transform.position) <= 0.5) {
-								d.applyTo(pi.gameObject);
-								unfound.RemoveAt(i);
-							}
-						}
-						if (unfound.Count == 0)
-							break;
-					}
-				}
-			}
-			if (unfound.Count > 0) {
-				SNUtil.log("Some door swaps (" + unfound.Count + "/" + swaps.Count + ") for " + go.name + " @ " + go.transform.position + " found no match!! " + unfound.toDebugString(), SNUtil.diDLL);
-				string has = "Door candidates:\n";
-				if (doors) {
-					foreach (Transform t in doors.transform) {
-						if (t) {
-							has += t.name + " @ " + t.transform.position + "\n";
-						}
-					}
-				}
-				foreach (PrefabIdentifier pi in go.GetComponentsInChildren<PrefabIdentifier>()) {
-					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
-						has += pi.name + " [" + pi.ClassId + "] @ " + pi.transform.position + "\n";
-					}
-				}
-				SNUtil.log(has, SNUtil.diDLL);
-			}
+			WreckDoorSwapper sw = go.EnsureComponent<WreckDoorSwapper>();
+			sw.swaps = swaps;
+			sw.Invoke("applyDelayed", 2);
 		}
 
 		public override void applyToObject(PlacedObject go) {
@@ -114,8 +64,8 @@ namespace ReikaKalseki.DIAlterra {
 
 		public class DoorSwap {
 
-			internal readonly Vector3 position;
-			internal readonly string doorType;
+			public readonly Vector3 position;
+			public readonly string doorType;
 
 			internal static readonly Dictionary<string, string> doorPrefabs = new Dictionary<string, string>{
 				{"Blocked", "d79ab37f-23b6-42b9-958c-9a1f4fc64cfd"},
@@ -134,7 +84,7 @@ namespace ReikaKalseki.DIAlterra {
 			}
 
 			public void applyTo(GameObject go) {
-				//SNUtil.log("Matched to door "+go.transform.position+", converted to "+d.doorType, SNUtil.diDLL);
+				SNUtil.log("Matched to door "+go.transform.position+", converted to "+doorType, SNUtil.diDLL);
 				Transform par = go.transform.parent;
 				GameObject put = ObjectUtil.createWorldObject(doorPrefabs[doorType], true, true);
 				if (put == null) {
@@ -169,6 +119,107 @@ namespace ReikaKalseki.DIAlterra {
 
 
 
+		}
+
+		public static bool areWreckDoorSwapsPending(GameObject go) {
+			WreckDoorSwapper wr = go.GetComponent<WreckDoorSwapper>();
+			return wr && wr.swaps.Count > 0;
+		}
+
+		class WreckDoorSwapper : MonoBehaviour {
+			
+			internal List<DoorSwap> swaps = new List<DoorSwap>();
+
+			private void doSimpleSearch(GameObject doors, List<DoorSwap> unfound) {
+				foreach (DoorSwap d in swaps) {
+					bool found = false;
+					if (doors) {
+						foreach (Transform t in doors.transform) {
+							if (!t || !t.gameObject)
+								continue;
+							Vector3 pos = t.position;
+							//SNUtil.log("Checking door "+t.position);
+							if (Vector3.Distance(d.position, pos) <= 0.5) {
+								found = true;
+								d.applyTo(t.gameObject);
+							}
+						}
+					}
+					if (!found) {
+						unfound.Add(d);
+					}
+				}
+			}
+
+			private void doPrefabSearch(List<DoorSwap> unfound) {
+				foreach (PrefabIdentifier pi in GetComponentsInChildren<PrefabIdentifier>(true)) {
+					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
+						try {
+							for (int i = unfound.Count - 1; i >= 0; i--) {
+								DoorSwap d = unfound[i];
+								if (Vector3.Distance(d.position, pi.transform.position) <= 0.5) {
+									d.applyTo(pi.gameObject);
+									unfound.RemoveAt(i);
+									break;
+								}
+							}
+							if (unfound.Count == 0)
+								break;
+						}
+						catch (Exception e) {
+							SNUtil.log("Threw exception processing PI '"+pi+"': " + e);
+							throw e;
+						}
+					}
+				}
+			}
+
+			private void printCandidates(GameObject doors, List<DoorSwap> unfound) {
+				string has = "Door candidates:{\n";
+				if (doors) {
+					foreach (Transform t in doors.transform) {
+						if (t) {
+							has += "[DOOR] "+t.name + " @ " + t.transform.position + "\n";
+						}
+					}
+				}
+				foreach (PrefabIdentifier pi in GetComponentsInChildren<PrefabIdentifier>()) {
+					if (pi && (pi.ClassId == DOOR_FRAME || DoorSwap.doorPrefabIDs.Contains(pi.ClassId))) {
+						has += "[PREFAB] "+pi.name + " [" + pi.ClassId + "] @ " + pi.transform.position + "\n";
+					}
+				}
+				SNUtil.log(has, SNUtil.diDLL);
+				SNUtil.log("}\nTrying again in 2s", SNUtil.diDLL);
+			}
+
+			public void applyDelayed() {
+				GameObject doors = gameObject.getChildObject("Doors");
+				List<DoorSwap> unfound = new List<DoorSwap>();
+				try {
+					doSimpleSearch(doors, unfound);
+				}
+				catch (Exception e) {
+					SNUtil.log("Threw exception doing simple search: " + e);
+				}
+				if (unfound.Count > 0) {
+					SNUtil.log("Some door swaps in wreck @ " + transform.position + " found no easy match, checking all PIs\n" + unfound.toDebugString("\n"), SNUtil.diDLL);
+					try {
+						doPrefabSearch(unfound);
+					}
+					catch (Exception e) {
+						SNUtil.log("Threw exception processing PIs: "+e);
+					}
+				}
+				if (unfound.Count > 0) {
+					SNUtil.log("Some door swaps (" + unfound.Count + "/" + swaps.Count + ") for " + gameObject.name + " @ " + transform.position + " found no match!!\n" + unfound.toDebugString("\n"), SNUtil.diDLL);
+					printCandidates(doors, unfound);
+					Invoke("applyDelayed", 2);
+					swaps = unfound;
+				}
+				else {
+					this.destroy();
+				}
+			}
 		}
 
 	}

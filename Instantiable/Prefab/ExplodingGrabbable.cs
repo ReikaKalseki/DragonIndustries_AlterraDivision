@@ -69,7 +69,7 @@ namespace ReikaKalseki.DIAlterra {
 				//WorldUtil.spawnParticlesAt(transform.position, "", 1, true);
 				//SoundManager.playSound("event:/tools/gravsphere/explode");
 				GameObject sm = ObjectUtil.lookupPrefab("1c34945a-656d-4f70-bf86-8bc101a27eee");
-				GameObject fx = UnityEngine.Object.Instantiate(sm.GetComponent<SeaMoth>().destructionEffect);
+				GameObject fx = sm.GetComponent<SeaMoth>().destructionEffect.clone();
 				fx.transform.position = transform.position;
 				fx.transform.localScale = Vector3.one * 0.5F;
 				gameObject.destroy(false);

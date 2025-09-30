@@ -409,12 +409,12 @@ namespace ReikaKalseki.DIAlterra {
 			return "[" + string.Join(",", c.Select<object, string>(stringify).ToArray()) + "]";
 		}
 		*/
-		public static string toDebugString<K, V>(this IDictionary<K, V> dict) {
-			return dict.Count + ":{" + string.Join(",", dict.Select(kv => kv.Key + "=" + stringify(kv.Value)).ToArray()) + "}";//return toDebugString((IDictionary<object, object>)dict);
+		public static string toDebugString<K, V>(this IDictionary<K, V> dict, string separator = ",") {
+			return dict.Count + ":{" + string.Join(separator, dict.Select(kv => kv.Key + "=" + stringify(kv.Value)).ToArray()) + "}";//return toDebugString((IDictionary<object, object>)dict);
 		}
 
-		public static string toDebugString<E>(this IEnumerable<E> c) {
-			return c.Count() + ":[" + string.Join(",", c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
+		public static string toDebugString<E>(this IEnumerable<E> c, string separator = ",") {
+			return c.Count() + ":[" + string.Join(separator, c.Select<E, string>(e => stringify(e)).ToArray()) + "]";//return toDebugString((IEnumerable<object>)c);
 		}
 
 		public static E pop<E>(this IList<E> c) {

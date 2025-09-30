@@ -2392,8 +2392,14 @@ namespace ReikaKalseki.DIAlterra {
 					HandReticle.main.SetIcon(HandReticle.IconType.Progress, 1f);
 				}
 				else {
-					HandReticle.main.SetInteractText(lgc.getErrorHover().ensureNonNull()); //locale key
-					HandReticle.main.SetIcon(HandReticle.IconType.HandDeny, 1f);
+					string err = lgc.getErrorHover();
+					if (string.IsNullOrEmpty(err)) {
+						HandReticle.main.SetIcon(HandReticle.IconType.Interact, 1f);
+					}
+					else {
+						HandReticle.main.SetIcon(HandReticle.IconType.HandDeny, 1f);
+						HandReticle.main.SetInteractText(err); //locale key
+					}
 				}
 			}
 			if (storageHoverEvent != null)
@@ -2852,6 +2858,13 @@ namespace ReikaKalseki.DIAlterra {
 				targetabilityEvent.Invoke(calc);
 			//SNUtil.writeToChat("Crafting time adjusted to "+calc.craftingDuration.ToString("0.0")+"s from original "+calc.originalDuration.ToString("0.0")+"s");
 			return !calc.allowTargeting;
+		}
+
+		public static Pickupable onRefundConstructableIngredient(Pickupable pp, Constructable c) {
+			Battery b = pp.GetComponent<Battery>();
+			if (b)
+				b.charge = 0;
+			return pp;
 		}
 
 		public static void onAuroraSpawn(CrashedShipExploder ex) {

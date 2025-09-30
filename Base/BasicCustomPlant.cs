@@ -261,7 +261,7 @@ namespace ReikaKalseki.DIAlterra {
 			grow.enabled = true;
 			
 			bool active = grow.grownModelPrefab.active;
-			grow.grownModelPrefab = UnityEngine.Object.Instantiate(grow.grownModelPrefab);
+			grow.grownModelPrefab = grow.grownModelPrefab.clone();
 			grow.grownModelPrefab.SetActive(active);
 			ObjectUtil.convertTemplateObject(grow.grownModelPrefab, plant);
 			grow.grownModelPrefab.SetActive(true); //FIXME does not work

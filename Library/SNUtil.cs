@@ -512,7 +512,7 @@ namespace ReikaKalseki.DIAlterra {
 			if (!uGUI_PDA.main)
 				return null;
 			GameObject go = uGUI_PDA.main.gameObject.getChildObject("Content/PingManagerTab/Content/ButtonAll");
-			GameObject go2 = UnityEngine.Object.Instantiate(go);
+			GameObject go2 = go.clone();
 			Transform t = uGUI_PDA.main.transform;
 			if (tab) {
 				GameObject content = tab.gameObject.getChildObject("Content");

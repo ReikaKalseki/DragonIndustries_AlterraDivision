@@ -392,7 +392,7 @@ namespace ReikaKalseki.DIAlterra {
 				go.EnsureComponent<TechTag>().type = TechType;
 				go.EnsureComponent<LargeWorldEntity>().cellLevel = pfb.GetComponent<LargeWorldEntity>().cellLevel;
 				Animation a = pfb.GetComponentInChildren<Animation>();
-				GameObject mdl = UnityEngine.Object.Instantiate(a.gameObject);
+				GameObject mdl = a.gameObject.clone();
 				mdl.transform.SetParent(go.transform);
 				mdl.transform.localRotation = Quaternion.identity;
 				mdl.transform.localPosition = new Vector3(0, 0.36F, 0.02F);
@@ -422,7 +422,7 @@ namespace ReikaKalseki.DIAlterra {
 				go.EnsureComponent<TechTag>().type = TechType;
 				go.EnsureComponent<LargeWorldEntity>().cellLevel = pfb.GetComponent<LargeWorldEntity>().cellLevel;
 				Animation a = pfb.GetComponentInChildren<Animation>();
-				GameObject mdl = UnityEngine.Object.Instantiate(a.gameObject);
+				GameObject mdl = a.gameObject.clone();
 				mdl.transform.SetParent(go.transform);
 				mdl.transform.localRotation = Quaternion.identity;
 				mdl.transform.localPosition = new Vector3(0, 0.36F, 0.02F);

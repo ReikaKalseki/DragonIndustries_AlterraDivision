@@ -78,7 +78,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static void addItem(TechType tt) {
-			GameObject obj = UnityEngine.Object.Instantiate(ObjectUtil.lookupPrefab(tt));
+			GameObject obj = ObjectUtil.lookupPrefab(tt).clone();
 			if (!obj) {
 				SNUtil.writeToChat("Could not spawn item " + tt + ", no prefab");
 				return;

@@ -477,7 +477,7 @@ batch_id = (19, 17, 16)
 
 		public static StasisSphere createStasisSphere(Vector3 pos, float r, float pwr = 1) {
 			GameObject sph = ObjectUtil.lookupPrefab(TechType.StasisRifle).GetComponent<StasisRifle>().effectSpherePrefab;
-			sph = UnityEngine.Object.Instantiate(sph);
+			sph = sph.clone();
 			sph.SetActive(true);
 			sph.fullyEnable();
 			sph.transform.position = pos;

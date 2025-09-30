@@ -39,6 +39,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static readonly UnknownBiome UNRECOGNIZED = new UnknownBiome();
 
 		public readonly string displayName;
+		public readonly string mainID;
 		public readonly float sceneryValue;
 		private readonly HashSet<string> internalNames = new HashSet<string>();
 
@@ -59,6 +60,7 @@ namespace ReikaKalseki.DIAlterra {
 		protected BiomeBase(string d, float deco, params string[] ids) {
 			sceneryValue = deco;
 			displayName = d;
+			mainID = ids.Length == 0 ? null : ids[0];
 			foreach (string id in ids)
 				registerID(this, id);
 			biomeList.Add(this);

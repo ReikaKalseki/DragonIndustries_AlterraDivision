@@ -77,12 +77,12 @@ namespace ReikaKalseki.DIAlterra {
 				if (!barrier)
 					barrier = this.GetComponentInChildren<PrecursorDoorway>();
 				if (!terminal) {
-					terminal = UnityEngine.Object.Instantiate(ObjectUtil.lookupPrefab("c718547d-fe06-4247-86d0-efd1e3747af0")).GetComponent<PrecursorKeyTerminal>();
+					terminal = ObjectUtil.createWorldObject("c718547d-fe06-4247-86d0-efd1e3747af0").GetComponent<PrecursorKeyTerminal>();
 					terminal.transform.SetParent(transform);
 					doorColor.applyToObject(terminal);
 				}
 				if (!barrier) {
-					barrier = UnityEngine.Object.Instantiate(ObjectUtil.lookupPrefab("d26276ab-0c29-4642-bcb8-1a5f8ee42cb2")).GetComponent<PrecursorDoorway>();
+					barrier = ObjectUtil.createWorldObject("d26276ab-0c29-4642-bcb8-1a5f8ee42cb2").GetComponent<PrecursorDoorway>();
 					barrier.transform.SetParent(transform);
 				}
 				if (!terminal || !barrier)

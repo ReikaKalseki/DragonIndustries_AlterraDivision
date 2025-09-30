@@ -445,7 +445,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		private static GameObject createWorldObject(GameObject prefab, bool clone, bool makeActive) {
-			GameObject go = clone ? UnityEngine.Object.Instantiate(prefab) : prefab;
+			GameObject go = clone ? prefab.clone() : prefab;
 			if (go) {
 				go.SetActive(makeActive);
 				return go;
@@ -454,6 +454,14 @@ namespace ReikaKalseki.DIAlterra {
 				SNUtil.writeToChat("Prefab found and placed but resulted in null?!");
 				return null;
 			}
+		}
+
+		public static O clone<O>(this O go) where O : UnityEngine.Object {
+			return UnityEngine.Object.Instantiate(go);
+		}
+
+		public static O clone<O>(this O go, Vector3 pos, Quaternion rot) where O : UnityEngine.Object {
+			return UnityEngine.Object.Instantiate(go, pos, rot);
 		}
 
 		public static GameObject getItem(this TechType tt) {
@@ -466,7 +474,7 @@ namespace ReikaKalseki.DIAlterra {
 				default:
 					break;
 			}
-			GameObject pfb = UnityEngine.Object.Instantiate(lookupPrefab(seek));
+			GameObject pfb = lookupPrefab(seek).clone();
 			pfb.SetActive(false);
 			if (seek != tt) {
 				Pickupable pp = pfb.GetComponentInChildren<Pickupable>();
@@ -581,7 +589,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static GameObject getBasePiece(Base.PieceDef piece, bool clone = true) {
 			GameObject go = piece.prefab.gameObject;
 			if (clone) {
-				go = UnityEngine.Object.Instantiate(go);
+				go = go.clone();
 				go.SetActive(true);
 			}
 			return go;
@@ -635,7 +643,7 @@ namespace ReikaKalseki.DIAlterra {
 			GameObject world = null;
 			if (pfb is Craftable c && false) {
 				world = getItemGO(c, pfb.baseTemplate.getPrefabID());
-				world = UnityEngine.Object.Instantiate(world);
+				world = world.clone();
 			}
 			else {
 				world = createWorldObject(pfb.baseTemplate.getPrefabID(), true, false);

@@ -27,6 +27,8 @@ namespace ReikaKalseki.DIAlterra {
 		public float glowIntensity { get; set; }
 		public StringPrefabContainer baseTemplate { get; set; }
 
+		//public string storageLabel { get; private set; }
+
 		protected CustomMachine(string id, string name, string desc, string template) : base(id, name, desc) {
 			ownerMod = SNUtil.tryGetModDLL();
 			typeof(ModPrefab).GetField("Mod", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, ownerMod);
@@ -74,12 +76,13 @@ namespace ReikaKalseki.DIAlterra {
 			return false;
 		}
 
-		protected void initializeStorageContainer(StorageContainer con, int w, int h, string label = null) {
+		protected void initializeStorageContainer(StorageContainer con, int w, int h/*, string label = null*/) {
 			con.storageRoot.ClassId = ClassID.ToLowerInvariant() + "container";
-			if (string.IsNullOrEmpty(label))
-				label = FriendlyName;
-			con.hoverText = "Use " + label;
-			con.storageLabel = label.ToUpperInvariant();
+			//if (string.IsNullOrEmpty(label))
+			//	label = FriendlyName;
+			//storageLabel = label;
+			con.hoverText = "Use " + FriendlyName;
+			con.storageLabel = FriendlyName.ToUpperInvariant();
 			con.container.containerType = ItemsContainerType.Default;
 			con.enabled = true;
 			con.Resize(w, h);
@@ -327,7 +330,12 @@ namespace ReikaKalseki.DIAlterra {
 						this.findClosestSub();
 					}
 				}
-			}
+			}/*
+			if (storage && this is DiscreteOperationalMachineLogic lgc) {
+				string err = lgc.getErrorHover();
+				//storage.hoverText = string.IsNullOrEmpty(err) ? "Use "+prefab.FriendlyName : err;
+				//storage.enabled = string.IsNullOrEmpty(err);
+			}*/
 		}
 
 		private void tryGetPrefab() {
@@ -421,6 +429,8 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		protected void setEmissiveColor(Color c, int matIdx = 0, float cooldown = -1) {
+			if (mainRenderers == null)
+				return;
 			foreach (Renderer r in mainRenderers)
 				this.setEmissiveColor(r, c, matIdx, cooldown);
 		}

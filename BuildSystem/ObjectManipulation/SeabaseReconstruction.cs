@@ -172,7 +172,7 @@ namespace ReikaKalseki.DIAlterra {
 									int amt = e3.getInt("amount", 1);
 									string slot = e3.getProperty("slot", true);
 									for (int i = 0; i < amt; i++) {
-										GameObject igo2 = UnityEngine.Object.Instantiate(igo);
+										GameObject igo2 = igo.clone();
 										igo2.SetActive(false);
 										Pickupable pp = igo2.GetComponent<Pickupable>();
 										pp.SetTechTypeOverride(tt, true);

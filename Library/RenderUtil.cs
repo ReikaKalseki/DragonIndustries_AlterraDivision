@@ -219,7 +219,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static GameObject setModel(this GameObject go, string localModelName, GameObject modelObj) { //FIXME duplicate models
 			go.removeChildObject(localModelName);
-			modelObj = UnityEngine.Object.Instantiate(modelObj).setName(localModelName);
+			modelObj = modelObj.clone().setName(localModelName);
 			modelObj.transform.parent = go.transform;
 			modelObj.transform.localPosition = Vector3.zero;
 			modelObj.transform.localEulerAngles = Vector3.zero;
