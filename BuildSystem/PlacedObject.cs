@@ -337,6 +337,9 @@ namespace ReikaKalseki.DIAlterra {
 			else if (isPDA) {
 				//SNUtil.setPDAPage(obj.EnsureComponent<StoryHandTarget>(), page);
 			}
+			else if (isWreck) {
+				//obj.EnsureComponent<WreckDataLoader>();
+			}
 			else if (isBasePiece) {
 				//SNUtil
 			}

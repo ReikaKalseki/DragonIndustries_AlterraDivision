@@ -19,6 +19,7 @@ namespace ReikaKalseki.DIAlterra {
 		private static readonly Dictionary<TechType, TechGroup> techGroupData = new Dictionary<TechType, TechGroup>();
 		private static readonly Dictionary<TechType, TechCategory> techCatData = new Dictionary<TechType, TechCategory>();
 		private static readonly Dictionary<TechType, Dictionary<TechType, int>> originalRecipes = new Dictionary<TechType, Dictionary<TechType, int>>();
+		internal static readonly Dictionary<TechType, ProgressionTrigger> techsToRemoveIf = new Dictionary<TechType, ProgressionTrigger>();
 
 		private static bool shouldLogChanges = false;
 

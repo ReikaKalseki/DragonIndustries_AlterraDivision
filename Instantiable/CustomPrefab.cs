@@ -8,6 +8,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -46,6 +47,7 @@ namespace ReikaKalseki.DIAlterra {
 		public bool isFragment { get; private set; }
 		public bool isDatabox { get; private set; }
 		public bool isPDA { get; private set; }
+		public bool isWreck { get; private set; }
 		public bool isO2Pipe { get; private set; }
 
 		public ModifiedObjectPrefab customPrefab { get; private set; }
@@ -106,6 +108,10 @@ namespace ReikaKalseki.DIAlterra {
 					mb.applyToObject(go);
 				}
 			};
+		}
+
+		public ReadOnlyCollection<M> getManipulations<M>() where M : ManipulationBase {
+			return manipulations.Where(m => m is M).Cast<M>().ToList().AsReadOnly();
 		}
 
 		public override GameObject createWorldObject() {
@@ -176,6 +182,12 @@ namespace ReikaKalseki.DIAlterra {
 				prefabName = page.getPDAClassID();
 				SNUtil.log("Redirected customprefab to pda " + prefabName, SNUtil.diDLL);
 			}
+			else if (prefabName == "wreck") {
+				isWreck = true;
+				string template = e.getProperty("template");
+				prefabName = template;
+				SNUtil.log("Redirected customprefab to wreck " + prefabName, SNUtil.diDLL);
+			}
 			else if (prefabName == "basePart") {
 				isBasePiece = true;
 				prefabName = e.getProperty("piece");
@@ -206,6 +218,8 @@ namespace ReikaKalseki.DIAlterra {
 			if (li.Count == 1) {
 				ModifiedObjectPrefab mod = getManipulatedObject(li[0], this);
 				if (mod != null) {
+					mod.originalPrefab = prefabName;
+					mod.prefabSource = this;
 					prefabName = mod.ClassID;
 					tech = mod.TechType;
 				}
@@ -301,20 +315,31 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
+		internal void prepareGameObject(ModifiedObjectPrefab mod, GameObject go) {
+			if (isWreck) {
+				//go.EnsureComponent<WreckDataLoader>().
+			}
+		}
 	}
 
 	public class ModifiedObjectPrefab : GenUtil.CustomPrefabImpl {
 
 		private readonly List<ManipulationBase> mods = new List<ManipulationBase>();
 
+		public string originalPrefab { get; internal set; }
+		public CustomPrefab prefabSource { get; internal set; }
+
 		internal ModifiedObjectPrefab(string key, string template, List<ManipulationBase> li) : base(key, template) {
 			mods = li;
 		}
 
 		public override sealed void prepareGameObject(GameObject go, Renderer[] r) {
+			SNUtil.log("Restoring manipulations on modified prefab " + originalPrefab+":\n"+mods.toDebugString("\n"));
 			foreach (ManipulationBase mb in mods) {
 				mb.applyToObject(go);
 			}
+			if (prefabSource != null)
+				prefabSource.prepareGameObject(this, go);
 		}
 
 		public override string ToString() {

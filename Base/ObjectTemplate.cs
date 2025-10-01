@@ -23,6 +23,15 @@ namespace ReikaKalseki.DIAlterra {
 
 		}
 
+		public string xmlString {
+			get {
+				XmlDocument doc = new XmlDocument();
+				XmlElement e = doc.CreateElement(getTagName());
+				saveToXML(e);
+				return e.OuterXml;
+			}
+		}
+
 		public abstract void loadFromXML(XmlElement e);
 		public abstract void saveToXML(XmlElement e);
 

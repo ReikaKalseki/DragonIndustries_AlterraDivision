@@ -138,14 +138,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public int getCount(string classID, Vector3? near = null, float dist = -1) {
-			int ret = 0;
-			foreach (PositionedPrefab pfb in objects) {
-				if (pfb.prefabName == classID || classID == "*") {
-					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
-						ret++;
-				}
-			}
-			return ret;
+			return getPositions(classID, near, dist).Count;
 		}
 
 		public int getCount<G>(Vector3? near = null, float dist = -1) where G : WorldGenerator {
@@ -162,12 +155,24 @@ namespace ReikaKalseki.DIAlterra {
 		public List<PositionedPrefab> getPositions(string classID, Vector3? near = null, float dist = -1) {
 			List<PositionedPrefab> ret = new List<PositionedPrefab>();
 			foreach (PositionedPrefab pfb in objects) {
-				if (pfb.prefabName == classID) {
+				if (pfb.prefabName == classID || classID == "*") {
 					if (dist < 0 || near == null || !near.HasValue || Vector3.Distance(near.Value, pfb.position) <= dist)
 						ret.Add(pfb);
 				}
 			}
+			if (ret.Count == 0) {
+				SNUtil.log("Found no prefabs of ID '" + classID + "' during a search! All prefabs:\n"+objects.toDebugString("\n"));
+			}
 			return ret;
+		}
+
+		public PositionedPrefab getByID(string id) {
+			foreach (PositionedPrefab pfb in objects) {
+				if (pfb.getXMLID() == id) {
+					return pfb;
+				}
+			}
+			return null;
 		}
 	}
 }

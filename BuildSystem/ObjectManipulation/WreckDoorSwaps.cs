@@ -33,6 +33,7 @@ namespace ReikaKalseki.DIAlterra {
 			WreckDoorSwapper sw = go.EnsureComponent<WreckDoorSwapper>();
 			sw.swaps = swaps;
 			sw.Invoke("applyDelayed", 2);
+			SNUtil.log("Queuing door swaps " + swaps.toDebugString("\n")+" on wreck "+go.name+" @ "+go.transform.position);
 		}
 
 		public override void applyToObject(PlacedObject go) {
@@ -212,11 +213,17 @@ namespace ReikaKalseki.DIAlterra {
 				}
 				if (unfound.Count > 0) {
 					SNUtil.log("Some door swaps (" + unfound.Count + "/" + swaps.Count + ") for " + gameObject.name + " @ " + transform.position + " found no match!!\n" + unfound.toDebugString("\n"), SNUtil.diDLL);
-					printCandidates(doors, unfound);
+					try {
+						printCandidates(doors, unfound);
+					}
+					catch (Exception e) {
+						SNUtil.log("Threw exception printing candidates: " + e);
+					}
 					Invoke("applyDelayed", 2);
 					swaps = unfound;
 				}
 				else {
+					SNUtil.log("Door swaps completed in "+ gameObject.name + " @ " + transform.position);
 					this.destroy();
 				}
 			}

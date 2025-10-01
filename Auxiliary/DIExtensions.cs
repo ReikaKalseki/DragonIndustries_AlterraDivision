@@ -529,9 +529,11 @@ namespace ReikaKalseki.DIAlterra {
 			return (IDictionary<TechType, E>)from.GetField(name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null);
 		}
 
-		public static void removeUnlockTrigger(this TechType item) {
+		public static void removeUnlockTrigger(this TechType item, ProgressionTrigger checkToDisable = null) {
 			KnownTechHandler.Main.RemoveAllCurrentAnalysisTechEntry(item);
 			((ICollection<TechType>)knownTechPatcher.GetField("UnlockedAtStart", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null)).Remove(item);
+			if (checkToDisable != null)
+				RecipeUtil.techsToRemoveIf[item] = checkToDisable;
 		}
 
 		public static void preventCraftNodeAddition(this TechType rec, CraftTree.Type tree = CraftTree.Type.Fabricator) {

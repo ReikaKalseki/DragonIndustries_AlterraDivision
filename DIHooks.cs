@@ -837,6 +837,11 @@ namespace ReikaKalseki.DIAlterra {
 			foreach (CustomBiome cb in BiomeBase.getCustomBiomes())
 				cb.onLoad();
 
+			foreach (KeyValuePair<TechType, ProgressionTrigger> kvp in RecipeUtil.techsToRemoveIf) {
+				if (!kvp.Value.isReady(Player.main))
+					KnownTech.Remove(kvp.Key);
+			}
+
 			/*
     		SNUtil.log("Item goals:", SNUtil.diDLL);
 	    	foreach (Story.ItemGoal g in Story.StoryGoalManager.main.itemGoalTracker.goals)
@@ -2175,6 +2180,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static void onReaperGrabVehicle(ReaperLeviathan r, Vehicle v) {
+			StoryGoal.Execute("ReaperGrab", Story.GoalType.Story);
 			if (reaperGrabVehicleEvent != null) {
 				reaperGrabVehicleEvent.Invoke(r, v);
 			}
