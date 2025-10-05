@@ -5,6 +5,7 @@ using System.IO;    //For data read/write methods
 using System.Linq;   //More advanced manipulation of lists/collections
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 using HarmonyLib;
 
@@ -12,6 +13,9 @@ using UnityEngine;
 
 namespace ReikaKalseki.DIAlterra {
 	public static class InstructionHandlers {
+
+		public static bool dumpIL = false;
+
 		public static long getIntFromOpcode(CodeInstruction ci) {
 			switch (ci.opcode.Name) {
 				case "ldc.i4.m1":
@@ -153,7 +157,7 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			}
-			throw new Exception("Instruction not found: " + opcode + " #" + string.Join(",", args) + "\nInstruction list:\n" + toString(li));
+			throw new Exception("Instruction not found: " + opcode + " #" + string.Join(",", args) + "\nInstruction list:\n" + li.clearString());
 		}
 
 		public static int getMethodCallByName(this InsnList li, int start, int index, string owner, string name) {
@@ -181,7 +185,7 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			}
-			throw new Exception("Method call not found: " + owner + "::" + name + "\nInstruction list:\n" + toString(li));
+			throw new Exception("Method call not found: " + owner + "::" + name + "\nInstruction list:\n" + li.clearString());
 		}
 
 		public static int getFirstOpcode(InsnList li, int after, OpCode opcode) {
@@ -191,7 +195,7 @@ namespace ReikaKalseki.DIAlterra {
 					return i;
 				}
 			}
-			throw new Exception("Instruction not found: " + opcode + "\nInstruction list:\n" + toString(li));
+			throw new Exception("Instruction not found: " + opcode + "\nInstruction list:\n" + li.clearString());
 		}
 
 		public static int getLastOpcodeBefore(this InsnList li, int before, OpCode opcode) {
@@ -203,7 +207,7 @@ namespace ReikaKalseki.DIAlterra {
 					return i;
 				}
 			}
-			throw new Exception("Instruction not found: " + opcode + "\nInstruction list:\n" + toString(li));
+			throw new Exception("Instruction not found: " + opcode + "\nInstruction list:\n" + li.clearString());
 		}
 
 		public static int getLastInstructionBefore(this InsnList li, int before, OpCode opcode, params object[] args) {
@@ -215,7 +219,7 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			}
-			throw new Exception("Instruction not found: " + opcode + " #" + string.Join(",", args) + "\nInstruction list:\n" + toString(li));
+			throw new Exception("Instruction not found: " + opcode + " #" + string.Join(",", args) + "\nInstruction list:\n" + li.clearString());
 		}
 
 		public static bool match(CodeInstruction a, CodeInstruction b) {
@@ -272,15 +276,7 @@ namespace ReikaKalseki.DIAlterra {
 			return true;
 		}
 
-		public static string toString(InsnList li) {
-			return "\n" + String.Join("\n", li.Select(p => toString(p)).ToArray());
-		}
-
-		public static string toString(InsnList li, int idx) {
-			return idx < 0 || idx >= li.Count ? "ERROR: OOB " + idx + "/" + li.Count : "#" + Convert.ToString(idx, 16) + " = " + toString(li[idx]);
-		}
-
-		public static string toString(CodeInstruction ci) {
+		public static string clearString(this CodeInstruction ci) {
 			return ci.opcode.Name + " " + toOperandString(ci.opcode, ci.operand);
 		}
 
@@ -319,9 +315,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static MethodInfo getAnyMethod(this Type t, string name) { //do not remove, useful for debug!
 			try {
-				return string.IsNullOrEmpty(name)
-					? throw new Exception("You cannot get a method of no name!")
-					: t.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+				return string.IsNullOrEmpty(name) ? throw new Exception("You cannot get a method of no name!") : t.GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 			}
 			catch (Exception ex) {
 				throw new Exception("Failed to find '" + t.Name + "::" + name + "'", ex);
@@ -335,8 +329,10 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static void runPatchesIn(Harmony h, Type parent) {
 			FileLog.logPath = Path.Combine(Path.GetDirectoryName(parent.Assembly.Location), "harmony-log.txt");
-			SNUtil.log("Running harmony patches in " + parent.Assembly.GetName().Name + "::" + parent.Name);
-			FileLog.Log("Running harmony patches in " + parent.Assembly.GetName().Name + "::" + parent.Name);
+			string ilDumpFolder = getILDumpFolder();
+			string msg = "Running harmony patches in " + parent.Assembly.GetName().Name + "::" + parent.Name;
+			SNUtil.log(msg);
+			FileLog.Log(msg);
 			foreach (Type t in parent.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)) {
 				FileLog.Log("Running harmony patches in " + t.Name);
 				h.PatchAll(t);
@@ -396,6 +392,16 @@ namespace ReikaKalseki.DIAlterra {
 			}
 		}
 
+		public static string getILDumpFolder() {
+			return Path.Combine(Path.GetDirectoryName(SNUtil.diDLL.Location), "original-il");
+		}
+
+		public static void dumpMethodIL(IEnumerable<CodeInstruction> li, string id) {
+			string file = Path.Combine(getILDumpFolder(), id+".txt");
+			Directory.CreateDirectory(Path.GetDirectoryName(file));
+			File.WriteAllText(file, li.ToList().clearString());
+		}
+
 		public static IEnumerable<MethodInfo> getMethods(this Type t) {
 			return t.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 		}
@@ -414,6 +420,74 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static string fullClearName(this Type t) {
 			return t == null ? "NULL" : t.FullName + " in " + t.Assembly.GetName().Name + " @ " + t.Assembly.Location;
+		}
+
+		public static void logPatchStart(MethodBase patch, IEnumerable<CodeInstruction> orig) {
+			if (dumpIL) {
+				Attribute[] attrs = System.Attribute.GetCustomAttributes(patch.DeclaringType);
+				try {
+					Type t = null;
+					string name = null;
+					foreach (Attribute a in attrs) {
+						if (a is HarmonyPatch ha) {
+							if (ha.info.declaringType != null)
+								t = ha.info.declaringType;
+							if (ha.info.methodName != null)
+								name = ha.info.methodName;
+						}
+					}
+					if (t == null)
+						throw new Exception("No target type");
+					if (string.IsNullOrEmpty(name))
+						throw new Exception("No target name");
+					string id = t.Name+"--"+name;
+					dumpMethodIL(orig, id);
+				}
+				catch (Exception e) {
+					SNUtil.log("Threw exception dumping patch '" + patch.DeclaringType.Name + "' [" + attrs.toDebugString("\n") + "] IL: " + e);
+				}
+			}
+			FileLog.Log("Starting patch " + patch.DeclaringType);
+		}
+
+		public static void logCompletedPatch(MethodBase patch, IEnumerable<CodeInstruction> orig) {/*
+			if (dumpIL) {
+				Attribute[] attrs = System.Attribute.GetCustomAttributes(patch.DeclaringType);
+				try {
+					Type t = null;
+					string name = null;
+					foreach (Attribute a in attrs) {
+						if (a is HarmonyPatch ha) {
+							if (ha.info.declaringType != null)
+								t = ha.info.declaringType;
+							if (ha.info.methodName != null)
+								name = ha.info.methodName;
+						}
+					}
+					if (t == null)
+						throw new Exception("No target type");
+					if (string.IsNullOrEmpty(name))
+						throw new Exception("No target name");
+					string id = t.Name+"--"+name;
+					dumpMethodIL(orig, id);
+				}
+				catch (Exception e) {
+					SNUtil.log("Threw exception dumping patch '"+patch.DeclaringType.Name+"' ["+ attrs.toDebugString("\n") + "] IL: "+e);
+				}
+			}*/
+			FileLog.Log("Done patch " + patch.DeclaringType);
+		}
+
+		public static void logErroredPatch(MethodBase patch) {
+			FileLog.Log("Caught exception when running patch " + patch.DeclaringType + "!");
+		}
+
+		public static string clearString(this List<CodeInstruction> li) {
+			return "\n" + String.Join("\n", li.Select(p => p.clearString()).ToArray());
+		}
+
+		public static string clearString(this List<CodeInstruction> li, int idx) {
+			return idx < 0 || idx >= li.Count ? "ERROR: OOB " + idx + "/" + li.Count : "#" + Convert.ToString(idx, 16) + " = " + li[idx].clearString();
 		}
 	}
 

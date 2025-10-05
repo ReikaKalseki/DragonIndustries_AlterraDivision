@@ -39,6 +39,7 @@ namespace ReikaKalseki.SeaToSea {
 		public TechType eggBase = TechType.None;
 		public float eggScale = 1;
 		public float eggMaturationTime = 2400;
+		public float acuSizeScale = 1;
 		public bool bigEgg = true;
 		public float eggSpawnRate = 0;
 		public readonly List<BiomeType> eggSpawns = new List<BiomeType>();
@@ -59,7 +60,11 @@ namespace ReikaKalseki.SeaToSea {
 					SNUtil.addPDAEntry(this, scanTime, locale.getField<string>("category"), locale.pda, locale.getField<string>("header"), null);
 
 				if (eggBase != TechType.None)
-					CustomEgg.createAndRegisterEgg(this, eggBase, eggScale, Description, bigEgg, e => { e.eggProperties.growingPeriod = eggMaturationTime; }, eggSpawnRate, eggSpawns.ToArray());
+					CustomEgg.createAndRegisterEgg(this, eggBase, eggScale, Description, bigEgg, e => {
+						e.eggProperties.growingPeriod = eggMaturationTime;
+						e.eggProperties.initialSize *= acuSizeScale;
+						e.eggProperties.maxSize *= acuSizeScale;
+					}, eggSpawnRate, eggSpawns.ToArray());
 
 				//GenUtil.registerSlotWorldgen(ClassID, PrefabFileName, TechType, EntitySlot.Type.Creature, LargeWorldEntity.CellLevel.Medium, BiomeType.SeaTreaderPath_OpenDeep_CreatureOnly, 1, 0.15F);
 				//GenUtil.registerSlotWorldgen(ClassID, PrefabFileName, TechType, EntitySlot.Type.Medium, LargeWorldEntity.CellLevel.Medium, BiomeType.GrandReef_TreaderPath, 1, 0.3F);

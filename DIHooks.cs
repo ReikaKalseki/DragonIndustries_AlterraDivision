@@ -2475,6 +2475,8 @@ namespace ReikaKalseki.DIAlterra {
 				return false;
 			if (name.Contains("biodome"))
 				return false;
+			if (name.Contains("door") || name.Contains("starship_wires") || name.Contains("starship_exploded_debris"))
+				return false;
 			if (name.Contains("life_pod") || name.Contains("lifepod"))
 				return false;
 			if (name.Contains("precursor") && (name.Contains("room") || name.Contains("base")))
@@ -2482,6 +2484,8 @@ namespace ReikaKalseki.DIAlterra {
 			if (target.gameObject.isFossilPrefab())
 				return false;
 			if (c.GetComponentInParent<Player>() || c.GetComponentInParent<Vehicle>())
+				return false;
+			if (c.GetComponentInParent<WreckHandler>())
 				return false;
 			if (ch.addToTargetList)
 				s.targets.Add(target);
@@ -2498,6 +2502,8 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static void onStasisUnfreeze(StasisSphere s, Rigidbody target) {
 			if (!target)
+				return;
+			if (target.GetComponent<WreckHandler>())
 				return;
 			StasisEffectCheck ch = new StasisEffectCheck(s, target);
 			if (onStasisRifleUnfreezeEvent != null)

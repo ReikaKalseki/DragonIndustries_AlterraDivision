@@ -89,7 +89,8 @@ namespace ReikaKalseki.DIAlterra {
 				SNUtil.writeToChat("Could not add " + Language.main.Get(tt) + " to inventory - no Pickupable");
 				return;
 			}
-			Inventory.main.ForcePickup(pp);
+			if (!Inventory.main.ForcePickup(pp))
+				SoundManager.playSound("event:/env/keypad_wrong");
 		}
 		/*
 		public static bool removeItem(ItemsContainer sc, InventoryItem ii) {

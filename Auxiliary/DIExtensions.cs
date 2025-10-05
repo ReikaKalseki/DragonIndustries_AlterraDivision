@@ -459,6 +459,8 @@ namespace ReikaKalseki.DIAlterra {
 				return "dict:" + ((IDictionary<object, object>)obj).toDebugString();
 			else if (obj.isEnumerable())
 				return "enumerable:" + ((IEnumerable<object>)obj).toDebugString();
+			else if (obj is Attribute ar)
+				return "attr '"+ar.GetType().Name+"'";
 			return obj.ToString();
 		}
 

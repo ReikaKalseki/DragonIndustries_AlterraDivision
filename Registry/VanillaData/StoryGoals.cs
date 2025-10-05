@@ -25,7 +25,7 @@ namespace ReikaKalseki.DIAlterra {
 		public const string POD12RADIO = "RadioKoosh26";
 		public const string POD12 = "Lifepod2";
 
-		public const string POD6RADIO = "RadioShallows22";
+		public const string POD6RADIO = "RadioShallows22"; //RadioShallows22NoSignalAltDatabank
 		public const string POD6A = "LifepodCrashZone1";
 		public const string POD6B = "LifepodCrashZone2";
 
@@ -41,14 +41,14 @@ namespace ReikaKalseki.DIAlterra {
 		public const string POD13RADIO = "RadioMushroom24";
 		public const string POD13 = "Lifepod4"; //khasar
 
-		public const string POD7RADIO = "RadioKelp28";
+		public const string POD7RADIO = "RadioKelp28"; //RadioKelp28NoSignalAltDatabank
 		public const string POD7 = "LifepodRandom";
 
 		public const string POD19RADIO = "RadioSecondOfficer"; //keen
 		public const string POD19AUDIO = "LifepodKeenDialog";
 		public const string POD19RENDEZVOUS = "LifepodKeenLog";
 
-		public const string POD4RADIO = "RadioRadiationSuit";
+		public const string POD4RADIO = "RadioRadiationSuit"; //RadioRadiationSuitNoSignalAltDatabank
 		public const string POD4 = "LifepodDecoy";
 
 		public const string ISLAND_RENDEZVOUS = "RendezvousFloatingIsland";
