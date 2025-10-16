@@ -291,21 +291,23 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static int removeChildObject(this GameObject go, string name, bool immediate = true) {
 			GameObject find = getChildObject(go, name);
-			int found = 0;
+			HashSet<int> removed = new HashSet<int>();
 			while (go && find) {
 				find.SetActive(false);
+				removed.Add(find.GetInstanceID());
 				if (immediate)
 					find.destroy();
 				else
 					find.destroy(false);
 				find = getChildObject(go, name);
-				found++;
-				if (found > 500) {
-					SNUtil.log("REMOVING CHILD OBJECT STUCK IN INFINITE LOOP INSIDE " + go.GetFullHierarchyPath() + "!");
-					return found;
+				if (find && removed.Contains(find.GetInstanceID()))
+					find = null;
+				if (removed.Count > 500) {
+					SNUtil.log("REMOVING CHILD OBJECT STUCK IN INFINITE LOOP INSIDE " + find.GetFullHierarchyPath() + "!");
+					return removed.Count;
 				}
 			}
-			return found;
+			return removed.Count;
 		}
 
 		public static List<GameObject> getChildObjects(this GameObject go) {

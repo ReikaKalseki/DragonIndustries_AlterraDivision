@@ -1144,8 +1144,10 @@ namespace ReikaKalseki.DIAlterra {
 				if (pi)
 					tt = CraftData.entClassTechTable[pi.ClassId];
 			}
-			if (tt != TechType.None)
+			if (tt != TechType.None) {
 				TechnologyUnlockSystem.instance.triggerDirectUnlock(tt);
+				FirstObtainmentSystem.instance.onPickup(tt);
+			}
 			/*
 	    	foreach (Renderer r in p.gameObject.GetComponentsInChildren<Renderer>()) {
 				foreach (Material m in r.materials) {
@@ -1620,9 +1622,10 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static void onConstructionComplete(Constructable c, bool finished) {
-			if (finished)
+			if (finished) {
 				TechnologyUnlockSystem.instance.triggerDirectUnlock(c.techType);
-
+				FirstObtainmentSystem.instance.onPickup(c.techType);
+			}
 
 			CustomMachineLogic lgc = c.GetComponent<CustomMachineLogic>();
 			if (lgc)
@@ -2485,9 +2488,9 @@ namespace ReikaKalseki.DIAlterra {
 	   }*/
 
 		public static bool onStasisFreeze(StasisSphere s, Collider c, ref Rigidbody target) {
-			CustomMachineLogic m = c.gameObject.FindAncestor<CustomMachineLogic>();
+			StasisReactant m = c.gameObject.GetComponentInParent<StasisReactant>();
 			//SNUtil.writeToChat("Stasis hit "+c+": "+m);
-			if (m)
+			if (m != null && m as MonoBehaviour)
 				m.onStasisHit(s);
 			target = c.GetComponentInParent<Rigidbody>();
 			if (!target)
@@ -2527,6 +2530,14 @@ namespace ReikaKalseki.DIAlterra {
 				FMODUWE.PlayOneShot(s.soundEnter, s.tr.position, 1f);
 			}
 			return !target.isKinematic;
+		}
+
+		public interface StasisReactant {
+
+			/// <summary>
+			/// this is called every frame!
+			/// </summary>
+			void onStasisHit(StasisSphere s);
 		}
 
 		public static void onStasisUnfreeze(StasisSphere s, Rigidbody target) {

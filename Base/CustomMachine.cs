@@ -462,11 +462,6 @@ namespace ReikaKalseki.DIAlterra {
 
 		}
 
-		///This is called every frame
-		public virtual void onStasisHit(StasisSphere s) {
-
-		}
-
 		public virtual void onConstructedChanged(bool finished) {
 
 		}
