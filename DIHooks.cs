@@ -2127,6 +2127,7 @@ namespace ReikaKalseki.DIAlterra {
 				}
 				float gen = eff * DayNightCycle.main.deltaTime * 0.25f * 5f;
 				SubRoot sub = p.gameObject.FindAncestor<SubRoot>();
+				//SNUtil.writeToChat("Solar panel adding "+gen.ToString("0.0000")+" energy to "+(sub ? sub.name+" ("+sub.powerRelay.internalPowerSource + "/"+sub.powerRelay.inboundPowerSources.toDebugString()+")" : "self"));
 				if (sub) {
 					sub.powerRelay.AddEnergy(gen, out float trash);
 				}
@@ -2137,9 +2138,37 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static bool addPowerToSeabaseDelegate(IPowerInterface pi, float amount, out float stored, MonoBehaviour component) {
-			SubRoot sub = component.gameObject.FindAncestor<SubRoot>();
+			PowerSourceBaseReference pref = component.GetComponent<PowerSourceBaseReference>();
+			SubRoot sub = pref ? pref.sub : null;
+			//SNUtil.writeToChat(component+" adding " + amount.ToString("0.0000")+" energy to "+(sub ? sub.name+" ("+sub.powerRelay.internalPowerSource + "/"+sub.powerRelay.inboundPowerSources.toDebugString()+")" : "self"));
 			return sub ? sub.powerRelay.AddEnergy(amount, out stored) : pi.AddEnergy(amount, out stored);
 		}
+
+		public static void linkPowerRelayToBase(PowerRelay pr, IPowerInterface ipf) {
+			if (ipf is MonoBehaviour mb) {
+				PowerSourceBaseReference pbr = mb.gameObject.EnsureComponent<PowerSourceBaseReference>();
+				pbr.target = pr;
+				if (pr is BasePowerRelay bpr)
+					pbr.sub = bpr.subRoot;
+			}
+		}
+
+
+		internal class PowerSourceBaseReference : MonoBehaviour {
+
+			internal SubRoot sub;
+			internal PowerRelay target;
+
+			void Update() {
+				if (!sub && target) {
+					PowerSourceBaseReference pref = target.GetComponent<PowerSourceBaseReference>();
+					if (pref)
+						sub = pref.sub;
+				}
+			}
+
+		}
+
 		/*
 	    public static string getBiomeToUseForMusic(string biome, MusicManager mgr) {
 	    	if (musicBiomeChoiceEvent != null) {

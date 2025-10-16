@@ -45,7 +45,7 @@ namespace ReikaKalseki.DIAlterra {
 			//public readonly string text;
 			public readonly string category;
 
-			private string text;
+			public string text { get; private set; }
 
 			private readonly PDAEncyclopedia.EntryData pageData = new PDAEncyclopedia.EntryData();
 
@@ -106,10 +106,6 @@ namespace ReikaKalseki.DIAlterra {
 				prefabID.Patch();
 			}
 
-			public string getText() {
-				return text;
-			}
-
 			public void append(string s, bool force = false) {
 				text += s;
 				this.injectString(force);
@@ -120,6 +116,11 @@ namespace ReikaKalseki.DIAlterra {
 					return;
 				this.text = text;
 				this.injectString(force, allowNotification);
+			}
+
+			public void format(bool force = false, bool allowNotification = true, params object[] args) {
+				//SNUtil.log("Formatting " + this + " with " + args.toDebugString());
+				update(string.Format(text, args), force, allowNotification);
 			}
 
 			public void setPlaceholderValues(string template, Dictionary<string, object> values, bool force = false, bool allowNotification = true) {
