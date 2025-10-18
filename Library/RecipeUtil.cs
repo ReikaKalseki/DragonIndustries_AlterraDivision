@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 using ReikaKalseki.DIAlterra;
 
@@ -315,7 +316,10 @@ namespace ReikaKalseki.DIAlterra {
 		public static List<Ingredient> buildRecipeList(List<PlannedIngredient> li) {
 			List<Ingredient> ret = new List<Ingredient>();
 			foreach (PlannedIngredient p in li) {
-				ret.Add(new Ingredient(p.item.getTechType(), p.amount));
+				TechType tt = p.item.getTechType();
+				if (tt == TechType.None)
+					throw new Exception("Failed building recipe - null item " + p.item);
+				ret.Add(new Ingredient(tt, p.amount));
 			}
 			return ret;
 		}

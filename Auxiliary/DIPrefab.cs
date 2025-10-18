@@ -106,6 +106,10 @@ namespace ReikaKalseki.DIAlterra {
 			return prefab.TechType;
 		}
 
+		public override string ToString() {
+			return "ModPrefab "+prefab;
+		}
+
 	}
 
 	public sealed class TechTypeContainer : TechTypeReference {
@@ -118,6 +122,10 @@ namespace ReikaKalseki.DIAlterra {
 
 		public TechType getTechType() {
 			return tech;
+		}
+
+		public override string ToString() {
+			return "Tech "+tech.AsString();
 		}
 
 	}
