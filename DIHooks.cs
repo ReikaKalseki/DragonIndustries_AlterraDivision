@@ -132,6 +132,11 @@ namespace ReikaKalseki.DIAlterra {
 
 		private static readonly List<Pickupable> collectedItemsToDestroy = new List<Pickupable>();
 
+		private static GameObject teleportWithPlayer;
+		private static PropulsionCannon activePropulsionGun;
+		private static Vector3 relativeGrabPosition;
+		private static int selectedSlot;
+
 		static DIHooks() {
 			SNUtil.log("Initializing DIHooks");
 
@@ -2932,11 +2937,6 @@ namespace ReikaKalseki.DIAlterra {
 			}
 
 		}
-
-		private static GameObject teleportWithPlayer;
-		private static PropulsionCannon activePropulsionGun;
-		private static Vector3 relativeGrabPosition;
-		private static int selectedSlot;
 
 		private static void startTeleport() {
 			if (!Player.main.GetVehicle() && !Player.main.currentSub) {
