@@ -201,7 +201,36 @@ namespace ReikaKalseki.DIAlterra {
 			//ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string, string, string>>("exec", DebugExec.run);
 			ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("vehicleToMe", bringVehicleToPlayer);
 			ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("savePhysProps", PhysicsSettlingProp.export);
+			ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<string>>("dumpPrefabs", dumpPrefabsOfType);
 			ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<float, string>>("deleteNear", deletePrefabNear);
+			ConsoleCommandsHandler.Main.RegisterConsoleCommand<Action<bool>>("fullbright", setFullbright);
+		}
+
+		public static void setFullbright(bool on) {
+			if (on) {
+				Light l = Player.main.gameObject.addLight();
+				l.intensity = 0.5F;
+				l.range = 2500F;
+				l.color = Color.white;
+				l.gameObject.name = "FullbrightLight";
+			}
+			else {
+				Player.main.gameObject.removeChildObject("FullbrightLight");
+			}
+			foreach (WaterscapeVolume waterscapeVolume in UnityEngine.Object.FindObjectsOfType<WaterscapeVolume>()) {
+				waterscapeVolume.enabled = !on;
+			}
+		}
+
+		private static void dumpPrefabsOfType(string id) {
+			List<PositionedPrefab> li = new List<PositionedPrefab>();
+			foreach (PrefabIdentifier pi in UnityEngine.Object.FindObjectsOfType<PrefabIdentifier>()) {
+				if (pi && pi.ClassId == id) {
+					li.Add(new PositionedPrefab(pi));
+				}
+			}
+			string file = BuildingHandler.instance.dumpPrefabs(id, li);
+			SNUtil.writeToChat("Exported " + li.Count + " prefabs of id '" + id + "' to " + file);
 		}
 
 		private static void deletePrefabNear(float r, string id) {

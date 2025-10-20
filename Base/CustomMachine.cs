@@ -226,14 +226,18 @@ namespace ReikaKalseki.DIAlterra {
 
 	public abstract class CustomMachineLogic : MonoBehaviour {
 
+		public static bool logPowerConsume = false;
+
 		public static float powerCostFactor = 1;
 
 		public static event Action<CustomMachinePowerCostFactorCheck> getMachinePowerCostFactorEvent;
 
-		internal Buildable prefab;
+		public Buildable prefab { get; internal set; }
 		public Constructable buildable { get; private set; }
 		public SubRoot sub { get; private set; }
 		public StorageContainer storage { get; private set; }
+
+		public float lastTickDelta { get; private set; }
 
 		private float lastUpdateTime = -1;
 		private float lastDayTime = -1;
@@ -306,9 +310,9 @@ namespace ReikaKalseki.DIAlterra {
 				mainRenderers = this.findRenderers();
 			if (spawnTime <= 0)
 				spawnTime = time;
-			float delta = time-lastUpdateTime;
-			if (delta > 0 && delta >= this.getTickRate()) {
-				this.updateEntity(delta);
+			lastTickDelta = time-lastUpdateTime;
+			if (lastTickDelta > 0 && lastTickDelta >= this.getTickRate()) {
+				this.updateEntity(lastTickDelta);
 				lastUpdateTime = time;
 			}
 			if (time - lastDayTime >= 5)
@@ -370,23 +374,28 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		protected bool consumePower(float amt) {
-			//SNUtil.writeToChat("Wanted "+amt+" from "+sub);
+			if (logPowerConsume)
+				SNUtil.log(this+" attempting to draw "+amt+" power (=="+(amt/ lastTickDelta).ToString("0.00")+"/s) from "+sub);
 			if (!buildable || !buildable.constructed)
 				return false;
 			if (!sub)
 				return false;
 			if (!GameModeUtils.RequiresPower())
 				return true;
-			//SNUtil.writeToChat(sc+" > "+amt);
 			if (amt > 0) {
-				amt *= this.getPowerCostFactor();
+				float f = this.getPowerCostFactor();
+				amt *= f;
 				sub.powerRelay.ConsumeEnergy(amt, out powerConsumedLastAttempt);
-				//SNUtil.writeToChat("Got "+lastReceived);
+				if (logPowerConsume)
+					SNUtil.log("Power cost multiplied by "+f+", and was attempted; "+ powerConsumedLastAttempt+" was drained");
 				if (amt - powerConsumedLastAttempt > 0.001) {
-					//SNUtil.log("Refunding "+lastReceived+" power which was less than requested "+amt);
+					if (logPowerConsume)
+						SNUtil.log("Refunding "+ powerConsumedLastAttempt + " power which was less than requested "+amt);
 					sub.powerRelay.AddEnergy(powerConsumedLastAttempt, out float trash); //refund
 				}
 				else {
+					if (logPowerConsume)
+						SNUtil.log("Power drain successful");
 					return true;
 				}
 			}
