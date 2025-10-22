@@ -185,6 +185,10 @@ namespace ReikaKalseki.DIAlterra {
 
 			internal static SpawnedItemEvent parseLegacy(string s) {
 				string[] parts = s.Split(',');
+				if (parts.Length != 2) {
+					SNUtil.log("Error parsing legacy item spawn event '" + s + "'");
+					return null;
+				}
 				SpawnedItemEvent e = new SpawnedItemEvent(SNUtil.getTechType(parts[0]), int.Parse(parts[1]));
 				if (parts.Length >= 4) {
 					e.classID = parts[2];
