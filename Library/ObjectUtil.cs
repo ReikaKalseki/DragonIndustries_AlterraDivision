@@ -969,6 +969,12 @@ namespace ReikaKalseki.DIAlterra {
 			go.gameObject.name = name;
 			return go;
 		}
+
+		public static GameObject createAirBubble() {
+			GameObject coral = lookupPrefab(VanillaFlora.BRAIN_CORAL.getPrefabID());
+			IntermittentInstantiate ii = coral.GetComponent<IntermittentInstantiate>();
+			return ii.prefab.clone();
+		}
 	}
 
 	public enum FoodCategory {

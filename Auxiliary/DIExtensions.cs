@@ -117,6 +117,10 @@ namespace ReikaKalseki.DIAlterra {
 			return new Vector3(Mathf.Pow(c.x, exp), Mathf.Pow(c.y, exp), Mathf.Pow(c.z, exp));
 		}
 
+		public static Vector3 modulo(this Vector3 c, float size) {
+			return new Vector3((c.x%size+size) % size, (c.y%size + size) % size, (c.z%size + size) % size);
+		}
+
 		public static Color asColor(this Vector4 c) {
 			return new Color(c.x, c.y, c.z, c.w);
 		}
@@ -225,17 +229,13 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static double getFloat(this XmlElement xml, string name, double fallback) {
 			string s = xml.getProperty(name, true);
-			return string.IsNullOrEmpty(s)
-				? double.IsNaN(fallback) ? throw new Exception("No matching tag '" + name + "'! " + xml.format()) : fallback
-				: double.Parse(xml.getProperty(name), CultureInfo.InvariantCulture);
+			return string.IsNullOrEmpty(s) ? double.IsNaN(fallback) ? throw new Exception("No matching tag '" + name + "'! " + xml.format()) : fallback : double.Parse(xml.getProperty(name), CultureInfo.InvariantCulture);
 		}
 
 		public static int getInt(this XmlElement xml, string name, int fallback, bool allowFallback = true) {
 			string s = xml.getProperty(name, allowFallback);
 			bool nul = string.IsNullOrEmpty(s);
-			return nul && !allowFallback
-				? throw new Exception("No matching tag '" + name + "'! " + xml.format())
-				: nul ? fallback : int.Parse(s, CultureInfo.InvariantCulture);
+			return nul && !allowFallback ? throw new Exception("No matching tag '" + name + "'! " + xml.format()) : nul ? fallback : int.Parse(s, CultureInfo.InvariantCulture);
 		}
 
 		public static bool getBoolean(this XmlElement xml, string name) {
@@ -423,6 +423,12 @@ namespace ReikaKalseki.DIAlterra {
 			return ret;
 		}
 
+		public static E getRandomEntry<E>(this IEnumerable<E> c) {
+			//if (c is IList<E> li)
+			//	return li[UnityEngine.Random.Range(0, li.Count)];
+			return c.ElementAt(UnityEngine.Random.Range(0, c.Count()));
+		}
+
 		public static Vector3 getClosest(this IEnumerable<Vector3> li, Vector3 pos) {
 			Vector3 ret = Vector3.zero;
 			float distSq = float.PositiveInfinity;
@@ -500,6 +506,12 @@ namespace ReikaKalseki.DIAlterra {
 			a.StopAttack();
 			a.currentTarget = null;
 			a.lastTarget.SetTarget(null);
+		}
+
+		public static VehicleAccelerationModifier addSpeedModifier(this Vehicle v) {
+			VehicleAccelerationModifier ret = v.gameObject.AddComponent<VehicleAccelerationModifier>();
+			v.accelerationModifiers = v.GetComponentsInChildren<VehicleAccelerationModifier>();
+			return ret;
 		}
 
 		private static readonly Type craftDataPatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.CraftDataPatcher");
