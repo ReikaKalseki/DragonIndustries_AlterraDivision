@@ -120,16 +120,13 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public abstract bool isCaveBiome();
+		public abstract bool isVoidBiome();
 		public abstract bool existsInSeveralPlaces();
 
 		public abstract bool isInBiome(Vector3 pos);
 
 		public int CompareTo(BiomeBase ro) {
-			return this is VanillaBiomes && ro is VanillaBiomes
-				? VanillaBiomes.compare((VanillaBiomes)this, (VanillaBiomes)ro)
-				: this is VanillaBiomes
-					? -1
-					: ro is VanillaBiomes ? 1 : String.Compare(displayName, ro.displayName, StringComparison.InvariantCultureIgnoreCase);
+			return this is VanillaBiomes && ro is VanillaBiomes ? VanillaBiomes.compare((VanillaBiomes)this, (VanillaBiomes)ro) : this is VanillaBiomes ? -1 : ro is VanillaBiomes ? 1 : String.Compare(displayName, ro.displayName, StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 
@@ -144,6 +141,10 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public override bool existsInSeveralPlaces() {
+			return false;
+		}
+
+		public override bool isVoidBiome() {
 			return false;
 		}
 

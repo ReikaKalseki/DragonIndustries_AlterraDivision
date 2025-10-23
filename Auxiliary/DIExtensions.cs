@@ -519,6 +519,18 @@ namespace ReikaKalseki.DIAlterra {
 		private static readonly Type craftTreePatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.CraftTreePatcher");
 		private static readonly Type craftingNode = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Crafting.CraftingNode");
 
+		public static TechType getEgg(this TechType creature) {
+			if (creature == TechType.None)
+				return TechType.None;
+			CustomEgg e = CustomEgg.getEgg(creature);	
+			if (e != null)
+				return e.TechType;
+			string name = creature.AsString();
+			if (Enum.TryParse(name + "Egg", true, out TechType ret))
+				return ret;
+			return TechType.None;
+		}
+
 		public static TechType getCookedCounterpart(this TechType raw) {
 			if (CraftData.cookedCreatureList.ContainsKey(raw))
 				return CraftData.cookedCreatureList[raw];

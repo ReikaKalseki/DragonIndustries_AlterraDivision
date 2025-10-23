@@ -970,6 +970,20 @@ namespace ReikaKalseki.DIAlterra {
 			return go;
 		}
 
+		public static bool isAncestorOf(this GameObject go, GameObject obj) {
+			Transform t = obj.transform;
+			while (t) {
+				if (t.gameObject == go)
+					return true;
+				t = t.parent;
+			}
+			return false;
+		}
+
+		public static bool isAncestorOf<C>(this GameObject go, C obj) where C : Component {
+			return go.isAncestorOf(obj.gameObject);
+		}
+
 		public static GameObject createAirBubble() {
 			GameObject coral = lookupPrefab(VanillaFlora.BRAIN_CORAL.getPrefabID());
 			IntermittentInstantiate ii = coral.GetComponent<IntermittentInstantiate>();

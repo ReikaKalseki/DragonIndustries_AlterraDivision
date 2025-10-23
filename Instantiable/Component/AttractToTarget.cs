@@ -17,12 +17,12 @@ namespace ReikaKalseki.DIAlterra {
 
 	public class AttractToTarget : MonoBehaviour {
 
-		public static AttractToTarget attractCreatureToTarget(Creature c, MonoBehaviour obj, bool isHorn) {
+		public static AttractToTarget attractCreatureToTarget(Creature c, MonoBehaviour obj, bool isHorn, float maxDuration = 20) {
 			if (obj is BaseRoot)
 				obj = obj.GetComponentsInChildren<BaseCell>().GetRandom().GetComponent<LiveMixin>();
 			AttractToTarget ac = c.gameObject.EnsureComponent<AttractToTarget>();
 			//SNUtil.writeToChat("Attracted "+c+" @ "+c.transform.position+" to "+obj+" @ "+obj.transform.position);
-			ac.fire(obj, isHorn);
+			ac.fire(obj, isHorn, maxDuration);
 			if (c is Reefback && isHorn)
 				SoundManager.playSoundAt(c.GetComponent<FMOD_CustomLoopingEmitter>().asset, c.transform.position, false, -1, 1);
 			return ac;
@@ -38,15 +38,25 @@ namespace ReikaKalseki.DIAlterra {
 		private LastTarget targeter;
 		private MeleeAttack[] attacks;
 		private AggressiveWhenSeeTarget[] targeting;
+		private AttackLastTarget attacker;
 
 		private float lastTick;
 
+		public bool deleteOnAttack;
+
 		private float delete;
 
-		private void fire(MonoBehaviour from, bool horn) {
+		private void fire(MonoBehaviour from, bool horn, float maxDuration = 20) {
 			target = from;
 			isHorn |= horn;
-			delete = Mathf.Max(delete, DayNightCycle.main.timePassedAsFloat + 20);
+			delete = Mathf.Max(delete, DayNightCycle.main.timePassedAsFloat + maxDuration);
+		}
+
+		public void OnMeleeAttack(GameObject target) {
+			if (target && target.isAncestorOf(this.target) && deleteOnAttack) {
+				this.setTarget(null);
+				this.destroy();
+			}
 		}
 
 		void Update() {
@@ -64,11 +74,32 @@ namespace ReikaKalseki.DIAlterra {
 				attacks = this.GetComponents<MeleeAttack>();
 			if (targeting == null)
 				targeting = this.GetComponents<AggressiveWhenSeeTarget>();
+			if (attacker == null)
+				attacker = this.GetComponent<AttackLastTarget>();
 
 			float time = DayNightCycle.main.timePassedAsFloat;
 			if (time >= delete) {
 				this.destroy();
 				return;
+			}
+
+			if (target.isPlayer()) {
+				if (Player.main.currentSub) {
+					target = Player.main.currentSub;
+				}
+				else {
+					Vehicle v = Player.main.GetVehicle();
+					if (v)
+						target = v;
+				}
+			}
+
+			if (target is AggroAttractor aa) {
+				if (!aa.isAggroable) {
+					setTarget(null);
+					this.destroy();
+					return;
+				}
 			}
 
 			if (time - lastTick <= 0.5)
@@ -82,17 +113,15 @@ namespace ReikaKalseki.DIAlterra {
 				return;
 			}
 
-			if (target is SubRoot && !(cyclopsAttacker && cyclopsAttacker.isActiveAndEnabled))
+			if (target is SubRoot && !(cyclopsAttacker && cyclopsAttacker.isActiveAndEnabled)) {
+				this.destroy();
 				return;
+			}
 
 			if (Vector3.Distance(transform.position, target.transform.position) >= 40)
 				swimmer.SwimTo(target.transform.position, 10);
 
-			owner.Aggression.Add(isHorn ? 0.5F : 0.05F);
-			if (cyclopsAttacker)
-				cyclopsAttacker.SetCurrentTarget(target.gameObject, false);
-			if (targeter)
-				targeter.SetTarget(target.gameObject);
+			owner.Aggression.Add(deleteOnAttack && delete-time > 1000 ? 1 : (isHorn ? 0.5F : 0.05F));
 			if (owner is CrabSnake cs) {
 				if (cs.IsInMushroom()) {
 					cs.ExitMushroom(target.transform.position);
@@ -100,15 +129,32 @@ namespace ReikaKalseki.DIAlterra {
 			}
 			//if (leash)
 			//	leash.
+			setTarget(target.gameObject);
+		}
+
+		private void setTarget(GameObject go) {
+			if (cyclopsAttacker)
+				cyclopsAttacker.SetCurrentTarget(go, false);
+			if (targeter) {
+				targeter.SetTarget(go);
+				if (delete - DayNightCycle.main.timePassedAsFloat > 1000 && deleteOnAttack)
+					targeter.SetLockedTarget(go);
+			}
+			if (attacker)
+				attacker.currentTarget = go;
 			foreach (MeleeAttack a in attacks)
-				a.lastTarget.SetTarget(target.gameObject);
+				a.lastTarget.SetTarget(go);
 			foreach (AggressiveWhenSeeTarget a in targeting)
-				a.lastTarget.SetTarget(target.gameObject);
+				a.lastTarget.SetTarget(go);
 		}
 
 		public bool isTargeting(GameObject go) {
 			return target.gameObject == go;
 		}
 
+	}
+
+	public interface AggroAttractor {
+		bool isAggroable { get; }
 	}
 }

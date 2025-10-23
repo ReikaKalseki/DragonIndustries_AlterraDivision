@@ -54,6 +54,10 @@ namespace ReikaKalseki.DIAlterra {
 			return this == SHALLOWS || this == KELP || this == REDGRASS || this == MUSHROOM;
 		}
 
+		public override bool isVoidBiome() {
+			return this == VOID;
+		}
+
 		public override bool isInBiome(Vector3 pos) {
 			return BiomeBase.getBiome(pos) == this;
 		}

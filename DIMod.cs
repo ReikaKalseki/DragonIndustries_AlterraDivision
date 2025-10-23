@@ -78,7 +78,7 @@ namespace ReikaKalseki.DIAlterra {
 
 			KnownTech.onAdd += (tt, vb) => TechUnlockTracker.instance.onUnlock(tt);
 
-			CustomEgg spineEel = createEgg(TechType.SpineEel, TechType.BonesharkEgg, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground).modifyGO(e =>
+			CustomEgg spineEel = createEgg(TechType.SpineEel, TechType.BoneShark, 1, "SpineEelDesc", true, 0.16F, 4, 0.5F, BiomeType.BonesField_Ground, BiomeType.LostRiverJunction_Ground).modifyGO(e =>
 			{
 				List<Renderer> li = new List<Renderer>();
 				foreach (Renderer r in e.GetComponentsInChildren<Renderer>()) {
@@ -107,10 +107,10 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			});
-			createEgg(TechType.GhostRayBlue, TechType.JumperEgg, 1.75F, "GhostRayDesc", true, 0.12F, 2, 0.75F, BiomeType.TreeCove_LakeFloor);
-			createEgg(TechType.GhostRayRed, TechType.CrabsnakeEgg, 1.25F, "CrimsonRayDesc", true, 0.6F, 2, 0.8F, BiomeType.InactiveLavaZone_Chamber_Floor_Far);
-			createEgg(TechType.Biter, TechType.RabbitrayEgg, 1F, "BiterDesc", false, 0.6F, 2, 1, BiomeType.GrassyPlateaus_CaveFloor, BiomeType.Mountains_CaveFloor);
-			createEgg(TechType.Blighter, TechType.RabbitrayEgg, 1F, "BlighterDesc", false, 0.6F, 2, 1, BiomeType.BloodKelp_CaveFloor);
+			createEgg(TechType.GhostRayBlue, TechType.Jumper, 1.75F, "GhostRayDesc", true, 0.12F, 2, 0.75F, BiomeType.TreeCove_LakeFloor);
+			createEgg(TechType.GhostRayRed, TechType.Crabsnake, 1.25F, "CrimsonRayDesc", true, 0.6F, 2, 0.8F, BiomeType.InactiveLavaZone_Chamber_Floor_Far);
+			createEgg(TechType.Biter, TechType.RabbitRay, 1F, "BiterDesc", false, 0.6F, 2, 1, BiomeType.GrassyPlateaus_CaveFloor, BiomeType.Mountains_CaveFloor);
+			createEgg(TechType.Blighter, TechType.RabbitRay, 1F, "BlighterDesc", false, 0.6F, 2, 1, BiomeType.BloodKelp_CaveFloor);
 			GenUtil.registerSlotWorldgen("b5d6cf1a-7d42-45f2-a0f3-0e05ff707502", "WorldEntities/Eggs/JumperEgg.prefab", TechType.JumperEgg, EntitySlot.Type.Small, LargeWorldEntity.CellLevel.Medium, BiomeType.Kelp_CaveFloor, 1, 0.36F);
 
 			/*

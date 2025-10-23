@@ -48,11 +48,13 @@ namespace ReikaKalseki.DIAlterra {
 			ownerMod = a != null ? a : SNUtil.tryGetModDLL();
 
 			creatureToSpawn = c;
-			template = t;
+			template = t.getEgg();
+			if (template == TechType.None)
+				throw new Exception("Failed to find egg for creature techtype " + t.AsString());
 
 			creatureID = id;
 
-			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[eggSize >= 2 ? TechType.BoneShark : TechType.RabbitRay];
+			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[t];
 			eggProperties = new WaterParkCreatureParameters(wpp.initialSize, wpp.maxSize, wpp.outsideSize, wpp.growingPeriod, wpp.isPickupableOutside);
 
 			OnFinishedPatching += this.onPatched;
@@ -74,7 +76,7 @@ namespace ReikaKalseki.DIAlterra {
 
 			//WaterParkCreatureData data = ScriptableObject.CreateInstance<WaterParkCreatureData>();
 
-			SNUtil.log("Constructed custom egg for " + creatureID + ": " + TechType, ownerMod);
+			SNUtil.log("Constructed custom egg for " + creatureID + ": " + TechType.AsString(), ownerMod);
 		}
 
 		public override Vector2int SizeInInventory {
@@ -161,5 +163,8 @@ namespace ReikaKalseki.DIAlterra {
 				GenUtil.registerSlotWorldgen(egg.ClassID, egg.PrefabFileName, egg.TechType, EntitySlot.Type.Small, LargeWorldEntity.CellLevel.Medium, b, 1, 0.2F * eggSpawnRate);
 		}
 
+		public bool includes(TechType tt) {
+			return tt == TechType || tt == undiscoveredTechType;
+		}
 	}
 }

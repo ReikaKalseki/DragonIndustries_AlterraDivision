@@ -59,12 +59,16 @@ namespace ReikaKalseki.SeaToSea {
 				if (locale != null && !string.IsNullOrEmpty(locale.pda))
 					SNUtil.addPDAEntry(this, scanTime, locale.getField<string>("category"), locale.pda, locale.getField<string>("header"), null);
 
-				if (eggBase != TechType.None)
+				if (eggBase != TechType.None) {
+					SNUtil.log("Creating egg for " + this + " from " + eggBase.AsString());
+					if (eggBase.AsString().EndsWith("egg", StringComparison.InvariantCultureIgnoreCase))
+						throw new Exception("Egg base is invalid - choose the creature not the egg");
 					CustomEgg.createAndRegisterEgg(this, eggBase, eggScale, Description, bigEgg, e => {
 						e.eggProperties.growingPeriod = eggMaturationTime;
 						e.eggProperties.initialSize *= acuSizeScale;
 						e.eggProperties.maxSize *= acuSizeScale;
 					}, eggSpawnRate, eggSpawns.ToArray());
+				}
 
 				//GenUtil.registerSlotWorldgen(ClassID, PrefabFileName, TechType, EntitySlot.Type.Creature, LargeWorldEntity.CellLevel.Medium, BiomeType.SeaTreaderPath_OpenDeep_CreatureOnly, 1, 0.15F);
 				//GenUtil.registerSlotWorldgen(ClassID, PrefabFileName, TechType, EntitySlot.Type.Medium, LargeWorldEntity.CellLevel.Medium, BiomeType.GrandReef_TreaderPath, 1, 0.3F);
