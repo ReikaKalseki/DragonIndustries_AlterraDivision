@@ -1698,7 +1698,7 @@ namespace ReikaKalseki.DIAlterra {
 				gravTrapTechSet.AddRange(Gravsphere.allowedTechTypes);
 
 			Pickupable pp = go.GetComponent<Pickupable>();
-			bool def = (pp == null || !pp.attached) && gravTrapTechSet.Contains(CraftData.GetTechType(go));
+			bool def = (!pp || !pp.attached) && !go.GetComponent<WaterParkItem>() && gravTrapTechSet.Contains(CraftData.GetTechType(go));
 
 			GravTrapGrabAttempt k = new GravTrapGrabAttempt(s, go, def);
 			if (gravTrapAttemptEvent != null)

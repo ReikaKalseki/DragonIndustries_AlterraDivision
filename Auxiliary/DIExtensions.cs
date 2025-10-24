@@ -424,8 +424,8 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static E getRandomEntry<E>(this IEnumerable<E> c) {
-			//if (c is IList<E> li)
-			//	return li[UnityEngine.Random.Range(0, li.Count)];
+			if (c is IList<E> li)
+				return li.Count == 0 ? default(E) : li.GetRandom();
 			return c.ElementAt(UnityEngine.Random.Range(0, c.Count()));
 		}
 
