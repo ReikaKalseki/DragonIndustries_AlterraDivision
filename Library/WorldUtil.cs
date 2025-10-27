@@ -259,11 +259,11 @@ batch_id = (19, 17, 16)
 			return !string.IsNullOrEmpty(biome) && biome.ToLowerInvariant().Contains("wreck");
 		}
 
-		public static bool lineOfSight(GameObject o1, GameObject o2, Func<RaycastHit, bool> filter = null) {
+		public static bool lineOfSight(GameObject o1, GameObject o2, Predicate<RaycastHit> filter = null) {
 			return lineOfSight(o1, o2, o1.transform.position, o2.transform.position, filter);
 		}
 
-		public static bool lineOfSight(GameObject o1, GameObject o2, Vector3 pos1, Vector3 pos2, Func<RaycastHit, bool> filter = null) {/*
+		public static bool lineOfSight(GameObject o1, GameObject o2, Vector3 pos1, Vector3 pos2, Predicate<RaycastHit> filter = null) {/*
 			RaycastHit hit;
 			Physics.Linecast(o1.transform.position, o2.transform.position, out hit);
 			if (hit) {

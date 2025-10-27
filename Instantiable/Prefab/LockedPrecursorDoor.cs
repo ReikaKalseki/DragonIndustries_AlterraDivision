@@ -28,8 +28,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		internal static readonly Dictionary<string, LockedPrecursorDoor> prefabs = new Dictionary<string, LockedPrecursorDoor>();
 
-		public LockedPrecursorDoor(string id, PrecursorKeyTerminal.PrecursorKeyType key, PositionedPrefab barrier, PositionedPrefab terminal)
-			: base("LockedPrecursorDoor_" + id, "", "") {
+		public LockedPrecursorDoor(string id, PrecursorKeyTerminal.PrecursorKeyType key, PositionedPrefab barrier, PositionedPrefab terminal) : base("LockedPrecursorDoor_" + id, "", "") {
 			this.id = id;
 			this.key = key;
 

@@ -35,6 +35,7 @@ namespace ReikaKalseki.DIAlterra {
 		public static event Action<SeaMoth> onSeamothTickEvent;
 		public static event Action<Exosuit> onPrawnTickEvent;
 		public static event Action<SubRoot> onCyclopsTickEvent;
+		public static event Action<BaseRoot> onBaseTickEvent;
 		public static event Action<DamageToDeal> onDamageEvent;
 		public static event Action<ItemPickup> onItemPickedUpEvent;
 		public static event Action<CellManager, LargeWorldEntity> onEntityRegisterEvent;
@@ -1023,6 +1024,8 @@ namespace ReikaKalseki.DIAlterra {
 
 			if (sub.isCyclops && onCyclopsTickEvent != null)
 				onCyclopsTickEvent.Invoke(sub);
+			else if (sub.isBase && onBaseTickEvent != null)
+				onBaseTickEvent.Invoke(sub as BaseRoot);
 		}
 
 		public static float getWaterTemperature(float ret, WaterTemperatureSimulation sim, Vector3 pos) {

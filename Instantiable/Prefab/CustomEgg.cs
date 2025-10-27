@@ -55,7 +55,7 @@ namespace ReikaKalseki.DIAlterra {
 			creatureID = id;
 
 			WaterParkCreatureParameters wpp = WaterParkCreature.waterParkCreatureParameters[t];
-			eggProperties = new WaterParkCreatureParameters(wpp.initialSize, wpp.maxSize, wpp.outsideSize, wpp.growingPeriod, wpp.isPickupableOutside);
+			eggProperties = new WaterParkCreatureParameters(wpp.initialSize, wpp.maxSize, wpp.outsideSize, wpp.growingPeriod/1200F, wpp.isPickupableOutside);
 
 			OnFinishedPatching += this.onPatched;
 

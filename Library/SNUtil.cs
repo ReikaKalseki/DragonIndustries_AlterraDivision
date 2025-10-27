@@ -440,7 +440,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static WaterParkCreatureParameters getModifiedACUParams(TechType basis, float initSizeScale, float maxSizeScale, float outsideSizeScale, float growTimeScale) {
 			WaterParkCreatureParameters baseP = WaterParkCreature.GetParameters(basis);
-			return new WaterParkCreatureParameters(baseP.initialSize * initSizeScale, baseP.maxSize * maxSizeScale, baseP.outsideSize * outsideSizeScale, baseP.growingPeriod * growTimeScale, baseP.isPickupableOutside);
+			return new WaterParkCreatureParameters(baseP.initialSize * initSizeScale, baseP.maxSize * maxSizeScale, baseP.outsideSize * outsideSizeScale, baseP.growingPeriod * growTimeScale / 1200F, baseP.isPickupableOutside);
 		}
 
 		public static string getDescriptiveEncyPageCategoryName(PDAEncyclopedia.EntryData data) {
