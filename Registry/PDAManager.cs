@@ -26,7 +26,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static PDAPage createPage(XMLLocale.LocaleEntry text) {
-			return createPage(text.key, text.name, text.pda, text.getField<string>("category"));
+			return createPage(text.key, text.name, text.pda, text.getString("category"));
 		}
 
 		public static PDAPage createPage(string id, string name, string text, string cat) {

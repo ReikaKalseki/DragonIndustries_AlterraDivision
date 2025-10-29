@@ -118,7 +118,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		private static BasicText updateNotice = new BasicText(TextAnchor.MiddleCenter);
 
-		private static readonly HashSet<TechType> gravTrapTechSet = new HashSet<TechType>();
+		public static readonly HashSet<TechType> gravTrapTechSet = new HashSet<TechType>();
 
 		private static bool hasLoadedAWorld = false;
 		private static bool outdatedMods = false;
@@ -143,6 +143,8 @@ namespace ReikaKalseki.DIAlterra {
 
 			PrecursorTeleporter.TeleportEventStart += startTeleport;
 			PrecursorTeleporter.TeleportEventEnd += stopTeleport;
+
+			gravTrapTechSet.AddRange(Gravsphere.allowedTechTypes);
 		}
 
 		public class PlayerInput {
@@ -1697,11 +1699,8 @@ namespace ReikaKalseki.DIAlterra {
 			if (!s || !go)
 				return false;
 
-			if (gravTrapTechSet.Count == 0)
-				gravTrapTechSet.AddRange(Gravsphere.allowedTechTypes);
-
 			Pickupable pp = go.GetComponent<Pickupable>();
-			bool def = (!pp || !pp.attached) && !go.GetComponent<WaterParkItem>() && gravTrapTechSet.Contains(CraftData.GetTechType(go));
+			bool def = (!pp || !pp.attached) && !go.GetComponent<WaterParkItem>() && (gravTrapTechSet.Contains(CraftData.GetTechType(go)) || (bool)go.GetComponent<Creature>());
 
 			GravTrapGrabAttempt k = new GravTrapGrabAttempt(s, go, def);
 			if (gravTrapAttemptEvent != null)

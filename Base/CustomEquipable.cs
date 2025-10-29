@@ -26,7 +26,7 @@ namespace ReikaKalseki.DIAlterra {
 		protected CustomEquipable(XMLLocale.LocaleEntry e, string template) : this(e.key, e.name, e.desc, template) {
 			if (!string.IsNullOrEmpty(e.pda)) {
 				page = PDAManager.createPage("ency_" + ClassID, FriendlyName, e.pda, "Tech/Equipment");
-				string header = e.getField<string>("header");
+				string header = e.getString("header");
 				if (header != null)
 					page.setHeaderImage(TextureManager.getTexture(SNUtil.tryGetModDLL(), "Textures/PDA/" + header));
 				page.register();

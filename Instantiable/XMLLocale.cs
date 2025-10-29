@@ -118,6 +118,10 @@ namespace ReikaKalseki.DIAlterra {
 				return this.getField<T>(key, null);
 			}
 
+			public string getString(string key) {
+				return getField<string>(key);
+			}
+
 			public T getField<T>(string key, T fallback) {
 				if (element == null)
 					return fallback;

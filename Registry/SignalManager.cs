@@ -28,7 +28,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public static ModSignal createSignal(XMLLocale.LocaleEntry text) {
-			return createSignal(text.key, text.name, text.desc, text.pda, text.getField<string>("radio"));
+			return createSignal(text.key, text.name, text.desc, text.pda, text.getString("radio"));
 		}
 
 		public static ModSignal createSignal(string id, string name, string desc, string pda, string prompt) {

@@ -57,7 +57,7 @@ namespace ReikaKalseki.SeaToSea {
 				creatureIDs[ClassID] = this;
 
 				if (locale != null && !string.IsNullOrEmpty(locale.pda))
-					SNUtil.addPDAEntry(this, scanTime, locale.getField<string>("category"), locale.pda, locale.getField<string>("header"), null);
+					SNUtil.addPDAEntry(this, scanTime, locale.getString("category"), locale.pda, locale.getString("header"), null);
 
 				if (eggBase != TechType.None) {
 					SNUtil.log("Creating egg for " + this + " from " + eggBase.AsString());

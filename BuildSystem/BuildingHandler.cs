@@ -38,6 +38,8 @@ namespace ReikaKalseki.DIAlterra {
 		private List<string> text = new List<string>();
 		private BasicText controlHint = new BasicText(TextAnchor.MiddleCenter);
 
+		private static readonly List<PositionedPrefab> objectCache = new List<PositionedPrefab>();
+
 		private BuildingHandler() {
 			this.addText("LMB to select, Lalt+RMB to place selected on ground at look, LCtrl+RMB to duplicate them there");
 			this.addText("Lalt+Arrow keys to move L/R Fwd/Back; +/- for U/D; add Z to make relative to obj");
@@ -218,6 +220,40 @@ namespace ReikaKalseki.DIAlterra {
 				if (go.prefabName == id)
 					this.select(go);
 			}
+		}
+
+		public void clearCache() {
+			objectCache.Clear();
+		}
+
+		public void cache() {
+			int n = 0;
+			foreach (PlacedObject obj in new List<PlacedObject>(items.Values)) {
+				PositionedPrefab pfb = new PositionedPrefab(obj.prefabName, obj.position, obj.rotation, obj.scale);
+				if (objectCache.Contains(pfb))
+					continue;
+				objectCache.Add(pfb);
+				delete(obj);
+				n++;
+			}
+			SNUtil.writeToChat("Cached "+n+" objects");
+		}
+
+		public void loadCache() {
+			foreach (PositionedPrefab pfb in objectCache) {
+				PlacedObject b = PlacedObject.createNewObject(pfb.prefabName);
+				if (b != null) {
+					b.obj.transform.SetPositionAndRotation(pfb.position, pfb.rotation);
+					this.registerObject(b);
+				}
+			}
+			objectCache.Clear();
+		}
+
+		public void saveCache(string id) {
+			string file = dumpPrefabs(id, objectCache);
+			SNUtil.writeToChat("Exported " + objectCache.Count + " cached prefabs to " + file);
+			//objectCache.Clear();
 		}
 
 		public void saveSelection(string file) {

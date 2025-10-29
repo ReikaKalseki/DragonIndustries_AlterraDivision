@@ -184,6 +184,10 @@ namespace ReikaKalseki.DIAlterra {
 			BuildingHandler.instance.addCommand<string>("bdexs", BuildingHandler.instance.saveSelection);
 			BuildingHandler.instance.addCommand<string>("bdexa", BuildingHandler.instance.saveAll);
 			BuildingHandler.instance.addCommand<string>("bdld", BuildingHandler.instance.loadFile);
+			BuildingHandler.instance.addCommand("bdcc", BuildingHandler.instance.clearCache);
+			BuildingHandler.instance.addCommand("bdcache", BuildingHandler.instance.cache);
+			BuildingHandler.instance.addCommand("bdlc", BuildingHandler.instance.loadCache);
+			BuildingHandler.instance.addCommand<string>("bdexc", BuildingHandler.instance.saveCache);
 			BuildingHandler.instance.addCommand("bdinfo", BuildingHandler.instance.selectedInfo);
 			BuildingHandler.instance.addCommand("bdtex", BuildingHandler.instance.dumpTextures);
 			BuildingHandler.instance.addCommand("bdact", BuildingHandler.instance.activateObject);
@@ -213,9 +217,11 @@ namespace ReikaKalseki.DIAlterra {
 				l.range = 2500F;
 				l.color = Color.white;
 				l.gameObject.name = "FullbrightLight";
+				PlayerMovementSpeedModifier.add(5, 999999);
 			}
 			else {
 				Player.main.gameObject.removeChildObject("FullbrightLight");
+				Player.main.gameObject.removeComponent<PlayerMovementSpeedModifier>();
 			}
 			foreach (WaterscapeVolume waterscapeVolume in UnityEngine.Object.FindObjectsOfType<WaterscapeVolume>()) {
 				waterscapeVolume.enabled = !on;

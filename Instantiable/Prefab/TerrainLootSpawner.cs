@@ -16,17 +16,21 @@ using UnityEngine.Scripting;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace ReikaKalseki.SeaToSea {
+namespace ReikaKalseki.DIAlterra {
 
 	public class TerrainLootSpawner : Spawnable {
 
-		internal static readonly Dictionary<string, string> spawnIDs = new Dictionary<string, string>();
+		internal static readonly Dictionary<string, TerrainLootSpawn> spawnIDs = new Dictionary<string, TerrainLootSpawn>();
 
-		public readonly string spawnID;
+		public readonly TerrainLootSpawn spawnID;
 
 		//spawn with localScale vec of x=exclusion radius, y=target count, z=max range
-		public TerrainLootSpawner(string id, string spawn) : base(id, "", "") {
-			if (string.IsNullOrEmpty(spawn))
+		public TerrainLootSpawner(string id, string spawn) : this(id, new BasicTerrainLootSpawn(spawn)) {
+
+		}
+
+		public TerrainLootSpawner(string id, TerrainLootSpawn spawn) : base(id, "", "") {
+			if (spawn == null)
 				throw new Exception("Cannot register a loot spawner of null!");
 			spawnID = spawn;
 			OnFinishedPatching += () => { spawnIDs[ClassID] = spawnID; };
@@ -43,7 +47,7 @@ namespace ReikaKalseki.SeaToSea {
 
 		class TerrainLootSpawnerTag : MonoBehaviour {
 
-			internal string spawnID;
+			internal TerrainLootSpawn spawnID;
 
 			private int spawned;
 
@@ -61,10 +65,10 @@ namespace ReikaKalseki.SeaToSea {
 					RaycastHit hit = UWE.Utils.sharedHitBuffer[0];
 					if (hit.transform != null) {
 						foreach (PrefabIdentifier pi in WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(hit.point, transform.localScale.x)) {
-							if (pi.ClassId == spawnID)
+							if (spawnID.includesPrefab(pi))
 								return;
 						}
-						GameObject go = ObjectUtil.createWorldObject(spawnID);
+						GameObject go = ObjectUtil.createWorldObject(spawnID.getRandomSpawnID());
 						go.transform.rotation = MathUtil.unitVecToRotation(hit.normal);
 						go.transform.position = hit.point;
 						spawned++;
@@ -73,6 +77,53 @@ namespace ReikaKalseki.SeaToSea {
 				if (spawned >= transform.localScale.y)
 					gameObject.destroy();
 			}
+
+		}
+
+		public class BasicTerrainLootSpawn : TerrainLootSpawn {
+
+			public readonly string spawnID;
+
+			public BasicTerrainLootSpawn(string id) {
+				spawnID = id;
+			}
+
+			public string getRandomSpawnID() {
+				return spawnID;
+			}
+
+			public bool includesPrefab(PrefabIdentifier pi) {
+				return pi && pi.ClassId == spawnID;
+			}
+		}
+
+		public class WeightedTerrainLootSpawn : TerrainLootSpawn {
+
+			private readonly WeightedRandom<string> random = new WeightedRandom<string>();
+
+			public WeightedTerrainLootSpawn() {
+				
+			}
+
+			public WeightedTerrainLootSpawn addEntry(string id, double wt) {
+				random.addEntry(id, wt);
+				return this;
+			}
+
+			public string getRandomSpawnID() {
+				return random.getRandomEntry();
+			}
+
+			public bool includesPrefab(PrefabIdentifier pi) {
+				return pi && random.hasEntry(pi.ClassId);
+			}
+		}
+
+		public interface TerrainLootSpawn {
+
+			string getRandomSpawnID();
+
+			bool includesPrefab(PrefabIdentifier pi);
 
 		}
 

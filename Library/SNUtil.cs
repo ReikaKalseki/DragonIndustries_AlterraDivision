@@ -578,6 +578,5 @@ namespace ReikaKalseki.DIAlterra {
 				}
 			}
 		}
-
 	}
 }
