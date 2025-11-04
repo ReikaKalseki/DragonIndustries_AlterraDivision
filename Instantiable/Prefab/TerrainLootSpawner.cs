@@ -59,9 +59,9 @@ namespace ReikaKalseki.DIAlterra {
 						SNUtil.log("No spawn ID for prefab " + id + " @ " + transform.position);
 					return;
 				}
-				Vector3 vec = UnityEngine.Random.rotationUniform.eulerAngles.normalized;
+				Vector3 vec = UnityEngine.Random.insideUnitSphere.normalized;
 				Ray ray = new Ray(transform.position, vec);
-				if (UWE.Utils.RaycastIntoSharedBuffer(ray, transform.localScale.z, Voxeland.GetTerrainLayerMask()) > 0) {
+				if (UWE.Utils.RaycastIntoSharedBuffer(ray, transform.localScale.z, Voxeland.GetTerrainLayerMask(), QueryTriggerInteraction.Ignore) > 0) {
 					RaycastHit hit = UWE.Utils.sharedHitBuffer[0];
 					if (hit.transform != null) {
 						foreach (PrefabIdentifier pi in WorldUtil.getObjectsNearWithComponent<PrefabIdentifier>(hit.point, transform.localScale.x)) {

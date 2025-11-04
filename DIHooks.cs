@@ -2335,6 +2335,11 @@ namespace ReikaKalseki.DIAlterra {
 			//SNUtil.writeToChat("Testing "+gun.gameObject.GetFullHierarchyPath()+" grab of "+go.GetFullHierarchyPath());
 			if (go.FindAncestor<Constructable>() || go.FindAncestor<SubRoot>() || gun.gameObject.FindAncestor<Vehicle>() == go)
 				return -1;
+			if (go.isAnchorPod()) {
+				if (gun is RepulsionCannon rep)
+					go.SendMessage("OnRepulsionHit", SendMessageOptions.DontRequireReceiver);
+				return -1;
+			}
 			float val = orig;
 			if (propulsibilityEvent != null) {
 				PropulsibilityCheck e = new PropulsibilityCheck(go, val, gun, isMass);
