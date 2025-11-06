@@ -44,7 +44,7 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public void onPickup(TechType tt) {
-			string key = "FirstCollect_"+tt.AsString();
+			string key = getGoal(tt);
 			if (!StoryGoalManager.main.IsGoalComplete(key)) {
 				StoryGoal.Execute(key, Story.GoalType.Story);
 				if (events.ContainsKey(tt)) {
@@ -53,6 +53,10 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			}
+		}
+
+		public static string getGoal(TechType tt) {
+			return "FirstCollect_" + tt.AsString();
 		}
 	}
 }

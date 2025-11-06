@@ -20,6 +20,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static readonly Vector3 DUNES_METEOR = new Vector3(-1125, -380, 1130);
 		public static readonly Vector3 LAVA_DOME = new Vector3(-273, -1355, -152);
+		public static readonly Vector3 COVE_TREE = new Vector3(-923, -920, 439);
 		public static readonly Vector3 SUNBEAM_SITE = new Vector3(301, 15, 1086);
 		public static readonly Vector3 DEGASI_FLOATING_BASE = new Vector3(-763, 20, -1104);
 		public static readonly Vector3 DEGASI_JELLY_BASE = new Vector3(85, -260, -356);
@@ -347,6 +348,9 @@ batch_id = (19, 17, 16)
 			if (dist <= (lavaCastleRadius * lavaCastleRadius) + 900)
 				return "Lava Castle";
 			BiomeBase bb = BiomeBase.getBiome(pos);
+			if (pos.y < -650 && !bb.isCaveBiome()) {
+				bb = pos.y < -1000 ? (pos.y < -1400 ? VanillaBiomes.ALZ : VanillaBiomes.ILZ) : (pos.y < -870 && (pos-COVE_TREE).sqrMagnitude <= 40000 ? VanillaBiomes.COVE : VanillaBiomes.LOSTRIVER);
+			}
 			if (BiomeBase.isUnrecognized(bb))
 				return "Unknown Biome @ " + pos;
 			if (bb == VanillaBiomes.LOSTRIVER || bb == VanillaBiomes.CRASH) {
