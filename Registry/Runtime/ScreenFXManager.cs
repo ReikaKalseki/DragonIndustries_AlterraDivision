@@ -133,11 +133,14 @@ namespace ReikaKalseki.DIAlterra {
 			foreach (ShaderPair s in shaders.Values) {
 				//s.controller.enabled = !s.overriddenThisTick;//!activeOverrides.Contains(c.Key);
 				if (s.overriddenThisTick) {
-					s.controller.enabled = false;
-					s.shader.enabled = true;
+					if (s.controller)
+						s.controller.enabled = false;
+					if (s.shader)
+						s.shader.enabled = true;
 				}
 				else {
-					s.controller.enabled = true;
+					if (s.controller)
+						s.controller.enabled = true;
 				}
 				if (!s.overriddenThisTick && s.onStopOverride != null) {
 					s.onStopOverride.Invoke();

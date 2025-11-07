@@ -38,24 +38,37 @@ namespace ReikaKalseki.DIAlterra {
 		};
 
 		private static readonly HashSet<string> fossilPrefabs = new HashSet<string>() {
-			   "29bcd3d7-48bf-4fd7-955a-23a9523aec47",
-			   "50031120-ab7a-4f10-b497-3a97f63b4de1",
-			   "b250309e-5ad0-43ca-9297-f79e22915db6",
-			   "0010bf17-15be-4350-955b-b4ac023815f3",
-			   "0552b196-d09a-45dd-b064-878966476179",
-			   "0b6ea118-1c0b-4039-afdb-2d9b26401ad2",
-			   "e10ff9a1-5f1e-4c4d-bf5f-170dba9e321b",
-			   "358012ab-6be8-412d-85ee-263a733c88ba",
-			   "71bf71c2-ecfb-47c0-aafe-040030d5954f",
-			   "8fe779a5-e907-4e9e-b748-1eee25589b34",
-			   "18042762-9460-44ca-a2d7-c4932d7d8193",
-			   "33c31a89-9d3b-4717-ad26-4cc8106a1f24",
-			   "4404f4f2-3d65-4338-adb3-a1a2e1f8fac5",
-			   "6e37459e-d880-4da8-8dad-0cc10ff07f00",
-			   "ee1807bf-6744-4fee-a66f-c71edc9e7fb6",
-			   "",
-			   "",
-			   "",
+			   "29bcd3d7-48bf-4fd7-955a-23a9523aec47", //reaper skull
+			   "50031120-ab7a-4f10-b497-3a97f63b4de1", //reaper skull, LR
+			   "18042762-9460-44ca-a2d7-c4932d7d8193", //rib
+			   "33c31a89-9d3b-4717-ad26-4cc8106a1f24", //rib
+			   "4404f4f2-3d65-4338-adb3-a1a2e1f8fac5", //rib
+			   "6e37459e-d880-4da8-8dad-0cc10ff07f00", //rib
+			   "ee1807bf-6744-4fee-a66f-c71edc9e7fb6", //rib
+
+				"b250309e-5ad0-43ca-9297-f79e22915db6", //garg, both (main is just 3x scale)
+				"0552b196-d09a-45dd-b064-878966476179", //sea dragon
+				"0b6ea118-1c0b-4039-afdb-2d9b26401ad2", //generic 01 (ghost canyon, crossing)
+				"e10ff9a1-5f1e-4c4d-bf5f-170dba9e321b", //generic 02 (ghost canyon, crossing)
+				"358012ab-6be8-412d-85ee-263a733c88ba", //generic 03 (ghost canyon, crossing)
+				"8fe779a5-e907-4e9e-b748-1eee25589b34", //reaper
+				"bfe993b9-8d6d-441c-922e-7dc074d81d3f", //reaper 2
+				"71bf71c2-ecfb-47c0-aafe-040030d5954f", //drf specimen
+				"0010bf17-15be-4350-955b-b4ac023815f3", //armored skull (ghost canyon)
+		};
+
+		public static readonly string PRISON_VENT = "ec6fa336-2f55-468e-9bfe-626e655e146d";
+
+		private static readonly HashSet<string> ventPrefabs = new HashSet<string>() {
+			"06856e8b-f612-495d-bc91-e9f629c0f689", //underislands
+			"15378df5-5fce-4346-8811-267dd13d54fc", //sparse reef
+			"15f55c15-2111-4ea8-bae0-20532029fe79", //dunes
+			"57d96ba6-729c-4a33-ba3b-777b3c322ee8", //mountains
+			"649ff503-126f-47b6-a446-6ac14f3bb533", //mushroom
+			"e4897657-74bb-43fe-9b24-78ba26132055", //grand reef
+			"a96ebe2c-3520-4181-9799-8d98649c3bbe", //generic vent, which is what all actually use
+
+			PRISON_VENT,
 		};
 
 		public static bool isAnchorPod(this GameObject go) {
@@ -72,6 +85,18 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static bool isFossilPrefab(this GameObject go) {
 			return isObjectInSet(go, fossilPrefabs);
+		}
+
+		public static bool isVent(this GameObject go) {
+			return isObjectInSet(go, ventPrefabs);
+		}
+
+		public static IEnumerable<string> getFossils() {
+			return fossilPrefabs.ToList().AsReadOnly();
+		}
+
+		public static IEnumerable<string> getVents() {
+			return ventPrefabs.ToList().AsReadOnly();
 		}
 
 		public static bool isObjectInSet(GameObject go, HashSet<string> prefabs) {

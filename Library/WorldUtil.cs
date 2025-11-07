@@ -26,6 +26,13 @@ namespace ReikaKalseki.DIAlterra {
 		public static readonly Vector3 DEGASI_JELLY_BASE = new Vector3(85, -260, -356);
 		public static readonly Vector3 DEGASI_DGR_BASE = new Vector3(-643, -505, -944.5F);
 
+		public static readonly Vector3 SPARSE_VENT = new Vector3(-721.78F, -310.05F, -721.86F);
+		public static readonly Vector3 MOUNTAIN_VENT = new Vector3(750.04F, -289.33F, 1018.49F);
+		public static readonly Vector3 DUNES_VENT = new Vector3(-1158.62F, -253.64F, -140.30F);
+		public static readonly Vector3 MUSHROOM_VENT = new Vector3(651.31F, -176.35F, 478.29F);
+		public static readonly Vector3 GRANDREEF_VENT = new Vector3(-943.27F, -343.35F, -1220.01F);
+		public static readonly Vector3 UNDERISLAND_VENT = new Vector3(-465.46F, -80.58F, 873.23F);
+
 		public readonly static Vector3 lavaCastleCenter = new Vector3(-49, -1242, 118);
 		public readonly static float lavaCastleInnerRadius = 65;//75;
 		public readonly static float lavaCastleRadius = Vector3.Distance(new Vector3(-116, -1194, 126), lavaCastleCenter)+32;

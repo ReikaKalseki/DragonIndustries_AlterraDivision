@@ -482,6 +482,33 @@ namespace ReikaKalseki.DIAlterra {
 			return obj.ToString();
 		}
 
+		public static void copyFrom(this UnityEngine.UI.Button b, UnityEngine.UI.Button other) {
+			b.spriteState = new UnityEngine.UI.SpriteState();
+			b.spriteState.copyStruct(other.spriteState);
+			b.transition = other.transition;
+		}
+
+		public static T copyStruct<T>(this T comp, T from) where T : struct {
+			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+
+			foreach (PropertyInfo pinfo in typeof(T).GetProperties(flags)) {
+				if (pinfo.CanWrite) {
+					try {
+						pinfo.SetValue(comp, pinfo.GetValue(from, null), null);
+					}
+					catch {
+
+					}
+				}
+			}
+
+			foreach (FieldInfo finfo in typeof(T).GetFields(flags)) {
+				finfo.SetValue(comp, finfo.GetValue(from));
+			}
+
+			return comp;
+		}
+
 		public static T copyObject<T>(this T comp, T from) where T : class {
 			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
 
