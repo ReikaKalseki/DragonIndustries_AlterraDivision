@@ -482,9 +482,17 @@ namespace ReikaKalseki.DIAlterra {
 			return obj.ToString();
 		}
 
-		public static void copyFrom(this UnityEngine.UI.Button b, UnityEngine.UI.Button other) {
-			b.spriteState = new UnityEngine.UI.SpriteState();
-			b.spriteState.copyStruct(other.spriteState);
+		public static void copySprites(this UnityEngine.UI.Button b, UnityEngine.UI.Button other) {
+			b.image = other.image;
+			//UnityEngine.UI.Toggle tg1 = b.GetComponent<UnityEngine.UI.Toggle>();
+			//UnityEngine.UI.Toggle tg2 = other.GetComponent<UnityEngine.UI.Toggle>();
+			UnityEngine.UI.SpriteState sprs = other.spriteState;
+			Sprite hover = sprs.highlightedSprite;
+			UnityEngine.UI.Image img = other.GetComponent<UnityEngine.UI.Image>();
+			UnityEngine.UI.SpriteState sprs2 = b.spriteState;
+			sprs2.highlightedSprite = hover;
+			sprs2.selectedSprite = hover;
+			b.spriteState = sprs2;
 			b.transition = other.transition;
 		}
 
