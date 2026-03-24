@@ -41,6 +41,8 @@ namespace ReikaKalseki.DIAlterra {
 		private static readonly Vector3 auroraPoint2 = new Vector3(1295, 0, 110-50);
 		private static readonly float auroraPointRadius = 275;
 
+		private static readonly Bounds prisonAquariumExpanded;
+
 		//public static HashSet<PositionedPrefab> registeredGeysers = new HashSet<PositionedPrefab>();
 
 		private static readonly HashSet<Vector3> geysers = new HashSet<Vector3>();
@@ -96,6 +98,9 @@ namespace ReikaKalseki.DIAlterra {
 					}
 				}
 			}
+
+			prisonAquariumExpanded = new Bounds(Creature.prisonAquriumBounds.center, Creature.prisonAquriumBounds.extents * 2);
+			prisonAquariumExpanded.Expand(new Vector3(2, 10, 2));
 		}
 		/*
 		private static void mapBiomeName(string name, params string[] keys) {
@@ -500,6 +505,14 @@ batch_id = (19, 17, 16)
 			ss.soundActivate.Stop(true);
 			SNUtil.log("Created stasis sphere of radius " + ss.radius + ", duration " + ss.time + ", energy " + ss.fieldEnergy);
 			return ss;
+		}
+
+		public static bool isInPCFTank(GameObject go) {
+			return prisonAquariumExpanded.Contains(go.transform.position);
+		}
+
+		public static bool isInRocket() {
+			return Player.main.precursorOutOfWater && Player.main.transform.position.y > 30;
 		}
 
 		class TransientParticleTag : MonoBehaviour {
