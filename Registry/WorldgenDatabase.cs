@@ -166,6 +166,19 @@ namespace ReikaKalseki.DIAlterra {
 			return ret;
 		}
 
+		public List<W> getPositions<W>() where W : WorldGenerator {
+			List<W> ret = new List<W>();
+			foreach (WorldGenerator pfb in generators) {
+				if (pfb is W w) {
+					ret.Add(w);
+				}
+			}
+			if (ret.Count == 0) {
+				SNUtil.log("Found no worldgenerators of type '" + typeof(W).Name + "' during a search! All generators:\n" + generators.toDebugString("\n"));
+			}
+			return ret;
+		}
+
 		public PositionedPrefab getByID(string id) {
 			foreach (PositionedPrefab pfb in objects) {
 				if (pfb.getXMLID() == id) {

@@ -49,6 +49,7 @@ namespace ReikaKalseki.DIAlterra {
 				throw new Exception("Uncrafting item " + basis + "/" + TechType + " has no source mod!");
 			SNUtil.log("Constructed uncrafting of " + basis + ": " + TechType + " @ " + string.Join("/", craftingMenuTree), ownerMod);
 			DuplicateRecipeDelegate.addDelegate(this);
+			TechnologyUnlockSystem.instance.addDirectUnlock(basis, TechType);
 		}
 
 		public override TechGroup GroupForPDA {

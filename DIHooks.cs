@@ -2509,6 +2509,8 @@ namespace ReikaKalseki.DIAlterra {
 				return false;
 			if (target.GetComponent<BlueprintHandTarget>())
 				return false;
+			if (target.GetComponent<ImmuneToStasis>() != null)
+				return false;
 			if (s.targets.Contains(target))
 				return true;
 			StasisEffectCheck ch = new StasisEffectCheck(s, target);
@@ -2542,6 +2544,10 @@ namespace ReikaKalseki.DIAlterra {
 				FMODUWE.PlayOneShot(s.soundEnter, s.tr.position, 1f);
 			}
 			return !target.isKinematic;
+		}
+
+		public interface ImmuneToStasis {
+
 		}
 
 		public interface StasisReactant {

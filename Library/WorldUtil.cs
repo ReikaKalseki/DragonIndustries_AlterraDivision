@@ -187,6 +187,26 @@ batch_id = (19, 17, 16)
 			return getObjectsNear(pos, r, go => UWE.Utils.GetComponentInHierarchy<C>(go));
 		}
 
+		public static HashSet<PrefabIdentifier> getObjectsNearOfClassID(Vector3 pos, float r, string classID) {
+			return getObjectsNear(pos, r, go => {
+				PrefabIdentifier pi = UWE.Utils.GetComponentInHierarchy<PrefabIdentifier>(go);
+				return SNUtil.match(pi, classID) ? pi : null;
+			});
+		}
+
+		public static HashSet<PrefabIdentifier> getObjectsNearOfClassIDs(Vector3 pos, float r, params string[] classID) {
+			return getObjectsNear(pos, r, go => {
+				PrefabIdentifier pi = UWE.Utils.GetComponentInHierarchy<PrefabIdentifier>(go);
+				if (!pi)
+					return null;
+				foreach (string s in classID) {
+					if (SNUtil.match(pi.ClassId, s))
+						return pi;
+				}
+				return null;
+			});
+		}
+
 		/// <remarks>Will not find things without colliders!</remarks>
 		public static HashSet<GameObject> getObjectsNearMatching(Vector3 pos, float r, Predicate<GameObject> check) {
 			return getObjectsNear(pos, r, go => check(go) ? go : null);

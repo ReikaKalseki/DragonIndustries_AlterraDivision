@@ -17,10 +17,17 @@ namespace ReikaKalseki.DIAlterra {
 
 	public class DynamicBubbler : MonoBehaviour {
 
+		public enum Shape {
+			BOX,
+			SPHERE,
+			UPPERHEMI,
+		}
+
 		private int bubbleCount;
 		private readonly List<ParticleSystem> bubbles = new List<ParticleSystem>();
 
 		public Vector3 scatter = Vector3.one*0.05F;
+		public Shape shape = Shape.BOX;
 
 		public float currentIntensity = 0;
 
@@ -38,7 +45,12 @@ namespace ReikaKalseki.DIAlterra {
 			while (bubbles.Count < bubbleCount) {
 				GameObject go = ObjectUtil.createWorldObject("0dbd3431-62cc-4dd2-82d5-7d60c71a9edf");
 				go.transform.SetParent(transform);
-				go.transform.localPosition = MathUtil.getRandomVectorAround(Vector3.zero, scatter);
+				if (shape == Shape.SPHERE || shape == Shape.UPPERHEMI)
+					go.transform.localPosition = Vector3.Scale(UnityEngine.Random.insideUnitSphere, scatter);
+				else
+					go.transform.localPosition = MathUtil.getRandomVectorAround(Vector3.zero, scatter);
+				if (shape == Shape.UPPERHEMI)
+					go.transform.localPosition = go.transform.localPosition.setY(Mathf.Abs(go.transform.localPosition.y));
 				go.transform.rotation = Quaternion.Euler(270, 0, 0); //not local - force to always be up
 				ParticleSystem ps = go.GetComponent<ParticleSystem>();
 				ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);

@@ -366,8 +366,9 @@ namespace ReikaKalseki.DIAlterra {
 				counts.add(tt);
 			}
 			foreach (TechType tt in counts.getItems()) {
-				rec.Ingredients.Add(new Ingredient(tt, counts.getCount(tt)));
+				ret.Ingredients.Add(new Ingredient(tt, counts.getCount(tt)));
 			}
+			SNUtil.log("Created uncrafting of "+item.AsString()+" into "+toString(ret));
 			return ret;
 		}
 		/*
@@ -378,7 +379,7 @@ namespace ReikaKalseki.DIAlterra {
 		}*/
 
 		public static string toString(TechData rec) {
-			return getTotalIngredientSlotCount(rec) + ":" + string.Join("+", rec.Ingredients.Select<Ingredient, string>(r => "[" + r.techType.AsString() + " x" + r.amount + "]").ToArray()) + " = x" + rec.craftAmount + " & " + string.Join("+", rec.LinkedItems.Select<TechType, string>(tt => tt.AsString()).ToArray());
+			return getTotalIngredientSlotCount(rec) + ":" + string.Join("+", rec.Ingredients.Select(r => "[" + r.techType.AsString() + " x" + r.amount + "]").ToArray()) + " = x" + rec.craftAmount + " & " + string.Join("+", rec.LinkedItems.Select(tt => tt.AsString()).ToArray());
 		}
 
 		public static int getTotalIngredientSlotCount(TechData td) {

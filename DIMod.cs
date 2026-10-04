@@ -212,7 +212,7 @@ namespace ReikaKalseki.DIAlterra {
 
 		public static void setFullbright(bool on) {
 			if (on) {
-				Light l = Player.main.gameObject.addLight();
+				Light l = Camera.main.gameObject.addLight();
 				l.intensity = 0.5F;
 				l.range = 2500F;
 				l.color = Color.white;
@@ -220,7 +220,7 @@ namespace ReikaKalseki.DIAlterra {
 				PlayerMovementSpeedModifier.add(5, 999999);
 			}
 			else {
-				Player.main.gameObject.removeChildObject("FullbrightLight");
+				Camera.main.gameObject.removeChildObject("FullbrightLight");
 				Player.main.gameObject.removeComponent<PlayerMovementSpeedModifier>();
 			}
 			foreach (WaterscapeVolume waterscapeVolume in UnityEngine.Object.FindObjectsOfType<WaterscapeVolume>()) {

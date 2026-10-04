@@ -270,6 +270,10 @@ namespace ReikaKalseki.DIAlterra {
 			return li;
 		}
 
+		public bool includes(PrefabIdentifier pfb) {
+			return pfb && includes(pfb.ClassId);
+		}
+
 		public bool includes(string pfb) {
 			return getFromID(pfb) == this;//prefabsLit.Contains(pfb) || prefabs.Contains(pfb);
 		}

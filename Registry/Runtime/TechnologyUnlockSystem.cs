@@ -52,7 +52,7 @@ namespace ReikaKalseki.DIAlterra {
 			List<TechType> li = directUnlocks[tt];
 			if (li == null || li.Count == 0)
 				return;
-			SNUtil.log("Triggering direct unlock via " + tt + " of " + li.Count + ":[" + string.Join(", ", li.Select<TechType, string>(tc => "" + tc)) + "]", SNUtil.diDLL);
+			SNUtil.log("Triggering direct unlock via " + tt + " of " + li.Count + ":[" + string.Join(", ", li.Select(tc => tc.AsString())) + "]", SNUtil.diDLL);
 
 			if (DIHooks.getWorldAge() > 0.25F) {
 				List<TechType> li2 = new List<TechType>();

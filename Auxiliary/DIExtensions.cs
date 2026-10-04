@@ -560,6 +560,9 @@ namespace ReikaKalseki.DIAlterra {
 			v.accelerationModifiers = v.GetComponentsInChildren<VehicleAccelerationModifier>();
 			return ret;
 		}
+		public static bool isFreeSwimming(this Player ep) {
+			return !ep.IsInsideWalkable() && ep.IsUnderwater() && ep.IsSwimming() && !ep.currentWaterPark;
+		}
 
 		private static readonly Type craftDataPatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.CraftDataPatcher");
 		private static readonly Type knownTechPatcher = InstructionHandlers.getTypeBySimpleName("SMLHelper.V2.Patchers.KnownTechPatcher");
