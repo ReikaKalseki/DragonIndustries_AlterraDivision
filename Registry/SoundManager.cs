@@ -146,7 +146,7 @@ namespace ReikaKalseki.DIAlterra {
 			return ass;
 		}
 
-		public struct SoundData {
+		public class SoundData {
 
 			public readonly string id;
 			public readonly FMODAsset asset;

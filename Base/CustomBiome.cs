@@ -16,17 +16,13 @@ using UnityEngine.Serialization;
 namespace ReikaKalseki.DIAlterra {
 	public abstract class CustomBiome : BiomeBase {
 
-		private static float nextMusicChoiceTime = -1;
-		private static VanillaMusic currentMusic = null;
-		private static CustomBiome currentBiomeForMusic = null;
-
-		public readonly string biomeName;
 		private readonly System.Reflection.Assembly ownerMod;
 
 		public Story.BiomeGoal discoveryGoal { get; private set; }
 
-		protected CustomBiome(string name, float deco) : base(name, deco, name) {
-			biomeName = name;
+		public SoundManager.SoundData customMusic;
+
+		protected CustomBiome(string id, string name, float deco) : base(name, deco, id) {
 			ownerMod = SNUtil.tryGetModDLL();
 		}
 
@@ -35,34 +31,52 @@ namespace ReikaKalseki.DIAlterra {
 		public abstract void register();
 
 		public void onLoad() {
-
+			if (customMusic != null)
+				registerMusic();
 		}
 
 		public void createDiscoveryStoryGoal(float minStayTime, XMLLocale.LocaleEntry e) {
 			if (e.pda == "#NULL")
 				SNUtil.log("Error - XML entry '" + e.key + "' is missing a sound field: " + e.dump());
-			this.createDiscoveryStoryGoal(minStayTime, e.desc, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "BiomeGoal_" + biomeName, e.pda).asset);
+			this.createDiscoveryStoryGoal(minStayTime, e.desc, SoundManager.registerPDASound(SNUtil.tryGetModDLL(), "BiomeGoal_" + mainID, e.pda).asset);
 		}
 
 		public void createDiscoveryStoryGoal(float minStayTime, string text, FMODAsset sound) {
 			discoveryGoal = new Story.BiomeGoal();
-			discoveryGoal.key = "Goal_Biome" + biomeName;
+			discoveryGoal.key = "Goal_Biome" + mainID;
 			discoveryGoal.goalType = Story.GoalType.PDA;
 			discoveryGoal.delay = 0;
-			discoveryGoal.biome = biomeName;
+			discoveryGoal.biome = mainID;
 			discoveryGoal.minStayDuration = minStayTime;
 			SNUtil.addVOLine(discoveryGoal, text, sound);
 			StoryHandler.instance.registerTickedGoal(discoveryGoal);
 			SNUtil.log("Created BiomeGoal for " + this);
 		}
 
-		public virtual float getNextMusicSilencePadding() {
-			return 0;
+		private void registerMusic() {
+			try {
+				GameObject go = registerBiomeMusic(mainID, customMusic.asset);
+				if (!go)
+					throw new Exception("Object not created!");
+				SNUtil.log("Registered custom music " + go.name + " for " + this, ownerMod);
+			}
+			catch (Exception e) {
+				SNUtil.log("ERROR: Failed to register custom music for " + this+": "+e, ownerMod);
+			}
+		}
+
+		public static GameObject registerBiomeMusic(string name, FMODAsset sound) {
+			GameObject orig = VanillaMusic.COVE.getObject();
+			GameObject go = orig.clone();
+			go.name = name + "Ambience";
+			go.GetComponent<FMOD_CustomLoopingEmitter>().asset = sound;
+			go.GetComponent<FMODGameParams>().onlyInBiome = name;
+			go.transform.SetParent(orig.transform.parent);
+			go.transform.localPosition = Vector3.zero;
+			return go;
 		}
 
 		public abstract mset.Sky getSky();
-
-		public abstract VanillaMusic[] getMusicOptions();
 
 		public virtual float getMurkiness(float orig) {
 			return orig;
@@ -94,53 +108,6 @@ namespace ReikaKalseki.DIAlterra {
 
 		public virtual Vector4 getEmissiveVector(Vector4 orig) {
 			return orig;
-		}
-
-		public static void tickMusic(DayNightCycle cyc) {
-			if (cyc.timePassedAsFloat >= nextMusicChoiceTime) {
-				Player ep = Player.main;
-				if (ep) {
-					Vector3 pos = ep.transform.position;
-					CustomBiome b = getBiome(pos) as CustomBiome;
-					bool changed = b != currentBiomeForMusic;
-					currentBiomeForMusic = b;
-					if (changed) {
-						if (currentMusic != null)
-							currentMusic.stop();
-						nextMusicChoiceTime = cyc.timePassedAsFloat + 1;
-						return;
-					}
-					if (b != null) {
-						VanillaMusic[] mus = b.getMusicOptions();
-						//SNUtil.writeToChat(b.biomeName+" > "+(mus != null ? string.Join(",", (object[])mus) : "null"));
-						if (mus != null) {
-							foreach (VanillaMusic vm in VanillaMusic.getAll()) {
-								vm.stop();
-							}
-							if (mus.Length > 0) {/*
-								foreach (VanillaMusic vm in VanillaMusic.getAll()) {
-									vm.disable();
-								}
-								foreach (VanillaMusic vm in mus) {
-									vm.enable();
-									vm.setToBiome(biome);
-								}*/
-								VanillaMusic track = mus[UnityEngine.Random.Range(0, mus.Length)];
-								track.play();
-								nextMusicChoiceTime = cyc.timePassedAsFloat + track.getLength() + b.getNextMusicSilencePadding();
-								currentMusic = track;
-								//SNUtil.writeToChat("Selected play of track "+track+" @ "+cyc.timePassedAsFloat+" > "+nextMusicChoiceTime);
-							}
-						}
-					}
-					else {/*
-						foreach (VanillaMusic vm in VanillaMusic.getAll()) {
-							vm.reset();
-						}*/
-						nextMusicChoiceTime = cyc.timePassedAsFloat + 1;
-					}
-				}
-			}
 		}
 	}
 }

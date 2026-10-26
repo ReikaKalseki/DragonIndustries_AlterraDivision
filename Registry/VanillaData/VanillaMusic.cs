@@ -61,7 +61,7 @@ namespace ReikaKalseki.DIAlterra {
 			return objectName;
 		}
 
-		private GameObject getObject() {
+		public GameObject getObject() {
 			return Player.main.gameObject.getChildObject("SpawnPlayerSounds/PlayerSounds(Clone)/waterAmbience/music/" + objectName);
 		}
 
@@ -75,8 +75,8 @@ namespace ReikaKalseki.DIAlterra {
 		public void play() {
 			this.enable();
 			;//getObject().GetComponent<FMOD_CustomLoopingEmitter>().Play();
-			 //SoundManager.playSound(getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset.path);
-			FMODUWE.PlayOneShot(this.getObject().GetComponent<FMOD_CustomLoopingEmitter>().asset, Player.main.transform.position, 1);
+			 //SoundManager.playSound(getObject().GetComponent<FMOD_CustomEmitter>().asset.path);
+			FMODUWE.PlayOneShot(this.getObject().GetComponent<FMOD_CustomEmitter>().asset, Player.main.transform.position, 1);
 		}
 
 		public void enable() {
@@ -84,11 +84,12 @@ namespace ReikaKalseki.DIAlterra {
 		}
 
 		public void stop() {
-			//getObject().GetComponent<FMOD_CustomLoopingEmitter>().Stop();
+			getObject().GetComponent<FMOD_CustomEmitter>().Stop();
+			//disable();
 		}
 
 		public float getLength() {
-			return length;//getObject().GetComponent<FMOD_CustomLoopingEmitter>().length;
+			return length;//getObject().GetComponent<FMOD_CustomEmitter>().length;
 		}
 
 		public void disable() {

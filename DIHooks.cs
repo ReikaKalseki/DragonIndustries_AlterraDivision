@@ -259,6 +259,8 @@ namespace ReikaKalseki.DIAlterra {
 				biome = originalValue;
 				position = pos;
 				disallowFurtherChanges = false;
+				if (biome == null || biome == "")
+					biome = VanillaBiomes.VOID.mainID;
 			}
 
 			public void lockValue() {
@@ -814,8 +816,6 @@ namespace ReikaKalseki.DIAlterra {
 					BuildingHandler.instance.manipulateSelected();
 				}
 			}
-
-			CustomBiome.tickMusic(cyc);
 
 			if (getWorldAge() > 0.25F) {
 				SaveSystem.populateLoad();
