@@ -18,6 +18,7 @@ using SMLHelper.V2.Utility;
 using UnityEngine;  //Needed for most Unity Enginer manipulations: Vectors, GameObjects, Audio, etc.
 
 namespace ReikaKalseki.DIAlterra {
+
 	[QModCore]
 	public class DIMod {
 		public const string MOD_KEY = "ReikaKalseki.DIAlterra";
